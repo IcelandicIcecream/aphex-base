@@ -29,12 +29,12 @@
 		"test:date": "tsx scripts/test-date-localapi.ts"
 	},
 	"dependencies": {
-		"@aphexcms/cms-core": "^5.1.0",
-		"@aphexcms/nodemailer-adapter": "^8.0.0",
-		"@aphexcms/postgresql-adapter": "^7.0.0",
-		"@aphexcms/resend-adapter": "^7.0.0",
-		"@aphexcms/storage-s3": "^7.0.0",
-		"@aphexcms/ui": "^0.4.0",
+		"@aphexcms/cms-core": "^6.0.0",
+		"@aphexcms/nodemailer-adapter": "^9.0.0",
+		"@aphexcms/postgresql-adapter": "^8.0.0",
+		"@aphexcms/resend-adapter": "^8.0.0",
+		"@aphexcms/storage-s3": "^8.0.0",
+		"@aphexcms/ui": "^0.5.0",
 		"@better-auth/api-key": "^1.5.3",
 		"@better-auth/drizzle-adapter": "^1.5.3",
 		"@envelop/graphql-jit": "^11.0.0",
