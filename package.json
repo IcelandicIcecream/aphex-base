@@ -1,6 +1,6 @@
 {
 	"name": "@aphexcms/base",
-	"version": "0.0.4",
+	"version": "0.0.5",
 	"private": true,
 	"type": "module",
 	"scripts": {
@@ -29,11 +29,11 @@
 		"test:date": "tsx scripts/test-date-localapi.ts"
 	},
 	"dependencies": {
-		"@aphexcms/cms-core": "^5.0.5",
-		"@aphexcms/nodemailer-adapter": "^7.0.5",
-		"@aphexcms/postgresql-adapter": "^6.0.5",
-		"@aphexcms/resend-adapter": "^6.0.5",
-		"@aphexcms/storage-s3": "^6.0.5",
+		"@aphexcms/cms-core": "^5.1.0",
+		"@aphexcms/nodemailer-adapter": "^8.0.0",
+		"@aphexcms/postgresql-adapter": "^7.0.0",
+		"@aphexcms/resend-adapter": "^7.0.0",
+		"@aphexcms/storage-s3": "^7.0.0",
 		"@aphexcms/ui": "^0.4.0",
 		"@better-auth/api-key": "^1.5.3",
 		"@better-auth/drizzle-adapter": "^1.5.3",
