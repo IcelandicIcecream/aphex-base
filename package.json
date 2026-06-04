@@ -1,9 +1,9 @@
 {
 	"name": "@aphexcms/base",
 	"version": "0.0.8",
+	"packageManager": "pnpm@10.18.3",
 	"private": true,
 	"type": "module",
-	"packageManager": "pnpm@10.18.3",
 	"scripts": {
 		"dev": "vite dev --force --host",
 		"build": "vite build",
@@ -30,16 +30,17 @@
 		"test:date": "tsx scripts/test-date-localapi.ts"
 	},
 	"dependencies": {
-		"@aphexcms/cms-core": "^9.0.0",
-		"@aphexcms/nodemailer-adapter": "^13.0.0",
-		"@aphexcms/postgresql-adapter": "^12.0.0",
-		"@aphexcms/resend-adapter": "^12.0.0",
-		"@aphexcms/storage-s3": "^12.0.0",
+		"@aphexcms/cms-core": "^9.1.0",
+		"@aphexcms/nodemailer-adapter": "^14.0.0",
+		"@aphexcms/postgresql-adapter": "^13.0.0",
+		"@aphexcms/resend-adapter": "^13.0.0",
+		"@aphexcms/storage-s3": "^13.0.0",
 		"@aphexcms/ui": "^0.8.0",
 		"@better-auth/api-key": "^1.5.3",
 		"@better-auth/drizzle-adapter": "^1.5.3",
 		"@envelop/graphql-jit": "^11.0.0",
 		"@graphql-yoga/render-graphiql": "^5.16.2",
+		"@portabletext/svelte": "^3.0.1",
 		"better-auth": "^1.5.3",
 		"better-svelte-email": "^1.4.0",
 		"drizzle-orm": "^0.45.2",
