@@ -27,8 +27,8 @@ function buildCacheStorage(cache: CacheAdapter) {
 }
 
 // Support both AUTH_* (preferred) and BETTER_AUTH_* (backwards-compatible).
-// During SvelteKit's build/analyse pass, fall back to placeholders so
-// betterAuth() doesn't throw — the analyse worker imports server modules
+// During SvelteKit's build/analyze pass, fall back to placeholders so
+// betterAuth() doesn't throw — the analyze worker imports server modules
 // but never serves requests. Real values are required at runtime.
 const authSecret =
 	env.AUTH_SECRET || env.BETTER_AUTH_SECRET || (building ? 'build-placeholder-secret' : undefined);
@@ -42,6 +42,13 @@ const trustedOrigins = (env.AUTH_TRUSTED_ORIGINS || authUrl || '')
 	.split(',')
 	.map((o) => o.trim())
 	.filter(Boolean);
+
+// Email verification is enforced by default. For local dev without an SMTP /
+// Mailpit server, opt out with AUTH_REQUIRE_EMAIL_VERIFICATION=false in .env so
+// the first signup can log in without a deliverable verification email. Keep it
+// enabled in production — without it, anyone can sign up with an address they
+// don't own (and the first user becomes super admin).
+const requireEmailVerification = env.AUTH_REQUIRE_EMAIL_VERIFICATION !== 'false';
 
 // This function creates the Better Auth instance, injecting the necessary dependencies.
 export function createAuthInstance(
@@ -101,7 +108,7 @@ export function createAuthInstance(
 		}),
 		emailAndPassword: {
 			enabled: true,
-			requireEmailVerification: true,
+			requireEmailVerification,
 			revokeSessionsOnPasswordReset: true,
 			sendResetPassword: async ({ user, token }) => {
 				// Manually construct the correct URL format
@@ -140,7 +147,7 @@ export function createAuthInstance(
 		},
 		emailVerification: {
 			enabled: true,
-			sendOnSignUp: true,
+			sendOnSignUp: requireEmailVerification,
 			autoSignInAfterVerification: true,
 			verifyEmailPath: '/verify-email',
 			sendVerificationEmail: async ({ user, url }) => {

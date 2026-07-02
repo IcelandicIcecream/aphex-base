@@ -18,9 +18,15 @@ tag matching the version you started from to see the exact changes.
 
 ## Unreleased
 
+- **`aphex migrate` — runtime-safe migrations (fixes migrate-in-production).**
+  - `package.json` — adds a `migrate` script (`aphex migrate`). Use this to apply migrations on prod; unlike `db:migrate` (drizzle-kit, a devDependency stripped from the prod image), it works at runtime via `drizzle-orm`. Also supports pglite.
+  - `Dockerfile` — the runtime `CMD` now runs `aphex migrate && node build`, so the container applies pending migrations on start (idempotent). Multi-instance deploys should instead run `aphex migrate` once as a pre-deploy step and revert `CMD` to `node build`.
+- **Auto type-generation in dev (no file changes needed — just bump `@aphexcms/cms-core`).** The `aphex()` plugin already in your `vite.config.ts` now watches `src/lib/schemaTypes/**` and regenerates `src/lib/generated-types.ts` on save — drop the manual `pnpm generate:types` from your dev loop. Keep committing `generated-types.ts`; builds/CI/prod use it as-is (no `generate:types` needed on prod). The script stays for catch-up / CI-drift-check cases.
+- **New field UIs via `@aphexcms/cms-core` + `@aphexcms/ui` bumps (no template file changes):** `number` fields support `options.layout: 'slider'` (+ `unit`); `string` fields support `options.layout: 'tabs'` with per-item `icon` (segmented/alignment-style pickers). Also includes richtext link-popover/caret fixes and a brand-orange focus ring.
 - `vite.config.ts` — fixed plugin order (`sveltekit()` before `tailwindcss()`) to prevent Tailwind v4.2+ from crashing on Svelte virtual CSS modules in node_modules
 - `src/lib/server/email/**` — email template and adapter updates
-- `src/routes/(protected)/admin/+layout.server.ts` — admin layout server updates
+- `src/routes/(protected)/admin/+layout.server.ts` — admin layout server updates; removed the dead `/blog` sidebar nav item (base template has no blog route)
+- `src/routes/+page.svelte` — replaced the stock SvelteKit welcome page with a minimal landing page linking to `/admin`
 - `package.json` — dependency updates
 
 ## 0.0.8
@@ -33,7 +39,7 @@ tag matching the version you started from to see the exact changes.
 
 ## 0.0.5 & 0.0.6
 
-- **feat(better-ref-fields): added better reference fields - more flexiblity and better UI**
+- **feat(better-ref-fields): added better reference fields - more flexibility and better UI**
   - this includes a cms_reference table that keeps track of the indexes - for reference walking (back and front) - for UX and document publish guarding
 - **feat(auth): resend verification email from the login page**
   - `src/routes/login/+page.svelte` — adds a "Resend verification email"
@@ -60,13 +66,13 @@ tag matching the version you started from to see the exact changes.
 - **fix(build): no more dummy `.env` required to `pnpm build`**
   - `src/lib/server/db/index.ts` — guards `pgConnectionUrl(env)` with
     SvelteKit's `building` flag, falling back to a placeholder URL during
-    the build/analyse pass. postgres-js connects lazily, so the placeholder
+    the build/analyze pass. postgres-js connects lazily, so the placeholder
     is never dialed.
   - `src/lib/server/email/index.ts` — uses the Mailpit adapter as a no-op
     stub when `building` is true so `RESEND_API_KEY` isn't required.
   - `src/lib/server/auth/better-auth/instance.ts` — supplies placeholder
     `secret` and `baseURL` during `building` so `betterAuth()` doesn't throw.
-  - Why: SvelteKit's `vite build` runs an analyse worker that imports
+  - Why: SvelteKit's `vite build` runs an analyze worker that imports
     server modules to discover routes. Anything that throws at module
     init crashes the build — that's why the old template needed every
     runtime env var set just to compile.
@@ -122,7 +128,7 @@ tag matching the version you started from to see the exact changes.
 
 ## 0.0.4
 
-- pass authorised origins from .env into better auth to handle csrf
+- pass authorized origins from .env into better auth to handle csrf
 - preload dayjs for better UX when going into a fresh studio
 - disallow admins from changing themselves to owners and kicking out original owners
 
