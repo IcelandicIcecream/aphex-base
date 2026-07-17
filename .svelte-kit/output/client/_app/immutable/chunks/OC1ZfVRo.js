@@ -1,1 +1,0 @@
-import"./CuH1ETlL.js";import{p as s,k as n,l as o,a as r}from"./BYshYTyp.js";import{s as i}from"./IW3Xlh4K.js";function f(a,t){s(t,!0);const e=n(i);o(()=>(e?.setActions(t.children),()=>e?.setActions(null))),r()}export{f as S};

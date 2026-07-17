@@ -1,14 +1,11 @@
+import { p as hasCapability } from "../../../../../chunks/validator.js";
+import "../../../../../chunks/dist.js";
 import { redirect } from "@sveltejs/kit";
-import { h as hasCapability } from "../../../../../chunks/capabilities.js";
-import "../../../../../chunks/date-utils.js";
-import "../../../../../chunks/instance2.js";
-const load = async ({ locals }) => {
-  const auth = locals.auth;
-  if (auth?.type === "session" && !hasCapability(auth, "org.settings")) {
-    throw redirect(302, "/admin/settings/account");
-  }
-  return {};
+//#region src/routes/(protected)/admin/settings/+page.server.ts
+var load = async ({ locals }) => {
+	const auth = locals.auth;
+	if (auth?.type === "session" && !hasCapability(auth, "org.settings")) throw redirect(302, "/admin/settings/account");
+	return {};
 };
-export {
-  load
-};
+//#endregion
+export { load };

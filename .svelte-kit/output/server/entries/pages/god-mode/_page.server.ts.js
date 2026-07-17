@@ -1,10 +1,7 @@
-const load = async ({ locals }) => {
-  const { databaseAdapter } = locals.aphexCMS;
-  const instanceSettings = await databaseAdapter.getInstanceSettings();
-  return {
-    instanceSettings
-  };
+//#region src/routes/god-mode/+page.server.ts
+var load = async ({ locals }) => {
+	const { databaseAdapter } = locals.aphexCMS;
+	return { instanceSettings: await databaseAdapter.getInstanceSettings() };
 };
-export {
-  load
-};
+//#endregion
+export { load };

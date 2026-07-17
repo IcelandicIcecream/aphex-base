@@ -1,1 +1,0 @@
-import{m as y,a6 as m,o,x as v,y as f,z as l,q as p,A as i,ab as T,B as A}from"./BYshYTyp.js";import{B as R}from"./61G43_m1.js";function x(d,_,e){var s;o&&(s=A,v());var r=new R(d);y(()=>{var a=_()??null;if(o){var h=f(s),c=h===T,u=a!==null;if(c!==u){var t=l();p(t),r.anchor=t,i(!1),r.ensure(a,a&&(n=>e(n,a))),i(!0);return}}r.ensure(a,a&&(n=>e(n,a)))},m)}export{x as c};
