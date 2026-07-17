@@ -4,7 +4,7 @@ import "../../../../../chunks/dist.js";
 import { t as authService } from "../../../../../chunks/service.js";
 import { json } from "@sveltejs/kit";
 import { z } from "zod";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/api/schemas/api-keys.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/api/schemas/api-keys.js
 var apiKeyPermissionSchema = z.enum(["read", "write"]);
 var apiKeyCapabilitySchema = capabilitySchema;
 var createApiKeyRequest = z.object({

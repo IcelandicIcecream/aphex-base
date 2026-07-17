@@ -10,7 +10,7 @@ return {
 	assets: new Set(["images/aphex-darkmode.png","images/aphex-lightmode.png","robots.txt"]),
 	mimeTypes: {".png":"image/png",".txt":"text/plain"},
 	_: {
-		client: {start:"_app/immutable/entry/start.8Q-LW_M8.js",app:"_app/immutable/entry/app.BHFY4LQU.js",imports:["_app/immutable/entry/start.8Q-LW_M8.js","_app/immutable/chunks/rKt2x4fX.js","_app/immutable/chunks/BBL2YEBp.js","_app/immutable/entry/app.BHFY4LQU.js","_app/immutable/chunks/BBL2YEBp.js","_app/immutable/chunks/xihTtKlq.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.Bnj6TkeC.js",app:"_app/immutable/entry/app.D-0IdVHA.js",imports:["_app/immutable/entry/start.Bnj6TkeC.js","_app/immutable/chunks/D0QA5rT2.js","_app/immutable/chunks/BBL2YEBp.js","_app/immutable/entry/app.D-0IdVHA.js","_app/immutable/chunks/BBL2YEBp.js","_app/immutable/chunks/xihTtKlq.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),

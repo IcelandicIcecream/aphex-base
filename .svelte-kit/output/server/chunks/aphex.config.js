@@ -7,7 +7,7 @@ import { t as authProvider } from "./auth.js";
 import { t as plugins } from "./plugins.js";
 import { t as schemaTypes } from "./schemaTypes.js";
 import { s3Storage } from "@aphexcms/storage-s3";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/config.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/config.js
 function createCMSConfig(config) {
 	const resolver = createPartResolver(config.plugins ?? []);
 	const pluginSchemas = resolver.schemaTypes();

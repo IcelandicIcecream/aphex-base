@@ -1,5 +1,5 @@
 //#region \0virtual:__sveltekit/environment
-var version = "1784288659121";
+var version = "1784290355686";
 var building = false;
 var prerendering = false;
 function set_building() {

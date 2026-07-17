@@ -1,5 +1,5 @@
 import { t as cmsLogger } from "./logger.js";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/types/capabilities.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/types/capabilities.js
 /**
 * Enumerate every capability. Useful for owner seeding and validation.
 */
@@ -976,7 +976,7 @@ var customParseFormat_default = (function(o, C, d) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
 dayjs.extend(customParseFormat_default);
 var Rule = class Rule {
 	_required = false;
@@ -1421,7 +1421,7 @@ var utc_default = (function(option, Dayjs, dayjs) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
 dayjs.extend(customParseFormat_default);
 dayjs.extend(utc_default);
 /**
@@ -1534,7 +1534,7 @@ function normalizeDateFields(data, schema) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
 /**
 * Check if a field is required based on its validation rules
 */
@@ -1741,7 +1741,7 @@ async function validateDocumentData(schema, data, context = {}) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
 var RESERVED_FIELD_NAMES = [
 	"id",
 	"type",

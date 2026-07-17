@@ -18,7 +18,7 @@ import { t as Badge } from "./badge.js";
 import { C as isWritableBox, D as isObject, E as toReadonlyBox, S as isBox, T as simpleBox, _ as composeHandlers, a as boolToStr, b as boxFrom, c as createBitsAttrs, d as getDataOpenClosed, f as attachRef, g as cssToStyleObj, h as executeCallbacks, i as boolToEmptyStrOrUndef, l as getAriaChecked, m as styleToString, n as Label, o as boolToStrTrueOrUndef, p as mergeProps, r as createId, s as boolToTrueOrUndef, t as Input, u as getDataChecked, v as BoxSymbol, w as isWritableSymbol, x as boxWith, y as boxFlatten } from "./input.js";
 import "./card.js";
 import { tv } from "tailwind-variants";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
 /**
 * Content hashing utilities for document version tracking
 * Includes timestamp for proper change detection and UX
@@ -71,7 +71,7 @@ function hasUnpublishedChanges(draftData, publishedHash) {
 	return createPublishedHash(draftData) !== publishedHash;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/preview.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/preview.js
 /**
 * Walk a dot-path (e.g. `seo.title`) through an object. Returns the
 * terminal value, or `undefined` if any segment along the way is missing.
@@ -166,13 +166,13 @@ function resolvePreviewSubtitle(item, schema) {
 	return toPreviewString(readPath(item, configured));
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/schema-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/schema-context.svelte.js
 var SCHEMA_CONTEXT_KEY = Symbol("aphex-schemas");
 function setSchemaContext(schemas) {
 	setContext(SCHEMA_CONTEXT_KEY, schemas);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/admin/slots.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/admin/slots.svelte.js
 var AdminSlots = class {
 	#slots = new SvelteMap();
 	/**
@@ -211,13 +211,13 @@ function useAdminSlots() {
 	return getContext(ADMIN_SLOTS_KEY);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/admin/field-components.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/admin/field-components.svelte.js
 var FIELD_COMPONENTS_KEY = Symbol.for("aphex.admin.field-components");
 function setFieldComponents(lookup) {
 	setContext(FIELD_COMPONENTS_KEY, lookup);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/admin/nav.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/admin/nav.svelte.js
 var ADMIN_NAV_KEY = Symbol.for("aphex.admin.nav");
 function setAdminNav(basePath = "/admin") {
 	const nav = createAdminNav(basePath);
@@ -288,7 +288,7 @@ function createAdminNav(basePath = "/admin") {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/permissions-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/permissions-context.svelte.js
 var KEY$1 = Symbol.for("aphex.permissions");
 function setPermissionsContext(getCapabilities, getRole = () => null) {
 	const ctx = {
@@ -14661,7 +14661,7 @@ function Dropdown_menu_trigger($$renderer, $$props) {
 }
 var Root$3 = Menu;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
 /**
 * Copy a URL to the clipboard, showing a toast on success/failure.
 */
@@ -15043,7 +15043,7 @@ function Checkbox($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/confirm-dialog.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/confirm-dialog.svelte.js
 var confirmDialogState = {
 	open: false,
 	title: "",
@@ -15072,7 +15072,7 @@ function resolveConfirmDialog(value) {
 	r?.(value);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
 function MediaBrowser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/** When true, shows a "Select" button for picking an asset */
@@ -15952,7 +15952,7 @@ function MediaBrowser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
 /**
 * Simple English pluralization.
 * Handles common patterns: y→ies, s/sh/ch/x/z→es, otherwise appends s.
@@ -15964,14 +15964,14 @@ function pluralize(word) {
 	return word + "s";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/document-refresh.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/document-refresh.svelte.js
 var versions = new SvelteMap();
 function notifyDocumentChanged(documentId) {
 	if (!documentId) return;
 	versions.set(documentId, (versions.get(documentId) ?? 0) + 1);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
 var SAVE_STATE_KEY = Symbol("aphex-save-state");
 function setSaveStateContext(state) {
 	setContext(SAVE_STATE_KEY, state);
@@ -35086,7 +35086,7 @@ Object.fromEntries(Object.entries({
 	code: "code"
 }).map(([k, v]) => [v, k]));
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/PortableTextObjectView.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/PortableTextObjectView.svelte
 function PortableTextObjectView($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { type, data, schema, selected = false, onEdit, onDelete } = $$props;
@@ -35120,24 +35120,24 @@ function PortableTextObjectView($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/PortableTextImageView.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/PortableTextImageView.svelte
 function PortableTextImageView($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { data, selected = false, onEdit, onDelete } = $$props;
 		const assetRef = derived(() => data?.asset?._ref);
 		const assetPromise = derived(() => assetRef() ? assets.getById(assetRef()) : null);
-		$$renderer.push(`<div${attr_class("image-block-view group svelte-nf7vvk", void 0, { "selected": selected })} data-pt-image-edit="">`);
+		$$renderer.push(`<div${attr_class("image-block-view group svelte-vtru8z", void 0, { "selected": selected })} data-pt-image-edit="">`);
 		if (assetPromise()) {
 			$$renderer.push("<!--[0-->");
 			await_block($$renderer, assetPromise(), () => {
-				$$renderer.push(`<div class="image-block-placeholder svelte-nf7vvk"><div class="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"></div></div>`);
+				$$renderer.push(`<div class="image-block-placeholder svelte-vtru8z"><div class="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"></div></div>`);
 			}, (result) => {
 				if (result.success && result.data?.url) {
 					$$renderer.push("<!--[0-->");
-					$$renderer.push(`<img${attr("src", result.data.url)}${attr("alt", data?.alt || "")} class="image-block-img svelte-nf7vvk"/>`);
+					$$renderer.push(`<img${attr("src", result.data.url)}${attr("alt", data?.alt || "")} class="image-block-img svelte-vtru8z"/>`);
 				} else {
 					$$renderer.push("<!--[-1-->");
-					$$renderer.push(`<div class="image-block-placeholder svelte-nf7vvk">`);
+					$$renderer.push(`<div class="image-block-placeholder svelte-vtru8z">`);
 					Image($$renderer, { class: "text-muted-foreground h-8 w-8" });
 					$$renderer.push(`<!----> <span class="text-muted-foreground text-xs">Image not found</span></div>`);
 				}
@@ -35146,17 +35146,17 @@ function PortableTextImageView($$renderer, $$props) {
 			$$renderer.push(`<!--]-->`);
 		} else {
 			$$renderer.push("<!--[-1-->");
-			$$renderer.push(`<div class="image-block-placeholder svelte-nf7vvk">`);
+			$$renderer.push(`<div class="image-block-placeholder svelte-vtru8z">`);
 			Image($$renderer, { class: "text-muted-foreground h-8 w-8" });
 			$$renderer.push(`<!----> <span class="text-muted-foreground text-xs">No image</span></div>`);
 		}
-		$$renderer.push(`<!--]--> <div class="image-block-actions svelte-nf7vvk"><button type="button" class="text-muted-foreground hover:text-destructive rounded p-1 transition-colors" title="Remove">`);
+		$$renderer.push(`<!--]--> <div class="image-block-actions svelte-vtru8z"><button type="button" class="text-muted-foreground hover:text-destructive rounded p-1 transition-colors" title="Remove">`);
 		Trash_2($$renderer, { class: "h-3.5 w-3.5" });
 		$$renderer.push(`<!----></button></div></div>`);
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/svelte-node-view.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/svelte-node-view.js
 function SvelteNodeViewRenderer(onEdit, onDelete, resolveSchema, resolveComponent) {
 	return (props) => {
 		const wrapper = document.createElement("div");
@@ -35260,16 +35260,16 @@ Node3.create({
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/PortableTextInlineView.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/PortableTextInlineView.svelte
 function PortableTextInlineView($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { type, data, selected, onEdit, onDelete } = $$props;
 		const label = derived(() => data?.title || data?.text || data?.name || type);
-		$$renderer.push(`<span${attr_class("inline-object-chip svelte-6ojx04", void 0, { "selected": selected })}${attr("title", `Edit ${stringify(type)}`)} role="button" tabindex="0"><span class="inline-object-type svelte-6ojx04">${escape_html(type.slice(0, 2).toUpperCase())}</span> <span class="inline-object-label svelte-6ojx04">${escape_html(label())}</span> <button class="inline-object-delete svelte-6ojx04" title="Remove">×</button></span>`);
+		$$renderer.push(`<span${attr_class("inline-object-chip svelte-wz2q2f", void 0, { "selected": selected })}${attr("title", `Edit ${stringify(type)}`)} role="button" tabindex="0"><span class="inline-object-type svelte-wz2q2f">${escape_html(type.slice(0, 2).toUpperCase())}</span> <span class="inline-object-label svelte-wz2q2f">${escape_html(label())}</span> <button class="inline-object-delete svelte-wz2q2f" title="Remove">×</button></span>`);
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/svelte-inline-node-view.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/svelte-inline-node-view.js
 function SvelteInlineNodeViewRenderer(onEdit, onDelete) {
 	return (props) => {
 		const wrapper = document.createElement("span");
@@ -35367,13 +35367,13 @@ Node3.create({
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/admin/block-previews.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/admin/block-previews.svelte.js
 var BLOCK_PREVIEWS_KEY = Symbol.for("aphex.admin.block-previews");
 function setBlockPreviews(lookup) {
 	setContext(BLOCK_PREVIEWS_KEY, lookup);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
 var KEY = Symbol("aphex:richtext-editors");
 function setRichtextEditorRegistry() {
 	const registry = /* @__PURE__ */ new Map();
@@ -35381,7 +35381,7 @@ function setRichtextEditorRegistry() {
 	return registry;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
 function AdminSlot($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { name, id, order = 0, children } = $$props;
@@ -35389,7 +35389,7 @@ function AdminSlot($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
 function parsedValue($$renderer, key, val, depth) {
 	if (val && typeof val === "object") {
 		$$renderer.push("<!--[0-->");
@@ -37109,7 +37109,7 @@ function Sidebar$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
 function DocumentVersionPanel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { documentId, onClose, onPreviewVersion } = $$props;
@@ -37505,7 +37505,7 @@ function Alert_dialog_description($$renderer, $$props) {
 //#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.14.4_@internationalized+date@3.10.0_@sveltejs+kit@2.59.1_@_42b3eea7bb62976d68bdc1205b7cf50b/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/index.js
 var Root = Alert_dialog;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/ConfirmDialogHost.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/ConfirmDialogHost.svelte
 function ConfirmDialogHost($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		function handleOpenChange(open) {
@@ -37590,7 +37590,7 @@ function ConfirmDialogHost($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
 function AdminApp($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -37925,7 +37925,7 @@ function AdminApp($$renderer, $$props) {
 		let $$settled = true;
 		let $$inner_renderer;
 		function $$render_inner($$renderer) {
-			head("1pw2d9q", $$renderer, ($$renderer) => {
+			head("1t0afxh", $$renderer, ($$renderer) => {
 				$$renderer.title(($$renderer) => {
 					$$renderer.push(`<title>${escape_html(activeTab.value === "structure" ? "Content" : activeTab.value === "media" ? "Media" : "Vision")} - ${escape_html(title)}</title>`);
 				});
@@ -38313,7 +38313,7 @@ function Sonner_1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/OrganizationSwitcher.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/OrganizationSwitcher.svelte
 function OrganizationSwitcher($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { organizations: orgs = [], activeOrganization, canCreateOrganization = false, onOpenChange } = $$props;
@@ -38583,7 +38583,7 @@ function Collapsible_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavMain.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavMain.svelte
 function NavMain($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { items, label = "Content", isActive: isActiveProp } = $$props;
@@ -38753,7 +38753,7 @@ function NavMain($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavUser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavUser.svelte
 function NavUser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { user, onSignOut } = $$props;
@@ -38865,7 +38865,7 @@ function NavUser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/AppSidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/AppSidebar.svelte
 function AppSidebar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const activeView = derived(() => page.url.pathname === "/admin" ? page.url.searchParams.get("view") ?? "" : "");
@@ -38999,7 +38999,7 @@ function AppSidebar($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/Sidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/layout/Sidebar.svelte
 function Sidebar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const slots = setAdminSlots();

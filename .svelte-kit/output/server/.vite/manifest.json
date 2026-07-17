@@ -1,8 +1,8 @@
 {
-  "../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/graphql/index.js": {
+  "../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/graphql/index.js": {
     "file": "chunks/graphql2.js",
     "name": "graphql",
-    "src": "../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/graphql/index.js",
+    "src": "../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/graphql/index.js",
     "isDynamicEntry": true,
     "imports": [
       "_graphql.js"
@@ -208,9 +208,9 @@
       "_utils2.js"
     ]
   },
-  "_client.Dg-7V0Ly.css": {
-    "file": "_app/immutable/assets/client.Dg-7V0Ly.css",
-    "src": "_client.Dg-7V0Ly.css"
+  "_client.CZC_UB-6.css": {
+    "file": "_app/immutable/assets/client.CZC_UB-6.css",
+    "src": "_client.CZC_UB-6.css"
   },
   "_client.js": {
     "file": "chunks/client.js",
@@ -237,7 +237,7 @@
       "_card.js"
     ],
     "css": [
-      "_app/immutable/assets/client.Dg-7V0Ly.css"
+      "_app/immutable/assets/client.CZC_UB-6.css"
     ]
   },
   "_client2.js": {

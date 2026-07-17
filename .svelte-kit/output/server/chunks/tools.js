@@ -3,7 +3,7 @@ import { t as cmsLogger } from "./logger.js";
 import { t as collectReferenceIds } from "./reference-walk.js";
 import { n as toPascalCase } from "./string-case.js";
 import { z } from "zod";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/schema-utils/singleton.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/schema-utils/singleton.js
 var SINGLETON_NAMESPACE = "6f4d2c3b-7a51-4e62-9b1d-aphexsingleton";
 /**
 * 64-bit FNV-1a over a UTF-8 string, returned as 16 hex chars. Synchronous
@@ -42,7 +42,7 @@ function singletonId(schemaName, organizationId) {
 	].join("-");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/cache/document-cache.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/cache/document-cache.js
 /**
 * Document-aware cache wrapper.
 * Translates document/collection operations into generic key-value calls on the underlying CacheAdapter.
@@ -84,7 +84,7 @@ var DocumentCache = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/services/hierarchy-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/services/hierarchy-service.js
 /**
 * HierarchyService — caches organization parent→child lookups
 * using the shared CacheAdapter.
@@ -136,7 +136,7 @@ var HierarchyService = class HierarchyService {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/services/version-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/services/version-service.js
 /**
 * VersionService — orchestrates document versioning with rolling retention.
 *
@@ -246,7 +246,7 @@ var VersionService = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/services/references-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/services/references-service.js
 /**
 * Maintains the back-reference index. After every doc save the collection-API
 * calls into here with the doc's draftData (the freshly-saved version) and
@@ -300,7 +300,7 @@ var ReferencesService = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/field-access.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/field-access.js
 /**
 * Return the set of field names the caller may NOT read.
 * Fields with no `access.read` list are readable by default.
@@ -358,7 +358,7 @@ function dropLockedWrites(data, locked) {
 	return copy;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/local-api/collection-api.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/local-api/collection-api.js
 var EMPTY_SET = /* @__PURE__ */ new Set();
 /**
 * Re-project a FindResult through a hidden-fields filter without mutating
@@ -800,7 +800,7 @@ var CollectionAPI = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/local-api/permissions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/local-api/permissions.js
 var PermissionError = class extends Error {
 	operation;
 	resource;
@@ -918,7 +918,7 @@ var PermissionChecker = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/local-api/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/local-api/index.js
 /**
 * CollectionAPI methods that compute synchronously and don't touch the DB.
 * The LocalAPI proxy bypasses its async-adapter-swap wrapper for these so
@@ -1122,7 +1122,7 @@ function createLocalAPI(config, userAdapter, systemAdapter) {
 	return localAPIInstance;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/mime-detect.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/utils/mime-detect.js
 /**
 * Detect MIME type from file magic bytes (file signatures).
 * Returns the detected MIME type, or null if unknown.
@@ -1277,7 +1277,7 @@ function validateFile(buffer, filename, clientMimeType, options = {}) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/type-gen.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/type-gen.js
 /**
 * Map Aphex field types to TypeScript types
 */
@@ -1391,7 +1391,7 @@ function fieldHasReferences(field, schemaMap, visited) {
 	return false;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/block-defaults.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/block-defaults.js
 var DEFAULT_BLOCK_STYLES = [
 	"normal",
 	"h1",
@@ -1411,7 +1411,7 @@ var DEFAULT_BLOCK_DECORATORS = [
 ];
 var DEFAULT_BLOCK_LISTS = ["bullet", "number"];
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/mcp/tools.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.5.2_6aae2b0bc5f037c66cc3c68e11b93a28/node_modules/@aphexcms/cms-core/dist/mcp/tools.js
 var ok = (data) => ({ content: [{
 	type: "text",
 	text: JSON.stringify(data, null, 2)
