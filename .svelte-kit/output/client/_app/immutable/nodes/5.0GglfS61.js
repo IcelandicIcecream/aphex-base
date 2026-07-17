@@ -1,1 +1,0 @@
-import{a as s,f as t}from"../chunks/BARG7cSW.js";import"../chunks/c4ggtxFF.js";var n=t('<main class="svelte-1uha8ag"><h1 class="svelte-1uha8ag">AphexCMS</h1> <p class="svelte-1uha8ag">Your project is running. Manage content in the studio.</p> <a href="/admin" class="svelte-1uha8ag">Open the studio &rarr;</a></main>');function i(a){var e=n();s(a,e)}export{i as component};

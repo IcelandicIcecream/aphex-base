@@ -1,5 +1,5 @@
 import "./client.js";
-import { l as getContext } from "./renderer.js";
+import { m as getContext } from "./renderer.js";
 import "clsx";
 function context() {
   return getContext("__request__");

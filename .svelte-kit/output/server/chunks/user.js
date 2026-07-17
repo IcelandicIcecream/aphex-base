@@ -3,10 +3,19 @@ import { basename, join, dirname, resolve } from "path";
 import { c as cmsLogger } from "./date-utils.js";
 import { Hono } from "hono";
 import { zValidator } from "@hono/zod-validator";
-import { v as validateDocumentData, a as authToContext } from "./auth-helpers.js";
+import { v as validateDocumentData, a as authToContext, b as validateFile } from "./mime-detect.js";
 import { c as collectReferenceIds } from "./reference-walk.js";
-import { i as isInstanceRole, e as effectiveOrganizationRole, h as hasCapability, A as ALL_CAPABILITIES, n as normalizeCapabilities, B as BUILTIN_ROLE_NAMES } from "./capabilities.js";
+import { i as isInstanceRole, e as effectiveOrganizationRole, h as hasCapability, n as normalizeCapabilities, B as BUILTIN_ROLE_NAMES } from "./capabilities.js";
 import { z } from "zod";
+import { createDecipheriv, randomBytes, createCipheriv, createHash } from "node:crypto";
+function settingsListItems(field) {
+  if (field.type !== "string")
+    return [];
+  const list = field.list;
+  if (!Array.isArray(list))
+    return [];
+  return list.map((item) => typeof item === "string" ? { title: item, value: item } : item);
+}
 const SINGLETON_NAMESPACE = "6f4d2c3b-7a51-4e62-9b1d-aphexsingleton";
 function fnv1a64(input) {
   let h = 0xcbf29ce484222325n;
@@ -235,6 +244,228 @@ function createStorageAdapter(providerName, config) {
   }
   return provider.createAdapter(config);
 }
+const VERSION = "v1";
+const ALGORITHM = "aes-256-gcm";
+const IV_BYTES = 12;
+function deriveKey(secret) {
+  return createHash("sha256").update(secret, "utf8").digest();
+}
+function encryptSecret(plaintext, secret) {
+  const key = deriveKey(secret);
+  const iv = randomBytes(IV_BYTES);
+  const cipher = createCipheriv(ALGORITHM, key, iv);
+  const ciphertext = Buffer.concat([cipher.update(plaintext, "utf8"), cipher.final()]);
+  const authTag = cipher.getAuthTag();
+  return [
+    VERSION,
+    iv.toString("base64"),
+    authTag.toString("base64"),
+    ciphertext.toString("base64")
+  ].join(":");
+}
+function decryptSecret(envelope, secret) {
+  const parts = envelope.split(":");
+  const [version, ivB64, tagB64, ctB64] = parts;
+  if (parts.length !== 4 || version !== VERSION || !ivB64 || !tagB64 || !ctB64) {
+    throw new Error("Malformed or unsupported secret envelope");
+  }
+  const key = deriveKey(secret);
+  const decipher = createDecipheriv(ALGORITHM, key, Buffer.from(ivB64, "base64"));
+  decipher.setAuthTag(Buffer.from(tagB64, "base64"));
+  const plaintext = Buffer.concat([
+    decipher.update(Buffer.from(ctB64, "base64")),
+    decipher.final()
+  ]);
+  return plaintext.toString("utf8");
+}
+function isEncryptedSecret(value) {
+  return typeof value === "string" && value.startsWith(`${VERSION}:`);
+}
+const SECRET_MASK = "••••••";
+const isSecret = (f) => f.type === "secret";
+function fieldDefault(field) {
+  if (isSecret(field))
+    return void 0;
+  const initial = field.initialValue;
+  return typeof initial === "function" ? void 0 : initial;
+}
+function defaultsFor(fields) {
+  const out = {};
+  for (const field of fields) {
+    const value = fieldDefault(field);
+    if (value !== void 0)
+      out[field.name] = value;
+  }
+  return out;
+}
+class PluginSettingsValidationError extends Error {
+  issues;
+  constructor(issues) {
+    super(`Invalid plugin settings: ${issues.join("; ")}`);
+    this.issues = issues;
+    this.name = "PluginSettingsValidationError";
+  }
+}
+function checkValue(field, value) {
+  if (value === null)
+    return null;
+  switch (field.type) {
+    case "string": {
+      if (typeof value !== "string")
+        return `"${field.name}" must be a string`;
+      const items = settingsListItems(field);
+      if (items.length > 0 && !items.some((item) => item.value === value)) {
+        return `"${field.name}" must be one of: ${items.map((i) => i.value).join(", ")}`;
+      }
+      return null;
+    }
+    case "text":
+      if (typeof value !== "string")
+        return `"${field.name}" must be a string`;
+      return null;
+    case "number":
+      if (typeof value !== "number" || !Number.isFinite(value)) {
+        return `"${field.name}" must be a finite number`;
+      }
+      if (field.min !== void 0 && value < field.min) {
+        return `"${field.name}" must be >= ${field.min}`;
+      }
+      if (field.max !== void 0 && value > field.max) {
+        return `"${field.name}" must be <= ${field.max}`;
+      }
+      return null;
+    case "boolean":
+      if (typeof value !== "boolean")
+        return `"${field.name}" must be a boolean`;
+      return null;
+    case "secret":
+      if (typeof value !== "string")
+        return `"${field.name}" must be a string`;
+      return null;
+  }
+}
+class PluginSettingsService {
+  db;
+  resolver;
+  encryptionKey;
+  constructor(db, resolver, encryptionKey = null) {
+    this.db = db;
+    this.resolver = resolver;
+    this.encryptionKey = encryptionKey;
+  }
+  /** Whether secret fields can be stored/read (an encryption key is configured). */
+  get secretsEnabled() {
+    return typeof this.encryptionKey === "string" && this.encryptionKey.length > 0;
+  }
+  secretFieldNames(declaration) {
+    return new Set(declaration.fields.filter(isSecret).map((f) => f.name));
+  }
+  /**
+   * Effective values for injection into plugin **server** code: declared defaults
+   * overlaid with stored values, with secrets **decrypted** to plaintext. Secrets
+   * that can't be decrypted (no key, or a bad envelope) are omitted, never returned
+   * as ciphertext. This is the sensitive read — never send its result to a client.
+   */
+  async get(organizationId, pluginId) {
+    const declaration = this.resolver.settingsDeclaration(pluginId);
+    const stored = await this.db.getPluginSettings(organizationId, pluginId) ?? {};
+    const defaults = declaration ? defaultsFor(declaration.fields) : {};
+    const merged = { ...defaults, ...stored };
+    if (!declaration)
+      return merged;
+    const secrets = this.secretFieldNames(declaration);
+    for (const name of secrets) {
+      const value = merged[name];
+      if (!isEncryptedSecret(value)) {
+        delete merged[name];
+        continue;
+      }
+      if (!this.secretsEnabled) {
+        delete merged[name];
+        continue;
+      }
+      try {
+        merged[name] = decryptSecret(value, this.encryptionKey);
+      } catch (error) {
+        cmsLogger.error(`Failed to decrypt secret "${pluginId}.${name}":`, error);
+        delete merged[name];
+      }
+    }
+    return merged;
+  }
+  /**
+   * Effective values for the **client/API**: same merge, but secrets are **masked** —
+   * a stored secret becomes {@link SECRET_MASK}, an unset one an empty string. Plaintext
+   * secrets never cross this boundary.
+   */
+  async getMasked(organizationId, pluginId) {
+    const declaration = this.resolver.settingsDeclaration(pluginId);
+    const stored = await this.db.getPluginSettings(organizationId, pluginId) ?? {};
+    const defaults = declaration ? defaultsFor(declaration.fields) : {};
+    const merged = { ...defaults, ...stored };
+    if (declaration) {
+      for (const name of this.secretFieldNames(declaration)) {
+        merged[name] = isEncryptedSecret(merged[name]) ? SECRET_MASK : "";
+      }
+    }
+    return merged;
+  }
+  /**
+   * Resolve for the admin surface: the declaration plus masked values plus whether
+   * secrets are enabled. `declaration: null` when the plugin declares no settings.
+   */
+  async resolve(organizationId, pluginId) {
+    const declaration = this.resolver.settingsDeclaration(pluginId) ?? null;
+    const values = await this.getMasked(organizationId, pluginId);
+    return { declaration, values, secretsEnabled: this.secretsEnabled };
+  }
+  /**
+   * Persist a partial edit. Only declared field names are accepted, and each value is
+   * type-checked against its declaration — an invalid patch is rejected whole, never
+   * applied in part, so a failed save can't leave settings half-written. Secret fields
+   * are encrypted; a blank or still-masked secret submission means "leave unchanged"
+   * (so the client never has to echo the real value back). Returns the new **masked**
+   * values — a save response never leaks a plaintext secret.
+   *
+   * @throws {PluginSettingsValidationError} when a value doesn't match its field type.
+   */
+  async save(organizationId, pluginId, patch) {
+    const declaration = this.resolver.settingsDeclaration(pluginId);
+    if (!declaration) {
+      throw new Error(`Plugin "${pluginId}" has not declared any settings.`);
+    }
+    const fieldsByName = new Map(declaration.fields.map((f) => [f.name, f]));
+    const secrets = this.secretFieldNames(declaration);
+    const stored = await this.db.getPluginSettings(organizationId, pluginId) ?? {};
+    const next = { ...stored };
+    const issues = [];
+    const pending = [];
+    for (const [key, value] of Object.entries(patch)) {
+      const field = fieldsByName.get(key);
+      if (!field)
+        continue;
+      if (secrets.has(key)) {
+        if (value === "" || value === SECRET_MASK || value == null)
+          continue;
+        if (!this.secretsEnabled) {
+          throw new Error(`Cannot store secret "${pluginId}.${key}": no secretEncryptionKey configured.`);
+        }
+      }
+      const issue = checkValue(field, value);
+      if (issue)
+        issues.push(issue);
+      else
+        pending.push([key, value]);
+    }
+    if (issues.length > 0)
+      throw new PluginSettingsValidationError(issues);
+    for (const [key, value] of pending) {
+      next[key] = secrets.has(key) ? encryptSecret(String(value), this.encryptionKey) : value;
+    }
+    await this.db.setPluginSettings(organizationId, pluginId, next);
+    return this.getMasked(organizationId, pluginId);
+  }
+}
 function hiddenReadFields(schema, auth) {
   const hidden = /* @__PURE__ */ new Set();
   if (!auth)
@@ -423,7 +654,7 @@ class CollectionAPI {
       };
     }
     await this.permissions.canRead(context, this.collectionName);
-    const perspective = options.perspective || "draft";
+    const perspective = options.perspective || context.perspective || "draft";
     const hidden = this.resolveHiddenReadFields(context);
     if (perspective === "published" && this.documentCache) {
       const cached = await this.documentCache.getQuery(context.organizationId, this.collectionName, options);
@@ -470,7 +701,7 @@ class CollectionAPI {
    */
   async findByID(context, id, options) {
     await this.permissions.canRead(context, this.collectionName);
-    const perspective = options?.perspective || "draft";
+    const perspective = options?.perspective || context.perspective || "draft";
     const hidden = this.resolveHiddenReadFields(context);
     if (perspective === "published" && this.documentCache) {
       const cached = await this.documentCache.getDocument(context.organizationId, id);
@@ -1612,187 +1843,6 @@ const documentVersionsRouter = new Hono().get("/:id/versions", zValidator("query
     return c.json({ success: false, error: "Failed to restore version" }, 500);
   }
 });
-function detectMimeType(buffer) {
-  if (buffer.length < 4)
-    return null;
-  if (buffer[0] === 37 && buffer[1] === 80 && buffer[2] === 68 && buffer[3] === 70) {
-    return "application/pdf";
-  }
-  if (buffer[0] === 137 && buffer[1] === 80 && buffer[2] === 78 && buffer[3] === 71) {
-    return "image/png";
-  }
-  if (buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255) {
-    return "image/jpeg";
-  }
-  if (buffer[0] === 71 && buffer[1] === 73 && buffer[2] === 70 && buffer[3] === 56 && (buffer[4] === 55 || buffer[4] === 57) && buffer[5] === 97) {
-    return "image/gif";
-  }
-  if (buffer.length >= 12 && buffer[0] === 82 && buffer[1] === 73 && buffer[2] === 70 && buffer[3] === 70 && buffer[8] === 87 && buffer[9] === 69 && buffer[10] === 66 && buffer[11] === 80) {
-    return "image/webp";
-  }
-  if (buffer.length >= 12) {
-    const ftypStr = buffer.subarray(4, 8).toString("ascii");
-    if (ftypStr === "ftyp") {
-      const brand = buffer.subarray(8, 12).toString("ascii");
-      if (brand === "avif")
-        return "image/avif";
-      if (brand === "heic" || brand === "heix")
-        return "image/heic";
-      if (brand.startsWith("mp4") || brand === "isom")
-        return "video/mp4";
-    }
-  }
-  const head = buffer.subarray(0, Math.min(buffer.length, 256)).toString("utf-8");
-  if (head.trimStart().startsWith("<") && head.includes("<svg")) {
-    return "image/svg+xml";
-  }
-  if (buffer[0] === 80 && buffer[1] === 75 && buffer[2] === 3 && buffer[3] === 4) {
-    return detectZipFormat(buffer);
-  }
-  if (buffer[0] === 208 && buffer[1] === 207 && buffer[2] === 17 && buffer[3] === 224) {
-    return "application/msword";
-  }
-  if (buffer[0] === 0 && buffer[1] === 97 && buffer[2] === 115 && buffer[3] === 109) {
-    return "application/wasm";
-  }
-  if (buffer[0] === 127 && buffer[1] === 69 && buffer[2] === 76 && buffer[3] === 70) {
-    return "application/x-executable";
-  }
-  if (buffer[0] === 207 && buffer[1] === 250 && buffer[2] === 237 && buffer[3] === 254 || buffer[0] === 206 && buffer[1] === 250 && buffer[2] === 237 && buffer[3] === 254 || buffer[0] === 254 && buffer[1] === 237 && buffer[2] === 250 && buffer[3] === 207 || buffer[0] === 254 && buffer[1] === 237 && buffer[2] === 250 && buffer[3] === 206) {
-    return "application/x-executable";
-  }
-  if (buffer[0] === 77 && buffer[1] === 90) {
-    return "application/x-executable";
-  }
-  if (buffer[0] === 35 && buffer[1] === 33) {
-    return "application/x-shellscript";
-  }
-  return null;
-}
-function detectZipFormat(buffer) {
-  const content = buffer.subarray(0, Math.min(buffer.length, 2e3)).toString("binary");
-  if (content.includes("word/"))
-    return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-  if (content.includes("xl/"))
-    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-  if (content.includes("ppt/"))
-    return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-  return "application/zip";
-}
-const BLOCKED_MIME_TYPES = /* @__PURE__ */ new Set([
-  "application/x-executable",
-  "application/x-shellscript",
-  "application/wasm",
-  "application/x-msdos-program",
-  "application/x-msdownload",
-  "text/html",
-  "application/xhtml+xml",
-  "text/xml",
-  "application/xml"
-]);
-const BLOCKED_EXTENSIONS = /* @__PURE__ */ new Set([
-  ".exe",
-  ".dll",
-  ".bat",
-  ".cmd",
-  ".com",
-  ".msi",
-  ".scr",
-  ".pif",
-  ".sh",
-  ".bash",
-  ".zsh",
-  ".csh",
-  ".ksh",
-  ".app",
-  ".command",
-  ".action",
-  ".ps1",
-  ".psm1",
-  ".psd1",
-  ".vbs",
-  ".vbe",
-  ".js",
-  ".jse",
-  ".wsf",
-  ".wsh",
-  ".reg",
-  ".inf",
-  ".hta",
-  ".wasm",
-  ".html",
-  ".htm",
-  ".xhtml",
-  ".shtml",
-  ".xml",
-  ".xsl",
-  ".mhtml"
-]);
-function validateFile(buffer, filename, clientMimeType, options = {}) {
-  const lowerName = filename.toLowerCase();
-  const ext = lowerName.substring(lowerName.lastIndexOf("."));
-  const detectedMimeType = detectMimeType(buffer);
-  const allExts = lowerName.match(/\.[^.]+/g) || [];
-  for (const e of allExts) {
-    if (BLOCKED_EXTENSIONS.has(e)) {
-      return { valid: false, error: `File type "${e}" is not allowed`, detectedMimeType };
-    }
-  }
-  if (detectedMimeType && BLOCKED_MIME_TYPES.has(detectedMimeType)) {
-    return {
-      valid: false,
-      error: `File content detected as "${detectedMimeType}" which is not allowed`,
-      detectedMimeType
-    };
-  }
-  if (detectedMimeType && clientMimeType) {
-    const detectedBase = detectedMimeType.split("/")[0];
-    const clientBase = clientMimeType.split("/")[0];
-    if (detectedMimeType === "application/x-executable" && clientBase !== "application") {
-      return {
-        valid: false,
-        error: "File content does not match the declared type",
-        detectedMimeType
-      };
-    }
-    if (clientBase === "image" && detectedBase !== "image" && detectedMimeType !== null) {
-      return {
-        valid: false,
-        error: `File content is "${detectedMimeType}" but was uploaded as an image`,
-        detectedMimeType
-      };
-    }
-  }
-  if (options.allowedMimeTypes && options.allowedMimeTypes.length > 0) {
-    const mimeToCheck = detectedMimeType || clientMimeType;
-    const isAllowed = options.allowedMimeTypes.some((allowed) => {
-      if (allowed.endsWith("/*")) {
-        const prefix = allowed.slice(0, -2);
-        return mimeToCheck.startsWith(prefix);
-      }
-      if (allowed.startsWith(".")) {
-        return ext === allowed.toLowerCase();
-      }
-      return mimeToCheck === allowed;
-    });
-    if (!isAllowed) {
-      return {
-        valid: false,
-        error: `File type "${mimeToCheck}" is not allowed. Accepted: ${options.allowedMimeTypes.join(", ")}`,
-        detectedMimeType
-      };
-    }
-  }
-  if (options.maxSize && buffer.length > options.maxSize) {
-    const maxMB = (options.maxSize / (1024 * 1024)).toFixed(1);
-    return {
-      valid: false,
-      error: `File exceeds maximum size of ${maxMB} MB`,
-      detectedMimeType
-    };
-  }
-  return { valid: true, detectedMimeType };
-}
 const assetSchema = z.object({
   id: z.string(),
   organizationId: z.string(),
@@ -1825,6 +1875,7 @@ const listAssetsQuery = z.object({
   assetType: z.enum(["image", "file"]).optional(),
   mimeType: z.string().optional(),
   search: z.string().optional(),
+  includeSystem: z.union([z.boolean(), z.enum(["true", "false"]).transform((value) => value === "true")]).optional(),
   limit: z.coerce.number().int().min(1).max(500).optional(),
   offset: z.coerce.number().int().min(0).optional()
 });
@@ -1901,6 +1952,7 @@ const assetsRouter = new Hono().get("/", zValidator("query", listAssetsQuery, (r
       assetType: q.assetType,
       mimeType: q.mimeType,
       search: q.search,
+      includeSystem: q.includeSystem ?? false,
       limit: q.limit ?? 20,
       offset: q.offset ?? 0
     };
@@ -1910,7 +1962,8 @@ const assetsRouter = new Hono().get("/", zValidator("query", listAssetsQuery, (r
       databaseAdapter.countAssets(auth.organizationId, {
         assetType: filters.assetType,
         mimeType: filters.mimeType,
-        search: filters.search
+        search: filters.search,
+        includeSystem: filters.includeSystem
       })
     ]);
     const pageSize = filters.limit || 20;
@@ -1973,6 +2026,8 @@ const assetsRouter = new Hono().get("/", zValidator("query", listAssetsQuery, (r
     const creditLine = formData.get("creditLine") || void 0;
     const schemaType = formData.get("schemaType") || void 0;
     const fieldPath = formData.get("fieldPath") || void 0;
+    const system = formData.get("system") === "true" || void 0;
+    const usage = formData.get("usage") || void 0;
     const targetOrganizationId = auth.organizationId;
     const uploadData = {
       organizationId: targetOrganizationId,
@@ -1987,7 +2042,9 @@ const assetsRouter = new Hono().get("/", zValidator("query", listAssetsQuery, (r
       createdBy: auth.type === "session" ? auth.user.id : void 0,
       metadata: {
         schemaType,
-        fieldPath
+        fieldPath,
+        system,
+        usage
       }
     };
     const asset = await assetService.uploadAsset(targetOrganizationId, uploadData);
@@ -2329,7 +2386,7 @@ const organizationsRouter = new Hono().get("/", async (c) => {
       parentOrganizationId: auth.organizationId,
       createdBy: auth.user.id
     });
-    await databaseAdapter.seedBuiltinRoles(newOrganization.id);
+    await databaseAdapter.seedBuiltinRoles(newOrganization.id, c.var.aphexCMS.cmsEngine.ownerCapabilities());
     await databaseAdapter.addMember({
       organizationId: newOrganization.id,
       userId: auth.user.id,
@@ -2858,7 +2915,7 @@ const organizationsSwitchRouter = new Hono().post("/switch", zValidator("json", 
     }, 500);
   }
 });
-const capabilitySchema = z.enum(ALL_CAPABILITIES);
+const capabilitySchema = z.string().min(1).max(100).regex(/^[a-zA-Z0-9]+([.:][a-zA-Z0-9]+)+$/, { message: "Invalid capability id format" });
 const roleNameSchema = z.string().trim().min(1).max(100).regex(/^[a-zA-Z0-9 _-]+$/, {
   message: "Role name may only contain letters, numbers, spaces, underscores, and hyphens"
 });
@@ -2876,6 +2933,18 @@ const updateRoleRequest = z.object({
   ...v,
   capabilities: v.capabilities ? normalizeCapabilities(v.capabilities) : void 0
 }));
+function rejectUnknownCapabilities(c, caps) {
+  const known = new Set(c.var.aphexCMS.partResolver.capabilityCatalog().map((d) => d.id));
+  const unknown = caps.filter((cap) => !known.has(cap));
+  if (unknown.length === 0)
+    return null;
+  return c.json({
+    success: false,
+    error: "Unknown capability",
+    message: `These capabilities are not registered: ${unknown.join(", ")}`,
+    unknownCapabilities: unknown
+  }, 400);
+}
 const rolesRouter = new Hono().get("/", async (c) => {
   try {
     const { rolesService } = c.var.aphexCMS;
@@ -2925,6 +2994,9 @@ const rolesRouter = new Hono().get("/", async (c) => {
       }, 403);
     }
     const body = c.req.valid("json");
+    const badCaps = rejectUnknownCapabilities(c, body.capabilities);
+    if (badCaps)
+      return badCaps;
     if (BUILTIN_ROLE_NAMES.includes(body.name)) {
       return c.json({
         success: false,
@@ -2992,6 +3064,18 @@ const rolesRouter = new Hono().get("/", async (c) => {
       }, 400);
     }
     const body = c.req.valid("json");
+    if (name === "owner" && body.capabilities !== void 0) {
+      return c.json({
+        success: false,
+        error: "Forbidden",
+        message: '"owner" always holds every capability and its permissions cannot be changed. Create a custom role to grant narrower access.'
+      }, 403);
+    }
+    if (body.capabilities) {
+      const badCaps = rejectUnknownCapabilities(c, body.capabilities);
+      if (badCaps)
+        return badCaps;
+    }
     const updated = await databaseAdapter.updateRole(auth.organizationId, name, body);
     if (!updated) {
       return c.json({
@@ -3073,8 +3157,84 @@ const rolesRouter = new Hono().get("/", async (c) => {
     }, 500);
   }
 });
+const savePluginSettingsRequest = z.object({
+  values: z.record(z.string(), z.unknown())
+});
+function requireManage(c) {
+  const auth = c.var.auth;
+  if (!auth || auth.type !== "session") {
+    return c.json({ success: false, error: "Unauthorized", message: "Session authentication required" }, 401);
+  }
+  if (!hasCapability(auth, "plugin.settings.manage")) {
+    return c.json({
+      success: false,
+      error: "Forbidden",
+      message: "The plugin.settings.manage capability is required"
+    }, 403);
+  }
+  return auth;
+}
+function canAccessSettings(auth, required) {
+  if (!required || required.length === 0)
+    return true;
+  return required.every((capability) => hasCapability(auth, capability));
+}
+const pluginSettingsRouter = new Hono().get("/", async (c) => {
+  try {
+    const auth = requireManage(c);
+    if (auth instanceof Response)
+      return auth;
+    const { pluginSettingsService, partResolver } = c.var.aphexCMS;
+    const declarations = partResolver.settingsDeclarations().filter((decl) => canAccessSettings(auth, decl.requiredCapabilities));
+    const secretsEnabled = pluginSettingsService.secretsEnabled;
+    const data = await Promise.all(declarations.map(async (decl) => ({
+      pluginId: decl.pluginId,
+      title: decl.title,
+      values: await pluginSettingsService.getMasked(auth.organizationId, decl.pluginId)
+    })));
+    return c.json({ success: true, data, secretsEnabled });
+  } catch (error) {
+    cmsLogger.error("Failed to list plugin settings:", error);
+    return c.json({ success: false, error: "Internal error" }, 500);
+  }
+}).put("/:pluginId", zValidator("json", savePluginSettingsRequest), async (c) => {
+  try {
+    const auth = requireManage(c);
+    if (auth instanceof Response)
+      return auth;
+    const { pluginSettingsService, partResolver } = c.var.aphexCMS;
+    const pluginId = c.req.param("pluginId");
+    const declaration = partResolver.settingsDeclaration(pluginId);
+    if (!declaration) {
+      return c.json({
+        success: false,
+        error: "Unknown plugin settings",
+        message: `Plugin "${pluginId}" has not declared any settings.`
+      }, 404);
+    }
+    if (!canAccessSettings(auth, declaration.requiredCapabilities)) {
+      return c.json({
+        success: false,
+        error: "Forbidden",
+        message: `Plugin "${pluginId}" requires: ${declaration.requiredCapabilities?.join(", ")}`
+      }, 403);
+    }
+    const { values } = c.req.valid("json");
+    const saved = await pluginSettingsService.save(auth.organizationId, pluginId, values);
+    return c.json({ success: true, data: { pluginId, values: saved } });
+  } catch (error) {
+    if (error instanceof PluginSettingsValidationError) {
+      return c.json({ success: false, error: "Validation failed", issues: error.issues }, 400);
+    }
+    cmsLogger.error("Failed to save plugin settings:", error);
+    return c.json({ success: false, error: "Internal error" }, 500);
+  }
+});
 const updateUserRequest = z.object({
-  name: z.string().min(1)
+  name: z.string().min(1).optional(),
+  image: z.string().min(1).nullable().optional()
+}).refine((v) => v.name !== void 0 || v.image !== void 0, {
+  message: "At least one field (name, image) is required"
 });
 const updateUserPreferencesRequest = z.object({
   includeChildOrganizations: z.boolean().optional()
@@ -3146,7 +3306,7 @@ const userRouter = new Hono().patch("/", zValidator("json", updateUserRequest, (
     return c.json({
       success: false,
       error: "Invalid request body",
-      message: "name is required",
+      message: "name or image is required",
       issues: result.error.issues
     }, 400);
   }
@@ -3167,8 +3327,19 @@ const userRouter = new Hono().patch("/", zValidator("json", updateUserRequest, (
         error: "Auth provider not configured"
       }, 500);
     }
-    const { name } = c.req.valid("json");
-    await provider.changeUserName(auth.user.id, name);
+    const { name, image } = c.req.valid("json");
+    if (name !== void 0) {
+      await provider.changeUserName(auth.user.id, name);
+    }
+    if (image !== void 0) {
+      if (!provider.changeUserImage) {
+        return c.json({
+          success: false,
+          error: "Auth provider does not support profile image updates"
+        }, 500);
+      }
+      await provider.changeUserImage(auth.user.id, image);
+    }
     return c.json({ success: true, message: "User updated successfully" });
   } catch (error) {
     cmsLogger.error("Failed to update user:", error);
@@ -3237,23 +3408,26 @@ const userRouter = new Hono().patch("/", zValidator("json", updateUserRequest, (
 export {
   CollectionAPI as C,
   PermissionChecker as P,
-  documentsPublishRouter as a,
-  documentVersionsRouter as b,
-  createStorageAdapter as c,
+  createStorageAdapter as a,
+  documentsPublishRouter as b,
+  capabilitySchema as c,
   documentsQueryRouter as d,
-  documentsRouter as e,
-  documentsByIdRouter as f,
-  assetsBulkRouter as g,
-  assetsReferencesRouter as h,
-  assetsByIdRouter as i,
-  assetsRouter as j,
-  organizationsInvitationsRouter as k,
-  organizationsMembersRouter as l,
-  organizationsByIdRouter as m,
-  organizationsRouter as n,
+  documentVersionsRouter as e,
+  documentsRouter as f,
+  documentsByIdRouter as g,
+  assetsBulkRouter as h,
+  assetsReferencesRouter as i,
+  assetsByIdRouter as j,
+  assetsRouter as k,
+  organizationsInvitationsRouter as l,
+  organizationsMembersRouter as m,
+  organizationsByIdRouter as n,
   organizationsSwitchRouter as o,
-  userRouter as p,
+  organizationsRouter as p,
+  pluginSettingsRouter as q,
   rolesRouter as r,
   schemasRouter as s,
-  userPreferencesRouter as u
+  userRouter as t,
+  userPreferencesRouter as u,
+  PluginSettingsService as v
 };

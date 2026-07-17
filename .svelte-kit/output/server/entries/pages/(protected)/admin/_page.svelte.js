@@ -1,21 +1,25 @@
-import { m as setContext, d as derived, p as props_id, g as attributes, i as bind_props, h as clsx, f as spread_props, c as attr_class, s as stringify, b as attr, e as escape_html, a as ensure_array_like, ad as attr_style, k as head } from "../../../../chunks/renderer.js";
+import { s as setContext, f as derived, p as props_id, h as attributes, j as bind_props, i as clsx, g as spread_props, c as attr_class, d as stringify, b as attr, e as escape_html, a as ensure_array_like, ad as attr_style, l as head } from "../../../../chunks/renderer.js";
 import { c as cmsLogger } from "../../../../chunks/date-utils.js";
-import { B as Button } from "../../../../chunks/button.js";
-import { B as Badge } from "../../../../chunks/badge.js";
-import { c as assets, d as documents, A as ApiError } from "../../../../chunks/instance2.js";
-import "clsx";
-import { C as Context, a0 as RovingFocusGroup, w as watch, n as noop, I as Icon, a1 as Image, T as Trash_2, X, a2 as Alert } from "../../../../chunks/sheet-content.js";
-import { p as page } from "../../../../chunks/index3.js";
 import "@sveltejs/kit/internal";
 import "../../../../chunks/exports.js";
 import "../../../../chunks/utils.js";
 import "@sveltejs/kit/internal/server";
 import "../../../../chunks/root.js";
-import { g as goto } from "../../../../chunks/client.js";
-import "../../../../chunks/index4.js";
+import "../../../../chunks/state.svelte.js";
+import { p as page } from "../../../../chunks/index3.js";
+import { B as Button } from "../../../../chunks/button.js";
+import { B as Badge } from "../../../../chunks/badge.js";
+import { c as assets, d as documents, A as ApiError } from "../../../../chunks/instance2.js";
+import "clsx";
+import { C as Context, _ as RovingFocusGroup, w as watch, n as noop, I as Icon, $ as Image, T as Trash_2, X, a0 as resolvePreviewTitle, a1 as useSidebar, A as Alert } from "../../../../chunks/sheet-content.js";
+import "../../../../chunks/index5.js";
+import { A as Alert_description } from "../../../../chunks/alert-description.js";
 import { c as cn } from "../../../../chunks/utils2.js";
-import { S as SvelteMap, c as SvelteSet, d as SvelteURLSearchParams } from "../../../../chunks/mode-states.svelte.js";
-import { a as attachRef, j as boolToTrueOrUndef, c as createBitsAttrs, d as createId, e as boxWith, m as mergeProps } from "../../../../chunks/create-id.js";
+import { c as SvelteURLSearchParams, S as SvelteMap, d as SvelteSet } from "../../../../chunks/mode-states.svelte.js";
+import { a as attachRef, j as boolToTrueOrUndef, e as createBitsAttrs, c as createId, b as boxWith, m as mergeProps } from "../../../../chunks/create-id.js";
+import { g as goto } from "../../../../chunks/client.js";
+import { c as createPartResolver, s as schemaTypes } from "../../../../chunks/index10.js";
+import { C as Circle_check, a as Chevron_right, u as useAdminSlots, b as ConfirmDialogHost, c as activeTabState } from "../../../../chunks/activeTab.svelte.js";
 import { u as usePermissions, c as confirmDialog, s as setPermissionsContext } from "../../../../chunks/confirm-dialog.svelte.js";
 import { c as collectReferenceIds } from "../../../../chunks/reference-walk.js";
 import { E as External_link } from "../../../../chunks/external-link.js";
@@ -24,9 +28,10 @@ import { I as Input } from "../../../../chunks/input.js";
 import { L as Label } from "../../../../chunks/label.js";
 import { S as Separator } from "../../../../chunks/separator.js";
 import { C as Checkbox } from "../../../../chunks/checkbox.js";
-import { R as Root, D as Dialog_content, a as Dialog_header, b as Dialog_title } from "../../../../chunks/index6.js";
-import { C as Circle_check, a as Chevron_right, b as ConfirmDialogHost, c as activeTabState } from "../../../../chunks/activeTab.svelte.js";
-import { s as schemaTypes } from "../../../../chunks/index8.js";
+import { R as Root, D as Dialog_content, a as Dialog_header, b as Dialog_title } from "../../../../chunks/index7.js";
+import { U as Upload } from "../../../../chunks/upload.js";
+import { S as Search } from "../../../../chunks/search.js";
+import { p as plugins } from "../../../../chunks/plugins.js";
 function sortObject(item) {
   if (item === null || typeof item !== "object")
     return item;
@@ -69,6 +74,90 @@ function hasUnpublishedChanges(draftData, publishedHash) {
 const SCHEMA_CONTEXT_KEY = /* @__PURE__ */ Symbol("aphex-schemas");
 function setSchemaContext(schemas) {
   setContext(SCHEMA_CONTEXT_KEY, schemas);
+}
+const FIELD_COMPONENTS_KEY = /* @__PURE__ */ Symbol.for("aphex.admin.field-components");
+function setFieldComponents(lookup) {
+  setContext(FIELD_COMPONENTS_KEY, lookup);
+}
+const ADMIN_NAV_KEY = /* @__PURE__ */ Symbol.for("aphex.admin.nav");
+function setAdminNav(basePath = "/admin") {
+  const nav = createAdminNav(basePath);
+  setContext(ADMIN_NAV_KEY, nav);
+  return nav;
+}
+function createAdminNav(basePath = "/admin") {
+  async function patch(changes, { replace = true } = {}) {
+    const params = new SvelteURLSearchParams(page.url.searchParams);
+    for (const [key, value] of Object.entries(changes)) {
+      if (value == null) params.delete(key);
+      else params.set(key, value);
+    }
+    const query = params.toString();
+    await goto(`${basePath}${query ? `?${query}` : ""}`, {});
+  }
+  return {
+    patch,
+    openArea: (area) => patch({
+      view: area === "structure" ? null : area,
+      docId: null,
+      docType: null,
+      stack: null,
+      action: null
+    }),
+    openType: (docType) => patch(
+      {
+        docType,
+        docId: null,
+        action: null,
+        stack: null,
+        history: null,
+        view: null
+      },
+      { replace: false }
+    ),
+    openDocument: (docId, docType, opts) => patch(
+      {
+        docId,
+        ...docType ? { docType } : {},
+        action: null,
+        fromDocId: null,
+        fromDocType: null,
+        view: null
+      },
+      { replace: opts?.replace ?? false }
+    ),
+    createDocument: (docType) => patch(
+      {
+        docType,
+        action: "create",
+        docId: null,
+        stack: null,
+        view: null
+      },
+      { replace: false }
+    ),
+    closeToType: (docType) => patch(
+      {
+        docType,
+        docId: null,
+        action: null,
+        stack: null,
+        focus: null,
+        history: null,
+        view: null
+      },
+      { replace: false }
+    ),
+    goHome: () => patch({
+      view: null,
+      docType: null,
+      docId: null,
+      action: null,
+      stack: null,
+      focus: null,
+      history: null
+    })
+  };
 }
 const tabsAttrs = createBitsAttrs({
   component: "tabs",
@@ -244,26 +333,6 @@ function Tabs_content$1($$renderer, $$props) {
     bind_props($$props, { ref });
   });
 }
-function Alert_description($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let {
-      ref = null,
-      class: className,
-      children,
-      $$slots,
-      $$events,
-      ...restProps
-    } = $$props;
-    $$renderer2.push(`<div${attributes({
-      "data-slot": "alert-description",
-      class: clsx(cn("text-muted-foreground col-start-2 grid justify-items-start gap-1 text-sm [&_p]:leading-relaxed", className)),
-      ...restProps
-    })}>`);
-    children?.($$renderer2);
-    $$renderer2.push(`<!----></div>`);
-    bind_props($$props, { ref });
-  });
-}
 function Alert_title($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let {
@@ -284,104 +353,6 @@ function Alert_title($$renderer, $$props) {
     bind_props($$props, { ref });
   });
 }
-function Tabs($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let {
-      ref = null,
-      value = "",
-      class: className,
-      $$slots,
-      $$events,
-      ...restProps
-    } = $$props;
-    let $$settled = true;
-    let $$inner_renderer;
-    function $$render_inner($$renderer3) {
-      if (Tabs$1) {
-        $$renderer3.push("<!--[-->");
-        Tabs$1($$renderer3, spread_props([
-          {
-            "data-slot": "tabs",
-            class: cn("flex flex-col gap-2", className)
-          },
-          restProps,
-          {
-            get ref() {
-              return ref;
-            },
-            set ref($$value) {
-              ref = $$value;
-              $$settled = false;
-            },
-            get value() {
-              return value;
-            },
-            set value($$value) {
-              value = $$value;
-              $$settled = false;
-            }
-          }
-        ]));
-        $$renderer3.push("<!--]-->");
-      } else {
-        $$renderer3.push("<!--[!-->");
-        $$renderer3.push("<!--]-->");
-      }
-    }
-    do {
-      $$settled = true;
-      $$inner_renderer = $$renderer2.copy();
-      $$render_inner($$inner_renderer);
-    } while (!$$settled);
-    $$renderer2.subsume($$inner_renderer);
-    bind_props($$props, { ref, value });
-  });
-}
-function Tabs_content($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let {
-      ref = null,
-      class: className,
-      $$slots,
-      $$events,
-      ...restProps
-    } = $$props;
-    let $$settled = true;
-    let $$inner_renderer;
-    function $$render_inner($$renderer3) {
-      if (Tabs_content$1) {
-        $$renderer3.push("<!--[-->");
-        Tabs_content$1($$renderer3, spread_props([
-          {
-            "data-slot": "tabs-content",
-            class: cn("flex-1 outline-none", className)
-          },
-          restProps,
-          {
-            get ref() {
-              return ref;
-            },
-            set ref($$value) {
-              ref = $$value;
-              $$settled = false;
-            }
-          }
-        ]));
-        $$renderer3.push("<!--]-->");
-      } else {
-        $$renderer3.push("<!--[!-->");
-        $$renderer3.push("<!--]-->");
-      }
-    }
-    do {
-      $$settled = true;
-      $$inner_renderer = $$renderer2.copy();
-      $$render_inner($$inner_renderer);
-    } while (!$$settled);
-    $$renderer2.subsume($$inner_renderer);
-    bind_props($$props, { ref });
-  });
-}
 function Arrow_down_up($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { $$slots, $$events, ...props } = $$props;
@@ -398,6 +369,38 @@ function Arrow_down_up($$renderer, $$props) {
        * @description Lucide SVG icon component, renders SVG Element with children.
        *
        * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJtMyAxNiA0IDQgNC00IiAvPgogIDxwYXRoIGQ9Ik03IDIwVjQiIC8+CiAgPHBhdGggZD0ibTIxIDgtNC00LTQgNCIgLz4KICA8cGF0aCBkPSJNMTcgNHYxNiIgLz4KPC9zdmc+Cg==) - https://lucide.dev/icons/arrow-down-up
+       * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
+       *
+       * @param {Object} props - Lucide icons props and any valid SVG attribute
+       * @returns {FunctionalComponent} Svelte component
+       *
+       */
+      props,
+      {
+        iconNode,
+        children: ($$renderer3) => {
+          props.children?.($$renderer3);
+          $$renderer3.push(`<!---->`);
+        },
+        $$slots: { default: true }
+      }
+    ]));
+  });
+}
+function Arrow_left($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { $$slots, $$events, ...props } = $$props;
+    const iconNode = [
+      ["path", { "d": "m12 19-7-7 7-7" }],
+      ["path", { "d": "M19 12H5" }]
+    ];
+    Icon($$renderer2, spread_props([
+      { name: "arrow-left" },
+      /**
+       * @component @name ArrowLeft
+       * @description Lucide SVG icon component, renders SVG Element with children.
+       *
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJtMTIgMTktNy03IDctNyIgLz4KICA8cGF0aCBkPSJNMTkgMTJINSIgLz4KPC9zdmc+Cg==) - https://lucide.dev/icons/arrow-left
        * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
        *
        * @param {Object} props - Lucide icons props and any valid SVG attribute
@@ -957,20 +960,30 @@ function Refresh_cw($$renderer, $$props) {
     ]));
   });
 }
-function Search($$renderer, $$props) {
+function Smartphone($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { $$slots, $$events, ...props } = $$props;
     const iconNode = [
-      ["path", { "d": "m21 21-4.34-4.34" }],
-      ["circle", { "cx": "11", "cy": "11", "r": "8" }]
+      [
+        "rect",
+        {
+          "width": "14",
+          "height": "20",
+          "x": "5",
+          "y": "2",
+          "rx": "2",
+          "ry": "2"
+        }
+      ],
+      ["path", { "d": "M12 18h.01" }]
     ];
     Icon($$renderer2, spread_props([
-      { name: "search" },
+      { name: "smartphone" },
       /**
-       * @component @name Search
+       * @component @name Smartphone
        * @description Lucide SVG icon component, renders SVG Element with children.
        *
-       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJtMjEgMjEtNC4zNC00LjM0IiAvPgogIDxjaXJjbGUgY3g9IjExIiBjeT0iMTEiIHI9IjgiIC8+Cjwvc3ZnPgo=) - https://lucide.dev/icons/search
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cmVjdCB3aWR0aD0iMTQiIGhlaWdodD0iMjAiIHg9IjUiIHk9IjIiIHJ4PSIyIiByeT0iMiIgLz4KICA8cGF0aCBkPSJNMTIgMThoLjAxIiAvPgo8L3N2Zz4K) - https://lucide.dev/icons/smartphone
        * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
        *
        * @param {Object} props - Lucide icons props and any valid SVG attribute
@@ -1026,21 +1039,33 @@ function Square_check_big($$renderer, $$props) {
     ]));
   });
 }
-function Upload($$renderer, $$props) {
+function Tablet($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { $$slots, $$events, ...props } = $$props;
     const iconNode = [
-      ["path", { "d": "M12 3v12" }],
-      ["path", { "d": "m17 8-5-5-5 5" }],
-      ["path", { "d": "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }]
+      [
+        "rect",
+        {
+          "width": "16",
+          "height": "20",
+          "x": "4",
+          "y": "2",
+          "rx": "2",
+          "ry": "2"
+        }
+      ],
+      [
+        "line",
+        { "x1": "12", "x2": "12.01", "y1": "18", "y2": "18" }
+      ]
     ];
     Icon($$renderer2, spread_props([
-      { name: "upload" },
+      { name: "tablet" },
       /**
-       * @component @name Upload
+       * @component @name Tablet
        * @description Lucide SVG icon component, renders SVG Element with children.
        *
-       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJNMTIgM3YxMiIgLz4KICA8cGF0aCBkPSJtMTcgOC01LTUtNSA1IiAvPgogIDxwYXRoIGQ9Ik0yMSAxNXY0YTIgMiAwIDAgMS0yIDJINWEyIDIgMCAwIDEtMi0ydi00IiAvPgo8L3N2Zz4K) - https://lucide.dev/icons/upload
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cmVjdCB3aWR0aD0iMTYiIGhlaWdodD0iMjAiIHg9IjQiIHk9IjIiIHJ4PSIyIiByeT0iMiIgLz4KICA8bGluZSB4MT0iMTIiIHgyPSIxMi4wMSIgeTE9IjE4IiB5Mj0iMTgiIC8+Cjwvc3ZnPgo=) - https://lucide.dev/icons/tablet
        * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
        *
        * @param {Object} props - Lucide icons props and any valid SVG attribute
@@ -1057,6 +1082,177 @@ function Upload($$renderer, $$props) {
         $$slots: { default: true }
       }
     ]));
+  });
+}
+function Zoom_in($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { $$slots, $$events, ...props } = $$props;
+    const iconNode = [
+      ["circle", { "cx": "11", "cy": "11", "r": "8" }],
+      [
+        "line",
+        { "x1": "21", "x2": "16.65", "y1": "21", "y2": "16.65" }
+      ],
+      ["line", { "x1": "11", "x2": "11", "y1": "8", "y2": "14" }],
+      ["line", { "x1": "8", "x2": "14", "y1": "11", "y2": "11" }]
+    ];
+    Icon($$renderer2, spread_props([
+      { name: "zoom-in" },
+      /**
+       * @component @name ZoomIn
+       * @description Lucide SVG icon component, renders SVG Element with children.
+       *
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8Y2lyY2xlIGN4PSIxMSIgY3k9IjExIiByPSI4IiAvPgogIDxsaW5lIHgxPSIyMSIgeDI9IjE2LjY1IiB5MT0iMjEiIHkyPSIxNi42NSIgLz4KICA8bGluZSB4MT0iMTEiIHgyPSIxMSIgeTE9IjgiIHkyPSIxNCIgLz4KICA8bGluZSB4MT0iOCIgeDI9IjE0IiB5MT0iMTEiIHkyPSIxMSIgLz4KPC9zdmc+Cg==) - https://lucide.dev/icons/zoom-in
+       * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
+       *
+       * @param {Object} props - Lucide icons props and any valid SVG attribute
+       * @returns {FunctionalComponent} Svelte component
+       *
+       */
+      props,
+      {
+        iconNode,
+        children: ($$renderer3) => {
+          props.children?.($$renderer3);
+          $$renderer3.push(`<!---->`);
+        },
+        $$slots: { default: true }
+      }
+    ]));
+  });
+}
+function Zoom_out($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { $$slots, $$events, ...props } = $$props;
+    const iconNode = [
+      ["circle", { "cx": "11", "cy": "11", "r": "8" }],
+      [
+        "line",
+        { "x1": "21", "x2": "16.65", "y1": "21", "y2": "16.65" }
+      ],
+      ["line", { "x1": "8", "x2": "14", "y1": "11", "y2": "11" }]
+    ];
+    Icon($$renderer2, spread_props([
+      { name: "zoom-out" },
+      /**
+       * @component @name ZoomOut
+       * @description Lucide SVG icon component, renders SVG Element with children.
+       *
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8Y2lyY2xlIGN4PSIxMSIgY3k9IjExIiByPSI4IiAvPgogIDxsaW5lIHgxPSIyMSIgeDI9IjE2LjY1IiB5MT0iMjEiIHkyPSIxNi42NSIgLz4KICA8bGluZSB4MT0iOCIgeDI9IjE0IiB5MT0iMTEiIHkyPSIxMSIgLz4KPC9zdmc+Cg==) - https://lucide.dev/icons/zoom-out
+       * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
+       *
+       * @param {Object} props - Lucide icons props and any valid SVG attribute
+       * @returns {FunctionalComponent} Svelte component
+       *
+       */
+      props,
+      {
+        iconNode,
+        children: ($$renderer3) => {
+          props.children?.($$renderer3);
+          $$renderer3.push(`<!---->`);
+        },
+        $$slots: { default: true }
+      }
+    ]));
+  });
+}
+function Tabs($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let {
+      ref = null,
+      value = "",
+      class: className,
+      $$slots,
+      $$events,
+      ...restProps
+    } = $$props;
+    let $$settled = true;
+    let $$inner_renderer;
+    function $$render_inner($$renderer3) {
+      if (Tabs$1) {
+        $$renderer3.push("<!--[-->");
+        Tabs$1($$renderer3, spread_props([
+          {
+            "data-slot": "tabs",
+            class: cn("flex flex-col gap-2", className)
+          },
+          restProps,
+          {
+            get ref() {
+              return ref;
+            },
+            set ref($$value) {
+              ref = $$value;
+              $$settled = false;
+            },
+            get value() {
+              return value;
+            },
+            set value($$value) {
+              value = $$value;
+              $$settled = false;
+            }
+          }
+        ]));
+        $$renderer3.push("<!--]-->");
+      } else {
+        $$renderer3.push("<!--[!-->");
+        $$renderer3.push("<!--]-->");
+      }
+    }
+    do {
+      $$settled = true;
+      $$inner_renderer = $$renderer2.copy();
+      $$render_inner($$inner_renderer);
+    } while (!$$settled);
+    $$renderer2.subsume($$inner_renderer);
+    bind_props($$props, { ref, value });
+  });
+}
+function Tabs_content($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let {
+      ref = null,
+      class: className,
+      $$slots,
+      $$events,
+      ...restProps
+    } = $$props;
+    let $$settled = true;
+    let $$inner_renderer;
+    function $$render_inner($$renderer3) {
+      if (Tabs_content$1) {
+        $$renderer3.push("<!--[-->");
+        Tabs_content$1($$renderer3, spread_props([
+          {
+            "data-slot": "tabs-content",
+            class: cn("flex-1 outline-none", className)
+          },
+          restProps,
+          {
+            get ref() {
+              return ref;
+            },
+            set ref($$value) {
+              ref = $$value;
+              $$settled = false;
+            }
+          }
+        ]));
+        $$renderer3.push("<!--]-->");
+      } else {
+        $$renderer3.push("<!--[!-->");
+        $$renderer3.push("<!--]-->");
+      }
+    }
+    do {
+      $$settled = true;
+      $$inner_renderer = $$renderer2.copy();
+      $$render_inner($$inner_renderer);
+    } while (!$$settled);
+    $$renderer2.subsume($$inner_renderer);
+    bind_props($$props, { ref });
   });
 }
 async function copyUrlToClipboard(url) {
@@ -1164,6 +1360,10 @@ function MediaBrowser($$renderer, $$props) {
         toast.error("Failed to fetch reference counts");
       }
     }
+    function isSystemAsset(asset) {
+      const metadata = asset.metadata;
+      return metadata?.system === true || metadata?.fieldPath === "user.image" || metadata?.fieldPath === "organization.metadata.logo";
+    }
     function sortAssets(list) {
       const sorted = [...list];
       switch (sortOrder) {
@@ -1181,13 +1381,14 @@ function MediaBrowser($$renderer, $$props) {
     }
     const pinnedAssets = derived(() => {
       if (!(selectable && multiSelect && existingAssetIds && existingAssetIds.size > 0)) return [];
-      return assetList.filter((a) => existingAssetIds.has(a.id));
+      return assetList.filter((a) => !isSystemAsset(a) && existingAssetIds.has(a.id));
     });
     const sortedAssets = derived(() => {
+      const visibleAssets = assetList.filter((a) => !isSystemAsset(a));
       if (selectable && multiSelect && existingAssetIds && existingAssetIds.size > 0) {
-        return sortAssets(assetList.filter((a) => !existingAssetIds.has(a.id)));
+        return sortAssets(visibleAssets.filter((a) => !existingAssetIds.has(a.id)));
       }
-      return sortAssets(assetList);
+      return sortAssets(visibleAssets);
     });
     function toggleSelect(id) {
       const next = new SvelteSet(selectedIds);
@@ -1984,10 +2185,6 @@ function MediaBrowser($$renderer, $$props) {
     $$renderer2.subsume($$inner_renderer);
   });
 }
-const SAVE_STATE_KEY = /* @__PURE__ */ Symbol("aphex-save-state");
-function setSaveStateContext(state) {
-  setContext(SAVE_STATE_KEY, state);
-}
 function pluralize(word) {
   if (!word)
     return word;
@@ -2004,11 +2201,25 @@ function notifyDocumentChanged(documentId) {
   if (!documentId) return;
   versions.set(documentId, (versions.get(documentId) ?? 0) + 1);
 }
+const SAVE_STATE_KEY = /* @__PURE__ */ Symbol("aphex-save-state");
+function setSaveStateContext(state) {
+  setContext(SAVE_STATE_KEY, state);
+}
+const BLOCK_PREVIEWS_KEY = /* @__PURE__ */ Symbol.for("aphex.admin.block-previews");
+function setBlockPreviews(lookup) {
+  setContext(BLOCK_PREVIEWS_KEY, lookup);
+}
 const KEY = /* @__PURE__ */ Symbol("aphex:richtext-editors");
 function setRichtextEditorRegistry() {
   const registry = /* @__PURE__ */ new Map();
   setContext(KEY, registry);
   return registry;
+}
+function AdminSlot($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { name, id, order = 0, children } = $$props;
+    useAdminSlots();
+  });
 }
 function DocumentEditor($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
@@ -2018,6 +2229,7 @@ function DocumentEditor($$renderer, $$props) {
       documentId,
       isCreating,
       onBack,
+      backLabel,
       onSaved,
       onAutoSaved,
       onDeleted,
@@ -2031,8 +2243,10 @@ function DocumentEditor($$renderer, $$props) {
       focusMode = false,
       onToggleFocus,
       presentationMode = false,
+      refreshToken = 0,
       onTogglePresentation,
-      organizationId = null
+      organizationId = null,
+      plugins: plugins2 = []
     } = $$props;
     setSchemaContext(schemas);
     setRichtextEditorRegistry();
@@ -2053,8 +2267,21 @@ function DocumentEditor($$renderer, $$props) {
     let perspective = "draft";
     let publishedData = null;
     const isViewingPublished = derived(() => perspective === "published");
+    const pluginDocumentActions = derived(() => createPartResolver(plugins2).documentActions({
+      schemaName: documentType,
+      capabilities: [...perms.capabilities],
+      overrideAccess: perms.role === "super_admin" || perms.role === "admin"
+    }));
+    const documentActionContext = derived(() => null);
     let iframeRef = null;
     let fieldsWidth = 500;
+    let previewViewport = "desktop";
+    let previewZoom = 1;
+    const frameStyle = derived(() => {
+      {
+        return "";
+      }
+    });
     const resolvedPreviewUrl = derived(() => {
       return null;
     });
@@ -2126,9 +2353,7 @@ function DocumentEditor($$renderer, $$props) {
     const canPublish = derived(() => (hasUnpublishedContent() || isUnpublished()) && !saving && documentId && !hasValidationErrors);
     function getPreviewTitle() {
       const source = perspective === "published" && publishedData ? publishedData : documentData;
-      {
-        return source.title || `Untitled`;
-      }
+      return resolvePreviewTitle(source, schema);
     }
     async function saveDocument(isAutoSave = false) {
       if (saving) return;
@@ -2339,142 +2564,227 @@ function DocumentEditor($$renderer, $$props) {
         saving = false;
       }
     }
-    $$renderer2.push(`<div class="relative flex h-full w-full min-w-0 flex-col overflow-hidden"><div class="bg-background w-full min-w-0 overflow-x-clip px-4 pt-4 pb-5 lg:px-6 lg:pt-5"><div class="w-full"><div class="mb-4 flex items-center justify-between gap-3"><div class="text-muted-foreground flex min-w-0 items-center gap-2 text-[11px] font-medium tracking-wider uppercase"><span class="whitespace-nowrap">${escape_html(documentType)}</span> <span aria-hidden="true">·</span> <span class="truncate">${escape_html(getPreviewTitle())}</span></div> <div class="flex shrink-0 items-center gap-2">`);
-    if (saving) {
-      $$renderer2.push("<!--[0-->");
-      $$renderer2.push(`<span class="text-muted-foreground hidden items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase sm:inline-flex"><span class="bg-muted-foreground/60 h-1.5 w-1.5 animate-pulse rounded-full"></span> Saving</span>`);
-    } else if (hasUnsavedChanges) {
-      $$renderer2.push("<!--[1-->");
-      $$renderer2.push(`<span class="text-muted-foreground hidden items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase sm:inline-flex"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Unsaved</span>`);
-    } else if (savedAgoText()) {
-      $$renderer2.push("<!--[2-->");
-      $$renderer2.push(`<span class="text-muted-foreground hidden items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase sm:inline-flex"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Auto-saved</span>`);
-    } else {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--> `);
-    if (documentId && fullDocument?._meta?.publishedHash) {
-      $$renderer2.push("<!--[0-->");
-      const isPublished = fullDocument?._meta?.status === "published" && fullDocument?._meta?.publishedAt;
-      const isUnpub = fullDocument?._meta?.status === "unpublished";
-      $$renderer2.push(`<div class="flex items-center gap-1.5"><button${attr_class(`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium tracking-wider uppercase transition-colors ${stringify(perspective === "draft" ? "bg-primary/90 text-primary-foreground border-transparent" : "text-muted-foreground hover:bg-muted")}`)}><span${attr_class(`bg-muted-foreground/60 h-1.5 w-1.5 rounded-full ${stringify(perspective === "draft" ? "bg-primary-foreground/60" : "")}`)}></span> Draft</button> <button${attr_class(`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium tracking-wider uppercase transition-colors ${stringify(perspective === "published" ? "bg-primary text-primary-foreground border-transparent" : "text-muted-foreground hover:bg-muted")}`)}>`);
-      if (isPublished) {
-        $$renderer2.push("<!--[0-->");
-        $$renderer2.push(`<span${attr_class(`h-1.5 w-1.5 rounded-full ${stringify(perspective === "published" ? "bg-primary-foreground/60" : "bg-green-500")}`)}></span> Published · ${escape_html(timeAgo(new Date(fullDocument._meta.publishedAt)))}`);
-      } else if (isUnpub) {
-        $$renderer2.push("<!--[1-->");
-        $$renderer2.push(`<span${attr_class(`h-1.5 w-1.5 rounded-full ${stringify(perspective === "published" ? "bg-primary-foreground/60" : "bg-muted-foreground/60")}`)}></span> Unpublished`);
+    function editorActions($$renderer3) {
+      $$renderer3.push(`<div class="flex shrink-0 items-center gap-2">`);
+      if (saving) {
+        $$renderer3.push("<!--[0-->");
+        $$renderer3.push(`<span class="text-muted-foreground hidden items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase sm:inline-flex"><span class="bg-muted-foreground/60 h-1.5 w-1.5 animate-pulse rounded-full"></span> Saving</span>`);
+      } else if (hasUnsavedChanges) {
+        $$renderer3.push("<!--[1-->");
+        $$renderer3.push(`<span class="text-muted-foreground hidden items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase sm:inline-flex"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Unsaved</span>`);
+      } else if (savedAgoText()) {
+        $$renderer3.push("<!--[2-->");
+        $$renderer3.push(`<span class="text-muted-foreground hidden items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase sm:inline-flex"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Auto-saved</span>`);
       } else {
-        $$renderer2.push("<!--[-1-->");
-        $$renderer2.push(`Published`);
+        $$renderer3.push("<!--[-1-->");
       }
-      $$renderer2.push(`<!--]--></button></div>`);
-    } else {
-      $$renderer2.push("<!--[-1-->");
+      $$renderer3.push(`<!--]--> `);
+      if (documentId && fullDocument?._meta?.publishedHash) {
+        $$renderer3.push("<!--[0-->");
+        const isPublished = fullDocument?._meta?.status === "published" && fullDocument?._meta?.publishedAt;
+        const isUnpub = fullDocument?._meta?.status === "unpublished";
+        $$renderer3.push(`<div class="flex items-center gap-1.5"><button${attr_class(`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium tracking-wider uppercase transition-colors ${stringify(perspective === "draft" ? "bg-primary/90 text-primary-foreground border-transparent" : "text-muted-foreground hover:bg-muted")}`)}><span${attr_class(`bg-muted-foreground/60 h-1.5 w-1.5 rounded-full ${stringify(perspective === "draft" ? "bg-primary-foreground/60" : "")}`)}></span> Draft</button> <button${attr_class(`inline-flex cursor-pointer items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium tracking-wider uppercase transition-colors ${stringify(perspective === "published" ? "bg-primary text-primary-foreground border-transparent" : "text-muted-foreground hover:bg-muted")}`)}>`);
+        if (isPublished) {
+          $$renderer3.push("<!--[0-->");
+          $$renderer3.push(`<span${attr_class(`h-1.5 w-1.5 rounded-full ${stringify(perspective === "published" ? "bg-primary-foreground/60" : "bg-green-500")}`)}></span> Published · ${escape_html(timeAgo(new Date(fullDocument._meta.publishedAt)))}`);
+        } else if (isUnpub) {
+          $$renderer3.push("<!--[1-->");
+          $$renderer3.push(`<span${attr_class(`h-1.5 w-1.5 rounded-full ${stringify(perspective === "published" ? "bg-primary-foreground/60" : "bg-muted-foreground/60")}`)}></span> Unpublished`);
+        } else {
+          $$renderer3.push("<!--[-1-->");
+          $$renderer3.push(`Published`);
+        }
+        $$renderer3.push(`<!--]--></button></div>`);
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--> `);
+      if (documentActionContext()) {
+        $$renderer3.push("<!--[0-->");
+        $$renderer3.push(`<!--[-->`);
+        const each_array = ensure_array_like(pluginDocumentActions());
+        for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+          let action = each_array[$$index];
+          const ActionComponent = action.component;
+          if (ActionComponent) {
+            $$renderer3.push("<!--[-->");
+            ActionComponent($$renderer3, { action: documentActionContext() });
+            $$renderer3.push("<!--]-->");
+          } else {
+            $$renderer3.push("<!--[!-->");
+            $$renderer3.push("<!--]-->");
+          }
+        }
+        $$renderer3.push(`<!--]-->`);
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--> `);
+      if (documentId) {
+        $$renderer3.push("<!--[0-->");
+        $$renderer3.push(`<div class="relative">`);
+        Button($$renderer3, {
+          variant: "ghost",
+          size: "icon",
+          onclick: () => showHeaderMenu = !showHeaderMenu,
+          class: "h-8 w-8 cursor-pointer",
+          children: ($$renderer4) => {
+            Ellipsis($$renderer4, { class: "h-4 w-4" });
+          },
+          $$slots: { default: true }
+        });
+        $$renderer3.push(`<!----> `);
+        if (showHeaderMenu) {
+          $$renderer3.push("<!--[0-->");
+          $$renderer3.push(`<div class="bg-background border-rule absolute top-full right-0 z-[60] mt-1 min-w-[160px] rounded-md border py-1 shadow-lg"><button class="hover:bg-muted flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm transition-colors">`);
+          History($$renderer3, { class: "h-3.5 w-3.5" });
+          $$renderer3.push(`<!----> History</button> <button class="hover:bg-muted flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm transition-colors">`);
+          Code($$renderer3, { class: "h-3.5 w-3.5" });
+          $$renderer3.push(`<!----> Inspect</button></div>  <div class="fixed inset-0 z-[55]"></div>`);
+        } else {
+          $$renderer3.push("<!--[-1-->");
+        }
+        $$renderer3.push(`<!--]--></div>`);
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--> `);
+      {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--> `);
+      if (onToggleFocus && !presentationMode) {
+        $$renderer3.push("<!--[0-->");
+        Button($$renderer3, {
+          variant: "ghost",
+          size: "icon",
+          onclick: onToggleFocus,
+          class: "hidden h-8 w-8 hover:cursor-pointer lg:flex",
+          title: focusMode ? "Exit focus mode" : "Enter focus mode",
+          children: ($$renderer4) => {
+            if (focusMode) {
+              $$renderer4.push("<!--[0-->");
+              Minimize_2($$renderer4, { class: "h-4 w-4" });
+            } else {
+              $$renderer4.push("<!--[-1-->");
+              Maximize_2($$renderer4, { class: "h-4 w-4" });
+            }
+            $$renderer4.push(`<!--]-->`);
+          },
+          $$slots: { default: true }
+        });
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--> `);
+      if (backLabel) {
+        $$renderer3.push("<!--[0-->");
+        Button($$renderer3, {
+          variant: "ghost",
+          size: "sm",
+          onclick: onBack,
+          class: "hidden h-8 gap-1.5 px-2 hover:cursor-pointer lg:flex",
+          title: backLabel,
+          children: ($$renderer4) => {
+            Arrow_left($$renderer4, { class: "h-4 w-4" });
+            $$renderer4.push(`<!----> <span class="text-sm font-medium">${escape_html(backLabel)}</span>`);
+          },
+          $$slots: { default: true }
+        });
+      } else if (!presentationMode) {
+        $$renderer3.push("<!--[1-->");
+        Button($$renderer3, {
+          variant: "ghost",
+          size: "icon",
+          onclick: onBack,
+          class: "hidden h-8 w-8 hover:cursor-pointer lg:flex",
+          title: "Close",
+          children: ($$renderer4) => {
+            $$renderer4.push(`<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`);
+          },
+          $$slots: { default: true }
+        });
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--></div>`);
     }
-    $$renderer2.push(`<!--]--> `);
-    if (documentId) {
+    function editorBreadcrumb($$renderer3) {
+      $$renderer3.push(`<div class="text-muted-foreground flex min-w-0 items-center gap-1.5 text-[11px] font-medium tracking-wider uppercase">`);
+      if (presentationMode && onTogglePresentation) {
+        $$renderer3.push("<!--[0-->");
+        $$renderer3.push(`<button type="button" class="hover:text-foreground hover:bg-muted -ml-1 flex shrink-0 cursor-pointer items-center rounded p-1 transition-colors" title="Exit visual editing" aria-label="Exit visual editing">`);
+        Arrow_left($$renderer3, { class: "h-4 w-4" });
+        $$renderer3.push(`<!----></button>`);
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--> <span class="shrink-0 whitespace-nowrap">${escape_html(documentType)}</span> `);
+      if (presentationMode) {
+        $$renderer3.push("<!--[0-->");
+        $$renderer3.push(`<span class="shrink-0" aria-hidden="true">·</span> <span class="max-w-[24rem] min-w-0 truncate">${escape_html(getPreviewTitle())}</span>`);
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--></div>`);
+    }
+    if (presentationMode) {
       $$renderer2.push("<!--[0-->");
-      $$renderer2.push(`<div class="relative">`);
-      Button($$renderer2, {
-        variant: "ghost",
-        size: "icon",
-        onclick: () => showHeaderMenu = !showHeaderMenu,
-        class: "h-8 w-8 cursor-pointer",
+      AdminSlot($$renderer2, {
+        name: "navbar-start",
+        id: "editor-breadcrumb",
         children: ($$renderer3) => {
-          Ellipsis($$renderer3, { class: "h-4 w-4" });
-        },
-        $$slots: { default: true }
+          editorBreadcrumb($$renderer3);
+        }
       });
       $$renderer2.push(`<!----> `);
-      if (showHeaderMenu) {
+      AdminSlot($$renderer2, {
+        name: "navbar-end",
+        id: "editor-actions",
+        children: ($$renderer3) => {
+          editorActions($$renderer3);
+        }
+      });
+      $$renderer2.push(`<!---->`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+    }
+    $$renderer2.push(`<!--]--> <div class="relative flex h-full w-full min-w-0 flex-col overflow-hidden">`);
+    if (!presentationMode) {
+      $$renderer2.push("<!--[0-->");
+      $$renderer2.push(`<div class="bg-background w-full min-w-0 overflow-x-clip px-4 pt-4 pb-5 lg:px-6 lg:pt-5"><div class="w-full"><div${attr_class(`flex flex-wrap items-center justify-between gap-x-3 gap-y-2 ${stringify(presentationMode ? "" : "mb-4")}`)}>`);
+      editorBreadcrumb($$renderer2);
+      $$renderer2.push(`<!----> `);
+      editorActions($$renderer2);
+      $$renderer2.push(`<!----></div>  <h1 class="block w-full min-w-0 truncate text-xl font-semibold tracking-tight lg:text-2xl">${escape_html(getPreviewTitle())}</h1> <div class="mt-3 flex items-center justify-between gap-3 sm:hidden"><div class="flex flex-wrap items-center gap-2">`);
+      if (!fullDocument?._meta?.publishedHash && documentId && fullDocument?._meta?.status !== "unpublished") {
         $$renderer2.push("<!--[0-->");
-        $$renderer2.push(`<div class="bg-background border-rule absolute top-full right-0 z-[60] mt-1 min-w-[160px] rounded-md border py-1 shadow-lg"><button class="hover:bg-muted flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm transition-colors">`);
-        History($$renderer2, { class: "h-3.5 w-3.5" });
-        $$renderer2.push(`<!----> History</button> <button class="hover:bg-muted flex w-full cursor-pointer items-center gap-2 px-3 py-2 text-left text-sm transition-colors">`);
-        Code($$renderer2, { class: "h-3.5 w-3.5" });
-        $$renderer2.push(`<!----> Inspect</button></div>  <div class="fixed inset-0 z-[55]"></div>`);
+        $$renderer2.push(`<span class="text-muted-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium tracking-wider uppercase"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Draft</span>`);
       } else {
         $$renderer2.push("<!--[-1-->");
       }
-      $$renderer2.push(`<!--]--></div>`);
+      $$renderer2.push(`<!--]--></div> `);
+      if (saving) {
+        $$renderer2.push("<!--[0-->");
+        $$renderer2.push(`<span class="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase"><span class="bg-muted-foreground/60 h-1.5 w-1.5 animate-pulse rounded-full"></span> Saving</span>`);
+      } else if (hasUnsavedChanges) {
+        $$renderer2.push("<!--[1-->");
+        $$renderer2.push(`<span class="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Unsaved</span>`);
+      } else if (savedAgoText()) {
+        $$renderer2.push("<!--[2-->");
+        $$renderer2.push(`<span class="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Auto-saved</span>`);
+      } else {
+        $$renderer2.push("<!--[-1-->");
+      }
+      $$renderer2.push(`<!--]--></div></div></div>`);
     } else {
       $$renderer2.push("<!--[-1-->");
     }
-    $$renderer2.push(`<!--]--> `);
-    if (onTogglePresentation && schema?.previewUrl) {
-      $$renderer2.push("<!--[0-->");
-      Button($$renderer2, {
-        variant: "ghost",
-        size: "icon",
-        onclick: onTogglePresentation,
-        class: `hidden h-8 w-8 hover:cursor-pointer lg:flex ${stringify(presentationMode ? "text-primary" : "")}`,
-        title: presentationMode ? "Exit presentation mode" : "Present",
-        children: ($$renderer3) => {
-          Monitor($$renderer3, { class: "h-4 w-4" });
-        },
-        $$slots: { default: true }
-      });
-    } else {
+    $$renderer2.push(`<!--]--> <div data-document-editor=""${attr_class(`relative flex min-h-0 flex-1 ${stringify(presentationMode ? "flex-row" : "flex-col")}`)}><div${attr_class(`relative flex min-h-0 flex-col ${stringify(presentationMode ? "shrink-0" : "flex-1")}`)}${attr_style(presentationMode ? `width: ${fieldsWidth}px; min-width: 500px` : void 0)}>`);
+    {
       $$renderer2.push("<!--[-1-->");
     }
-    $$renderer2.push(`<!--]--> `);
-    if (onToggleFocus) {
-      $$renderer2.push("<!--[0-->");
-      Button($$renderer2, {
-        variant: "ghost",
-        size: "icon",
-        onclick: onToggleFocus,
-        class: "hidden h-8 w-8 hover:cursor-pointer lg:flex",
-        title: focusMode ? "Exit focus mode" : "Enter focus mode",
-        children: ($$renderer3) => {
-          if (focusMode) {
-            $$renderer3.push("<!--[0-->");
-            Minimize_2($$renderer3, { class: "h-4 w-4" });
-          } else {
-            $$renderer3.push("<!--[-1-->");
-            Maximize_2($$renderer3, { class: "h-4 w-4" });
-          }
-          $$renderer3.push(`<!--]-->`);
-        },
-        $$slots: { default: true }
-      });
-    } else {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--> `);
-    Button($$renderer2, {
-      variant: "ghost",
-      size: "icon",
-      onclick: onBack,
-      class: "hidden h-8 w-8 hover:cursor-pointer lg:flex",
-      title: "Close",
-      children: ($$renderer3) => {
-        $$renderer3.push(`<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`);
-      },
-      $$slots: { default: true }
-    });
-    $$renderer2.push(`<!----></div></div> <h1 class="block w-full min-w-0 truncate text-3xl font-semibold tracking-tight">${escape_html(getPreviewTitle())}</h1> <div class="mt-3 flex items-center justify-between gap-3 sm:hidden"><div class="flex flex-wrap items-center gap-2">`);
-    if (!fullDocument?._meta?.publishedHash && documentId && fullDocument?._meta?.status !== "unpublished") {
-      $$renderer2.push("<!--[0-->");
-      $$renderer2.push(`<span class="text-muted-foreground inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-medium tracking-wider uppercase"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Draft</span>`);
-    } else {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--></div> `);
-    if (saving) {
-      $$renderer2.push("<!--[0-->");
-      $$renderer2.push(`<span class="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase"><span class="bg-muted-foreground/60 h-1.5 w-1.5 animate-pulse rounded-full"></span> Saving</span>`);
-    } else if (hasUnsavedChanges) {
-      $$renderer2.push("<!--[1-->");
-      $$renderer2.push(`<span class="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Unsaved</span>`);
-    } else if (savedAgoText()) {
-      $$renderer2.push("<!--[2-->");
-      $$renderer2.push(`<span class="text-muted-foreground inline-flex items-center gap-1.5 text-[10px] font-medium tracking-wider whitespace-nowrap uppercase"><span class="bg-muted-foreground/60 h-1.5 w-1.5 rounded-full"></span> Auto-saved</span>`);
-    } else {
-      $$renderer2.push("<!--[-1-->");
-    }
-    $$renderer2.push(`<!--]--></div></div></div> <div data-document-editor=""${attr_class(`relative flex min-h-0 flex-1 ${stringify(presentationMode ? "flex-row" : "flex-col")}`)}><div${attr_class(`${stringify(presentationMode ? "shrink-0 overflow-y-auto" : "flex flex-1 flex-col overflow-auto")} p-4 lg:p-6`)}${attr_style(presentationMode ? `width: ${fieldsWidth}px; min-width: 500px` : void 0)}><div class="flex w-full flex-1 flex-col gap-4 lg:gap-6">`);
+    $$renderer2.push(`<!--]--> <div class="min-h-0 w-full flex-1 overflow-y-auto"><div class="flex flex-col gap-8 p-4 lg:p-6">`);
     if (saveError) {
       $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<div class="bg-destructive/10 border-destructive/20 rounded-md border p-3"><p class="text-destructive text-sm">${escape_html(saveError)}</p></div>`);
@@ -2486,7 +2796,7 @@ function DocumentEditor($$renderer, $$props) {
       $$renderer2.push("<!--[-1-->");
       $$renderer2.push(`<div class="border-muted-foreground/30 rounded-md border border-dashed p-4"><p class="text-muted-foreground text-center text-sm">No schema found for document type: ${escape_html(documentType)}</p></div>`);
     }
-    $$renderer2.push(`<!--]--></div></div> `);
+    $$renderer2.push(`<!--]--></div></div></div> `);
     if (presentationMode) {
       $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<div role="separator" aria-orientation="vertical" class="hover:bg-primary/20 active:bg-primary/30 w-1 shrink-0 cursor-ew-resize transition-colors"></div> <div class="flex min-h-0 flex-1 flex-col">`);
@@ -2494,9 +2804,34 @@ function DocumentEditor($$renderer, $$props) {
         $$renderer2.push("<!--[0-->");
         $$renderer2.push(`<div class="border-rule bg-background flex h-10 shrink-0 items-center gap-1 border-b px-2"><button class="hover:bg-muted flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 transition-colors"${attr("title", "Disable edit mode")}><div${attr_class(`relative h-[14px] w-6 rounded-full transition-colors ${stringify("bg-primary")}`)}><div${attr_class(`absolute top-[2px] h-[10px] w-[10px] rounded-full bg-white shadow transition-all ${stringify("left-[12px]")}`)}></div></div> <span${attr_class(`text-[11px] font-medium tracking-wide ${stringify("text-foreground")}`)}>Edit</span></button> <button class="hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer rounded p-1.5 transition-colors" title="Refresh preview">`);
         Refresh_cw($$renderer2, { class: "h-3.5 w-3.5" });
-        $$renderer2.push(`<!----></button> <div class="bg-muted mx-1 min-w-0 flex-1 rounded px-2.5 py-1"><span class="text-muted-foreground block truncate text-center font-mono text-[11px]">${escape_html(iframeUrl())}</span></div> <button class="hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer rounded p-1.5 transition-colors" title="Open in new tab">`);
+        $$renderer2.push(`<!----></button> <div class="bg-muted mx-1 min-w-0 flex-1 rounded px-2.5 py-1"><span class="text-muted-foreground block truncate text-center font-mono text-[11px]">${escape_html(iframeUrl())}</span></div> <div class="bg-muted flex items-center gap-0.5 rounded p-0.5"><!--[-->`);
+        const each_array_6 = ensure_array_like([
+          { v: "desktop", Icon: Monitor, label: "Desktop" },
+          { v: "tablet", Icon: Tablet, label: "Tablet" },
+          { v: "mobile", Icon: Smartphone, label: "Mobile" }
+        ]);
+        for (let $$index_4 = 0, $$length = each_array_6.length; $$index_4 < $$length; $$index_4++) {
+          let { v, Icon: Icon2, label } = each_array_6[$$index_4];
+          $$renderer2.push(`<button${attr_class(`cursor-pointer rounded p-1 transition-colors ${stringify(previewViewport === v ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}`)}${attr("title", label)}${attr("aria-pressed", previewViewport === v)}>`);
+          if (Icon2) {
+            $$renderer2.push("<!--[-->");
+            Icon2($$renderer2, { class: "h-3.5 w-3.5" });
+            $$renderer2.push("<!--]-->");
+          } else {
+            $$renderer2.push("<!--[!-->");
+            $$renderer2.push("<!--]-->");
+          }
+          $$renderer2.push(`</button>`);
+        }
+        $$renderer2.push(`<!--]--></div> <div class="ml-1 flex items-center gap-0.5"><button${attr("disabled", previewZoom <= 0.5, true)} class="hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer rounded p-1.5 transition-colors disabled:cursor-default disabled:opacity-40" title="Zoom out">`);
+        Zoom_out($$renderer2, { class: "h-3.5 w-3.5" });
+        $$renderer2.push(`<!----></button> <button class="text-muted-foreground hover:text-foreground w-9 cursor-pointer text-center font-mono text-[11px] tabular-nums transition-colors" title="Reset zoom">${escape_html(Math.round(previewZoom * 100))}%</button> <button${attr("disabled", previewZoom >= 1.5, true)} class="hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer rounded p-1.5 transition-colors disabled:cursor-default disabled:opacity-40" title="Zoom in">`);
+        Zoom_in($$renderer2, { class: "h-3.5 w-3.5" });
+        $$renderer2.push(`<!----></button></div> <button class="hover:bg-muted text-muted-foreground hover:text-foreground cursor-pointer rounded p-1.5 transition-colors" title="Open in new tab">`);
         External_link($$renderer2, { class: "h-3.5 w-3.5" });
-        $$renderer2.push(`<!----></button></div> <div class="relative min-h-0 flex-1"><iframe${attr("src", iframeUrl())} class="h-full w-full border-none" title="Page preview"></iframe> `);
+        $$renderer2.push(`<!----></button></div> <div${attr_class(`bg-muted/20 relative flex min-h-0 flex-1 [justify-content:safe_center] ${stringify("overflow-hidden")}`)}><div${attr_class(clsx(
+          "h-full w-full"
+        ))}${attr_style(frameStyle())}><iframe${attr("src", iframeUrl())} class="h-full w-full border-none" title="Page preview"></iframe></div> `);
         {
           $$renderer2.push("<!--[-1-->");
         }
@@ -2797,7 +3132,7 @@ function DocumentVersionPanel($$renderer, $$props) {
 function AdminApp($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let {
-      schemas,
+      schemas: appSchemas,
       documentTypes: documentTypesFromServer,
       schemaError = null,
       title = "Aphex CMS",
@@ -2807,12 +3142,42 @@ function AdminApp($$renderer, $$props) {
       rbacRole = null,
       activeTab = { value: "structure" },
       handleTabChange = () => {
-      }
+      },
+      plugins: plugins2 = [],
+      blockPreviews = {}
     } = $$props;
+    const partResolver = derived(() => createPartResolver(plugins2));
+    const schemas = derived(() => partResolver().applySchemaTransforms([...appSchemas, ...partResolver().schemaTypes()]));
+    setFieldComponents((input) => partResolver().fieldComponent(input)?.component);
+    setBlockPreviews((type) => blockPreviews[type]);
     const perms = setPermissionsContext(() => capabilities, () => rbacRole);
+    const adminTools = derived(() => partResolver().adminTools({
+      capabilities: [...capabilities],
+      overrideAccess: rbacRole === "super_admin" || rbacRole === "admin"
+    }));
+    const tabTools = derived(() => adminTools().filter((t) => (t.placement ?? "tab") === "tab"));
+    const nav = setAdminNav();
     let currentOrgId = page.url.searchParams.get("orgId");
+    const adminToolContext = derived(() => ({
+      organizationId: currentOrgId,
+      capabilities,
+      role: rbacRole,
+      can: (capability) => rbacRole === "super_admin" || rbacRole === "admin" || capabilities.includes(capability),
+      schemas: schemas(),
+      navigate: (area) => {
+        activeTab.value = area;
+      },
+      openDocument: (documentType, documentId) => {
+        if (!documentType || !documentId) {
+          cmsLogger.warn("[AdminApp]", "openDocument called without type/id", { documentType, documentId });
+          return;
+        }
+        if (activeTab.value !== "structure") handleTabChange("structure");
+        navigateToEditDocument(documentId, documentType);
+      }
+    }));
     const documentTypes = derived(() => documentTypesFromServer.map((docType) => {
-      const schema = schemas.find((s) => s.name === docType.name);
+      const schema = schemas().find((s) => s.name === docType.name);
       return {
         ...docType,
         icon: schema?.icon,
@@ -2847,22 +3212,24 @@ function AdminApp($$renderer, $$props) {
     let focusModeOn = false;
     function toggleFocusMode() {
       focusModeOn = !focusModeOn;
-      const params = new SvelteURLSearchParams(page.url.searchParams);
-      if (focusModeOn) {
-        params.set("focus", "1");
-      } else {
-        params.delete("focus");
-      }
-      goto(`/admin?${params.toString()}`, {});
+      nav.patch({ focus: focusModeOn ? "1" : null });
     }
     let presentationModeOn = false;
+    const sidebar = useSidebar();
     function togglePresentationMode() {
       presentationModeOn = !presentationModeOn;
+      if (presentationModeOn) sidebar?.setOpen(false);
     }
     let showVersionPanel = false;
     let versionPanelDocId = null;
     let versionPreviewData = null;
     let editorStack = [];
+    let baseRefreshToken = 0;
+    function typeLabel(name) {
+      if (!name) return "";
+      const title2 = schemas().find((s) => s.name === name)?.title;
+      return title2 ?? name.charAt(0).toUpperCase() + name.slice(1).replace(/_/g, " ");
+    }
     let activeEditorIndex = 0;
     const MIN_EDITOR_WIDTH = 650;
     const COLLAPSED_WIDTH = 60;
@@ -2938,13 +3305,7 @@ function AdminApp($$renderer, $$props) {
       return { visible: false, expanded: false };
     });
     async function navigateToEditDocument(docId, docType, replace = false) {
-      const params = new SvelteURLSearchParams(page.url.searchParams);
-      params.set("docId", docId);
-      if (docType) params.set("docType", docType);
-      params.delete("action");
-      params.delete("fromDocId");
-      params.delete("fromDocType");
-      await goto(`/admin?${params.toString()}`, {});
+      await nav.openDocument(docId, docType, { replace });
       mobileView = "editor";
     }
     async function navigateBack() {
@@ -2955,31 +3316,20 @@ function AdminApp($$renderer, $$props) {
       if (fromDocId && fromDocType) {
         await navigateToEditDocument(fromDocId, fromDocType, false);
       } else {
-        const params = new SvelteURLSearchParams(page.url.searchParams);
-        params.delete("docType");
-        params.delete("docId");
-        params.delete("action");
-        params.delete("stack");
-        params.delete("focus");
-        params.delete("history");
-        await goto(`/admin?${params.toString()}`, {});
+        await nav.goHome();
         mobileView = "types";
       }
     }
     function handleOpenVersionHistory(docId) {
       showVersionPanel = true;
       versionPanelDocId = docId;
-      const params = new SvelteURLSearchParams(page.url.searchParams);
-      params.set("history", "1");
-      goto(`/admin?${params.toString()}`, {});
+      nav.patch({ history: "1" });
     }
     function handleCloseVersionPanel() {
       showVersionPanel = false;
       versionPanelDocId = null;
       versionPreviewData = null;
-      const params = new SvelteURLSearchParams(page.url.searchParams);
-      params.delete("history");
-      goto(`/admin?${params.toString()}`, {});
+      nav.patch({ history: null });
     }
     async function handleOpenReference(documentId, documentType) {
       if (windowWidth < 620) {
@@ -3023,17 +3373,79 @@ function AdminApp($$renderer, $$props) {
       if (documentsList.length > 0) {
         documentsList = documentsList.map((doc) => doc.id === documentId ? { ...doc, title: title2 } : doc);
       }
+      if (editorStack.some((e) => e.documentId === documentId)) baseRefreshToken++;
+    }
+    function referenceEditorBody($$renderer3, currentRef) {
+      DocumentEditor($$renderer3, {
+        schemas: schemas(),
+        plugins: plugins2,
+        documentType: currentRef.documentType,
+        documentId: currentRef.documentId,
+        isCreating: currentRef.isCreating,
+        organizationId: currentOrgId,
+        onBack: handleStackedEditorBack,
+        backLabel: "Back",
+        onOpenReference: handleOpenReference,
+        onOpenVersionHistory: handleOpenVersionHistory,
+        externalVersionPreview: versionPanelDocId === currentRef.documentId ? versionPreviewData : null,
+        onSaved: async () => {
+        },
+        onAutoSaved: handleAutoSave,
+        onPublished: async (docId) => {
+        },
+        onUnpublished: async (docId) => {
+        },
+        onRestored: async (docId) => {
+        },
+        onDeleted: async () => {
+          handleCloseStackedEditor();
+        },
+        isReadOnly
+      });
     }
     let $$settled = true;
     let $$inner_renderer;
     function $$render_inner($$renderer3) {
-      head("um2b6p", $$renderer3, ($$renderer4) => {
+      head("r63yfn", $$renderer3, ($$renderer4) => {
         $$renderer4.title(($$renderer5) => {
           $$renderer5.push(`<title>${escape_html(activeTab.value === "structure" ? "Content" : activeTab.value === "media" ? "Media" : "Vision")} - ${escape_html(title)}</title>`);
         });
       });
-      $$renderer3.push(`<div class="flex h-full flex-col overflow-hidden">`);
-      if ((windowWidth < 620 || focusModeOn || presentationModeOn) && activeTab.value === "structure") {
+      if (tabTools().length > 0) {
+        $$renderer3.push("<!--[0-->");
+        AdminSlot($$renderer3, {
+          name: "admin-tabs",
+          id: "plugin-admin-tools",
+          children: ($$renderer4) => {
+            $$renderer4.push(`<!--[-->`);
+            const each_array = ensure_array_like(tabTools());
+            for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+              let tool = each_array[$$index];
+              $$renderer4.push(`<button${attr_class(`${stringify(activeTab.value === `plugin:${tool.id}` ? "bg-background text-foreground shadow" : "text-muted-foreground")} ring-offset-background focus-visible:ring-ring inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none`)}>`);
+              if (tool.icon) {
+                $$renderer4.push("<!--[0-->");
+                const Icon2 = tool.icon;
+                if (Icon2) {
+                  $$renderer4.push("<!--[-->");
+                  Icon2($$renderer4, { class: "h-4 w-4" });
+                  $$renderer4.push("<!--]-->");
+                } else {
+                  $$renderer4.push("<!--[!-->");
+                  $$renderer4.push("<!--]-->");
+                }
+              } else {
+                $$renderer4.push("<!--[-1-->");
+              }
+              $$renderer4.push(`<!--]--> ${escape_html(tool.title)}</button>`);
+            }
+            $$renderer4.push(`<!--]-->`);
+          }
+        });
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]-->  <div class="flex h-full flex-col overflow-hidden">`);
+      if ((windowWidth < 620 || focusModeOn) && activeTab.value === "structure") {
         $$renderer3.push("<!--[0-->");
         $$renderer3.push(`<div class="border-border bg-background border-b"><div class="flex h-12 items-center px-4">`);
         if (mobileView === "documents" && selectedDocumentType) {
@@ -3114,9 +3526,9 @@ function AdminApp($$renderer, $$props) {
                         if (hasDocumentTypes()) {
                           $$renderer5.push("<!--[0-->");
                           $$renderer5.push(`<h2 class="text-muted-foreground border-rule mt-2 mb-3 hidden px-2 pb-3 text-sm font-medium sm:block sm:border-b">Content</h2> <!--[-->`);
-                          const each_array = ensure_array_like(groupedDocumentTypes());
-                          for (let $$index_1 = 0, $$length = each_array.length; $$index_1 < $$length; $$index_1++) {
-                            let bucket = each_array[$$index_1];
+                          const each_array_1 = ensure_array_like(groupedDocumentTypes());
+                          for (let $$index_2 = 0, $$length = each_array_1.length; $$index_2 < $$length; $$index_2++) {
+                            let bucket = each_array_1[$$index_2];
                             if (bucket.name) {
                               $$renderer5.push("<!--[0-->");
                               $$renderer5.push(`<div class="text-muted-foreground mt-3 mb-1 px-2 text-xs font-semibold tracking-wide uppercase first:mt-0">${escape_html(bucket.name)}</div>`);
@@ -3124,9 +3536,9 @@ function AdminApp($$renderer, $$props) {
                               $$renderer5.push("<!--[-1-->");
                             }
                             $$renderer5.push(`<!--]--> <!--[-->`);
-                            const each_array_1 = ensure_array_like(bucket.items);
-                            for (let $$index = 0, $$length2 = each_array_1.length; $$index < $$length2; $$index++) {
-                              let docType = each_array_1[$$index];
+                            const each_array_2 = ensure_array_like(bucket.items);
+                            for (let $$index_1 = 0, $$length2 = each_array_2.length; $$index_1 < $$length2; $$index_1++) {
+                              let docType = each_array_2[$$index_1];
                               $$renderer5.push(`<button${attr_class(`hover:bg-muted/50 group flex w-full cursor-pointer items-center justify-between rounded-md px-2 py-2.5 text-left transition-colors ${stringify(selectedDocumentType === docType.name ? "bg-muted/50" : "")}`)}${attr("title", docType.description || "")}><div class="flex items-center gap-2"><div class="text-muted-foreground flex h-5 w-5 items-center justify-center">`);
                               if (docType.icon) {
                                 $$renderer5.push("<!--[0-->");
@@ -3163,9 +3575,10 @@ function AdminApp($$renderer, $$props) {
                       $$renderer5.push(`<!--]--> `);
                       if (primaryEditorState().visible) {
                         $$renderer5.push("<!--[0-->");
-                        $$renderer5.push(`<div${attr_class(`transition-all duration-200 ${stringify(windowWidth < 620 ? "w-screen" : "flex-1")} h-full overflow-x-hidden overflow-y-auto ${stringify(primaryEditorState().expanded ? "" : "hidden")}`)}${attr_style(windowWidth >= 620 ? "min-width: 0;" : "")}>`);
+                        $$renderer5.push(`<div${attr_class(`relative transition-all duration-200 ${stringify(windowWidth < 620 ? "w-screen" : "flex-1")} h-full overflow-x-hidden overflow-y-auto ${stringify(primaryEditorState().expanded ? "" : "hidden")}`)}${attr_style(windowWidth >= 620 ? "min-width: 0;" : "")}>`);
                         DocumentEditor($$renderer5, {
-                          schemas,
+                          schemas: schemas(),
+                          plugins: plugins2,
                           documentType: selectedDocumentType,
                           documentId: editingDocumentId,
                           isCreating: isCreatingDocument,
@@ -3173,6 +3586,7 @@ function AdminApp($$renderer, $$props) {
                           onToggleFocus: toggleFocusMode,
                           presentationMode: presentationModeOn,
                           onTogglePresentation: togglePresentationMode,
+                          refreshToken: baseRefreshToken,
                           organizationId: currentOrgId,
                           onBack: navigateBack,
                           onOpenReference: handleOpenReference,
@@ -3199,10 +3613,20 @@ function AdminApp($$renderer, $$props) {
                           },
                           isReadOnly
                         });
-                        $$renderer5.push(`<!----></div> `);
+                        $$renderer5.push(`<!----> `);
+                        if (presentationModeOn && editorStack.length > 0) {
+                          $$renderer5.push("<!--[0-->");
+                          const currentRef = editorStack[editorStack.length - 1];
+                          $$renderer5.push(`<div class="border-rule bg-background absolute inset-y-0 left-0 z-40 flex w-full max-w-[520px] flex-col border-r shadow-2xl">`);
+                          referenceEditorBody($$renderer5, currentRef);
+                          $$renderer5.push(`<!----></div>`);
+                        } else {
+                          $$renderer5.push("<!--[-1-->");
+                        }
+                        $$renderer5.push(`<!--]--></div> `);
                         if (!primaryEditorState().expanded && !focusModeOn && !presentationModeOn) {
                           $$renderer5.push("<!--[0-->");
-                          $$renderer5.push(`<button class="border-rule hover:bg-muted/50 flex h-full w-[60px] cursor-pointer flex-col border-l transition-colors"${attr("title", `Click to expand ${stringify(selectedDocumentType)}`)}><div class="flex flex-1 items-start justify-center p-2 pt-8 text-left"><div class="text-foreground -mt-2 text-sm font-medium whitespace-nowrap [writing-mode:vertical-rl]">${escape_html("")}</div></div></button>`);
+                          $$renderer5.push(`<button class="border-rule hover:bg-muted/50 flex h-full w-[60px] cursor-pointer flex-col border-l transition-colors"${attr("title", `Click to expand ${stringify(typeLabel(selectedDocumentType))}`)}><div class="flex flex-1 items-start justify-center p-2 pt-8 text-left"><div class="text-foreground -mt-2 text-sm font-medium whitespace-nowrap [writing-mode:vertical-rl]">${escape_html(typeLabel(selectedDocumentType))}</div></div></button>`);
                         } else {
                           $$renderer5.push("<!--[-1-->");
                         }
@@ -3211,44 +3635,18 @@ function AdminApp($$renderer, $$props) {
                         $$renderer5.push("<!--[-1-->");
                       }
                       $$renderer5.push(`<!--]--> `);
-                      if (editorStack.length > 0) {
+                      if (editorStack.length > 0 && !presentationModeOn) {
                         $$renderer5.push("<!--[0-->");
                         const currentRef = editorStack[editorStack.length - 1];
                         const isExpanded = focusModeOn ? activeEditorIndex === 1 : layoutConfig().expandedIndices.includes(1);
                         if (isExpanded) {
                           $$renderer5.push("<!--[0-->");
                           $$renderer5.push(`<div class="border-rule h-full flex-1 overflow-x-hidden overflow-y-auto border-l transition-all duration-200" style="min-width: 0;">`);
-                          DocumentEditor($$renderer5, {
-                            schemas,
-                            documentType: currentRef.documentType,
-                            documentId: currentRef.documentId,
-                            isCreating: currentRef.isCreating,
-                            onBack: handleStackedEditorBack,
-                            onOpenReference: handleOpenReference,
-                            onOpenVersionHistory: handleOpenVersionHistory,
-                            onToggleFocus: () => {
-                              activeEditorIndex = 1;
-                              toggleFocusMode();
-                            },
-                            externalVersionPreview: versionPanelDocId === currentRef.documentId ? versionPreviewData : null,
-                            onSaved: async () => {
-                            },
-                            onAutoSaved: handleAutoSave,
-                            onPublished: async (docId) => {
-                            },
-                            onUnpublished: async (docId) => {
-                            },
-                            onRestored: async (docId) => {
-                            },
-                            onDeleted: async () => {
-                              handleCloseStackedEditor();
-                            },
-                            isReadOnly
-                          });
+                          referenceEditorBody($$renderer5, currentRef);
                           $$renderer5.push(`<!----></div>`);
                         } else if (!focusModeOn) {
                           $$renderer5.push("<!--[1-->");
-                          $$renderer5.push(`<button class="border-rule hover:bg-muted/50 flex h-full w-[60px] cursor-pointer flex-col border-l transition-colors"${attr("title", `Click to expand ${stringify(currentRef.documentType)}`)}><div class="flex h-full flex-1 items-start justify-center p-2 pt-8 text-left"><div class="text-foreground text-sm font-medium whitespace-nowrap [writing-mode:vertical-rl]">${escape_html(currentRef.documentType.charAt(0).toUpperCase() + currentRef.documentType.slice(1))}</div></div></button>`);
+                          $$renderer5.push(`<button class="border-rule hover:bg-muted/50 flex h-full w-[60px] cursor-pointer flex-col border-l transition-colors"${attr("title", `Click to expand ${stringify(typeLabel(currentRef.documentType))}`)}><div class="flex h-full flex-1 items-start justify-center p-2 pt-8 text-left"><div class="text-foreground text-sm font-medium whitespace-nowrap [writing-mode:vertical-rl]">${escape_html(typeLabel(currentRef.documentType))}</div></div></button>`);
                         } else {
                           $$renderer5.push("<!--[-1-->");
                         }
@@ -3324,6 +3722,35 @@ function AdminApp($$renderer, $$props) {
               $$renderer4.push("<!--[!-->");
               $$renderer4.push("<!--]-->");
             }
+            $$renderer4.push(` <!--[-->`);
+            const each_array_6 = ensure_array_like(adminTools());
+            for (let $$index_6 = 0, $$length = each_array_6.length; $$index_6 < $$length; $$index_6++) {
+              let tool = each_array_6[$$index_6];
+              const Tool = tool.component;
+              if (Tabs_content) {
+                $$renderer4.push("<!--[-->");
+                Tabs_content($$renderer4, {
+                  value: `plugin:${tool.id}`,
+                  class: "m-0 h-full overflow-auto p-0",
+                  children: ($$renderer5) => {
+                    if (Tool) {
+                      $$renderer5.push("<!--[-->");
+                      Tool($$renderer5, { tool: adminToolContext() });
+                      $$renderer5.push("<!--]-->");
+                    } else {
+                      $$renderer5.push("<!--[!-->");
+                      $$renderer5.push("<!--]-->");
+                    }
+                  },
+                  $$slots: { default: true }
+                });
+                $$renderer4.push("<!--]-->");
+              } else {
+                $$renderer4.push("<!--[!-->");
+                $$renderer4.push("<!--]-->");
+              }
+            }
+            $$renderer4.push(`<!--]-->`);
           },
           $$slots: { default: true }
         });
@@ -3346,6 +3773,7 @@ function AdminApp($$renderer, $$props) {
 }
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
+    const blockPreviews = {};
     let { data } = $$props;
     const capabilities = derived(() => page.data.rbac?.capabilities ?? []);
     const rbacRole = derived(() => page.data.rbac?.role ?? null);
@@ -3354,6 +3782,8 @@ function _page($$renderer, $$props) {
     }
     AdminApp($$renderer2, {
       schemas: schemaTypes,
+      plugins,
+      blockPreviews,
       documentTypes: data.documentTypes,
       schemaError: data.schemaError,
       graphqlSettings: data.graphqlSettings,

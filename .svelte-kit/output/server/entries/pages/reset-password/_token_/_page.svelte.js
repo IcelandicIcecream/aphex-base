@@ -1,13 +1,12 @@
-import { k as head, e as escape_html } from "../../../../chunks/renderer.js";
+import { l as head, e as escape_html } from "../../../../chunks/renderer.js";
 import "../../../../chunks/auth-client.js";
 import { g as goto } from "../../../../chunks/client.js";
 import { B as Button } from "../../../../chunks/button.js";
 import { I as Input } from "../../../../chunks/input.js";
 import { L as Label } from "../../../../chunks/label.js";
 import { C as Card, a as Card_content } from "../../../../chunks/card-content.js";
-import { C as Card_description } from "../../../../chunks/card-description.js";
+import { C as Card_header, a as Card_title, b as Card_description } from "../../../../chunks/card-title.js";
 import "clsx";
-import { C as Card_header, a as Card_title } from "../../../../chunks/card-title.js";
 import { r as resolve } from "../../../../chunks/server2.js";
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {

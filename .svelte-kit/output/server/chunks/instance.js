@@ -1,11 +1,11 @@
-import { d as drizzleDb, b as db } from "./index2.js";
+import { c as dbDialect, d as drizzleDb, b as db } from "./index2.js";
 import { createMailpitAdapter } from "@aphexcms/nodemailer-adapter";
 import { createResendAdapter } from "@aphexcms/resend-adapter";
 import { p as private_env } from "./shared-server.js";
 import { b as building } from "./environment.js";
 import { c as cmsLogger } from "./date-utils.js";
 import "./instance2.js";
-import { ac as render$2, g as attributes, ad as attr_style, c as attr_class, h as clsx, j as element, e as escape_html, d as derived, s as stringify } from "./renderer.js";
+import { ac as render$2, h as attributes, ad as attr_style, c as attr_class, i as clsx, k as element, e as escape_html, f as derived, d as stringify } from "./renderer.js";
 import { g as getDefaultExportFromCjs } from "./_commonjsHelpers.js";
 import require$$1 from "path";
 import require$$3 from "url";
@@ -24,6 +24,7 @@ import "./user.js";
 import "sharp";
 import "hono";
 import "hono/body-limit";
+import { a as authOptions } from "./auth.config.js";
 const UNDEFINED_CODE_POINTS = /* @__PURE__ */ new Set([
   65534,
   65535,
@@ -37304,7 +37305,7 @@ async function getBaseAdapter(options, handleDirectDatabase) {
       acc[key] = [];
       return acc;
     }, {});
-    const { memoryAdapter } = await import("./index5.js");
+    const { memoryAdapter } = await import("./index6.js");
     adapter = memoryAdapter(memoryDB)(options);
   } else if (typeof options.database === "function") adapter = options.database(options);
   else adapter = await handleDirectDatabase(options);
@@ -39753,8 +39754,8 @@ function buildCacheStorage(cache2) {
 const authSecret = private_env.AUTH_SECRET || private_env.BETTER_AUTH_SECRET || (building ? "build-placeholder-secret" : void 0);
 const authUrl = private_env.AUTH_URL || private_env.BETTER_AUTH_URL || (building ? "http://localhost:3000" : void 0);
 const trustedOrigins = (private_env.AUTH_TRUSTED_ORIGINS || authUrl || "").split(",").map((o2) => o2.trim()).filter(Boolean);
-const requireEmailVerification = private_env.AUTH_REQUIRE_EMAIL_VERIFICATION !== "false";
-function createAuthInstance(db2, drizzleDb2, emailAdapter) {
+function createAuthInstance(db2, drizzleDb2, emailAdapter, provider = "pg", options = { requireEmailVerification: true }) {
+  const { requireEmailVerification } = options;
   const userSyncHooks = createAuthMiddleware(async (ctx) => {
     if (ctx.path === "/sign-up/email" && ctx.context.user) {
       try {
@@ -39800,7 +39801,7 @@ function createAuthInstance(db2, drizzleDb2, emailAdapter) {
     },
     // Better Auth's internal adapter needs the raw Drizzle client.
     database: drizzleAdapter(drizzleDb2, {
-      provider: "pg"
+      provider
     }),
     emailAndPassword: {
       enabled: true,
@@ -39911,7 +39912,7 @@ function createAuthInstance(db2, drizzleDb2, emailAdapter) {
     }
   });
 }
-const auth = createAuthInstance(db, drizzleDb, email);
+const auth = createAuthInstance(db, drizzleDb, email, dbDialect, authOptions);
 export {
   auth as a,
   createAdapterFactory as b,

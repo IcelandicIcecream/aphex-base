@@ -1,4 +1,4 @@
-import { d as derived, b as attr, k as head } from "./renderer.js";
+import { f as derived, b as attr, l as head } from "./renderer.js";
 import { b as box, i as isBrowser, u as userPrefersMode, s as systemPrefersMode, a as sanitizeClassNames, m as modeStorageKey, t as themeStorageKey } from "./mode-states.svelte.js";
 import "clsx";
 import { h as html } from "./html.js";

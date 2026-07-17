@@ -1,4 +1,4 @@
-import { g as attributes, h as clsx, i as bind_props } from "./renderer.js";
+import { h as attributes, i as clsx, j as bind_props } from "./renderer.js";
 import { c as cn } from "./utils2.js";
 import { tv } from "tailwind-variants";
 const buttonVariants = tv({

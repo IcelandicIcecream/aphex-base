@@ -1,6 +1,6 @@
 import "clsx";
 function _page($$renderer) {
-  $$renderer.push(`<main class="svelte-1uha8ag"><h1 class="svelte-1uha8ag">AphexCMS</h1> <p class="svelte-1uha8ag">Your project is running. Manage content in the studio.</p> <a href="/admin" class="svelte-1uha8ag">Open the studio →</a></main>`);
+  $$renderer.push(`<h1>Welcome to SvelteKit</h1> <p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>`);
 }
 export {
   _page as default

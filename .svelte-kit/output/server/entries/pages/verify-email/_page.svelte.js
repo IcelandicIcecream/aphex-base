@@ -1,11 +1,10 @@
-import { k as head, d as derived } from "../../../chunks/renderer.js";
+import { l as head, f as derived } from "../../../chunks/renderer.js";
 import { g as goto } from "../../../chunks/client.js";
 import { p as page } from "../../../chunks/index3.js";
 import { B as Button } from "../../../chunks/button.js";
 import { C as Card, a as Card_content } from "../../../chunks/card-content.js";
-import { C as Card_description } from "../../../chunks/card-description.js";
+import { C as Card_header, a as Card_title, b as Card_description } from "../../../chunks/card-title.js";
 import "clsx";
-import { C as Card_header, a as Card_title } from "../../../chunks/card-title.js";
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let callbackUrl = derived(() => page.url.searchParams.get("callbackUrl"));

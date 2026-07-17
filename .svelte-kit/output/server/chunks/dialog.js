@@ -1,6 +1,6 @@
-import { p as props_id, g as attributes, i as bind_props, d as derived } from "./renderer.js";
+import { p as props_id, h as attributes, j as bind_props, f as derived } from "./renderer.js";
 import { D as DialogTitleState, a as DialogDescriptionState, n as noop, b as DialogRootState } from "./sheet-content.js";
-import { d as createId, e as boxWith, m as mergeProps } from "./create-id.js";
+import { c as createId, b as boxWith, m as mergeProps } from "./create-id.js";
 function Dialog_title($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     const uid = props_id($$renderer2);

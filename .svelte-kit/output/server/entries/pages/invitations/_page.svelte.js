@@ -1,4 +1,4 @@
-import { k as head, e as escape_html, a as ensure_array_like } from "../../../chunks/renderer.js";
+import { l as head, e as escape_html, a as ensure_array_like } from "../../../chunks/renderer.js";
 import { g as goto, i as invalidateAll } from "../../../chunks/client.js";
 import { r as resolve } from "../../../chunks/server2.js";
 import { B as Button } from "../../../chunks/button.js";
@@ -7,7 +7,7 @@ import "../../../chunks/date-utils.js";
 import { i as invitations, o as organizations } from "../../../chunks/instance2.js";
 import "clsx";
 import "../../../chunks/sheet-content.js";
-import "../../../chunks/index4.js";
+import "../../../chunks/index5.js";
 import "../../../chunks/mode-states.svelte.js";
 import { a as authClient } from "../../../chunks/auth-client.js";
 function _page($$renderer, $$props) {

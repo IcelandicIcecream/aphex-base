@@ -317,6 +317,12 @@ const authService = {
       updatedAt: /* @__PURE__ */ new Date()
     }).where(eq(user.id, userId));
   },
+  async changeUserImage(userId, image) {
+    await drizzleDb.update(user).set({
+      image,
+      updatedAt: /* @__PURE__ */ new Date()
+    }).where(eq(user.id, userId));
+  },
   async requestPasswordReset(email, redirectTo) {
     try {
       await auth.api.requestPasswordReset({

@@ -1,26 +1,326 @@
-import { p as props_id, g as attributes, i as bind_props, d as derived, f as spread_props, c as attr_class, h as clsx, b as attr, a as ensure_array_like, ae as hasContext, l as getContext, m as setContext, ad as attr_style, e as escape_html, s as stringify, r as run } from "../../../../chunks/renderer.js";
+import { f as derived, p as props_id, h as attributes, j as bind_props, g as spread_props, c as attr_class, i as clsx, b as attr, a as ensure_array_like, ae as hasContext, m as getContext, s as setContext, ad as attr_style, e as escape_html, d as stringify, r as run, l as head } from "../../../../chunks/renderer.js";
 import "../../../../chunks/date-utils.js";
+import { e as createSubscriber, c as SvelteURLSearchParams } from "../../../../chunks/mode-states.svelte.js";
+import { g as goto } from "../../../../chunks/client.js";
+import { p as page } from "../../../../chunks/index3.js";
 import { u as usePermissions, s as setPermissionsContext } from "../../../../chunks/confirm-dialog.svelte.js";
 import { B as Button } from "../../../../chunks/button.js";
 import "../../../../chunks/badge.js";
 import "../../../../chunks/instance2.js";
 import "clsx";
-import { n as noop, a3 as MenuItemState, a4 as MenuSeparatorState, a5 as MenuRootState, a6 as MenuMenuState, _ as Floating_layer, a7 as MenuContentState, Y as Popper_layer_force_mount, Z as Popper_layer, V as getFloatingContentCSSVars, a8 as DropdownMenuTriggerState, $ as Floating_layer_anchor, I as Icon, i as Portal, a9 as setSidebar, aa as Provider, ab as SIDEBAR_COOKIE_NAME, ac as SIDEBAR_COOKIE_MAX_AGE, ad as SIDEBAR_WIDTH, ae as SIDEBAR_WIDTH_ICON, af as useSidebar, S as Sheet_content, ag as SIDEBAR_WIDTH_MOBILE, ah as Sidebar_menu_button } from "../../../../chunks/sheet-content.js";
-import { p as page } from "../../../../chunks/index3.js";
-import { g as goto } from "../../../../chunks/client.js";
-import "../../../../chunks/index4.js";
-import { C as Circle_check, a as Chevron_right, c as activeTabState, b as ConfirmDialogHost } from "../../../../chunks/activeTab.svelte.js";
+import { C as Context$1, x as PresenceManager, i as SPACE, E as ENTER, w as watch, v as afterTick, n as noop, a2 as MenuItemState, a3 as MenuSeparatorState, a4 as MenuRootState, a5 as MenuMenuState, Y as Floating_layer, a6 as MenuContentState, V as Popper_layer_force_mount, W as Popper_layer, R as getFloatingContentCSSVars, a7 as DropdownMenuTriggerState, Z as Floating_layer_anchor, I as Icon, h as Portal, a8 as setSidebar, a9 as Provider, aa as SIDEBAR_COOKIE_NAME, ab as SIDEBAR_COOKIE_MAX_AGE, ac as SIDEBAR_WIDTH, ad as SIDEBAR_WIDTH_ICON, a1 as useSidebar, S as Sheet_content, ae as SIDEBAR_WIDTH_MOBILE, af as Sidebar_menu_button } from "../../../../chunks/sheet-content.js";
+import "../../../../chunks/index5.js";
+import { C as Circle_check, a as Chevron_right, s as setAdminSlots, c as activeTabState, b as ConfirmDialogHost } from "../../../../chunks/activeTab.svelte.js";
 import { c as cn$1 } from "../../../../chunks/utils2.js";
 import { S as Separator } from "../../../../chunks/separator.js";
 import { d as derivedMode, M as Mode_watcher, t as toggleMode } from "../../../../chunks/mode-watcher.js";
-import { e as createSubscriber } from "../../../../chunks/mode-states.svelte.js";
 import { c as cn, a as toastState, S as SonnerState } from "../../../../chunks/toast-state.svelte.js";
-import { R as Root$1, a as Sheet_header, b as Sheet_title, c as Sheet_description, S as Shield } from "../../../../chunks/index9.js";
-import { d as createId, e as boxWith, m as mergeProps } from "../../../../chunks/create-id.js";
-import { C as Collapsible, a as Collapsible_trigger, b as Collapsible_content } from "../../../../chunks/collapsible-content.js";
+import { R as Root$1, S as Sheet_header, a as Sheet_title, b as Sheet_description } from "../../../../chunks/index8.js";
+import { a as attachRef, b as boxWith, f as boolToEmptyStrOrUndef, k as getDataOpenClosed, h as boolToStr, e as createBitsAttrs, c as createId, m as mergeProps } from "../../../../chunks/create-id.js";
+import { o as on } from "../../../../chunks/root.js";
 import { M as Mail } from "../../../../chunks/mail.js";
+import { p as plugins } from "../../../../chunks/plugins.js";
 import { a as authClient } from "../../../../chunks/auth-client.js";
 import { r as resolve } from "../../../../chunks/server2.js";
+const collapsibleAttrs = createBitsAttrs({
+  component: "collapsible",
+  parts: ["root", "content", "trigger"]
+});
+const CollapsibleRootContext = new Context$1("Collapsible.Root");
+class CollapsibleRootState {
+  static create(opts) {
+    return CollapsibleRootContext.set(new CollapsibleRootState(opts));
+  }
+  opts;
+  attachment;
+  contentNode = null;
+  contentPresence;
+  contentId = void 0;
+  constructor(opts) {
+    this.opts = opts;
+    this.toggleOpen = this.toggleOpen.bind(this);
+    this.attachment = attachRef(this.opts.ref);
+    this.contentPresence = new PresenceManager({
+      ref: boxWith(() => this.contentNode),
+      open: this.opts.open,
+      onComplete: () => {
+        this.opts.onOpenChangeComplete.current(this.opts.open.current);
+      }
+    });
+  }
+  toggleOpen() {
+    this.opts.open.current = !this.opts.open.current;
+  }
+  #props = derived(() => ({
+    id: this.opts.id.current,
+    "data-state": getDataOpenClosed(this.opts.open.current),
+    "data-disabled": boolToEmptyStrOrUndef(this.opts.disabled.current),
+    [collapsibleAttrs.root]: "",
+    ...this.attachment
+  }));
+  get props() {
+    return this.#props();
+  }
+  set props($$value) {
+    return this.#props($$value);
+  }
+}
+class CollapsibleContentState {
+  static create(opts) {
+    return new CollapsibleContentState(opts, CollapsibleRootContext.get());
+  }
+  opts;
+  root;
+  attachment;
+  #present = derived(() => {
+    if (this.opts.hiddenUntilFound.current) return this.root.opts.open.current;
+    return this.opts.forceMount.current || this.root.opts.open.current;
+  });
+  get present() {
+    return this.#present();
+  }
+  set present($$value) {
+    return this.#present($$value);
+  }
+  #originalStyles;
+  #isMountAnimationPrevented = false;
+  #width = 0;
+  #height = 0;
+  constructor(opts, root) {
+    this.opts = opts;
+    this.root = root;
+    this.#isMountAnimationPrevented = root.opts.open.current;
+    this.root.contentId = this.opts.id.current;
+    this.attachment = attachRef(this.opts.ref, (v) => this.root.contentNode = v);
+    watch.pre(() => this.opts.id.current, (id) => {
+      this.root.contentId = id;
+    });
+    watch.pre(
+      [
+        () => this.opts.ref.current,
+        () => this.opts.hiddenUntilFound.current
+      ],
+      ([node, hiddenUntilFound]) => {
+        if (!node || !hiddenUntilFound) return;
+        const handleBeforeMatch = () => {
+          if (this.root.opts.open.current) return;
+          requestAnimationFrame(() => {
+            this.root.opts.open.current = true;
+          });
+        };
+        return on(node, "beforematch", handleBeforeMatch);
+      }
+    );
+    watch([() => this.opts.ref.current, () => this.present], ([node]) => {
+      if (!node) return;
+      afterTick(() => {
+        if (!this.opts.ref.current) return;
+        this.#originalStyles = this.#originalStyles || {
+          transitionDuration: node.style.transitionDuration,
+          animationName: node.style.animationName
+        };
+        node.style.transitionDuration = "0s";
+        node.style.animationName = "none";
+        const rect = node.getBoundingClientRect();
+        this.#height = rect.height;
+        this.#width = rect.width;
+        if (!this.#isMountAnimationPrevented) {
+          const { animationName, transitionDuration } = this.#originalStyles;
+          node.style.transitionDuration = transitionDuration;
+          node.style.animationName = animationName;
+        }
+      });
+    });
+  }
+  get shouldRender() {
+    return this.root.contentPresence.shouldRender;
+  }
+  #snippetProps = derived(() => ({ open: this.root.opts.open.current }));
+  get snippetProps() {
+    return this.#snippetProps();
+  }
+  set snippetProps($$value) {
+    return this.#snippetProps($$value);
+  }
+  #props = derived(() => ({
+    id: this.opts.id.current,
+    style: {
+      "--bits-collapsible-content-height": this.#height ? `${this.#height}px` : void 0,
+      "--bits-collapsible-content-width": this.#width ? `${this.#width}px` : void 0
+    },
+    hidden: this.opts.hiddenUntilFound.current && !this.root.opts.open.current ? "until-found" : void 0,
+    "data-state": getDataOpenClosed(this.root.opts.open.current),
+    "data-disabled": boolToEmptyStrOrUndef(this.root.opts.disabled.current),
+    [collapsibleAttrs.content]: "",
+    ...this.opts.hiddenUntilFound.current && !this.shouldRender ? {} : {
+      hidden: this.opts.hiddenUntilFound.current ? !this.shouldRender : this.opts.forceMount.current ? void 0 : !this.shouldRender
+    },
+    ...this.attachment
+  }));
+  get props() {
+    return this.#props();
+  }
+  set props($$value) {
+    return this.#props($$value);
+  }
+}
+class CollapsibleTriggerState {
+  static create(opts) {
+    return new CollapsibleTriggerState(opts, CollapsibleRootContext.get());
+  }
+  opts;
+  root;
+  attachment;
+  #isDisabled = derived(() => this.opts.disabled.current || this.root.opts.disabled.current);
+  constructor(opts, root) {
+    this.opts = opts;
+    this.root = root;
+    this.attachment = attachRef(this.opts.ref);
+    this.onclick = this.onclick.bind(this);
+    this.onkeydown = this.onkeydown.bind(this);
+  }
+  onclick(e) {
+    if (this.#isDisabled()) return;
+    if (e.button !== 0) return e.preventDefault();
+    this.root.toggleOpen();
+  }
+  onkeydown(e) {
+    if (this.#isDisabled()) return;
+    if (e.key === SPACE || e.key === ENTER) {
+      e.preventDefault();
+      this.root.toggleOpen();
+    }
+  }
+  #props = derived(() => ({
+    id: this.opts.id.current,
+    type: "button",
+    disabled: this.#isDisabled(),
+    "aria-controls": this.root.contentId,
+    "aria-expanded": boolToStr(this.root.opts.open.current),
+    "data-state": getDataOpenClosed(this.root.opts.open.current),
+    "data-disabled": boolToEmptyStrOrUndef(this.#isDisabled()),
+    [collapsibleAttrs.trigger]: "",
+    //
+    onclick: this.onclick,
+    onkeydown: this.onkeydown,
+    ...this.attachment
+  }));
+  get props() {
+    return this.#props();
+  }
+  set props($$value) {
+    return this.#props($$value);
+  }
+}
+function Collapsible$1($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    const uid = props_id($$renderer2);
+    let {
+      children,
+      child,
+      id = createId(uid),
+      ref = null,
+      open = false,
+      disabled = false,
+      onOpenChange = noop,
+      onOpenChangeComplete = noop,
+      $$slots,
+      $$events,
+      ...restProps
+    } = $$props;
+    const rootState = CollapsibleRootState.create({
+      open: boxWith(() => open, (v) => {
+        open = v;
+        onOpenChange(v);
+      }),
+      disabled: boxWith(() => disabled),
+      id: boxWith(() => id),
+      ref: boxWith(() => ref, (v) => ref = v),
+      onOpenChangeComplete: boxWith(() => onOpenChangeComplete)
+    });
+    const mergedProps = derived(() => mergeProps(restProps, rootState.props));
+    if (child) {
+      $$renderer2.push("<!--[0-->");
+      child($$renderer2, { props: mergedProps() });
+      $$renderer2.push(`<!---->`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+      $$renderer2.push(`<div${attributes({ ...mergedProps() })}>`);
+      children?.($$renderer2);
+      $$renderer2.push(`<!----></div>`);
+    }
+    $$renderer2.push(`<!--]-->`);
+    bind_props($$props, { ref, open });
+  });
+}
+function Collapsible_content$1($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    const uid = props_id($$renderer2);
+    let {
+      child,
+      ref = null,
+      forceMount = false,
+      hiddenUntilFound = false,
+      children,
+      id = createId(uid),
+      $$slots,
+      $$events,
+      ...restProps
+    } = $$props;
+    const contentState = CollapsibleContentState.create({
+      id: boxWith(() => id),
+      forceMount: boxWith(() => forceMount),
+      hiddenUntilFound: boxWith(() => hiddenUntilFound),
+      ref: boxWith(() => ref, (v) => ref = v)
+    });
+    const mergedProps = derived(() => mergeProps(restProps, contentState.props));
+    if (child) {
+      $$renderer2.push("<!--[0-->");
+      child($$renderer2, { ...contentState.snippetProps, props: mergedProps() });
+      $$renderer2.push(`<!---->`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+      $$renderer2.push(`<div${attributes({ ...mergedProps() })}>`);
+      children?.($$renderer2);
+      $$renderer2.push(`<!----></div>`);
+    }
+    $$renderer2.push(`<!--]-->`);
+    bind_props($$props, { ref });
+  });
+}
+function Collapsible_trigger$1($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    const uid = props_id($$renderer2);
+    let {
+      children,
+      child,
+      ref = null,
+      id = createId(uid),
+      disabled = false,
+      $$slots,
+      $$events,
+      ...restProps
+    } = $$props;
+    const triggerState = CollapsibleTriggerState.create({
+      id: boxWith(() => id),
+      ref: boxWith(() => ref, (v) => ref = v),
+      disabled: boxWith(() => disabled)
+    });
+    const mergedProps = derived(() => mergeProps(restProps, triggerState.props));
+    if (child) {
+      $$renderer2.push("<!--[0-->");
+      child($$renderer2, { props: mergedProps() });
+      $$renderer2.push(`<!---->`);
+    } else {
+      $$renderer2.push("<!--[-1-->");
+      $$renderer2.push(`<button${attributes({ ...mergedProps() })}>`);
+      children?.($$renderer2);
+      $$renderer2.push(`<!----></button>`);
+    }
+    $$renderer2.push(`<!--]-->`);
+    bind_props($$props, { ref });
+  });
+}
 function Menu_item($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     const uid = props_id($$renderer2);
@@ -292,6 +592,47 @@ function Menu_trigger($$renderer, $$props) {
     bind_props($$props, { ref });
   });
 }
+function Book_open_text($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { $$slots, $$events, ...props } = $$props;
+    const iconNode = [
+      ["path", { "d": "M12 7v14" }],
+      ["path", { "d": "M16 12h2" }],
+      ["path", { "d": "M16 8h2" }],
+      [
+        "path",
+        {
+          "d": "M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"
+        }
+      ],
+      ["path", { "d": "M6 12h2" }],
+      ["path", { "d": "M6 8h2" }]
+    ];
+    Icon($$renderer2, spread_props([
+      { name: "book-open-text" },
+      /**
+       * @component @name BookOpenText
+       * @description Lucide SVG icon component, renders SVG Element with children.
+       *
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJNMTIgN3YxNCIgLz4KICA8cGF0aCBkPSJNMTYgMTJoMiIgLz4KICA8cGF0aCBkPSJNMTYgOGgyIiAvPgogIDxwYXRoIGQ9Ik0zIDE4YTEgMSAwIDAgMS0xLTFWNGExIDEgMCAwIDEgMS0xaDVhNCA0IDAgMCAxIDQgNCA0IDQgMCAwIDEgNC00aDVhMSAxIDAgMCAxIDEgMXYxM2ExIDEgMCAwIDEtMSAxaC02YTMgMyAwIDAgMC0zIDMgMyAzIDAgMCAwLTMtM3oiIC8+CiAgPHBhdGggZD0iTTYgMTJoMiIgLz4KICA8cGF0aCBkPSJNNiA4aDIiIC8+Cjwvc3ZnPgo=) - https://lucide.dev/icons/book-open-text
+       * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
+       *
+       * @param {Object} props - Lucide icons props and any valid SVG attribute
+       * @returns {FunctionalComponent} Svelte component
+       *
+       */
+      props,
+      {
+        iconNode,
+        children: ($$renderer3) => {
+          props.children?.($$renderer3);
+          $$renderer3.push(`<!---->`);
+        },
+        $$slots: { default: true }
+      }
+    ]));
+  });
+}
 function Chevrons_up_down($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { $$slots, $$events, ...props } = $$props;
@@ -306,6 +647,46 @@ function Chevrons_up_down($$renderer, $$props) {
        * @description Lucide SVG icon component, renders SVG Element with children.
        *
        * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJtNyAxNSA1IDUgNS01IiAvPgogIDxwYXRoIGQ9Im03IDkgNS01IDUgNSIgLz4KPC9zdmc+Cg==) - https://lucide.dev/icons/chevrons-up-down
+       * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
+       *
+       * @param {Object} props - Lucide icons props and any valid SVG attribute
+       * @returns {FunctionalComponent} Svelte component
+       *
+       */
+      props,
+      {
+        iconNode,
+        children: ($$renderer3) => {
+          props.children?.($$renderer3);
+          $$renderer3.push(`<!---->`);
+        },
+        $$slots: { default: true }
+      }
+    ]));
+  });
+}
+function House($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { $$slots, $$events, ...props } = $$props;
+    const iconNode = [
+      [
+        "path",
+        { "d": "M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8" }
+      ],
+      [
+        "path",
+        {
+          "d": "M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"
+        }
+      ]
+    ];
+    Icon($$renderer2, spread_props([
+      { name: "house" },
+      /**
+       * @component @name House
+       * @description Lucide SVG icon component, renders SVG Element with children.
+       *
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJNMTUgMjF2LThhMSAxIDAgMCAwLTEtMWgtNGExIDEgMCAwIDAtMSAxdjgiIC8+CiAgPHBhdGggZD0iTTMgMTBhMiAyIDAgMCAxIC43MDktMS41MjhsNy02YTIgMiAwIDAgMSAyLjU4MiAwbDcgNkEyIDIgMCAwIDEgMjEgMTB2OWEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiIC8+Cjwvc3ZnPgo=) - https://lucide.dev/icons/house
        * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
        *
        * @param {Object} props - Lucide icons props and any valid SVG attribute
@@ -547,6 +928,42 @@ function Settings($$renderer, $$props) {
        * @description Lucide SVG icon component, renders SVG Element with children.
        *
        * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJNOS42NzEgNC4xMzZhMi4zNCAyLjM0IDAgMCAxIDQuNjU5IDAgMi4zNCAyLjM0IDAgMCAwIDMuMzE5IDEuOTE1IDIuMzQgMi4zNCAwIDAgMSAyLjMzIDQuMDMzIDIuMzQgMi4zNCAwIDAgMCAwIDMuODMxIDIuMzQgMi4zNCAwIDAgMS0yLjMzIDQuMDMzIDIuMzQgMi4zNCAwIDAgMC0zLjMxOSAxLjkxNSAyLjM0IDIuMzQgMCAwIDEtNC42NTkgMCAyLjM0IDIuMzQgMCAwIDAtMy4zMi0xLjkxNSAyLjM0IDIuMzQgMCAwIDEtMi4zMy00LjAzMyAyLjM0IDIuMzQgMCAwIDAgMC0zLjgzMUEyLjM0IDIuMzQgMCAwIDEgNi4zNSA2LjA1MWEyLjM0IDIuMzQgMCAwIDAgMy4zMTktMS45MTUiIC8+CiAgPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMyIgLz4KPC9zdmc+Cg==) - https://lucide.dev/icons/settings
+       * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
+       *
+       * @param {Object} props - Lucide icons props and any valid SVG attribute
+       * @returns {FunctionalComponent} Svelte component
+       *
+       */
+      props,
+      {
+        iconNode,
+        children: ($$renderer3) => {
+          props.children?.($$renderer3);
+          $$renderer3.push(`<!---->`);
+        },
+        $$slots: { default: true }
+      }
+    ]));
+  });
+}
+function Shield($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { $$slots, $$events, ...props } = $$props;
+    const iconNode = [
+      [
+        "path",
+        {
+          "d": "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"
+        }
+      ]
+    ];
+    Icon($$renderer2, spread_props([
+      { name: "shield" },
+      /**
+       * @component @name Shield
+       * @description Lucide SVG icon component, renders SVG Element with children.
+       *
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cGF0aCBkPSJNMjAgMTNjMCA1LTMuNSA3LjUtNy42NiA4Ljk1YTEgMSAwIDAgMS0uNjctLjAxQzcuNSAyMC41IDQgMTggNCAxM1Y2YTEgMSAwIDAgMSAxLTFjMiAwIDQuNS0xLjIgNi4yNC0yLjcyYTEuMTcgMS4xNyAwIDAgMSAxLjUyIDBDMTQuNTEgMy44MSAxNyA1IDE5IDVhMSAxIDAgMCAxIDEgMXoiIC8+Cjwvc3ZnPgo=) - https://lucide.dev/icons/shield
        * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
        *
        * @param {Object} props - Lucide icons props and any valid SVG attribute
@@ -2093,6 +2510,10 @@ function OrganizationSwitcher($$renderer, $$props) {
     function getRoleLabel(role) {
       return role.charAt(0).toUpperCase() + role.slice(1);
     }
+    function getOrganizationLogo(org) {
+      const logo = org?.metadata?.logo;
+      return typeof logo === "string" && logo.length > 0 ? logo : null;
+    }
     let $$settled = true;
     let $$inner_renderer;
     function $$render_inner($$renderer3) {
@@ -2124,7 +2545,14 @@ function OrganizationSwitcher($$renderer, $$props) {
                           children: ($$renderer8) => {
                             if (activeOrganization) {
                               $$renderer8.push("<!--[0-->");
-                              $$renderer8.push(`<div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-semibold">${escape_html(getOrganizationInitials(activeOrganization.name))}</div> <div class="grid flex-1 text-left text-sm leading-tight"><span class="truncate font-medium">${escape_html(activeOrganization.name)}</span> <span class="text-muted-foreground truncate text-xs">${escape_html(getRoleLabel(activeOrganization.role))}</span></div>`);
+                              if (getOrganizationLogo(activeOrganization)) {
+                                $$renderer8.push("<!--[0-->");
+                                $$renderer8.push(`<img${attr("src", getOrganizationLogo(activeOrganization))}${attr("alt", activeOrganization.name)} class="aspect-square size-8 rounded-lg object-cover"/>`);
+                              } else {
+                                $$renderer8.push("<!--[-1-->");
+                                $$renderer8.push(`<div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-semibold">${escape_html(getOrganizationInitials(activeOrganization.name))}</div>`);
+                              }
+                              $$renderer8.push(`<!--]--> <div class="grid flex-1 text-left text-sm leading-tight"><span class="truncate font-medium">${escape_html(activeOrganization.name)}</span> <span class="text-muted-foreground truncate text-xs">${escape_html(getRoleLabel(activeOrganization.role))}</span></div>`);
                             } else {
                               $$renderer8.push("<!--[-1-->");
                               $$renderer8.push(`<div class="bg-muted flex aspect-square size-8 items-center justify-center rounded-lg"><span class="text-muted-foreground text-xs">?</span></div> <span class="text-muted-foreground">No organization</span>`);
@@ -2156,7 +2584,15 @@ function OrganizationSwitcher($$renderer, $$props) {
                       for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
                         let org = each_array[$$index];
                         const isActive = org.id === activeOrganization?.id;
-                        $$renderer7.push(`<button class="hover:bg-muted/50 flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm"${attr("disabled", isSwitching, true)}><div class="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-semibold">${escape_html(getOrganizationInitials(org.name))}</div> <div class="min-w-0 flex-1"><div class="flex items-center justify-between"><p class="truncate font-medium">${escape_html(org.name)}</p> `);
+                        $$renderer7.push(`<button class="hover:bg-muted/50 flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm"${attr("disabled", isSwitching, true)}>`);
+                        if (getOrganizationLogo(org)) {
+                          $$renderer7.push("<!--[0-->");
+                          $$renderer7.push(`<img${attr("src", getOrganizationLogo(org))}${attr("alt", org.name)} class="size-8 shrink-0 rounded-md object-cover"/>`);
+                        } else {
+                          $$renderer7.push("<!--[-1-->");
+                          $$renderer7.push(`<div class="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-semibold">${escape_html(getOrganizationInitials(org.name))}</div>`);
+                        }
+                        $$renderer7.push(`<!--]--> <div class="min-w-0 flex-1"><div class="flex items-center justify-between"><p class="truncate font-medium">${escape_html(org.name)}</p> `);
                         if (isActive) {
                           $$renderer7.push("<!--[0-->");
                           $$renderer7.push(`<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-primary shrink-0"><path d="M20 6 9 17l-5-5"></path></svg>`);
@@ -2210,6 +2646,121 @@ function OrganizationSwitcher($$renderer, $$props) {
       $$render_inner($$inner_renderer);
     } while (!$$settled);
     $$renderer2.subsume($$inner_renderer);
+  });
+}
+function Collapsible($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { ref = null, open = false, $$slots, $$events, ...restProps } = $$props;
+    let $$settled = true;
+    let $$inner_renderer;
+    function $$render_inner($$renderer3) {
+      if (Collapsible$1) {
+        $$renderer3.push("<!--[-->");
+        Collapsible$1($$renderer3, spread_props([
+          { "data-slot": "collapsible" },
+          restProps,
+          {
+            get ref() {
+              return ref;
+            },
+            set ref($$value) {
+              ref = $$value;
+              $$settled = false;
+            },
+            get open() {
+              return open;
+            },
+            set open($$value) {
+              open = $$value;
+              $$settled = false;
+            }
+          }
+        ]));
+        $$renderer3.push("<!--]-->");
+      } else {
+        $$renderer3.push("<!--[!-->");
+        $$renderer3.push("<!--]-->");
+      }
+    }
+    do {
+      $$settled = true;
+      $$inner_renderer = $$renderer2.copy();
+      $$render_inner($$inner_renderer);
+    } while (!$$settled);
+    $$renderer2.subsume($$inner_renderer);
+    bind_props($$props, { ref, open });
+  });
+}
+function Collapsible_trigger($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { ref = null, $$slots, $$events, ...restProps } = $$props;
+    let $$settled = true;
+    let $$inner_renderer;
+    function $$render_inner($$renderer3) {
+      if (Collapsible_trigger$1) {
+        $$renderer3.push("<!--[-->");
+        Collapsible_trigger$1($$renderer3, spread_props([
+          { "data-slot": "collapsible-trigger" },
+          restProps,
+          {
+            get ref() {
+              return ref;
+            },
+            set ref($$value) {
+              ref = $$value;
+              $$settled = false;
+            }
+          }
+        ]));
+        $$renderer3.push("<!--]-->");
+      } else {
+        $$renderer3.push("<!--[!-->");
+        $$renderer3.push("<!--]-->");
+      }
+    }
+    do {
+      $$settled = true;
+      $$inner_renderer = $$renderer2.copy();
+      $$render_inner($$inner_renderer);
+    } while (!$$settled);
+    $$renderer2.subsume($$inner_renderer);
+    bind_props($$props, { ref });
+  });
+}
+function Collapsible_content($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { ref = null, $$slots, $$events, ...restProps } = $$props;
+    let $$settled = true;
+    let $$inner_renderer;
+    function $$render_inner($$renderer3) {
+      if (Collapsible_content$1) {
+        $$renderer3.push("<!--[-->");
+        Collapsible_content$1($$renderer3, spread_props([
+          { "data-slot": "collapsible-content" },
+          restProps,
+          {
+            get ref() {
+              return ref;
+            },
+            set ref($$value) {
+              ref = $$value;
+              $$settled = false;
+            }
+          }
+        ]));
+        $$renderer3.push("<!--]-->");
+      } else {
+        $$renderer3.push("<!--[!-->");
+        $$renderer3.push("<!--]-->");
+      }
+    }
+    do {
+      $$settled = true;
+      $$inner_renderer = $$renderer2.copy();
+      $$render_inner($$inner_renderer);
+    } while (!$$settled);
+    $$renderer2.subsume($$inner_renderer);
+    bind_props($$props, { ref });
   });
 }
 function NavMain($$renderer, $$props) {
@@ -2409,7 +2960,7 @@ function NavUser($$renderer, $$props) {
                         children: ($$renderer7) => {
                           if (user.image) {
                             $$renderer7.push("<!--[0-->");
-                            $$renderer7.push(`<img${attr("src", user.image)}${attr("alt", user.name || user.email)} class="h-8 w-8 rounded-lg"/>`);
+                            $$renderer7.push(`<img${attr("src", user.image)}${attr("alt", user.name || user.email)} class="h-8 w-8 rounded-lg object-cover"/>`);
                           } else {
                             $$renderer7.push("<!--[-1-->");
                             $$renderer7.push(`<div class="bg-sidebar-primary text-sidebar-primary-foreground flex h-8 w-8 items-center justify-center rounded-lg text-sm font-semibold">${escape_html(user.name?.[0]?.toUpperCase() || user.email[0]?.toUpperCase())}</div>`);
@@ -2502,12 +3053,32 @@ function NavUser($$renderer, $$props) {
 }
 function AppSidebar($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
-    let { data, onSignOut, $$slots, $$events, ...restProps } = $$props;
+    const activeView = derived(() => page.url.pathname === "/admin" ? page.url.searchParams.get("view") ?? "" : "");
+    const pluginToolActive = derived(() => activeView().startsWith("plugin:"));
+    const isToolActive = (id) => activeView() === `plugin:${id}`;
+    function isNavActive(path, item) {
+      if (pluginToolActive() && item.url === "/admin") return false;
+      if (item.exact) return path === item.url;
+      const matches = path === item.url || path.startsWith(item.url + "/");
+      if (!matches) return false;
+      return !/** Sidebar-placed plugin admin tools, already capability-filtered. */
+      /** Open a tool's `plugin:<id>` area (navigates to /admin if elsewhere). */
+      // Convert navItems to the format expected by NavMain
+      navMainItems().some((other) => other !== item && other.url.length > item.url.length && (path === other.url || path.startsWith(other.url + "/")));
+    }
+    let {
+      data,
+      onSignOut,
+      sidebarTools = [],
+      onSelectTool,
+      $$slots,
+      $$events,
+      ...restProps
+    } = $$props;
     const navMainItems = derived(() => data?.navItems?.map((item) => ({
       title: item.label,
       url: item.href,
-      icon: void 0,
-      // We'll keep icons simple for now
+      icon: item.icon,
       isActive: false
     })) || [
       {
@@ -2542,7 +3113,67 @@ function AppSidebar($$renderer, $$props) {
           $$renderer3.push(`<!----> `);
           Sidebar_content($$renderer3, {
             children: ($$renderer4) => {
-              NavMain($$renderer4, { items: navMainItems() });
+              NavMain($$renderer4, { items: navMainItems(), isActive: isNavActive });
+              $$renderer4.push(`<!----> `);
+              if (sidebarTools.length > 0) {
+                $$renderer4.push("<!--[0-->");
+                Sidebar_group($$renderer4, {
+                  children: ($$renderer5) => {
+                    Sidebar_group_label($$renderer5, {
+                      children: ($$renderer6) => {
+                        $$renderer6.push(`<!---->Tools`);
+                      },
+                      $$slots: { default: true }
+                    });
+                    $$renderer5.push(`<!----> `);
+                    Sidebar_menu($$renderer5, {
+                      children: ($$renderer6) => {
+                        $$renderer6.push(`<!--[-->`);
+                        const each_array = ensure_array_like(sidebarTools);
+                        for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+                          let tool = each_array[$$index];
+                          Sidebar_menu_item($$renderer6, {
+                            children: ($$renderer7) => {
+                              Sidebar_menu_button($$renderer7, {
+                                onclick: () => onSelectTool?.(tool.id),
+                                isActive: isToolActive(tool.id),
+                                tooltipContent: tool.title,
+                                class: "cursor-pointer",
+                                children: ($$renderer8) => {
+                                  if (tool.icon) {
+                                    $$renderer8.push("<!--[0-->");
+                                    const Icon2 = tool.icon;
+                                    if (Icon2) {
+                                      $$renderer8.push("<!--[-->");
+                                      Icon2($$renderer8, { class: "h-4 w-4" });
+                                      $$renderer8.push("<!--]-->");
+                                    } else {
+                                      $$renderer8.push("<!--[!-->");
+                                      $$renderer8.push("<!--]-->");
+                                    }
+                                  } else {
+                                    $$renderer8.push("<!--[-1-->");
+                                  }
+                                  $$renderer8.push(`<!--]--> <span>${escape_html(tool.title)}</span>`);
+                                },
+                                $$slots: { default: true }
+                              });
+                            },
+                            $$slots: { default: true }
+                          });
+                        }
+                        $$renderer6.push(`<!--]-->`);
+                      },
+                      $$slots: { default: true }
+                    });
+                    $$renderer5.push(`<!---->`);
+                  },
+                  $$slots: { default: true }
+                });
+              } else {
+                $$renderer4.push("<!--[-1-->");
+              }
+              $$renderer4.push(`<!--]-->`);
             },
             $$slots: { default: true }
           });
@@ -2570,15 +3201,26 @@ function AppSidebar($$renderer, $$props) {
 }
 function Sidebar($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
+    const slots = setAdminSlots();
     let {
       data,
       onSignOut,
       children,
       enableGraphiQL = false,
-      activeTab
+      activeTab,
+      onTabChange,
+      plugins: plugins2 = []
     } = $$props;
-    const showTabs = derived(() => page.url.pathname === "/admin");
+    function switchTab(value) {
+      if (onTabChange) {
+        onTabChange(value);
+      } else if (activeTab) {
+        activeTab.value = value;
+      }
+    }
     const perms = usePermissions();
+    const sidebarTools = derived(() => (plugins2 ?? []).flatMap((p) => p.parts ?? []).filter((part) => part.implements === "aphex/admin/tool" && part.placement === "sidebar").filter((t) => !t.requiredCapabilities?.length || t.requiredCapabilities.every((c) => perms.can(c))).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
+    const showTabs = derived(() => page.url.pathname === "/admin");
     const canSeeMedia = derived(() => perms.can("asset.read"));
     Mode_watcher($$renderer2, {});
     $$renderer2.push(`<!----> `);
@@ -2587,16 +3229,28 @@ function Sidebar($$renderer, $$props) {
     Sidebar_provider($$renderer2, {
       class: "h-screen",
       children: ($$renderer3) => {
-        AppSidebar($$renderer3, { data, onSignOut });
+        AppSidebar($$renderer3, {
+          data,
+          onSignOut,
+          sidebarTools: sidebarTools(),
+          onSelectTool: (id) => switchTab(`plugin:${id}`)
+        });
         $$renderer3.push(`<!----> `);
         Sidebar_inset($$renderer3, {
           class: "flex h-full min-w-0 flex-col",
           children: ($$renderer4) => {
-            $$renderer4.push(`<header class="border-rule flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"><div${attr_class("flex w-full items-center px-4", void 0, { "justify-between": showTabs() })}><div class="flex items-center gap-2">`);
+            $$renderer4.push(`<header class="border-rule flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"><div class="flex w-full items-center gap-2 px-4"><div class="flex min-w-0 items-center gap-2">`);
             Sidebar_trigger($$renderer4, { class: "-ml-1" });
             $$renderer4.push(`<!----> `);
-            Separator($$renderer4, { orientation: "vertical", class: "mr-2 h-4" });
-            $$renderer4.push(`<!----></div> `);
+            Separator($$renderer4, { orientation: "vertical", class: "h-4" });
+            $$renderer4.push(`<!----> <!--[-->`);
+            const each_array = ensure_array_like(slots.get("navbar-start"));
+            for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+              let entry = each_array[$$index];
+              entry.snippet($$renderer4);
+              $$renderer4.push(`<!---->`);
+            }
+            $$renderer4.push(`<!--]--></div> `);
             if (showTabs() && activeTab) {
               $$renderer4.push("<!--[0-->");
               $$renderer4.push(`<div class="bg-muted text-muted-foreground mx-auto inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]"><button${attr_class(`${stringify(activeTab.value === "structure" ? "bg-background text-foreground shadow" : "text-muted-foreground")} ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50`)}>Structure</button> `);
@@ -2613,11 +3267,25 @@ function Sidebar($$renderer, $$props) {
               } else {
                 $$renderer4.push("<!--[-1-->");
               }
+              $$renderer4.push(`<!--]--> <!--[-->`);
+              const each_array_1 = ensure_array_like(slots.get("admin-tabs"));
+              for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
+                let entry = each_array_1[$$index_1];
+                entry.snippet($$renderer4);
+                $$renderer4.push(`<!---->`);
+              }
               $$renderer4.push(`<!--]--></div>`);
             } else {
               $$renderer4.push("<!--[-1-->");
             }
-            $$renderer4.push(`<!--]--> <div${attr_class("", void 0, { "ml-auto": !showTabs() })}>`);
+            $$renderer4.push(`<!--]--> <div${attr_class(`flex items-center gap-2 ${stringify(showTabs() ? "" : "ml-auto")}`)}><!--[-->`);
+            const each_array_2 = ensure_array_like(slots.get("navbar-end"));
+            for (let $$index_2 = 0, $$length = each_array_2.length; $$index_2 < $$length; $$index_2++) {
+              let entry = each_array_2[$$index_2];
+              entry.snippet($$renderer4);
+              $$renderer4.push(`<!---->`);
+            }
+            $$renderer4.push(`<!--]--> `);
             Button($$renderer4, {
               onclick: toggleMode,
               variant: "outline",
@@ -2651,19 +3319,63 @@ function Sidebar($$renderer, $$props) {
 function _layout($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { data, children } = $$props;
+    const sidebarData = derived(() => ({
+      user: {
+        id: data.auth.user.id,
+        email: data.auth.user.email,
+        name: data.auth.user.name,
+        image: data.auth.user.image,
+        role: data.auth.user.role
+      },
+      branding: { title: data.title },
+      // Default nav items (can be customized per app)
+      navItems: [
+        { href: "/admin", label: "Studio", icon: House },
+        { href: "/blog", label: "Blog", icon: Book_open_text }
+      ],
+      organizations: data.organizations,
+      activeOrganization: data.activeOrganization,
+      canCreateOrganization: data.canCreateOrganization
+    }));
     setPermissionsContext(() => page.data.rbac?.capabilities ?? [], () => page.data.rbac?.role ?? null);
     const enableGraphiQL = derived(() => page.data.graphqlSettings?.enableGraphiQL ?? false);
+    const builtinViews = ["structure", "vision", "media"];
+    function isValidView(v) {
+      return builtinViews.includes(v) || v.startsWith("plugin:");
+    }
+    function handleTabChange(value) {
+      if (isValidView(value)) activeTabState.value = value;
+      const params = new SvelteURLSearchParams(page.url.searchParams);
+      if (value === "structure") {
+        params.delete("view");
+      } else {
+        params.set("view", value);
+      }
+      const query = params.toString();
+      goto(`/admin${query ? `?${query}` : ""}`, {});
+    }
     async function handleSignOut() {
       await authClient.signOut();
       goto(resolve("/login"));
     }
-    if (data?.sidebarData) {
+    head("1f0xevf", $$renderer2, ($$renderer3) => {
+      if (data?.faviconUrl) {
+        $$renderer3.push("<!--[0-->");
+        $$renderer3.push(`<link rel="icon"${attr("href", data.faviconUrl)}/>`);
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]-->`);
+    });
+    if (sidebarData()) {
       $$renderer2.push("<!--[0-->");
       Sidebar($$renderer2, {
-        data: data.sidebarData,
+        data: sidebarData(),
         onSignOut: handleSignOut,
         enableGraphiQL: enableGraphiQL(),
         activeTab: activeTabState,
+        onTabChange: handleTabChange,
+        plugins,
         children: ($$renderer3) => {
           children($$renderer3);
           $$renderer3.push(`<!---->`);
@@ -2675,7 +3387,12 @@ function _layout($$renderer, $$props) {
     }
     $$renderer2.push(`<!--]--> `);
     ConfirmDialogHost($$renderer2);
-    $$renderer2.push(`<!---->`);
+    $$renderer2.push(`<!----> `);
+    {
+      $$renderer2.push("<!--[0-->");
+      $$renderer2.push(`<div class="bg-background fixed inset-0 z-[200] flex flex-col items-center justify-center gap-4"><div class="border-muted border-t-primary h-7 w-7 animate-spin rounded-full border-[3px]"></div> <p class="text-muted-foreground text-xs font-medium tracking-wide">Loading studio…</p></div>`);
+    }
+    $$renderer2.push(`<!--]-->`);
   });
 }
 export {

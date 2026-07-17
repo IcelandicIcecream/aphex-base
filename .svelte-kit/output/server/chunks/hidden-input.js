@@ -1,4 +1,4 @@
-import { g as attributes, i as bind_props, d as derived } from "./renderer.js";
+import { h as attributes, j as bind_props, f as derived } from "./renderer.js";
 import { s as styleToString, m as mergeProps } from "./create-id.js";
 const srOnlyStyles = {
   position: "absolute",

@@ -1,12 +1,11 @@
-import { k as head, e as escape_html, d as derived } from "../../../../chunks/renderer.js";
+import { l as head, e as escape_html, f as derived } from "../../../../chunks/renderer.js";
 import { p as page } from "../../../../chunks/index3.js";
 import { g as goto } from "../../../../chunks/client.js";
 import { B as Button } from "../../../../chunks/button.js";
 import { B as Badge } from "../../../../chunks/badge.js";
 import { C as Card, a as Card_content } from "../../../../chunks/card-content.js";
-import { C as Card_description } from "../../../../chunks/card-description.js";
+import { C as Card_header, a as Card_title, b as Card_description } from "../../../../chunks/card-title.js";
 import "clsx";
-import { C as Card_header, a as Card_title } from "../../../../chunks/card-title.js";
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { data } = $$props;

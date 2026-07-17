@@ -21,28 +21,15 @@ const load = async ({ locals }) => {
   }));
   const activeOrganization = organizations.find((org) => org.isActive);
   const canCreateOrganization = auth.user.role === "super_admin" || (instanceSettings.allowUserOrgCreation ?? false);
-  const sidebarData = {
-    user: {
-      id: auth.user.id,
-      email: auth.user.email,
-      name: auth.user.name,
-      image: auth.user.image,
-      role: auth.user.role
-    },
-    branding: {
-      title: cmsConfig.customization?.branding?.title || "Aphex CMS"
-    },
-    // Default nav items (can be customized per app)
-    navItems: [
-      { href: "/admin", label: "Studio" },
-      { href: "/admin/settings", label: "Settings" }
-    ],
+  const title = cmsConfig.customization?.branding?.title || "Aphex CMS";
+  const faviconUrl = null;
+  return {
+    auth,
+    title,
     organizations,
     activeOrganization,
-    canCreateOrganization
-  };
-  return {
-    sidebarData,
+    canCreateOrganization,
+    faviconUrl,
     // Expose resolved capabilities + active role to the admin shell so
     // client code (UI gating, debug panels) can consult the same set the
     // server enforces against.

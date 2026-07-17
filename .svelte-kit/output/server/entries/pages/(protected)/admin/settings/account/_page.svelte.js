@@ -1,22 +1,21 @@
-import { f as spread_props, e as escape_html, d as derived, k as head } from "../../../../../../chunks/renderer.js";
+import { g as spread_props, e as escape_html, c as attr_class, d as stringify, b as attr, l as head } from "../../../../../../chunks/renderer.js";
 import { B as Button } from "../../../../../../chunks/button.js";
 import { I as Input } from "../../../../../../chunks/input.js";
 import { L as Label } from "../../../../../../chunks/label.js";
 import { B as Badge } from "../../../../../../chunks/badge.js";
 import { S as Switch } from "../../../../../../chunks/switch.js";
 import { C as Card, a as Card_content } from "../../../../../../chunks/card-content.js";
-import "clsx";
+import { C as Card_header, a as Card_title, b as Card_description } from "../../../../../../chunks/card-title.js";
 import { C as Card_footer } from "../../../../../../chunks/card-footer.js";
-import { C as Card_header, a as Card_title } from "../../../../../../chunks/card-title.js";
-import { A as Avatar, a as Avatar_image, b as Avatar_fallback } from "../../../../../../chunks/avatar-fallback.js";
-import { S as Separator } from "../../../../../../chunks/separator.js";
+import "clsx";
+import { A as Avatar, a as Avatar_fallback } from "../../../../../../chunks/avatar-fallback.js";
 import { i as invalidateAll } from "../../../../../../chunks/client.js";
 import "../../../../../../chunks/date-utils.js";
 import { u as user } from "../../../../../../chunks/instance2.js";
 import { I as Icon } from "../../../../../../chunks/sheet-content.js";
-import "../../../../../../chunks/index4.js";
+import "../../../../../../chunks/index5.js";
 import "../../../../../../chunks/mode-states.svelte.js";
-import { L as Lock } from "../../../../../../chunks/lock.js";
+import { U as Upload } from "../../../../../../chunks/upload.js";
 import { t as toast } from "../../../../../../chunks/toast-state.svelte.js";
 function Building_2($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
@@ -58,14 +57,57 @@ function Building_2($$renderer, $$props) {
     ]));
   });
 }
+function Lock($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { $$slots, $$events, ...props } = $$props;
+    const iconNode = [
+      [
+        "rect",
+        {
+          "width": "18",
+          "height": "11",
+          "x": "3",
+          "y": "11",
+          "rx": "2",
+          "ry": "2"
+        }
+      ],
+      ["path", { "d": "M7 11V7a5 5 0 0 1 10 0v4" }]
+    ];
+    Icon($$renderer2, spread_props([
+      { name: "lock" },
+      /**
+       * @component @name Lock
+       * @description Lucide SVG icon component, renders SVG Element with children.
+       *
+       * @preview ![img](data:image/svg+xml;base64,PHN2ZyAgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIgogIHdpZHRoPSIyNCIKICBoZWlnaHQ9IjI0IgogIHZpZXdCb3g9IjAgMCAyNCAyNCIKICBmaWxsPSJub25lIgogIHN0cm9rZT0iIzAwMCIgc3R5bGU9ImJhY2tncm91bmQtY29sb3I6ICNmZmY7IGJvcmRlci1yYWRpdXM6IDJweCIKICBzdHJva2Utd2lkdGg9IjIiCiAgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIgogIHN0cm9rZS1saW5lam9pbj0icm91bmQiCj4KICA8cmVjdCB3aWR0aD0iMTgiIGhlaWdodD0iMTEiIHg9IjMiIHk9IjExIiByeD0iMiIgcnk9IjIiIC8+CiAgPHBhdGggZD0iTTcgMTFWN2E1IDUgMCAwIDEgMTAgMHY0IiAvPgo8L3N2Zz4K) - https://lucide.dev/icons/lock
+       * @see https://lucide.dev/guide/packages/lucide-svelte - Documentation
+       *
+       * @param {Object} props - Lucide icons props and any valid SVG attribute
+       * @returns {FunctionalComponent} Svelte component
+       *
+       */
+      props,
+      {
+        iconNode,
+        children: ($$renderer3) => {
+          props.children?.($$renderer3);
+          $$renderer3.push(`<!---->`);
+        },
+        $$slots: { default: true }
+      }
+    ]));
+  });
+}
 function AccountSettings($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
-    let { user: user$1, userPreferences = null, hasChildOrganizations = false } = $$props;
-    let userName = user$1.name || "";
+    let { user: user$1, hasChildOrganizations = false } = $$props;
+    let userName = "";
+    let userImage = "";
     let isUpdating = false;
-    let includeChildOrganizations = userPreferences?.includeChildOrganizations ?? false;
+    let includeChildOrganizations = false;
     let isUpdatingPreferences = false;
-    const userInitials = derived(() => user$1.name ? user$1.name.split(" ").map((w) => w[0]).join("").toUpperCase().slice(0, 2) : user$1.email[0].toUpperCase());
+    let imageInput = null;
     function getRoleBadgeVariant(role) {
       switch (role) {
         case "super_admin":
@@ -86,7 +128,7 @@ function AccountSettings($$renderer, $$props) {
       }
       isUpdating = true;
       try {
-        const result = await user.updateProfile({ name: userName.trim() });
+        const result = await user.updateProfile({ name: userName.trim(), image: userImage || null });
         if (!result.success) {
           throw new Error(result.error || result.message || "Failed to update profile");
         }
@@ -125,55 +167,14 @@ function AccountSettings($$renderer, $$props) {
             if (Card_header) {
               $$renderer4.push("<!--[-->");
               Card_header($$renderer4, {
+                class: "flex flex-row items-start justify-between gap-4",
                 children: ($$renderer5) => {
-                  $$renderer5.push(`<div class="flex items-center gap-4">`);
-                  if (Avatar) {
-                    $$renderer5.push("<!--[-->");
-                    Avatar($$renderer5, {
-                      class: "h-14 w-14 text-lg",
-                      children: ($$renderer6) => {
-                        if (user$1.image) {
-                          $$renderer6.push("<!--[0-->");
-                          if (Avatar_image) {
-                            $$renderer6.push("<!--[-->");
-                            Avatar_image($$renderer6, { src: user$1.image, alt: user$1.name || user$1.email });
-                            $$renderer6.push("<!--]-->");
-                          } else {
-                            $$renderer6.push("<!--[!-->");
-                            $$renderer6.push("<!--]-->");
-                          }
-                        } else {
-                          $$renderer6.push("<!--[-1-->");
-                        }
-                        $$renderer6.push(`<!--]--> `);
-                        if (Avatar_fallback) {
-                          $$renderer6.push("<!--[-->");
-                          Avatar_fallback($$renderer6, {
-                            children: ($$renderer7) => {
-                              $$renderer7.push(`<!---->${escape_html(userInitials())}`);
-                            },
-                            $$slots: { default: true }
-                          });
-                          $$renderer6.push("<!--]-->");
-                        } else {
-                          $$renderer6.push("<!--[!-->");
-                          $$renderer6.push("<!--]-->");
-                        }
-                      },
-                      $$slots: { default: true }
-                    });
-                    $$renderer5.push("<!--]-->");
-                  } else {
-                    $$renderer5.push("<!--[!-->");
-                    $$renderer5.push("<!--]-->");
-                  }
-                  $$renderer5.push(` <div class="min-w-0 flex-1"><div class="flex items-center gap-2">`);
+                  $$renderer5.push(`<div class="space-y-1.5">`);
                   if (Card_title) {
                     $$renderer5.push("<!--[-->");
                     Card_title($$renderer5, {
-                      class: "text-lg",
                       children: ($$renderer6) => {
-                        $$renderer6.push(`<!---->${escape_html(user$1.name || user$1.email)}`);
+                        $$renderer6.push(`<!---->Identity`);
                       },
                       $$slots: { default: true }
                     });
@@ -183,15 +184,29 @@ function AccountSettings($$renderer, $$props) {
                     $$renderer5.push("<!--]-->");
                   }
                   $$renderer5.push(` `);
+                  if (Card_description) {
+                    $$renderer5.push("<!--[-->");
+                    Card_description($$renderer5, {
+                      children: ($$renderer6) => {
+                        $$renderer6.push(`<!---->Your public profile inside this workspace.`);
+                      },
+                      $$slots: { default: true }
+                    });
+                    $$renderer5.push("<!--]-->");
+                  } else {
+                    $$renderer5.push("<!--[!-->");
+                    $$renderer5.push("<!--]-->");
+                  }
+                  $$renderer5.push(`</div> `);
                   Badge($$renderer5, {
                     variant: getRoleBadgeVariant(user$1.role),
-                    class: "capitalize",
+                    class: "shrink-0 px-2.5 py-1 text-xs font-medium capitalize",
                     children: ($$renderer6) => {
                       $$renderer6.push(`<!---->${escape_html(formatRole(user$1.role))}`);
                     },
                     $$slots: { default: true }
                   });
-                  $$renderer5.push(`<!----></div> <p class="text-muted-foreground mt-0.5 text-sm">${escape_html(user$1.email)}</p></div></div>`);
+                  $$renderer5.push(`<!---->`);
                 },
                 $$slots: { default: true }
               });
@@ -205,8 +220,55 @@ function AccountSettings($$renderer, $$props) {
               $$renderer4.push("<!--[-->");
               Card_content($$renderer4, {
                 children: ($$renderer5) => {
-                  Separator($$renderer5, { class: "mb-4" });
-                  $$renderer5.push(`<!----> <div class="space-y-4"><div>`);
+                  $$renderer5.push(`<div class="space-y-4"><div><div class="flex flex-col gap-4 sm:flex-row sm:items-center"><button type="button"${attr_class(`border-border bg-muted/30 group relative flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-xl border transition-colors sm:h-[130px] sm:w-[130px] ${stringify("hover:bg-muted/50")}`)}${attr("disabled", isUpdating, true)} aria-label="Upload avatar">`);
+                  if (Avatar) {
+                    $$renderer5.push("<!--[-->");
+                    Avatar($$renderer5, {
+                      class: "h-full w-full rounded-xl",
+                      children: ($$renderer6) => {
+                        {
+                          $$renderer6.push("<!--[-1-->");
+                        }
+                        $$renderer6.push(`<!--]--> `);
+                        if (Avatar_fallback) {
+                          $$renderer6.push("<!--[-->");
+                          Avatar_fallback($$renderer6, { class: "bg-muted rounded-xl" });
+                          $$renderer6.push("<!--]-->");
+                        } else {
+                          $$renderer6.push("<!--[!-->");
+                          $$renderer6.push("<!--]-->");
+                        }
+                      },
+                      $$slots: { default: true }
+                    });
+                    $$renderer5.push("<!--]-->");
+                  } else {
+                    $$renderer5.push("<!--[!-->");
+                    $$renderer5.push("<!--]-->");
+                  }
+                  $$renderer5.push(` <div class="absolute inset-0 flex items-center justify-center bg-black/45 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100"><span class="flex flex-col items-center gap-1.5">`);
+                  Upload($$renderer5, { class: "h-4 w-4" });
+                  $$renderer5.push(`<!----> Upload icon</span></div> `);
+                  {
+                    $$renderer5.push("<!--[-1-->");
+                  }
+                  $$renderer5.push(`<!--]--></button> <div class="min-w-0 flex-1 space-y-3"><div><h2 class="truncate text-lg font-semibold">${escape_html(userName || user$1.email)}</h2> <p class="text-muted-foreground mt-0.5 truncate text-sm">${escape_html(user$1.email)}</p></div> <input type="file" accept="image/*" class="hidden"/> <div class="flex flex-wrap gap-2">`);
+                  Button($$renderer5, {
+                    type: "button",
+                    variant: "outline",
+                    onclick: () => imageInput?.click(),
+                    disabled: isUpdating,
+                    children: ($$renderer6) => {
+                      Upload($$renderer6, { class: "mr-2 h-4 w-4" });
+                      $$renderer6.push(`<!----> ${escape_html("Upload avatar")}`);
+                    },
+                    $$slots: { default: true }
+                  });
+                  $$renderer5.push(`<!----> `);
+                  {
+                    $$renderer5.push("<!--[-1-->");
+                  }
+                  $$renderer5.push(`<!--]--></div> <p class="text-muted-foreground text-xs">Drag an image here, or choose a file. JPG, PNG, WebP, or GIF. Max 5MB.</p></div></div></div> <div>`);
                   Label($$renderer5, {
                     for: "user-name",
                     children: ($$renderer6) => {
@@ -260,13 +322,13 @@ function AccountSettings($$renderer, $$props) {
             if (Card_footer) {
               $$renderer4.push("<!--[-->");
               Card_footer($$renderer4, {
-                class: "border-t px-6 py-4",
+                class: "flex justify-end border-t px-6 py-4",
                 children: ($$renderer5) => {
                   Button($$renderer5, {
                     onclick: updateProfile,
                     disabled: isUpdating,
                     children: ($$renderer6) => {
-                      $$renderer6.push(`<!---->${escape_html(isUpdating ? "Saving..." : "Save Changes")}`);
+                      $$renderer6.push(`<!---->${escape_html(isUpdating ? "Saving..." : "Save changes")}`);
                     },
                     $$slots: { default: true }
                   });
@@ -302,6 +364,20 @@ function AccountSettings($$renderer, $$props) {
                       Card_title($$renderer5, {
                         children: ($$renderer6) => {
                           $$renderer6.push(`<!---->Content Preferences`);
+                        },
+                        $$slots: { default: true }
+                      });
+                      $$renderer5.push("<!--]-->");
+                    } else {
+                      $$renderer5.push("<!--[!-->");
+                      $$renderer5.push("<!--]-->");
+                    }
+                    $$renderer5.push(` `);
+                    if (Card_description) {
+                      $$renderer5.push("<!--[-->");
+                      Card_description($$renderer5, {
+                        children: ($$renderer6) => {
+                          $$renderer6.push(`<!---->Control how organization content appears in your workspace.`);
                         },
                         $$slots: { default: true }
                       });
@@ -380,7 +456,7 @@ function _page($$renderer, $$props) {
         $$renderer4.push(`<title>Aphex CMS - Account</title>`);
       });
     });
-    $$renderer2.push(`<div class="grid gap-6"><div class="hidden sm:block"><h2 class="text-xl font-semibold">Profile</h2> <p class="text-muted-foreground text-sm">Manage your personal account settings.</p></div> `);
+    $$renderer2.push(`<div class="grid gap-5">`);
     AccountSettings($$renderer2, {
       user: data.user,
       userPreferences: data.userPreferences,

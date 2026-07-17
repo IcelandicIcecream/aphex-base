@@ -1,4 +1,4 @@
-import { f as spread_props } from "./renderer.js";
+import { g as spread_props } from "./renderer.js";
 import { I as Icon } from "./sheet-content.js";
 function External_link($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {

@@ -1,27 +1,26 @@
-import { p as props_id, g as attributes, i as bind_props, d as derived, f as spread_props, a as ensure_array_like, c as attr_class, s as stringify, e as escape_html, k as head } from "../../../../../../chunks/renderer.js";
+import { p as props_id, h as attributes, j as bind_props, f as derived, g as spread_props, a as ensure_array_like, e as escape_html, l as head } from "../../../../../../chunks/renderer.js";
+import { B as Badge } from "../../../../../../chunks/badge.js";
 import { B as Button } from "../../../../../../chunks/button.js";
+import { C as Card, a as Card_content } from "../../../../../../chunks/card-content.js";
+import { C as Card_header, a as Card_title, b as Card_description } from "../../../../../../chunks/card-title.js";
+import "clsx";
+import { I as Icon, A as Alert, T as Trash_2 } from "../../../../../../chunks/sheet-content.js";
+import { A as Alert_description } from "../../../../../../chunks/alert-description.js";
+import { R as Root, D as Dialog_content, a as Dialog_header, b as Dialog_title } from "../../../../../../chunks/index7.js";
 import { I as Input } from "../../../../../../chunks/input.js";
 import { L as Label } from "../../../../../../chunks/label.js";
-import { B as Badge } from "../../../../../../chunks/badge.js";
-import { R as Root, D as Dialog_content, a as Dialog_header, b as Dialog_title } from "../../../../../../chunks/index6.js";
-import { c as SelectGroupState, C as Chevron_down, R as Root$2, S as Select_trigger, a as Select_content, b as Select_item } from "../../../../../../chunks/index7.js";
-import { C as Card, a as Card_content } from "../../../../../../chunks/card-content.js";
-import { C as Card_description } from "../../../../../../chunks/card-description.js";
-import "clsx";
-import { C as Card_header, a as Card_title } from "../../../../../../chunks/card-title.js";
-import { I as Icon, R as Root$1, d as Tooltip_trigger, e as Tooltip_content, T as Trash_2 } from "../../../../../../chunks/sheet-content.js";
-import { C as Collapsible, a as Collapsible_trigger, b as Collapsible_content } from "../../../../../../chunks/collapsible-content.js";
+import { c as SelectGroupState, R as Root$1, S as Select_trigger, a as Select_content, b as Select_item } from "../../../../../../chunks/index9.js";
 import "../../../../../../chunks/date-utils.js";
+import { i as invalidateAll } from "../../../../../../chunks/client.js";
 import { u as usePermissions, c as confirmDialog } from "../../../../../../chunks/confirm-dialog.svelte.js";
 import { b as apiKeys } from "../../../../../../chunks/instance2.js";
-import { i as invalidateAll } from "../../../../../../chunks/client.js";
-import "../../../../../../chunks/index4.js";
+import "../../../../../../chunks/index5.js";
 import "../../../../../../chunks/mode-states.svelte.js";
-import { P as Plus } from "../../../../../../chunks/plus.js";
+import { S as SettingsHeaderActions, P as Plus } from "../../../../../../chunks/SettingsHeaderActions.js";
 import { C as Copy } from "../../../../../../chunks/copy.js";
 import { t as toast } from "../../../../../../chunks/toast-state.svelte.js";
-import { D as Dialog_trigger, a as Dialog_description, b as Dialog_footer } from "../../../../../../chunks/dialog-trigger.js";
-import { d as createId, e as boxWith, m as mergeProps } from "../../../../../../chunks/create-id.js";
+import { D as Dialog_description, a as Dialog_footer } from "../../../../../../chunks/dialog-description.js";
+import { c as createId, b as boxWith, m as mergeProps } from "../../../../../../chunks/create-id.js";
 function Select_group$1($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     const uid = props_id($$renderer2);
@@ -50,20 +49,6 @@ function Select_group$1($$renderer, $$props) {
       $$renderer2.push(`<!----></div>`);
     }
     $$renderer2.push(`<!--]-->`);
-    bind_props($$props, { ref });
-  });
-}
-function Select_group($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let { ref = null, $$slots, $$events, ...restProps } = $$props;
-    if (Select_group$1) {
-      $$renderer2.push("<!--[-->");
-      Select_group$1($$renderer2, spread_props([{ "data-slot": "select-group" }, restProps]));
-      $$renderer2.push("<!--]-->");
-    } else {
-      $$renderer2.push("<!--[!-->");
-      $$renderer2.push("<!--]-->");
-    }
     bind_props($$props, { ref });
   });
 }
@@ -105,6 +90,20 @@ function Key_round($$renderer, $$props) {
         $$slots: { default: true }
       }
     ]));
+  });
+}
+function Select_group($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { ref = null, $$slots, $$events, ...restProps } = $$props;
+    if (Select_group$1) {
+      $$renderer2.push("<!--[-->");
+      Select_group$1($$renderer2, spread_props([{ "data-slot": "select-group" }, restProps]));
+      $$renderer2.push("<!--]-->");
+    } else {
+      $$renderer2.push("<!--[!-->");
+      $$renderer2.push("<!--]-->");
+    }
+    bind_props($$props, { ref });
   });
 }
 function ApiKeysSettings($$renderer, $$props) {
@@ -160,16 +159,14 @@ function ApiKeysSettings($$renderer, $$props) {
     async function deleteApiKey(id, name) {
       const confirmed = await confirmDialog({
         title: `Delete "${name}"?`,
-        description: "This action cannot be undone.",
+        description: "This action cannot be undone. Any integration using this key will lose access.",
         confirmText: "Delete",
         variant: "destructive"
       });
       if (!confirmed) return;
       try {
         const result = await apiKeys.remove(id);
-        if (!result.success) {
-          throw new Error(result.error || "Failed to delete API key");
-        }
+        if (!result.success) throw new Error(result.error || "Failed to delete API key");
         toast.success(`API key "${name}" deleted`);
         await invalidateAll();
       } catch (error) {
@@ -178,15 +175,40 @@ function ApiKeysSettings($$renderer, $$props) {
     }
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text);
-      toast.success("Copied to clipboard!");
+      toast.success("Copied to clipboard");
     }
     function formatDate(date) {
       if (!date) return "Never";
-      return new Date(date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+      return new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    }
+    function formatPermissions(permissions) {
+      return permissions.join(" ");
     }
     let $$settled = true;
     let $$inner_renderer;
     function $$render_inner($$renderer3) {
+      if (canManageApiKeys()) {
+        $$renderer3.push("<!--[0-->");
+        SettingsHeaderActions($$renderer3, {
+          children: ($$renderer4) => {
+            Button($$renderer4, {
+              size: "sm",
+              onclick: () => {
+                createdKey = null;
+                createDialogOpen = true;
+              },
+              children: ($$renderer5) => {
+                Plus($$renderer5, { class: "mr-1.5 h-4 w-4" });
+                $$renderer5.push(`<!----> New token`);
+              },
+              $$slots: { default: true }
+            });
+          }
+        });
+      } else {
+        $$renderer3.push("<!--[-1-->");
+      }
+      $$renderer3.push(`<!--]--> `);
       if (Card) {
         $$renderer3.push("<!--[-->");
         Card($$renderer3, {
@@ -194,13 +216,14 @@ function ApiKeysSettings($$renderer, $$props) {
             if (Card_header) {
               $$renderer4.push("<!--[-->");
               Card_header($$renderer4, {
+                class: "gap-4",
                 children: ($$renderer5) => {
-                  $$renderer5.push(`<div class="flex items-center justify-between"><div>`);
+                  $$renderer5.push(`<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"><div>`);
                   if (Card_title) {
                     $$renderer5.push("<!--[-->");
                     Card_title($$renderer5, {
                       children: ($$renderer6) => {
-                        $$renderer6.push(`<!---->API Keys`);
+                        $$renderer6.push(`<!---->API keys`);
                       },
                       $$slots: { default: true }
                     });
@@ -214,7 +237,7 @@ function ApiKeysSettings($$renderer, $$props) {
                     $$renderer5.push("<!--[-->");
                     Card_description($$renderer5, {
                       children: ($$renderer6) => {
-                        $$renderer6.push(`<!---->API keys allow programmatic access to your CMS content`);
+                        $$renderer6.push(`<!---->Personal and service tokens scoped to this organization.`);
                       },
                       $$slots: { default: true }
                     });
@@ -235,28 +258,6 @@ function ApiKeysSettings($$renderer, $$props) {
                         $$settled = false;
                       },
                       children: ($$renderer6) => {
-                        if (apiKeys$1.length > 0) {
-                          $$renderer6.push("<!--[0-->");
-                          {
-                            let child = function($$renderer7, { props }) {
-                              Button($$renderer7, spread_props([
-                                { size: "sm" },
-                                props,
-                                {
-                                  children: ($$renderer8) => {
-                                    Plus($$renderer8, { class: "mr-1.5 h-4 w-4" });
-                                    $$renderer8.push(`<!----> Create Key`);
-                                  },
-                                  $$slots: { default: true }
-                                }
-                              ]));
-                            };
-                            Dialog_trigger($$renderer6, { child, $$slots: { child: true } });
-                          }
-                        } else {
-                          $$renderer6.push("<!--[-1-->");
-                        }
-                        $$renderer6.push(`<!--]--> `);
                         Dialog_content($$renderer6, {
                           class: "sm:max-w-[500px]",
                           children: ($$renderer7) => {
@@ -266,14 +267,14 @@ function ApiKeysSettings($$renderer, $$props) {
                                 children: ($$renderer8) => {
                                   Dialog_title($$renderer8, {
                                     children: ($$renderer9) => {
-                                      $$renderer9.push(`<!---->API Key Created`);
+                                      $$renderer9.push(`<!---->API key created`);
                                     },
                                     $$slots: { default: true }
                                   });
                                   $$renderer8.push(`<!----> `);
                                   Dialog_description($$renderer8, {
                                     children: ($$renderer9) => {
-                                      $$renderer9.push(`<!---->Save this key securely - you won't be able to see it again`);
+                                      $$renderer9.push(`<!---->Save this key securely. You won't be able to see it again.`);
                                     },
                                     $$slots: { default: true }
                                   });
@@ -284,14 +285,14 @@ function ApiKeysSettings($$renderer, $$props) {
                               $$renderer7.push(`<!----> <div class="space-y-4 py-4"><div>`);
                               Label($$renderer7, {
                                 children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->Key Name`);
+                                  $$renderer8.push(`<!---->Key name`);
                                 },
                                 $$slots: { default: true }
                               });
                               $$renderer7.push(`<!----> <p class="mt-1 text-sm font-medium">${escape_html(createdKey.name)}</p></div> <div>`);
                               Label($$renderer7, {
                                 children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->API Key`);
+                                  $$renderer8.push(`<!---->API key`);
                                 },
                                 $$slots: { default: true }
                               });
@@ -307,7 +308,8 @@ function ApiKeysSettings($$renderer, $$props) {
                                 variant: "outline",
                                 onclick: () => copyToClipboard(createdKey.key),
                                 children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->Copy`);
+                                  Copy($$renderer8, { class: "mr-1.5 h-3.5 w-3.5" });
+                                  $$renderer8.push(`<!----> Copy`);
                                 },
                                 $$slots: { default: true }
                               });
@@ -334,14 +336,14 @@ function ApiKeysSettings($$renderer, $$props) {
                                 children: ($$renderer8) => {
                                   Dialog_title($$renderer8, {
                                     children: ($$renderer9) => {
-                                      $$renderer9.push(`<!---->Create API Key`);
+                                      $$renderer9.push(`<!---->Create API key`);
                                     },
                                     $$slots: { default: true }
                                   });
                                   $$renderer8.push(`<!----> `);
                                   Dialog_description($$renderer8, {
                                     children: ($$renderer9) => {
-                                      $$renderer9.push(`<!---->Generate a new API key for programmatic access`);
+                                      $$renderer9.push(`<!---->Generate a new token for programmatic access.`);
                                     },
                                     $$slots: { default: true }
                                   });
@@ -353,14 +355,14 @@ function ApiKeysSettings($$renderer, $$props) {
                               Label($$renderer7, {
                                 for: "key-name",
                                 children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->Key Name`);
+                                  $$renderer8.push(`<!---->Key name`);
                                 },
                                 $$slots: { default: true }
                               });
                               $$renderer7.push(`<!----> `);
                               Input($$renderer7, {
                                 id: "key-name",
-                                placeholder: "Production API Key",
+                                placeholder: "Production read",
                                 class: "mt-1",
                                 get value() {
                                   return newKeyName;
@@ -370,10 +372,10 @@ function ApiKeysSettings($$renderer, $$props) {
                                   $$settled = false;
                                 }
                               });
-                              $$renderer7.push(`<!----> <p class="text-muted-foreground mt-1 text-xs">A descriptive name to identify this key</p></div> <div>`);
+                              $$renderer7.push(`<!----></div> <div>`);
                               Label($$renderer7, {
                                 children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->Access Level`);
+                                  $$renderer8.push(`<!---->Access level`);
                                 },
                                 $$slots: { default: true }
                               });
@@ -393,7 +395,7 @@ function ApiKeysSettings($$renderer, $$props) {
                                 size: "sm",
                                 onclick: () => newKeyMode = "write",
                                 children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->Read + Write`);
+                                  $$renderer8.push(`<!---->Read + write`);
                                 },
                                 $$slots: { default: true }
                               });
@@ -401,20 +403,18 @@ function ApiKeysSettings($$renderer, $$props) {
                               Label($$renderer7, {
                                 for: "expires",
                                 children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->Expires In`);
+                                  $$renderer8.push(`<!---->Expires in`);
                                 },
                                 $$slots: { default: true }
                               });
                               $$renderer7.push(`<!----> `);
-                              if (Root$2) {
+                              if (Root$1) {
                                 $$renderer7.push("<!--[-->");
-                                Root$2($$renderer7, {
+                                Root$1($$renderer7, {
                                   type: "single",
                                   name: "expiration",
                                   onValueChange: (value) => {
-                                    if (value) {
-                                      newKeyExpiresInDays = value === "never" ? void 0 : parseInt(value);
-                                    }
+                                    if (value) newKeyExpiresInDays = value === "never" ? void 0 : parseInt(value);
                                   },
                                   get value() {
                                     return newKeyExpiresValue;
@@ -509,7 +509,7 @@ function ApiKeysSettings($$renderer, $$props) {
                                     onclick: createApiKey,
                                     disabled: isCreating,
                                     children: ($$renderer9) => {
-                                      $$renderer9.push(`<!---->${escape_html(isCreating ? "Creating..." : "Create Key")}`);
+                                      $$renderer9.push(`<!---->${escape_html(isCreating ? "Creating..." : "Create key")}`);
                                     },
                                     $$slots: { default: true }
                                   });
@@ -523,14 +523,40 @@ function ApiKeysSettings($$renderer, $$props) {
                           },
                           $$slots: { default: true }
                         });
-                        $$renderer6.push(`<!---->`);
                       },
                       $$slots: { default: true }
                     });
                   } else {
                     $$renderer5.push("<!--[-1-->");
                   }
-                  $$renderer5.push(`<!--]--></div>`);
+                  $$renderer5.push(`<!--]--></div> `);
+                  if (Alert) {
+                    $$renderer5.push("<!--[-->");
+                    Alert($$renderer5, {
+                      class: "bg-muted/50 text-muted-foreground px-3 py-2",
+                      children: ($$renderer6) => {
+                        if (Alert_description) {
+                          $$renderer6.push("<!--[-->");
+                          Alert_description($$renderer6, {
+                            children: ($$renderer7) => {
+                              $$renderer7.push(`<!---->Tokens are shown once. Treat them like passwords: store them in a secrets manager and never
+				commit them to source.`);
+                            },
+                            $$slots: { default: true }
+                          });
+                          $$renderer6.push("<!--]-->");
+                        } else {
+                          $$renderer6.push("<!--[!-->");
+                          $$renderer6.push("<!--]-->");
+                        }
+                      },
+                      $$slots: { default: true }
+                    });
+                    $$renderer5.push("<!--]-->");
+                  } else {
+                    $$renderer5.push("<!--[!-->");
+                    $$renderer5.push("<!--]-->");
+                  }
                 },
                 $$slots: { default: true }
               });
@@ -543,103 +569,72 @@ function ApiKeysSettings($$renderer, $$props) {
             if (Card_content) {
               $$renderer4.push("<!--[-->");
               Card_content($$renderer4, {
+                class: "pt-0",
                 children: ($$renderer5) => {
                   if (apiKeys$1.length === 0) {
                     $$renderer5.push("<!--[0-->");
-                    $$renderer5.push(`<div class="flex flex-col items-center justify-center py-12 text-center"><div class="bg-muted mb-4 rounded-full p-3">`);
+                    $$renderer5.push(`<div class="border-border flex flex-col items-center justify-center rounded-lg border border-dashed py-12 text-center"><div class="bg-muted mb-4 rounded-full p-3">`);
                     Key_round($$renderer5, { class: "text-muted-foreground h-6 w-6" });
-                    $$renderer5.push(`<!----></div> <p class="text-base font-medium">No API keys yet</p> <p class="text-muted-foreground mt-1 text-sm">Create your first API key to access the CMS data programmatically</p> `);
-                    if (canManageApiKeys()) {
-                      $$renderer5.push("<!--[0-->");
-                      Button($$renderer5, {
-                        size: "sm",
-                        class: "mt-4",
-                        onclick: () => createDialogOpen = true,
+                    $$renderer5.push(`<!----></div> <p class="text-base font-medium">No API keys yet</p> <p class="text-muted-foreground mt-1 text-sm">Create a token to access CMS data programmatically.</p></div>`);
+                  } else {
+                    $$renderer5.push("<!--[-1-->");
+                    $$renderer5.push(`<div class="border-border hidden overflow-hidden rounded-lg border md:block"><div class="bg-muted/30 text-muted-foreground grid grid-cols-[minmax(140px,1fr)_96px_130px_100px_100px_76px] border-b px-4 py-2 text-xs font-medium tracking-wide uppercase"><div>Name</div> <div>Token</div> <div>Scope</div> <div>Created</div> <div>Last used</div> <div></div></div> <div class="divide-y"><!--[-->`);
+                    const each_array_1 = ensure_array_like(apiKeys$1);
+                    for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
+                      let apiKey = each_array_1[$$index_1];
+                      $$renderer5.push(`<div class="grid grid-cols-[minmax(140px,1fr)_96px_130px_100px_100px_76px] items-center px-4 py-3 text-sm"><div class="truncate font-medium">${escape_html(apiKey.name ?? "Unnamed key")}</div> <div class="text-muted-foreground truncate font-mono text-xs">shown once</div> <div>`);
+                      Badge($$renderer5, {
+                        variant: "outline",
+                        class: "font-mono text-xs",
                         children: ($$renderer6) => {
-                          Plus($$renderer6, { class: "mr-1.5 h-4 w-4" });
-                          $$renderer6.push(`<!----> Create API Key`);
+                          $$renderer6.push(`<!---->${escape_html(formatPermissions(apiKey.permissions))}`);
                         },
                         $$slots: { default: true }
                       });
-                    } else {
-                      $$renderer5.push("<!--[-1-->");
-                    }
-                    $$renderer5.push(`<!--]--></div>`);
-                  } else {
-                    $$renderer5.push("<!--[-1-->");
-                    $$renderer5.push(`<div class="divide-y"><!--[-->`);
-                    const each_array_1 = ensure_array_like(apiKeys$1);
-                    for (let i = 0, $$length = each_array_1.length; i < $$length; i++) {
-                      let apiKey = each_array_1[i];
-                      $$renderer5.push(`<div${attr_class(`flex items-center justify-between gap-4 ${stringify(i > 0 ? "pt-4" : "")} ${stringify(i < apiKeys$1.length - 1 ? "pb-4" : "")}`)}><div class="min-w-0 flex-1"><div class="flex items-center gap-2">`);
-                      Key_round($$renderer5, { class: "text-muted-foreground h-4 w-4 shrink-0" });
-                      $$renderer5.push(`<!----> <span class="truncate font-medium">${escape_html(apiKey.name)}</span> <div class="flex gap-1"><!--[-->`);
-                      const each_array_2 = ensure_array_like(apiKey.permissions);
-                      for (let $$index_1 = 0, $$length2 = each_array_2.length; $$index_1 < $$length2; $$index_1++) {
-                        let permission = each_array_2[$$index_1];
-                        Badge($$renderer5, {
-                          variant: "secondary",
-                          class: "text-xs capitalize",
+                      $$renderer5.push(`<!----></div> <div class="text-muted-foreground">${escape_html(formatDate(apiKey.createdAt))}</div> <div class="text-muted-foreground">${escape_html(formatDate(apiKey.lastRequest))}</div> <div class="flex justify-end">`);
+                      if (canManageApiKeys()) {
+                        $$renderer5.push("<!--[0-->");
+                        Button($$renderer5, {
+                          variant: "outline",
+                          size: "sm",
+                          onclick: () => deleteApiKey(apiKey.id, apiKey.name ?? "Unnamed"),
                           children: ($$renderer6) => {
-                            $$renderer6.push(`<!---->${escape_html(permission)}`);
+                            $$renderer6.push(`<!---->Delete`);
                           },
                           $$slots: { default: true }
                         });
+                      } else {
+                        $$renderer5.push("<!--[-1-->");
                       }
-                      $$renderer5.push(`<!--]--></div></div> <div class="text-muted-foreground mt-1.5 ml-6 flex flex-wrap gap-x-4 gap-y-1 text-xs"><span>Created ${escape_html(formatDate(apiKey.createdAt))}</span> <span>Last used ${escape_html(formatDate(apiKey.lastRequest))}</span> <span>Expires ${escape_html(apiKey.expiresAt ? formatDate(apiKey.expiresAt) : "never")}</span></div></div> `);
+                      $$renderer5.push(`<!--]--></div></div>`);
+                    }
+                    $$renderer5.push(`<!--]--></div></div> <div class="space-y-3 md:hidden"><!--[-->`);
+                    const each_array_2 = ensure_array_like(apiKeys$1);
+                    for (let $$index_2 = 0, $$length = each_array_2.length; $$index_2 < $$length; $$index_2++) {
+                      let apiKey = each_array_2[$$index_2];
+                      $$renderer5.push(`<div class="border-border rounded-lg border p-4"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="truncate text-sm font-medium">${escape_html(apiKey.name ?? "Unnamed key")}</p> <p class="text-muted-foreground mt-1 font-mono text-xs">Token shown once</p></div> `);
+                      Badge($$renderer5, {
+                        variant: "outline",
+                        class: "font-mono text-xs",
+                        children: ($$renderer6) => {
+                          $$renderer6.push(`<!---->${escape_html(formatPermissions(apiKey.permissions))}`);
+                        },
+                        $$slots: { default: true }
+                      });
+                      $$renderer5.push(`<!----></div> <div class="mt-4 grid grid-cols-2 gap-3 text-sm"><div><p class="text-muted-foreground text-xs">Created</p> <p class="mt-1">${escape_html(formatDate(apiKey.createdAt))}</p></div> <div><p class="text-muted-foreground text-xs">Last used</p> <p class="mt-1">${escape_html(formatDate(apiKey.lastRequest))}</p></div></div> `);
                       if (canManageApiKeys()) {
                         $$renderer5.push("<!--[0-->");
-                        if (Root$1) {
-                          $$renderer5.push("<!--[-->");
-                          Root$1($$renderer5, {
-                            children: ($$renderer6) => {
-                              {
-                                let child = function($$renderer7, { props }) {
-                                  Button($$renderer7, spread_props([
-                                    props,
-                                    {
-                                      variant: "ghost",
-                                      size: "icon",
-                                      class: "text-muted-foreground hover:text-destructive h-8 w-8 shrink-0",
-                                      onclick: () => deleteApiKey(apiKey.id, apiKey.name ?? "Unnamed"),
-                                      children: ($$renderer8) => {
-                                        Trash_2($$renderer8, { class: "h-4 w-4" });
-                                      },
-                                      $$slots: { default: true }
-                                    }
-                                  ]));
-                                };
-                                if (Tooltip_trigger) {
-                                  $$renderer6.push("<!--[-->");
-                                  Tooltip_trigger($$renderer6, { child, $$slots: { child: true } });
-                                  $$renderer6.push("<!--]-->");
-                                } else {
-                                  $$renderer6.push("<!--[!-->");
-                                  $$renderer6.push("<!--]-->");
-                                }
-                              }
-                              $$renderer6.push(` `);
-                              if (Tooltip_content) {
-                                $$renderer6.push("<!--[-->");
-                                Tooltip_content($$renderer6, {
-                                  children: ($$renderer7) => {
-                                    $$renderer7.push(`<!---->Delete this API key`);
-                                  },
-                                  $$slots: { default: true }
-                                });
-                                $$renderer6.push("<!--]-->");
-                              } else {
-                                $$renderer6.push("<!--[!-->");
-                                $$renderer6.push("<!--]-->");
-                              }
-                            },
-                            $$slots: { default: true }
-                          });
-                          $$renderer5.push("<!--]-->");
-                        } else {
-                          $$renderer5.push("<!--[!-->");
-                          $$renderer5.push("<!--]-->");
-                        }
+                        Button($$renderer5, {
+                          class: "mt-4 w-full",
+                          variant: "outline",
+                          size: "sm",
+                          onclick: () => deleteApiKey(apiKey.id, apiKey.name ?? "Unnamed"),
+                          children: ($$renderer6) => {
+                            Trash_2($$renderer6, { class: "mr-1.5 h-4 w-4" });
+                            $$renderer6.push(`<!----> Delete key`);
+                          },
+                          $$slots: { default: true }
+                        });
                       } else {
                         $$renderer5.push("<!--[-1-->");
                       }
@@ -668,19 +663,18 @@ function ApiKeysSettings($$renderer, $$props) {
       if (Card) {
         $$renderer3.push("<!--[-->");
         Card($$renderer3, {
-          class: "mt-6",
+          class: "mt-5",
           children: ($$renderer4) => {
             if (Card_header) {
               $$renderer4.push("<!--[-->");
               Card_header($$renderer4, {
-                class: "pb-3",
                 children: ($$renderer5) => {
                   if (Card_title) {
                     $$renderer5.push("<!--[-->");
                     Card_title($$renderer5, {
-                      class: "text-sm font-medium",
+                      class: "text-base",
                       children: ($$renderer6) => {
-                        $$renderer6.push(`<!---->Quick Reference`);
+                        $$renderer6.push(`<!---->API reference`);
                       },
                       $$slots: { default: true }
                     });
@@ -694,7 +688,7 @@ function ApiKeysSettings($$renderer, $$props) {
                     $$renderer5.push("<!--[-->");
                     Card_description($$renderer5, {
                       children: ($$renderer6) => {
-                        $$renderer6.push(`<!---->Pass your key via the <code class="bg-muted rounded px-1 py-0.5 text-xs">x-api-key</code> header`);
+                        $$renderer6.push(`<!---->Use the key in the <code class="bg-muted rounded px-1 py-0.5 text-xs">x-api-key</code> header.`);
                       },
                       $$slots: { default: true }
                     });
@@ -717,181 +711,21 @@ function ApiKeysSettings($$renderer, $$props) {
               Card_content($$renderer4, {
                 class: "space-y-4",
                 children: ($$renderer5) => {
-                  $$renderer5.push(`<div class="bg-muted relative rounded-md p-3"><code class="block font-mono text-xs leading-relaxed break-all">curl -H "x-api-key: your_key_here" \\<br/>   https://your-app.com/api/documents?type={schemaType}</code> `);
+                  $$renderer5.push(`<div class="bg-muted relative rounded-md p-3 pr-11"><code class="block font-mono text-xs leading-relaxed break-all">curl -H "x-api-key: your_key_here"
+				https://your-app.com/api/documents?type={schemaType}</code> `);
                   Button($$renderer5, {
                     variant: "ghost",
                     size: "icon",
                     class: "absolute top-2 right-2 h-7 w-7",
-                    onclick: () => copyToClipboard('curl -H "x-api-key: your_key_here" \\\n  https://your-app.com/api/documents?type={schemaType}'),
+                    onclick: () => copyToClipboard('curl -H "x-api-key: your_key_here" https://your-app.com/api/documents?type={schemaType}'),
                     children: ($$renderer6) => {
                       Copy($$renderer6, { class: "h-3.5 w-3.5" });
                     },
                     $$slots: { default: true }
                   });
-                  $$renderer5.push(`<!----></div> `);
-                  if (Collapsible) {
-                    $$renderer5.push("<!--[-->");
-                    Collapsible($$renderer5, {
-                      children: ($$renderer6) => {
-                        if (Collapsible_trigger) {
-                          $$renderer6.push("<!--[-->");
-                          Collapsible_trigger($$renderer6, {
-                            class: "flex w-full items-center justify-between text-xs font-medium [&[data-state=open]>svg]:rotate-180",
-                            children: ($$renderer7) => {
-                              $$renderer7.push(`<!---->Endpoints `);
-                              Chevron_down($$renderer7, {
-                                class: "text-muted-foreground h-3.5 w-3.5 transition-transform duration-200"
-                              });
-                              $$renderer7.push(`<!---->`);
-                            },
-                            $$slots: { default: true }
-                          });
-                          $$renderer6.push("<!--]-->");
-                        } else {
-                          $$renderer6.push("<!--[!-->");
-                          $$renderer6.push("<!--]-->");
-                        }
-                        $$renderer6.push(` `);
-                        if (Collapsible_content) {
-                          $$renderer6.push("<!--[-->");
-                          Collapsible_content($$renderer6, {
-                            children: ($$renderer7) => {
-                              $$renderer7.push(`<div class="bg-muted mt-2 overflow-hidden rounded-md font-mono text-xs"><div class="divide-border divide-y"><div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "outline",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->GET`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/documents?type={type}</span></div> <div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "outline",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->GET`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/documents/{id}</span></div> <div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "secondary",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->POST`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/documents</span></div> <div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "secondary",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->PUT`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/documents/{id}</span></div> <div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "secondary",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->DEL`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/documents/{id}</span></div> <div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "outline",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->POST`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/documents/query</span></div> <div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "outline",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->GET`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/assets</span></div> <div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "secondary",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->POST`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/assets</span> <span class="text-muted-foreground/60 ml-auto text-[10px]">multipart/form-data</span></div> <div class="flex gap-2 px-3 py-1.5">`);
-                              Badge($$renderer7, {
-                                variant: "outline",
-                                class: "w-14 justify-center font-mono text-[10px]",
-                                children: ($$renderer8) => {
-                                  $$renderer8.push(`<!---->GET`);
-                                },
-                                $$slots: { default: true }
-                              });
-                              $$renderer7.push(`<!----> <span class="text-muted-foreground">/api/schemas</span></div></div></div>`);
-                            },
-                            $$slots: { default: true }
-                          });
-                          $$renderer6.push("<!--]-->");
-                        } else {
-                          $$renderer6.push("<!--[!-->");
-                          $$renderer6.push("<!--]-->");
-                        }
-                      },
-                      $$slots: { default: true }
-                    });
-                    $$renderer5.push("<!--]-->");
-                  } else {
-                    $$renderer5.push("<!--[!-->");
-                    $$renderer5.push("<!--]-->");
-                  }
-                  $$renderer5.push(` <div class="text-muted-foreground text-xs leading-relaxed"><p>`);
-                  Badge($$renderer5, {
-                    variant: "outline",
-                    class: "mr-1 font-mono text-[10px]",
-                    children: ($$renderer6) => {
-                      $$renderer6.push(`<!---->GET`);
-                    },
-                    $$slots: { default: true }
-                  });
-                  $$renderer5.push(`<!----> endpoints need <strong class="text-foreground">read</strong> permission. `);
-                  Badge($$renderer5, {
-                    variant: "secondary",
-                    class: "mr-1 ml-1 font-mono text-[10px]",
-                    children: ($$renderer6) => {
-                      $$renderer6.push(`<!---->POST`);
-                    },
-                    $$slots: { default: true }
-                  });
-                  $$renderer5.push(`<!----> `);
-                  Badge($$renderer5, {
-                    variant: "secondary",
-                    class: "mr-1 font-mono text-[10px]",
-                    children: ($$renderer6) => {
-                      $$renderer6.push(`<!---->PUT`);
-                    },
-                    $$slots: { default: true }
-                  });
-                  $$renderer5.push(`<!----> `);
-                  Badge($$renderer5, {
-                    variant: "secondary",
-                    class: "mr-1 font-mono text-[10px]",
-                    children: ($$renderer6) => {
-                      $$renderer6.push(`<!---->DEL`);
-                    },
-                    $$slots: { default: true }
-                  });
-                  $$renderer5.push(`<!----> need <strong class="text-foreground">write</strong>. Read-only keys get <code class="bg-muted rounded px-1 py-0.5">403</code> on mutations.</p> <p class="mt-1"><code class="bg-muted rounded px-1 py-0.5">POST /api/documents/query</code> is the exception
-				— it only needs <strong class="text-foreground">read</strong> permission.</p></div>`);
+                  $$renderer5.push(`<!----></div> <div class="grid gap-2 text-sm sm:grid-cols-2"><div class="border-border rounded-md border p-3"><p class="font-medium">Read endpoints</p> <div class="text-muted-foreground mt-2 space-y-1 font-mono text-xs"><p>GET /api/documents?type={type}</p> <p>GET /api/documents/{id}</p> <p>POST /api/documents/query</p> <p>GET /api/assets</p> <p>GET /api/schemas</p></div></div> <div class="border-border rounded-md border p-3"><p class="font-medium">Write endpoints</p> <div class="text-muted-foreground mt-2 space-y-1 font-mono text-xs"><p>POST /api/documents</p> <p>PUT /api/documents/{id}</p> <p>DELETE /api/documents/{id}</p> <p>POST /api/assets</p></div></div></div> <p class="text-muted-foreground text-xs leading-relaxed">Read-only keys can use read endpoints. Write keys can create, update, and delete documents and
+			upload assets. <code class="bg-muted rounded px-1 py-0.5">POST /api/documents/query</code> only
+			requires read access.</p>`);
                 },
                 $$slots: { default: true }
               });
@@ -925,7 +759,7 @@ function _page($$renderer, $$props) {
         $$renderer4.push(`<title>Aphex CMS - API Keys</title>`);
       });
     });
-    $$renderer2.push(`<div class="grid gap-6">`);
+    $$renderer2.push(`<div class="grid gap-5">`);
     ApiKeysSettings($$renderer2, {
       apiKeys: data.apiKeys,
       organizationRole: data.user.organizationRole

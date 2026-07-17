@@ -10,8 +10,146 @@ import "hono/bearer-auth";
 import { HTTPException } from "hono/http-exception";
 import { SSEStreamingApi } from "hono/streaming";
 import "../../../chunks/date-utils.js";
-import { v as validateDocumentData, a as authToContext } from "../../../chunks/auth-helpers.js";
+import { i as isFieldRequired, v as validateDocumentData, b as validateFile, a as authToContext } from "../../../chunks/mime-detect.js";
 import { v as validateSchemaReferences, R as RESERVED_FIELDS, V as VALID_FIELD_TYPES } from "../../../chunks/validator.js";
+import { t as toPascalCase } from "../../../chunks/string-case.js";
+function mapFieldTypeToTS(field, schemaMap, opts = {}) {
+  const { inArray = false, resolved = false, parentSchemaName, blockContentFields } = opts;
+  switch (field.type) {
+    case "string":
+    case "text":
+    case "slug":
+    case "url":
+      return "string";
+    case "number":
+      return "number";
+    case "boolean":
+      return "boolean";
+    case "date":
+      return "string";
+    case "datetime":
+      return "string";
+    case "image":
+      return "ImageValue";
+    case "file":
+      return "FileValue";
+    case "array": {
+      if (!("of" in field) || !field.of || field.of.length === 0) {
+        return "unknown[]";
+      }
+      if (field.of.some((item) => item.type === "block")) {
+        if (parentSchemaName && blockContentFields) {
+          const info = blockContentFields.find((f) => f.schemaName === parentSchemaName && f.fieldName === field.name);
+          if (info)
+            return getBlockContentArrayType(info);
+        }
+        return "PortableTextBlock[]";
+      }
+      const types2 = field.of.map((item) => {
+        if (item.type === "reference") {
+          const to = item.to;
+          const targets = to?.map((t) => {
+            const target = schemaMap.get(t.type);
+            return target ? toPascalCase(t.type) : null;
+          }).filter((s) => !!s) ?? [];
+          if (targets.length === 0) {
+            return resolved ? "unknown" : "Reference<unknown>";
+          }
+          const union = targets.join(" | ");
+          if (resolved) {
+            return targets.length === 1 ? targets[0] : `(${union})`;
+          }
+          return targets.length === 1 ? `Reference<${targets[0]}>` : `Reference<${union}>`;
+        }
+        const refSchema = schemaMap.get(item.type);
+        if (refSchema && refSchema.type === "object") {
+          const useResolved = resolved && hasReferences(refSchema, schemaMap);
+          const name = toPascalCase(item.type) + (useResolved ? "Resolved" : "");
+          return `(${name} & { _key?: string })`;
+        }
+        return mapFieldTypeToTS(item, schemaMap, { inArray: true, resolved });
+      }).filter((t) => t !== "unknown");
+      if (types2.length === 0) {
+        return "unknown[]";
+      }
+      return types2.length === 1 ? `${types2[0]}[]` : `Array<${types2.join(" | ")}>`;
+    }
+    case "object": {
+      if (!("fields" in field) || !field.fields) {
+        return "Record<string, unknown>";
+      }
+      const arrayMeta = inArray ? "  _key?: string;\n  _type?: string;\n" : "";
+      const props = field.fields.map((f) => {
+        const tsType = mapFieldTypeToTS(f, schemaMap, { resolved });
+        const optional = isFieldOptional(f) ? "?" : "";
+        return `  ${f.name}${optional}: ${tsType};`;
+      }).join("\n");
+      return `{
+${arrayMeta}${props}
+}`;
+    }
+    case "reference": {
+      const to = field.to;
+      const targets = to?.map((t) => schemaMap.get(t.type) ? toPascalCase(t.type) : null).filter((s) => !!s) ?? [];
+      if (resolved) {
+        if (targets.length === 0)
+          return "unknown";
+        return targets.length === 1 ? targets[0] : targets.join(" | ");
+      }
+      if (targets.length === 0)
+        return "Reference<unknown>";
+      const union = targets.join(" | ");
+      return targets.length === 1 ? `Reference<${targets[0]}>` : `Reference<${union}>`;
+    }
+    default:
+      return "unknown";
+  }
+}
+function fieldWriteShape(field, schemas) {
+  const schemaMap = new Map(schemas.map((s) => [s.name, s]));
+  return mapFieldTypeToTS(field, schemaMap, {});
+}
+function isFieldOptional(field) {
+  return !isFieldRequired(field);
+}
+function getBlockContentArrayType(field) {
+  const types2 = ["PortableTextBlock"];
+  for (const bt of field.blockTypes) {
+    types2.push(bt.interfaceName);
+  }
+  if (field.hasImage) {
+    types2.push("PortableTextImageBlock");
+  }
+  if (types2.length === 1)
+    return "PortableTextBlock[]";
+  return `Array<
+    | ${types2.join("\n    | ")}
+  >`;
+}
+function hasReferences(schema, schemaMap, visited = /* @__PURE__ */ new Set()) {
+  if (visited.has(schema.name))
+    return false;
+  visited.add(schema.name);
+  return schema.fields.some((f) => fieldHasReferences(f, schemaMap, visited));
+}
+function fieldHasReferences(field, schemaMap, visited) {
+  if (field.type === "reference")
+    return true;
+  if (field.type === "array" && "of" in field && field.of) {
+    return field.of.some((item) => {
+      if (item.type === "reference")
+        return true;
+      const named = schemaMap.get(item.type);
+      if (named && named.type === "object")
+        return hasReferences(named, schemaMap, visited);
+      return fieldHasReferences(item, schemaMap, visited);
+    });
+  }
+  if (field.type === "object" && "fields" in field && field.fields) {
+    return field.fields.some((f) => fieldHasReferences(f, schemaMap, visited));
+  }
+  return false;
+}
 const DEFAULT_BLOCK_STYLES = ["normal", "h1", "h2", "h3", "h4", "h5", "h6", "blockquote"];
 const DEFAULT_BLOCK_DECORATORS = ["strong", "em", "underline", "strike-through", "code"];
 const DEFAULT_BLOCK_LISTS = ["bullet", "number"];
@@ -78,6 +216,31 @@ function portableTextGuide(schema) {
     fields
   };
 }
+const SHAPE_LEGEND = {
+  ImageValue: "{ _type: 'image', asset: { _type: 'reference', _ref: '<assetId>' }, alt?: string }",
+  FileValue: "{ _type: 'file', asset: { _type: 'reference', _ref: '<assetId>' } }",
+  "Reference<…>": "{ _type: 'reference', _ref: '<documentId of the referenced type>' }",
+  "PortableTextBlock[]": "Portable Text (portabletext.org) — see the `portableText` section of this response for allowed styles/marks/blocks. Every array item needs a unique string `_key`."
+};
+function buildWriteShapes(schema, allSchemas) {
+  const writeShapes = {};
+  for (const field of schema.fields) {
+    if (field.type === "date")
+      writeShapes[field.name] = "string (ISO date, YYYY-MM-DD)";
+    else if (field.type === "datetime")
+      writeShapes[field.name] = "string (ISO datetime UTC, YYYY-MM-DDTHH:mm:ssZ)";
+    else
+      writeShapes[field.name] = fieldWriteShape(field, allSchemas);
+  }
+  const used = Object.values(writeShapes).join(" ");
+  const shapeLegend = {};
+  for (const [alias, shape] of Object.entries(SHAPE_LEGEND)) {
+    const needle = alias === "Reference<…>" ? "Reference<" : alias;
+    if (used.includes(needle))
+      shapeLegend[alias] = shape;
+  }
+  return { writeShapes, shapeLegend };
+}
 function buildContentTools({ aphexCMS, context }) {
   const api = aphexCMS.localAPI;
   const { assetService } = aphexCMS;
@@ -143,7 +306,13 @@ function buildContentTools({ aphexCMS, context }) {
         if (!schema)
           return fail(`Unknown collection: ${collection}`);
         const portableText = portableTextGuide(schema);
-        return ok(portableText ? { schema, portableText } : { schema });
+        const { writeShapes, shapeLegend } = buildWriteShapes(schema, aphexCMS.config.schemaTypes);
+        return ok({
+          schema,
+          writeShapes,
+          ...Object.keys(shapeLegend).length > 0 ? { shapeLegend } : {},
+          ...portableText ? { portableText } : {}
+        });
       }
     },
     {
@@ -404,6 +573,61 @@ function buildContentTools({ aphexCMS, context }) {
           return ok({ assets, count: assets.length });
         } catch (err) {
           return fail(`List assets failed: ${err instanceof Error ? err.message : String(err)}`);
+        }
+      }
+    },
+    {
+      name: "upload_asset",
+      description: "Upload an image or file from base64 data and get back a ready-to-reference value. The response includes `imageValue` and `fileValue` — drop the matching one straight into a document field (e.g. a blog post `coverImage`, an author `avatar`, or an inline `image` block) via update_document. File type is verified from the actual bytes, not the declared name.",
+      inputSchema: {
+        data: z$1.string().min(1).describe("Base64-encoded file contents (no data: URI prefix)."),
+        filename: z$1.string().min(1).describe('Original filename, e.g. "cover.png". Its extension helps typing.'),
+        mimeType: z$1.string().optional().describe("Declared MIME type. Optional — the bytes are sniffed regardless."),
+        alt: z$1.string().optional().describe("Default alt text, shared across every placement."),
+        title: z$1.string().optional(),
+        description: z$1.string().optional()
+      },
+      handler: async (args) => {
+        const base64 = asString(args, "data");
+        const filename = asString(args, "filename");
+        if (!base64)
+          return fail("'data' (base64 file contents) is required.");
+        if (!filename)
+          return fail("'filename' is required.");
+        let buffer;
+        try {
+          buffer = Buffer.from(base64, "base64");
+        } catch {
+          return fail("'data' is not valid base64.");
+        }
+        if (buffer.length === 0)
+          return fail("'data' decoded to zero bytes.");
+        const declaredMime = asString(args, "mimeType") ?? "";
+        const validation2 = validateFile(buffer, filename, declaredMime);
+        if (!validation2.valid) {
+          return fail(`Upload rejected: ${validation2.error ?? "file failed validation."}`);
+        }
+        const mimeType = validation2.detectedMimeType || declaredMime || "application/octet-stream";
+        try {
+          const asset = await assetService.uploadAsset(orgId, {
+            buffer,
+            originalFilename: filename,
+            mimeType,
+            size: buffer.length,
+            alt: asString(args, "alt") ?? void 0,
+            title: asString(args, "title") ?? void 0,
+            description: asString(args, "description") ?? void 0,
+            createdBy: context.user?.id
+          });
+          const ref2 = { _type: "reference", _ref: asset.id };
+          return ok({
+            asset,
+            // Referenceable field values — use the one matching the target field's type.
+            imageValue: { _type: "image", asset: ref2 },
+            fileValue: { _type: "file", asset: ref2 }
+          });
+        } catch (err) {
+          return fail(`Upload failed: ${err instanceof Error ? err.message : String(err)}`);
         }
       }
     }

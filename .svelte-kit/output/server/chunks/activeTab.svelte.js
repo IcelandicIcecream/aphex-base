@@ -1,11 +1,49 @@
-import { i as bind_props, p as props_id, g as attributes, d as derived, f as spread_props, h as clsx, e as escape_html } from "./renderer.js";
-import { n as noop, b as DialogRootState, p as DialogActionState, A as AlertDialogCancelState, q as DialogContentState, F as Focus_scope, r as afterSleep, s as Escape_layer, t as Dismissible_layer, u as Text_selection_layer, v as Scroll_lock, I as Icon, f as Dialog_overlay, i as Portal } from "./sheet-content.js";
 import "clsx";
+import { s as setContext, r as run, m as getContext, j as bind_props, p as props_id, h as attributes, f as derived, g as spread_props, i as clsx, e as escape_html } from "./renderer.js";
+import { S as SvelteMap } from "./mode-states.svelte.js";
+import { n as noop, b as DialogRootState, k as DialogActionState, l as AlertDialogCancelState, m as DialogContentState, F as Focus_scope, o as afterSleep, p as Escape_layer, q as Dismissible_layer, r as Text_selection_layer, s as Scroll_lock, I as Icon, e as Dialog_overlay, h as Portal } from "./sheet-content.js";
 import { b as buttonVariants } from "./button.js";
-import { e as boxWith, d as createId, m as mergeProps } from "./create-id.js";
+import { b as boxWith, c as createId, m as mergeProps } from "./create-id.js";
 import { a as confirmDialogState, r as resolveConfirmDialog } from "./confirm-dialog.svelte.js";
 import { c as cn } from "./utils2.js";
 import { a as Dialog_title, D as Dialog_description } from "./dialog.js";
+class AdminSlots {
+  // Reactive so outlets re-render as entries come and go.
+  #slots = new SvelteMap();
+  /**
+   * Register a snippet into a slot. Returns an unregister function — call it on
+   * cleanup (returning it from an `$effect` does this automatically).
+   */
+  register(name, entry) {
+    const current = run(() => this.#slots.get(name) ?? []);
+    const next = [...current.filter((e) => e.id !== entry.id), entry].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    this.#slots.set(name, next);
+    return () => {
+      const list = run(() => this.#slots.get(name));
+      if (!list) return;
+      const filtered = list.filter((e) => e.id !== entry.id);
+      if (filtered.length > 0) this.#slots.set(name, filtered);
+      else this.#slots.delete(name);
+    };
+  }
+  /** Entries registered in a slot, in sort order. Empty array if none. */
+  get(name) {
+    return this.#slots.get(name) ?? [];
+  }
+  /** Whether a slot has any entries — handy for conditional chrome. */
+  has(name) {
+    return this.get(name).length > 0;
+  }
+}
+const ADMIN_SLOTS_KEY = /* @__PURE__ */ Symbol.for("aphex.admin.slots");
+function setAdminSlots() {
+  const slots = new AdminSlots();
+  setContext(ADMIN_SLOTS_KEY, slots);
+  return slots;
+}
+function useAdminSlots() {
+  return getContext(ADMIN_SLOTS_KEY);
+}
 function Alert_dialog($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let {
@@ -700,5 +738,7 @@ export {
   Circle_check as C,
   Chevron_right as a,
   ConfirmDialogHost as b,
-  activeTabState as c
+  activeTabState as c,
+  setAdminSlots as s,
+  useAdminSlots as u
 };

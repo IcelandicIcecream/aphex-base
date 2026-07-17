@@ -1,19 +1,24 @@
+import { p as private_env } from "./shared-server.js";
+import { c as createPartResolver, s as schemaTypes } from "./index10.js";
 import "./date-utils.js";
 import "@sveltejs/kit";
-import { c as createStorageAdapter } from "./user.js";
+import { a as createStorageAdapter } from "./user.js";
 import "sharp";
 import "hono";
 import "hono/body-limit";
-import { s as schemaTypes } from "./index8.js";
+import { p as plugins } from "./plugins.js";
 import { a as authService } from "./service.js";
 import { e as emailConfig, d as email, f as cacheAdapter } from "./instance.js";
 import { b as db } from "./index2.js";
 import { s3Storage } from "@aphexcms/storage-s3";
-import { p as private_env } from "./shared-server.js";
 function createCMSConfig(config) {
+  const resolver = createPartResolver(config.plugins ?? []);
+  const pluginSchemas = resolver.schemaTypes();
+  const mergedSchemas = resolver.applySchemaTransforms([...config.schemaTypes, ...pluginSchemas]);
   return {
     // Start with the user's config and apply defaults for missing properties
     ...config,
+    schemaTypes: mergedSchemas,
     storage: config.storage ?? null,
     // Default to null if not provided
     customization: {
@@ -33,6 +38,7 @@ const authProvider = {
   getUserById: (userId) => authService.getUserById(userId),
   getUserByEmail: (email2) => authService.getUserByEmail(email2),
   changeUserName: (userId, name) => authService.changeUserName(userId, name),
+  changeUserImage: (userId, image) => authService.changeUserImage(userId, image),
   requestPasswordReset: (email2, redirectTo) => authService.requestPasswordReset(email2, redirectTo),
   resetPassword: (token, newPassword) => authService.resetPassword(token, newPassword)
 };
@@ -87,6 +93,7 @@ if (private_env.R2_BUCKET && private_env.R2_ENDPOINT && private_env.R2_ACCESS_KE
 }
 const cmsConfig = createCMSConfig({
   schemaTypes,
+  plugins,
   // Provide the shared database and storage adapter instances directly.
   // These are created once in their respective /lib/server/.. files.
   database: db,
@@ -97,6 +104,23 @@ const cmsConfig = createCMSConfig({
     provider: authProvider,
     loginUrl: "/login"
     // Redirect here when unauthenticated
+  },
+  security: {
+    // Encrypts plugin `secret` settings at rest (AES-256-GCM). Optional — when
+    // unset, secret settings fields are disabled (read-only) rather than stored as
+    // plaintext. Keep it stable across deploys; rotating it orphans existing secrets.
+    // Read via `$env/dynamic/private` — SvelteKit does NOT put `.env` into process.env.
+    secretEncryptionKey: private_env.APHEX_SECRET_ENCRYPTION_KEY
+  },
+  // Reads the PREVIEW_AS knob above. The CMS hook runs this once per request and
+  // stores the result on `locals.previewPerspective`, which site loads inherit via
+  // `siteContext`. Queries that pass an explicit perspective (e.g. the sitemap) win.
+  preview: {
+    resolvePerspective: ({ auth, url }) => {
+      if (auth?.type !== "session") return "published";
+      if (process.env.NODE_ENV !== "production") return "draft";
+      return url.searchParams.has("aphex-preview") ? "draft" : "published";
+    }
   },
   // GraphQL is built-in and enabled by default.
   // Set to false to disable, or pass config: { defaultPerspective: 'draft', path: '/api/graphql' }

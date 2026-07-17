@@ -1,4 +1,4 @@
-import { d as derived, r as run } from "./renderer.js";
+import { f as derived, r as run } from "./renderer.js";
 function cn(...classes) {
   return classes.filter(Boolean).join(" ");
 }

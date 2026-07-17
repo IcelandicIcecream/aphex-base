@@ -1,10 +1,11 @@
+import "./state.svelte.js";
 import "clsx";
-import { n as noop } from "./renderer.js";
-import { w as writable } from "./exports.js";
+import "@sveltejs/kit/internal";
+import "./exports.js";
+import "./utils.js";
+import { w as writable } from "./index4.js";
 import "@sveltejs/kit/internal/server";
 import "./root.js";
-import "@sveltejs/kit/internal";
-import "./utils.js";
 function create_updated_store() {
   const { set, subscribe } = writable(false);
   {
@@ -14,20 +15,6 @@ function create_updated_store() {
       check: async () => false
     };
   }
-}
-const is_legacy = noop.toString().includes("$$") || /function \w+\(\) \{\}/.test(noop.toString());
-const placeholder_url = "a:";
-if (is_legacy) {
-  ({
-    data: {},
-    form: null,
-    error: null,
-    params: {},
-    route: { id: null },
-    state: {},
-    status: -1,
-    url: new URL(placeholder_url)
-  });
 }
 const stores = {
   updated: /* @__PURE__ */ create_updated_store()

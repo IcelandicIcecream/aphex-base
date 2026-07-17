@@ -1,6 +1,6 @@
-import { d as derived, p as props_id, g as attributes, i as bind_props, f as spread_props } from "./renderer.js";
+import { f as derived, p as props_id, h as attributes, j as bind_props, g as spread_props } from "./renderer.js";
 import { c as cn } from "./utils2.js";
-import { a as attachRef, c as createBitsAttrs, d as createId, e as boxWith, m as mergeProps } from "./create-id.js";
+import { a as attachRef, e as createBitsAttrs, c as createId, b as boxWith, m as mergeProps } from "./create-id.js";
 const labelAttrs = createBitsAttrs({ component: "label", parts: ["root"] });
 class LabelRootState {
   static create(opts) {

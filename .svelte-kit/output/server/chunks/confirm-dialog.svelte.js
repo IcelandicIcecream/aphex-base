@@ -1,5 +1,5 @@
 import "clsx";
-import { m as setContext, l as getContext } from "./renderer.js";
+import { s as setContext, m as getContext } from "./renderer.js";
 const KEY = /* @__PURE__ */ Symbol.for("aphex.permissions");
 function setPermissionsContext(getCapabilities, getRole = () => null) {
   const ctx = {

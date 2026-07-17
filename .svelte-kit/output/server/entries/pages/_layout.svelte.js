@@ -1,10 +1,18 @@
-import { m as setContext, k as head, b as attr } from "../../chunks/renderer.js";
+import { s as setContext, l as head, b as attr } from "../../chunks/renderer.js";
 import "clsx";
-import "../../chunks/index4.js";
+import "@sveltejs/kit/internal";
+import "../../chunks/exports.js";
+import "../../chunks/utils.js";
+import "@sveltejs/kit/internal/server";
+import "../../chunks/root.js";
+import "../../chunks/state.svelte.js";
+import "../../chunks/index5.js";
 const favicon = "/_app/immutable/assets/favicon.DN4o9Qxv.svg";
 const KEY = /* @__PURE__ */ Symbol("aphex:live-preview");
 class LivePreviewContext {
   current = null;
+  currentType = null;
+  currentId = null;
 }
 function setLivePreviewContext() {
   const ctx = new LivePreviewContext();

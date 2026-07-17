@@ -5,15 +5,18 @@ import { a as auth } from "../chunks/instance.js";
 import { b as building } from "../chunks/environment.js";
 import { c as cmsLogger, s as setLogger, a as setLogLevel } from "../chunks/date-utils.js";
 import { A as AuthError } from "../chunks/service.js";
-import { P as PermissionChecker, C as CollectionAPI, s as schemasRouter, d as documentsQueryRouter, a as documentsPublishRouter, b as documentVersionsRouter, e as documentsRouter, f as documentsByIdRouter, g as assetsBulkRouter, h as assetsReferencesRouter, i as assetsByIdRouter, j as assetsRouter, o as organizationsSwitchRouter, k as organizationsInvitationsRouter, l as organizationsMembersRouter, m as organizationsByIdRouter, n as organizationsRouter, r as rolesRouter, u as userPreferencesRouter, p as userRouter, c as createStorageAdapter } from "../chunks/user.js";
+import { A as ALL_CAPABILITIES, B as BUILTIN_ROLE_NAMES, a as BUILTIN_ROLE_SEED, r as resolveCapabilities } from "../chunks/capabilities.js";
+import { P as PermissionChecker, C as CollectionAPI, s as schemasRouter, d as documentsQueryRouter, b as documentsPublishRouter, e as documentVersionsRouter, f as documentsRouter, g as documentsByIdRouter, h as assetsBulkRouter, i as assetsReferencesRouter, j as assetsByIdRouter, k as assetsRouter, o as organizationsSwitchRouter, l as organizationsInvitationsRouter, m as organizationsMembersRouter, n as organizationsByIdRouter, p as organizationsRouter, r as rolesRouter, q as pluginSettingsRouter, u as userPreferencesRouter, t as userRouter, v as PluginSettingsService, a as createStorageAdapter } from "../chunks/user.js";
 import sharp from "sharp";
-import { B as BUILTIN_ROLE_NAMES, a as BUILTIN_ROLE_SEED } from "../chunks/capabilities.js";
+import { c as createPartResolver } from "../chunks/index10.js";
 import { v as validateSchemaReferences } from "../chunks/validator.js";
 import { c as collectReferenceIds } from "../chunks/reference-walk.js";
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import "../chunks/index2.js";
 import "../chunks/instance2.js";
+import { p as private_env } from "../chunks/shared-server.js";
+import { s as systemContext } from "../chunks/mime-detect.js";
 import { c as cmsConfig } from "../chunks/aphex.config.js";
 class DocumentCache {
   adapter;
@@ -85,7 +88,49 @@ class CMSEngine {
     for (const schemaType of this.config.schemaTypes) {
       await this.db.registerSchemaType(schemaType);
     }
+    await this.reconcileBuiltinRoles();
     cmsLogger.info("[CMS]", "Initialized successfully");
+  }
+  /**
+   * Every capability this install recognises: core's built-ins plus whatever the
+   * registered plugins declare.
+   *
+   * `ALL_CAPABILITIES` is core-only and static, so on its own it would leave an
+   * owner unable to hold a capability its own plugins declared — owner would end up
+   * with strictly fewer permissions than admin, who can be granted plugin
+   * capabilities through the roles UI.
+   */
+  ownerCapabilities() {
+    const resolver = createPartResolver(this.config.plugins ?? []);
+    const declared = resolver.capabilityCatalog().map((def) => def.id);
+    return Array.from(/* @__PURE__ */ new Set([...ALL_CAPABILITIES, ...declared]));
+  }
+  /**
+   * Re-seed built-in roles for every existing organization.
+   *
+   * Org creation seeds roles once, which means an org created before a
+   * capability existed never learns about it — that is why an owner could be
+   * missing `plugin.settings.manage` after upgrading core. Re-seeding on boot
+   * closes that gap: it inserts any missing built-in row and reconciles `owner`
+   * back to the full capability set, which now includes plugin-declared
+   * capabilities. Editable roles (admin/editor/viewer) are left as the operator
+   * configured them.
+   *
+   * Because this runs on every boot, installing or removing a plugin is enough to
+   * bring owners in line with the capabilities that plugin declares.
+   *
+   * Idempotent and cheap — orgs are few and this is four rows each — so it runs
+   * unconditionally rather than behind a schema-version check.
+   */
+  async reconcileBuiltinRoles() {
+    const organizations = await this.db.findAllOrganizations();
+    const ownerCaps = this.ownerCapabilities();
+    for (const org of organizations) {
+      await this.db.seedBuiltinRoles(org.id, ownerCaps);
+    }
+    if (organizations.length > 0) {
+      cmsLogger.info("[CMS]", `Reconciled built-in roles for ${organizations.length} org(s) (owner: ${ownerCaps.length} capabilities)`);
+    }
   }
   // Schema Type utility methods
   async getSchemaType(name) {
@@ -226,6 +271,10 @@ async function handleAuthHook(event, config, authProvider, db, rolesService) {
     }
   }
   return null;
+}
+function getPreviewPerspective(auth2, url) {
+  const isAuthenticated = auth2?.type === "session";
+  return url.searchParams.has("aphex-preview") && isAuthenticated ? "draft" : "published";
 }
 function collectAssetRefs(value, acc = /* @__PURE__ */ new Set()) {
   if (!value || typeof value !== "object")
@@ -943,6 +992,7 @@ function mountAphexBuiltins(app) {
   app.route("/organizations", organizationsByIdRouter);
   app.route("/organizations", organizationsRouter);
   app.route("/roles", rolesRouter);
+  app.route("/plugin-settings", pluginSettingsRouter);
   app.route("/user", userPreferencesRouter);
   app.route("/user", userRouter);
   app.get("/aphex-health", async (c) => {
@@ -971,6 +1021,20 @@ function toHonoHandler(skHandler) {
       getClientAddress: () => c.req.header("x-forwarded-for") ?? "127.0.0.1"
     };
     return skHandler(fakeEvent);
+  };
+}
+function gateHandler(handler, required) {
+  return (c) => {
+    const auth2 = c.var.auth;
+    if (!auth2 || auth2.type === "partial_session") {
+      return c.json({ success: false, error: "Authentication required" }, 401);
+    }
+    const caps = resolveCapabilities(auth2);
+    const missing = required.filter((cap) => !caps.has(cap));
+    if (missing.length > 0) {
+      return c.json({ success: false, error: "Insufficient permissions", missingCapabilities: missing }, 403);
+    }
+    return handler(c);
   };
 }
 let cmsInstances = null;
@@ -1022,8 +1086,14 @@ function createCMSHook(config) {
       const cmsEngine = createCMS(currentConfig, databaseAdapter);
       const rolesService = new RolesService(databaseAdapter, currentConfig.cache ?? null);
       const localAPI = createLocalAPI(currentConfig, databaseAdapter);
+      const partResolver = createPartResolver(currentConfig.plugins ?? []);
+      const pluginSettingsService = new PluginSettingsService(databaseAdapter, partResolver, currentConfig.security?.secretEncryptionKey ?? null);
       const apiApp = createAphexApi();
       currentConfig.api?.(apiApp);
+      for (const route of partResolver.serverRoutes()) {
+        const handler = route.requiredCapabilities === "public" ? route.handler : gateHandler(route.handler, route.requiredCapabilities);
+        apiApp.on(route.method, route.path, handler);
+      }
       mountAphexBuiltins(apiApp);
       try {
         await cmsEngine.initialize();
@@ -1034,7 +1104,7 @@ function createCMSHook(config) {
       let graphqlSettings = null;
       if (currentConfig.graphql !== false) {
         try {
-          const { createGraphQLHandler } = await import("../chunks/index10.js");
+          const { createGraphQLHandler } = await import("../chunks/index11.js");
           const graphqlConfig = typeof currentConfig.graphql === "object" ? currentConfig.graphql : {};
           const result = await createGraphQLHandler({
             config: currentConfig,
@@ -1045,9 +1115,11 @@ function createCMSHook(config) {
             cmsEngine,
             localAPI,
             rolesService,
+            pluginSettingsService,
             logger: cmsLogger,
             auth: currentConfig.auth?.provider,
-            apiApp
+            apiApp,
+            partResolver
           }, currentConfig.schemaTypes, graphqlConfig);
           const rawPath = graphqlConfig.path ?? "/api/graphql";
           const fullPath = rawPath.startsWith("/") ? rawPath : `/${rawPath}`;
@@ -1067,10 +1139,12 @@ function createCMSHook(config) {
         cmsEngine,
         localAPI,
         rolesService,
+        pluginSettingsService,
         logger: cmsLogger,
         auth: currentConfig.auth?.provider,
         graphqlSettings,
-        apiApp
+        apiApp,
+        partResolver
       };
       resolveInit();
     }
@@ -1083,6 +1157,10 @@ function createCMSHook(config) {
       if (authResponse)
         return authResponse;
     }
+    event.locals.previewPerspective = currentConfig.preview?.resolvePerspective?.({
+      auth: event.locals.auth,
+      url: event.url
+    }) ?? getPreviewPerspective(event.locals.auth, event.url);
     return resolve(event);
   };
 }
@@ -1100,17 +1178,66 @@ function isAuthPath(url, options) {
   if (!_url.pathname.startsWith(baseURL.pathname.endsWith("/") ? baseURL.pathname : `${baseURL.pathname}/`)) return false;
   return true;
 }
+const SEEDED_TYPES = ["page"];
+async function seedContent(aphex, context) {
+  await aphex.localAPI.collections.page.create(
+    context,
+    {
+      title: "Welcome to Aphex",
+      slug: "welcome",
+      body: "This page was created automatically on first run so the admin has something to show.\n\nEdit or delete it, then make the content model your own: schemas live in src/lib/schemaTypes/, and `pnpm generate:types` keeps the frontend honest about them."
+    },
+    { publish: true }
+  );
+  return { pages: 1 };
+}
+let seedState = null;
+function seedOnFirstRun(locals) {
+  if (seedState === "done") return Promise.resolve();
+  if (seedState) return seedState;
+  const attempt = (async () => {
+    const { databaseAdapter } = locals.aphexCMS;
+    const orgs = await databaseAdapter.findAllOrganizations();
+    const org = orgs[0];
+    if (!org) {
+      seedState = null;
+      return;
+    }
+    const counts = await databaseAdapter.getDocCountsByType(org.id);
+    const touched = SEEDED_TYPES.some((type) => (counts[type] ?? 0) > 0);
+    if (touched) {
+      seedState = "done";
+      return;
+    }
+    console.log("[seed] Fresh site detected — creating example content…");
+    const created = await seedContent(locals.aphexCMS, systemContext(org.id));
+    console.log(`[seed] Done: ${created.pages} page.`);
+    seedState = "done";
+  })().catch((error) => {
+    console.error("[seed] Failed to seed example content:", error);
+    seedState = "done";
+  });
+  seedState = attempt;
+  return attempt;
+}
+function seedEnabled() {
+  return private_env.APHEX_SEED !== "false";
+}
 const authHook = async ({ event, resolve }) => {
   return svelteKitHandler({ event, resolve, auth, building });
 };
 const aphexHook = createCMSHook(cmsConfig);
+const seedHook = async ({ event, resolve }) => {
+  if (!building && seedEnabled()) await seedOnFirstRun(event.locals);
+  return resolve(event);
+};
 const routingHook = async ({ event, resolve }) => {
   if (event.url.pathname === "/") {
     throw redirect(302, "/admin");
   }
   return resolve(event);
 };
-const handle = sequence(authHook, aphexHook, routingHook);
+const handle = sequence(authHook, aphexHook, seedHook, routingHook);
 export {
   handle
 };

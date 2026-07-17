@@ -1,7 +1,7 @@
-import { d as derived, f as spread_props, p as props_id, g as attributes, i as bind_props } from "./renderer.js";
+import { f as derived, g as spread_props, p as props_id, h as attributes, j as bind_props } from "./renderer.js";
 import { c as cn } from "./utils2.js";
-import { C as Context, E as ENTER, j as SPACE, n as noop } from "./sheet-content.js";
-import { a as attachRef, f as boolToEmptyStrOrUndef, g as getDataChecked, h as boolToStr, i as getAriaChecked, j as boolToTrueOrUndef, c as createBitsAttrs, d as createId, e as boxWith, m as mergeProps } from "./create-id.js";
+import { C as Context, E as ENTER, i as SPACE, n as noop } from "./sheet-content.js";
+import { a as attachRef, f as boolToEmptyStrOrUndef, g as getDataChecked, h as boolToStr, i as getAriaChecked, j as boolToTrueOrUndef, e as createBitsAttrs, c as createId, b as boxWith, m as mergeProps } from "./create-id.js";
 import { H as Hidden_input } from "./hidden-input.js";
 const switchAttrs = createBitsAttrs({ component: "switch", parts: ["root", "thumb"] });
 const SwitchRootContext = new Context("Switch.Root");

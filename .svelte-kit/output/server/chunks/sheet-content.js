@@ -1,9 +1,9 @@
-import { ae as hasContext, l as getContext, m as setContext, d as derived, af as getAllContexts, p as props_id, g as attributes, i as bind_props, b as attr, f as spread_props, h as clsx, a as ensure_array_like, j as element, c as attr_class, e as escape_html, ag as await_block, s as stringify } from "./renderer.js";
+import { ae as hasContext, m as getContext, s as setContext, f as derived, af as getAllContexts, p as props_id, h as attributes, j as bind_props, b as attr, g as spread_props, i as clsx, a as ensure_array_like, k as element, c as attr_class, e as escape_html, ag as await_block, d as stringify } from "./renderer.js";
 import { c as cn } from "./utils2.js";
 import { tv } from "tailwind-variants";
 import { c as assets } from "./instance2.js";
 import "clsx";
-import { l as isWritableSymbol, B as BoxSymbol, n as boxFrom, e as boxWith, o as boxFlatten, t as toReadonlyBox, p as isBox, q as isWritableBox, r as isObject, k as getDataOpenClosed, a as attachRef, f as boolToEmptyStrOrUndef, c as createBitsAttrs, h as boolToStr, u as executeCallbacks, m as mergeProps, v as simpleBox, w as composeHandlers, d as createId, x as cssToStyleObj, s as styleToString } from "./create-id.js";
+import { l as isWritableSymbol, B as BoxSymbol, n as boxFrom, b as boxWith, o as boxFlatten, t as toReadonlyBox, p as isBox, q as isWritableBox, r as isObject, k as getDataOpenClosed, a as attachRef, f as boolToEmptyStrOrUndef, e as createBitsAttrs, h as boolToStr, u as executeCallbacks, m as mergeProps, v as simpleBox, w as composeHandlers, c as createId, x as cssToStyleObj, s as styleToString } from "./create-id.js";
 import { e as createSubscriber, S as SvelteMap, M as MediaQuery } from "./mode-states.svelte.js";
 import { n as lifecycle_function_unavailable } from "./render-context.js";
 import { o as on } from "./root.js";
@@ -14,6 +14,75 @@ function unmount() {
   lifecycle_function_unavailable("unmount");
 }
 async function tick() {
+}
+function readPath(item, path) {
+  const match = path.match(/^(['"])(.+)\1$/);
+  if (match)
+    return match[2];
+  let current = item;
+  for (const segment of path.split(".")) {
+    if (current == null)
+      return void 0;
+    current = current[segment];
+  }
+  return current;
+}
+function toPreviewString(value) {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed ? trimmed : null;
+  }
+  if (typeof value === "number" && Number.isFinite(value))
+    return String(value);
+  if (typeof value === "boolean")
+    return value ? "true" : "false";
+  return null;
+}
+const DEFAULT_TITLE_FIELDS = ["title", "heading", "name", "label"];
+function runPrepare(item, schema) {
+  const prepare = schema?.preview?.prepare;
+  if (!prepare)
+    return null;
+  const select = schema?.preview?.select ?? {};
+  const selection = {};
+  for (const [key, path] of Object.entries(select)) {
+    selection[key] = readPath(item, path);
+  }
+  return prepare(selection);
+}
+function resolvePreviewTitle(item, schema, defaultTypeLabel) {
+  const prepared = runPrepare(item, schema);
+  if (prepared) {
+    const resolved = toPreviewString(prepared.title);
+    if (resolved)
+      return resolved;
+  } else {
+    const literal = toPreviewString(schema?.preview?.title);
+    if (literal)
+      return literal;
+    const configured = schema?.preview?.select?.title;
+    if (configured) {
+      const resolved = toPreviewString(readPath(item, configured));
+      if (resolved)
+        return resolved;
+    } else {
+      for (const name of DEFAULT_TITLE_FIELDS) {
+        const resolved = toPreviewString(item?.[name]);
+        if (resolved)
+          return resolved;
+      }
+    }
+  }
+  return schema?.title ?? defaultTypeLabel ?? "Untitled";
+}
+function resolvePreviewSubtitle(item, schema) {
+  const prepared = runPrepare(item, schema);
+  if (prepared)
+    return toPreviewString(prepared.subtitle);
+  const configured = schema?.preview?.select?.subtitle;
+  if (!configured)
+    return null;
+  return toPreviewString(readPath(item, configured));
 }
 function box(initialValue) {
   let current = initialValue;
@@ -6243,6 +6312,127 @@ function Alert($$renderer, $$props) {
     bind_props($$props, { ref });
   });
 }
+function Tooltip_trigger($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let { ref = null, $$slots, $$events, ...restProps } = $$props;
+    let $$settled = true;
+    let $$inner_renderer;
+    function $$render_inner($$renderer3) {
+      if (Tooltip_trigger$1) {
+        $$renderer3.push("<!--[-->");
+        Tooltip_trigger$1($$renderer3, spread_props([
+          { "data-slot": "tooltip-trigger" },
+          restProps,
+          {
+            get ref() {
+              return ref;
+            },
+            set ref($$value) {
+              ref = $$value;
+              $$settled = false;
+            }
+          }
+        ]));
+        $$renderer3.push("<!--]-->");
+      } else {
+        $$renderer3.push("<!--[!-->");
+        $$renderer3.push("<!--]-->");
+      }
+    }
+    do {
+      $$settled = true;
+      $$inner_renderer = $$renderer2.copy();
+      $$render_inner($$inner_renderer);
+    } while (!$$settled);
+    $$renderer2.subsume($$inner_renderer);
+    bind_props($$props, { ref });
+  });
+}
+function Tooltip_content($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let {
+      ref = null,
+      class: className,
+      sideOffset = 0,
+      side = "top",
+      children,
+      arrowClasses,
+      $$slots,
+      $$events,
+      ...restProps
+    } = $$props;
+    let $$settled = true;
+    let $$inner_renderer;
+    function $$render_inner($$renderer3) {
+      if (Portal) {
+        $$renderer3.push("<!--[-->");
+        Portal($$renderer3, {
+          children: ($$renderer4) => {
+            if (Tooltip_content$1) {
+              $$renderer4.push("<!--[-->");
+              Tooltip_content$1($$renderer4, spread_props([
+                {
+                  "data-slot": "tooltip-content",
+                  sideOffset,
+                  side,
+                  class: cn("bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--bits-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance", className)
+                },
+                restProps,
+                {
+                  get ref() {
+                    return ref;
+                  },
+                  set ref($$value) {
+                    ref = $$value;
+                    $$settled = false;
+                  },
+                  children: ($$renderer5) => {
+                    children?.($$renderer5);
+                    $$renderer5.push(`<!----> `);
+                    {
+                      let child = function($$renderer6, { props }) {
+                        $$renderer6.push(`<div${attributes({
+                          class: clsx(cn("bg-primary z-50 size-2.5 rotate-45 rounded-[2px]", "data-[side=top]:translate-x-1/2 data-[side=top]:translate-y-[calc(-50%_+_2px)]", "data-[side=bottom]:-translate-x-1/2 data-[side=bottom]:-translate-y-[calc(-50%_+_1px)]", "data-[side=right]:translate-x-[calc(50%_+_2px)] data-[side=right]:translate-y-1/2", "data-[side=left]:-translate-y-[calc(50%_-_3px)]", arrowClasses)),
+                          ...props
+                        })}></div>`);
+                      };
+                      if (Tooltip_arrow) {
+                        $$renderer5.push("<!--[-->");
+                        Tooltip_arrow($$renderer5, { child, $$slots: { child: true } });
+                        $$renderer5.push("<!--]-->");
+                      } else {
+                        $$renderer5.push("<!--[!-->");
+                        $$renderer5.push("<!--]-->");
+                      }
+                    }
+                  },
+                  $$slots: { default: true }
+                }
+              ]));
+              $$renderer4.push("<!--]-->");
+            } else {
+              $$renderer4.push("<!--[!-->");
+              $$renderer4.push("<!--]-->");
+            }
+          }
+        });
+        $$renderer3.push("<!--]-->");
+      } else {
+        $$renderer3.push("<!--[!-->");
+        $$renderer3.push("<!--]-->");
+      }
+    }
+    do {
+      $$settled = true;
+      $$inner_renderer = $$renderer2.copy();
+      $$render_inner($$inner_renderer);
+    } while (!$$settled);
+    $$renderer2.subsume($$inner_renderer);
+    bind_props($$props, { ref });
+  });
+}
+const Root = Tooltip;
+const Provider = Tooltip_provider;
 const defaultAttributes = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
@@ -23410,18 +23600,20 @@ const DECORATOR_MAP = {
 Object.fromEntries(Object.entries(DECORATOR_MAP).map(([k, v]) => [v, k]));
 function PortableTextObjectView($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
-    let { type, data, selected = false, onEdit, onDelete } = $$props;
-    const title = derived(() => data.title || data.name || type);
+    let { type, data, schema, selected = false, onEdit, onDelete } = $$props;
+    const title = derived(() => resolvePreviewTitle(data, schema, type));
     const subtitle = derived(() => {
-      const preview = [];
+      const configured = resolvePreviewSubtitle(data, schema);
+      if (configured) return configured;
+      const parts = [];
       for (const [key, val] of Object.entries(data)) {
         if (key.startsWith("_") || key === "title" || key === "name") continue;
         if (typeof val === "string" && val.length > 0) {
-          preview.push(val.length > 40 ? val.slice(0, 40) + "..." : val);
-          if (preview.length >= 2) break;
+          parts.push(val.length > 40 ? val.slice(0, 40) + "..." : val);
+          if (parts.length >= 2) break;
         }
       }
-      return preview.join(" - ");
+      return parts.join(" - ");
     });
     $$renderer2.push(`<div${attr_class("border-rule bg-muted/20 hover:bg-muted/40 group my-2 flex items-center gap-2 rounded-md border px-3 py-2 transition-colors", void 0, { "ring-primary": selected, "ring-2": selected })}><button type="button" class="flex min-w-0 flex-1 items-center gap-3 text-left"><div class="bg-muted text-muted-foreground flex h-8 w-8 shrink-0 items-center justify-center rounded text-xs font-medium uppercase">${escape_html(type.slice(0, 2))}</div> <div class="min-w-0 flex-1"><div class="text-foreground text-sm font-medium capitalize">${escape_html(title())}</div> `);
     if (subtitle()) {
@@ -23442,22 +23634,22 @@ function PortableTextImageView($$renderer, $$props) {
     let { data, selected = false, onEdit, onDelete } = $$props;
     const assetRef = derived(() => data?.asset?._ref);
     const assetPromise = derived(() => assetRef() ? assets.getById(assetRef()) : null);
-    $$renderer2.push(`<div${attr_class("image-block-view group svelte-1uorl3j", void 0, { "selected": selected })} data-pt-image-edit="">`);
+    $$renderer2.push(`<div${attr_class("image-block-view group svelte-njsjyh", void 0, { "selected": selected })} data-pt-image-edit="">`);
     if (assetPromise()) {
       $$renderer2.push("<!--[0-->");
       await_block(
         $$renderer2,
         assetPromise(),
         () => {
-          $$renderer2.push(`<div class="image-block-placeholder svelte-1uorl3j"><div class="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"></div></div>`);
+          $$renderer2.push(`<div class="image-block-placeholder svelte-njsjyh"><div class="border-primary h-5 w-5 animate-spin rounded-full border-2 border-t-transparent"></div></div>`);
         },
         (result) => {
           if (result.success && result.data?.url) {
             $$renderer2.push("<!--[0-->");
-            $$renderer2.push(`<img${attr("src", result.data.url)}${attr("alt", data?.alt || "")} class="image-block-img svelte-1uorl3j"/>`);
+            $$renderer2.push(`<img${attr("src", result.data.url)}${attr("alt", data?.alt || "")} class="image-block-img svelte-njsjyh"/>`);
           } else {
             $$renderer2.push("<!--[-1-->");
-            $$renderer2.push(`<div class="image-block-placeholder svelte-1uorl3j">`);
+            $$renderer2.push(`<div class="image-block-placeholder svelte-njsjyh">`);
             Image($$renderer2, { class: "text-muted-foreground h-8 w-8" });
             $$renderer2.push(`<!----> <span class="text-muted-foreground text-xs">Image not found</span></div>`);
           }
@@ -23467,16 +23659,16 @@ function PortableTextImageView($$renderer, $$props) {
       $$renderer2.push(`<!--]-->`);
     } else {
       $$renderer2.push("<!--[-1-->");
-      $$renderer2.push(`<div class="image-block-placeholder svelte-1uorl3j">`);
+      $$renderer2.push(`<div class="image-block-placeholder svelte-njsjyh">`);
       Image($$renderer2, { class: "text-muted-foreground h-8 w-8" });
       $$renderer2.push(`<!----> <span class="text-muted-foreground text-xs">No image</span></div>`);
     }
-    $$renderer2.push(`<!--]--> <div class="image-block-actions svelte-1uorl3j"><button type="button" class="text-muted-foreground hover:text-destructive rounded p-1 transition-colors" title="Remove">`);
+    $$renderer2.push(`<!--]--> <div class="image-block-actions svelte-njsjyh"><button type="button" class="text-muted-foreground hover:text-destructive rounded p-1 transition-colors" title="Remove">`);
     Trash_2($$renderer2, { class: "h-3.5 w-3.5" });
     $$renderer2.push(`<!----></button></div></div>`);
   });
 }
-function SvelteNodeViewRenderer(onEdit, onDelete) {
+function SvelteNodeViewRenderer(onEdit, onDelete, resolveSchema, resolveComponent) {
   return (props) => {
     const wrapper = document.createElement("div");
     wrapper.setAttribute("data-portable-text-object", "");
@@ -23484,6 +23676,9 @@ function SvelteNodeViewRenderer(onEdit, onDelete) {
     wrapper.contentEditable = "false";
     let nodeAttrs = props.node.attrs;
     function getViewComponent() {
+      const custom = resolveComponent?.(nodeAttrs._type);
+      if (custom)
+        return custom;
       return nodeAttrs._type === "image" ? PortableTextImageView : PortableTextObjectView;
     }
     function mountView() {
@@ -23491,7 +23686,8 @@ function SvelteNodeViewRenderer(onEdit, onDelete) {
         props: {
           type: nodeAttrs._type,
           nodeKey: nodeAttrs._key,
-          data: nodeAttrs.data
+          data: nodeAttrs.data,
+          schema: resolveSchema?.(nodeAttrs._type)
         }
       });
     }
@@ -23542,7 +23738,9 @@ Node3.create({
       onEdit: () => {
       },
       onDelete: () => {
-      }
+      },
+      resolveSchema: void 0,
+      resolveComponent: void 0
     };
   },
   addAttributes() {
@@ -23559,14 +23757,14 @@ Node3.create({
     return ["div", mergeAttributes(HTMLAttributes, { "data-portable-text-object": "" }), 0];
   },
   addNodeView() {
-    return SvelteNodeViewRenderer(this.options.onEdit, this.options.onDelete);
+    return SvelteNodeViewRenderer(this.options.onEdit, this.options.onDelete, this.options.resolveSchema, this.options.resolveComponent);
   }
 });
 function PortableTextInlineView($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { type, data, selected, onEdit, onDelete } = $$props;
     const label = derived(() => data?.title || data?.text || data?.name || type);
-    $$renderer2.push(`<span${attr_class("inline-object-chip svelte-1y1xnaz", void 0, { "selected": selected })}${attr("title", `Edit ${stringify(type)}`)} role="button" tabindex="0"><span class="inline-object-type svelte-1y1xnaz">${escape_html(type.slice(0, 2).toUpperCase())}</span> <span class="inline-object-label svelte-1y1xnaz">${escape_html(label())}</span> <button class="inline-object-delete svelte-1y1xnaz" title="Remove">×</button></span>`);
+    $$renderer2.push(`<span${attr_class("inline-object-chip svelte-p1omz9", void 0, { "selected": selected })}${attr("title", `Edit ${stringify(type)}`)} role="button" tabindex="0"><span class="inline-object-type svelte-p1omz9">${escape_html(type.slice(0, 2).toUpperCase())}</span> <span class="inline-object-label svelte-p1omz9">${escape_html(label())}</span> <button class="inline-object-delete svelte-p1omz9" title="Remove">×</button></span>`);
   });
 }
 function SvelteInlineNodeViewRenderer(onEdit, onDelete) {
@@ -23653,127 +23851,6 @@ Node3.create({
     return SvelteInlineNodeViewRenderer(this.options.onEdit, this.options.onDelete);
   }
 });
-function Tooltip_trigger($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let { ref = null, $$slots, $$events, ...restProps } = $$props;
-    let $$settled = true;
-    let $$inner_renderer;
-    function $$render_inner($$renderer3) {
-      if (Tooltip_trigger$1) {
-        $$renderer3.push("<!--[-->");
-        Tooltip_trigger$1($$renderer3, spread_props([
-          { "data-slot": "tooltip-trigger" },
-          restProps,
-          {
-            get ref() {
-              return ref;
-            },
-            set ref($$value) {
-              ref = $$value;
-              $$settled = false;
-            }
-          }
-        ]));
-        $$renderer3.push("<!--]-->");
-      } else {
-        $$renderer3.push("<!--[!-->");
-        $$renderer3.push("<!--]-->");
-      }
-    }
-    do {
-      $$settled = true;
-      $$inner_renderer = $$renderer2.copy();
-      $$render_inner($$inner_renderer);
-    } while (!$$settled);
-    $$renderer2.subsume($$inner_renderer);
-    bind_props($$props, { ref });
-  });
-}
-function Tooltip_content($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    let {
-      ref = null,
-      class: className,
-      sideOffset = 0,
-      side = "top",
-      children,
-      arrowClasses,
-      $$slots,
-      $$events,
-      ...restProps
-    } = $$props;
-    let $$settled = true;
-    let $$inner_renderer;
-    function $$render_inner($$renderer3) {
-      if (Portal) {
-        $$renderer3.push("<!--[-->");
-        Portal($$renderer3, {
-          children: ($$renderer4) => {
-            if (Tooltip_content$1) {
-              $$renderer4.push("<!--[-->");
-              Tooltip_content$1($$renderer4, spread_props([
-                {
-                  "data-slot": "tooltip-content",
-                  sideOffset,
-                  side,
-                  class: cn("bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--bits-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance", className)
-                },
-                restProps,
-                {
-                  get ref() {
-                    return ref;
-                  },
-                  set ref($$value) {
-                    ref = $$value;
-                    $$settled = false;
-                  },
-                  children: ($$renderer5) => {
-                    children?.($$renderer5);
-                    $$renderer5.push(`<!----> `);
-                    {
-                      let child = function($$renderer6, { props }) {
-                        $$renderer6.push(`<div${attributes({
-                          class: clsx(cn("bg-primary z-50 size-2.5 rotate-45 rounded-[2px]", "data-[side=top]:translate-x-1/2 data-[side=top]:translate-y-[calc(-50%_+_2px)]", "data-[side=bottom]:-translate-x-1/2 data-[side=bottom]:-translate-y-[calc(-50%_+_1px)]", "data-[side=right]:translate-x-[calc(50%_+_2px)] data-[side=right]:translate-y-1/2", "data-[side=left]:-translate-y-[calc(50%_-_3px)]", arrowClasses)),
-                          ...props
-                        })}></div>`);
-                      };
-                      if (Tooltip_arrow) {
-                        $$renderer5.push("<!--[-->");
-                        Tooltip_arrow($$renderer5, { child, $$slots: { child: true } });
-                        $$renderer5.push("<!--]-->");
-                      } else {
-                        $$renderer5.push("<!--[!-->");
-                        $$renderer5.push("<!--]-->");
-                      }
-                    }
-                  },
-                  $$slots: { default: true }
-                }
-              ]));
-              $$renderer4.push("<!--]-->");
-            } else {
-              $$renderer4.push("<!--[!-->");
-              $$renderer4.push("<!--]-->");
-            }
-          }
-        });
-        $$renderer3.push("<!--]-->");
-      } else {
-        $$renderer3.push("<!--[!-->");
-        $$renderer3.push("<!--]-->");
-      }
-    }
-    do {
-      $$settled = true;
-      $$inner_renderer = $$renderer2.copy();
-      $$render_inner($$inner_renderer);
-    } while (!$$settled);
-    $$renderer2.subsume($$inner_renderer);
-    bind_props($$props, { ref });
-  });
-}
-const Root = Tooltip;
-const Provider = Tooltip_provider;
 const DEFAULT_MOBILE_BREAKPOINT = 768;
 class IsMobile extends MediaQuery {
   constructor(breakpoint = DEFAULT_MOBILE_BREAKPOINT) {
@@ -23818,6 +23895,10 @@ class SidebarState {
   // Event handler to apply to the `<svelte:window>`
   handleShortcutKeydown = (e) => {
     if (e.key === SIDEBAR_KEYBOARD_SHORTCUT && (e.metaKey || e.ctrlKey)) {
+      const target = e.target;
+      if (target instanceof HTMLElement && (target.isContentEditable || target.closest('input, textarea, [contenteditable="true"]'))) {
+        return;
+      }
       e.preventDefault();
       this.toggle();
     }
@@ -24100,76 +24181,74 @@ function Sheet_content($$renderer, $$props) {
   });
 }
 export {
-  Floating_layer_anchor as $,
-  AlertDialogCancelState as A,
-  ARROW_UP as B,
+  Image as $,
+  Alert as A,
+  ARROW_DOWN as B,
   Context as C,
   DialogTitleState as D,
   ENTER as E,
   Focus_scope as F,
-  ARROW_DOWN as G,
-  TAB as H,
+  TAB as G,
+  PAGE_UP as H,
   Icon as I,
-  PAGE_UP as J,
-  HOME as K,
-  PAGE_DOWN as L,
-  END as M,
-  next as N,
-  prev as O,
+  HOME as J,
+  PAGE_DOWN as K,
+  END as L,
+  next as M,
+  prev as N,
+  forward as O,
   Pencil as P,
-  forward as Q,
-  Root as R,
+  backward as Q,
+  getFloatingContentCSSVars as R,
   Sheet_content as S,
   Trash_2 as T,
-  backward as U,
-  getFloatingContentCSSVars as V,
-  isIOS as W,
+  isIOS as U,
+  Popper_layer_force_mount as V,
+  Popper_layer as W,
   X,
-  Popper_layer_force_mount as Y,
-  Popper_layer as Z,
-  Floating_layer as _,
+  Floating_layer as Y,
+  Floating_layer_anchor as Z,
+  RovingFocusGroup as _,
   DialogDescriptionState as a,
-  RovingFocusGroup as a0,
-  Image as a1,
-  Alert as a2,
-  MenuItemState as a3,
-  MenuSeparatorState as a4,
-  MenuRootState as a5,
-  MenuMenuState as a6,
-  MenuContentState as a7,
-  DropdownMenuTriggerState as a8,
-  setSidebar as a9,
-  Provider as aa,
-  SIDEBAR_COOKIE_NAME as ab,
-  SIDEBAR_COOKIE_MAX_AGE as ac,
-  SIDEBAR_WIDTH as ad,
-  SIDEBAR_WIDTH_ICON as ae,
-  useSidebar as af,
-  SIDEBAR_WIDTH_MOBILE as ag,
-  Sidebar_menu_button as ah,
+  resolvePreviewTitle as a0,
+  useSidebar as a1,
+  MenuItemState as a2,
+  MenuSeparatorState as a3,
+  MenuRootState as a4,
+  MenuMenuState as a5,
+  MenuContentState as a6,
+  DropdownMenuTriggerState as a7,
+  setSidebar as a8,
+  Provider as a9,
+  SIDEBAR_COOKIE_NAME as aa,
+  SIDEBAR_COOKIE_MAX_AGE as ab,
+  SIDEBAR_WIDTH as ac,
+  SIDEBAR_WIDTH_ICON as ad,
+  SIDEBAR_WIDTH_MOBILE as ae,
+  Sidebar_menu_button as af,
   DialogRootState as b,
   DialogTriggerState as c,
-  Tooltip_trigger as d,
-  Tooltip_content as e,
-  Dialog_overlay as f,
-  Dialog_content as g,
-  Dialog_close as h,
-  Portal as i,
-  SPACE$1 as j,
-  isHTMLElement$1 as k,
-  PresenceManager as l,
-  afterTick as m,
+  DOMContext as d,
+  Dialog_overlay as e,
+  Dialog_content as f,
+  Dialog_close as g,
+  Portal as h,
+  SPACE$1 as i,
+  isHTMLElement$1 as j,
+  DialogActionState as k,
+  AlertDialogCancelState as l,
+  DialogContentState as m,
   noop$1 as n,
-  DOMContext as o,
-  DialogActionState as p,
-  DialogContentState as q,
-  afterSleep as r,
-  Escape_layer as s,
-  Dismissible_layer as t,
-  Text_selection_layer as u,
-  Scroll_lock as v,
+  afterSleep as o,
+  Escape_layer as p,
+  Dismissible_layer as q,
+  Text_selection_layer as r,
+  Scroll_lock as s,
+  boxAutoReset as t,
+  getNextMatch as u,
+  afterTick as v,
   watch as w,
-  boxAutoReset as x,
-  getNextMatch as y,
-  DOMTypeahead as z
+  PresenceManager as x,
+  DOMTypeahead as y,
+  ARROW_UP as z
 };

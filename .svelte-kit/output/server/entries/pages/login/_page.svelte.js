@@ -1,22 +1,22 @@
-import { k as head, e as escape_html, b as attr } from "../../../chunks/renderer.js";
+import { l as head, e as escape_html, b as attr } from "../../../chunks/renderer.js";
 import "../../../chunks/auth-client.js";
 import "@sveltejs/kit/internal";
 import "../../../chunks/exports.js";
 import "../../../chunks/utils.js";
 import "@sveltejs/kit/internal/server";
 import "../../../chunks/root.js";
-import "../../../chunks/client.js";
+import "../../../chunks/state.svelte.js";
 import { p as page } from "../../../chunks/index3.js";
 import { B as Button } from "../../../chunks/button.js";
 import { I as Input } from "../../../chunks/input.js";
 import { L as Label } from "../../../chunks/label.js";
 import { C as Card, a as Card_content } from "../../../chunks/card-content.js";
-import { C as Card_description } from "../../../chunks/card-description.js";
+import { C as Card_header, a as Card_title, b as Card_description } from "../../../chunks/card-title.js";
 import { C as Card_footer } from "../../../chunks/card-footer.js";
-import { C as Card_header, a as Card_title } from "../../../chunks/card-title.js";
 import "clsx";
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
+    let { data } = $$props;
     const initialMode = page.url.searchParams.get("mode") === "signup" ? "signup" : "signin";
     const prefilledEmail = page.url.searchParams.get("email") ?? "";
     const emailLocked = prefilledEmail.length > 0 && initialMode === "signup";

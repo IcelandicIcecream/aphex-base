@@ -1,7 +1,7 @@
-import { g as attributes, h as clsx, e as escape_html, i as bind_props, k as head, a as ensure_array_like, d as derived } from "../../../../../../chunks/renderer.js";
+import { h as attributes, i as clsx, e as escape_html, j as bind_props, l as head, a as ensure_array_like, f as derived } from "../../../../../../chunks/renderer.js";
 import { C as Card, a as Card_content } from "../../../../../../chunks/card-content.js";
 import "clsx";
-import { S as Shield, R as Root, a as Sheet_header, b as Sheet_title, c as Sheet_description } from "../../../../../../chunks/index9.js";
+import { R as Root, S as Sheet_header, a as Sheet_title, b as Sheet_description } from "../../../../../../chunks/index8.js";
 import { B as Button } from "../../../../../../chunks/button.js";
 import { I as Input } from "../../../../../../chunks/input.js";
 import { c as cn } from "../../../../../../chunks/utils2.js";
@@ -9,16 +9,14 @@ import { L as Label } from "../../../../../../chunks/label.js";
 import { C as Checkbox } from "../../../../../../chunks/checkbox.js";
 import { B as Badge } from "../../../../../../chunks/badge.js";
 import { S as Separator } from "../../../../../../chunks/separator.js";
-import { A as ALL_CAPABILITIES } from "../../../../../../chunks/capabilities.js";
 import "../../../../../../chunks/date-utils.js";
+import { i as invalidateAll } from "../../../../../../chunks/client.js";
 import { u as usePermissions, c as confirmDialog } from "../../../../../../chunks/confirm-dialog.svelte.js";
 import { r as roles } from "../../../../../../chunks/instance2.js";
 import { P as Pencil, T as Trash_2, S as Sheet_content } from "../../../../../../chunks/sheet-content.js";
-import { i as invalidateAll } from "../../../../../../chunks/client.js";
-import "../../../../../../chunks/index4.js";
+import "../../../../../../chunks/index5.js";
 import "../../../../../../chunks/mode-states.svelte.js";
-import { P as Plus } from "../../../../../../chunks/plus.js";
-import { L as Lock } from "../../../../../../chunks/lock.js";
+import { S as SettingsHeaderActions, P as Plus } from "../../../../../../chunks/SettingsHeaderActions.js";
 import { t as toast } from "../../../../../../chunks/toast-state.svelte.js";
 function Textarea($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
@@ -47,31 +45,24 @@ function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { data } = $$props;
     const roles$1 = derived(() => data.roles);
+    const activeOrganization = derived(() => data.activeOrganization);
     const perms = usePermissions();
     const canManageRoles = derived(() => perms.can("role.manage"));
     let editor = { kind: "closed" };
     let form = { name: "", description: "", capabilities: /* @__PURE__ */ new Set() };
     let saving = false;
-    const CAPABILITY_GROUPS = [
-      { title: "Documents", prefix: "document." },
-      { title: "Assets", prefix: "asset." },
-      { title: "Members", prefix: "member." },
-      { title: "Organization", prefix: "org." },
-      { title: "Keys & Roles", prefix: "" }
-      // catch-all, resolved below
-    ];
+    const catalog = derived(() => data.capabilityCatalog);
+    const totalCapabilities = derived(() => catalog().length);
     function groupedCapabilities() {
-      const groups = {};
-      for (const cap of ALL_CAPABILITIES) {
-        const match = CAPABILITY_GROUPS.find((g) => g.prefix && cap.startsWith(g.prefix));
-        const title = match?.title ?? "Keys & Roles";
-        (groups[title] ??= []).push(cap);
+      const groups = /* @__PURE__ */ new Map();
+      for (const def of catalog()) {
+        const title = def.group ?? "Other";
+        (groups.get(title) ?? groups.set(title, []).get(title)).push(def);
       }
-      return CAPABILITY_GROUPS.map((g) => ({ title: g.title, items: groups[g.title] ?? [] })).filter((g) => g.items.length > 0);
+      return [...groups.entries()].map(([title, items]) => ({ title, items }));
     }
-    function capabilityLabel(cap) {
-      const suffix = cap.split(".").slice(1).join(".");
-      return suffix.charAt(0).toUpperCase() + suffix.slice(1);
+    function roleMemberCount(roleName) {
+      return activeOrganization()?.members?.filter((member) => member.role === roleName).length ?? 0;
     }
     function openCreate() {
       form = { name: "", description: "", capabilities: /* @__PURE__ */ new Set() };
@@ -99,7 +90,6 @@ function _page($$renderer, $$props) {
     };
     const WRITES_NEEDING = Object.entries(READ_IMPLIED_BY).reduce(
       (acc, [write, read]) => {
-        if (!read) return acc;
         (acc[read] ??= []).push(write);
         return acc;
       },
@@ -176,77 +166,63 @@ function _page($$renderer, $$props) {
           $$renderer5.push(`<title>Aphex CMS - Roles</title>`);
         });
       });
-      $$renderer3.push(`<div class="grid gap-6"><div class="flex items-start justify-between gap-4"><div class="hidden sm:block"><h2 class="text-xl font-semibold">Roles</h2> <p class="text-muted-foreground text-sm">Define which members can do what. Built-in roles are always available; add custom roles to
-				match how your team works.</p></div> `);
       if (canManageRoles()) {
         $$renderer3.push("<!--[0-->");
-        Button($$renderer3, {
-          onclick: openCreate,
-          class: "shrink-0",
+        SettingsHeaderActions($$renderer3, {
           children: ($$renderer4) => {
-            Plus($$renderer4, { class: "mr-1 h-4 w-4" });
-            $$renderer4.push(`<!----> New role`);
-          },
-          $$slots: { default: true }
+            Button($$renderer4, {
+              onclick: openCreate,
+              class: "shrink-0",
+              children: ($$renderer5) => {
+                Plus($$renderer5, { class: "mr-1 h-4 w-4" });
+                $$renderer5.push(`<!----> New role`);
+              },
+              $$slots: { default: true }
+            });
+          }
         });
       } else {
         $$renderer3.push("<!--[-1-->");
       }
-      $$renderer3.push(`<!--]--></div> <div class="grid gap-3"><!--[-->`);
+      $$renderer3.push(`<!--]--> <div class="grid gap-6"><div class="grid gap-4 xl:grid-cols-2"><!--[-->`);
       const each_array = ensure_array_like(roles$1());
-      for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
-        let role = each_array[$$index];
+      for (let $$index_2 = 0, $$length = each_array.length; $$index_2 < $$length; $$index_2++) {
+        let role = each_array[$$index_2];
         if (Card) {
           $$renderer3.push("<!--[-->");
           Card($$renderer3, {
+            class: "overflow-hidden",
             children: ($$renderer4) => {
               if (Card_content) {
                 $$renderer4.push("<!--[-->");
                 Card_content($$renderer4, {
-                  class: "flex items-center gap-4 py-4",
+                  class: "p-4",
                   children: ($$renderer5) => {
-                    $$renderer5.push(`<div class="bg-muted flex h-10 w-10 items-center justify-center rounded-md">`);
-                    if (role.isBuiltIn) {
-                      $$renderer5.push("<!--[0-->");
-                      Lock($$renderer5, { class: "text-muted-foreground h-4 w-4" });
-                    } else {
-                      $$renderer5.push("<!--[-1-->");
-                      Shield($$renderer5, { class: "text-muted-foreground h-4 w-4" });
-                    }
-                    $$renderer5.push(`<!--]--></div> <div class="min-w-0 flex-1"><div class="flex items-center gap-2"><p class="truncate text-sm font-semibold capitalize">${escape_html(role.name)}</p> `);
+                    $$renderer5.push(`<div class="flex items-start justify-between gap-4"><div class="min-w-0"><div class="flex flex-wrap items-center gap-2"><h2 class="truncate text-lg font-semibold capitalize">${escape_html(role.name)}</h2> `);
                     if (role.isBuiltIn) {
                       $$renderer5.push("<!--[0-->");
                       Badge($$renderer5, {
                         variant: "secondary",
                         class: "text-[10px]",
                         children: ($$renderer6) => {
-                          $$renderer6.push(`<!---->Built-in`);
+                          $$renderer6.push(`<!---->System`);
                         },
                         $$slots: { default: true }
                       });
                     } else {
                       $$renderer5.push("<!--[-1-->");
                     }
-                    $$renderer5.push(`<!--]--> `);
-                    Badge($$renderer5, {
-                      variant: "outline",
-                      class: "text-[10px]",
-                      children: ($$renderer6) => {
-                        $$renderer6.push(`<!---->${escape_html(role.capabilities.length)} capabilit${escape_html(role.capabilities.length === 1 ? "y" : "ies")}`);
-                      },
-                      $$slots: { default: true }
-                    });
-                    $$renderer5.push(`<!----></div> `);
+                    $$renderer5.push(`<!--]--> <span class="text-muted-foreground text-xs">${escape_html(roleMemberCount(role.name))} member${escape_html(roleMemberCount(role.name) === 1 ? "" : "s")}</span></div> `);
                     if (role.description) {
                       $$renderer5.push("<!--[0-->");
-                      $$renderer5.push(`<p class="text-muted-foreground mt-0.5 truncate text-xs">${escape_html(role.description)}</p>`);
+                      $$renderer5.push(`<p class="text-muted-foreground mt-1 text-sm">${escape_html(role.description)}</p>`);
                     } else {
                       $$renderer5.push("<!--[-1-->");
                     }
                     $$renderer5.push(`<!--]--></div> `);
                     if (canManageRoles()) {
                       $$renderer5.push("<!--[0-->");
-                      $$renderer5.push(`<div class="flex items-center gap-2">`);
+                      $$renderer5.push(`<div class="flex shrink-0 items-center gap-2">`);
                       Button($$renderer5, {
                         variant: "outline",
                         size: "sm",
@@ -265,8 +241,8 @@ function _page($$renderer, $$props) {
                           size: "sm",
                           onclick: () => remove(role),
                           children: ($$renderer6) => {
-                            Trash_2($$renderer6, { class: "text-destructive mr-1 h-3.5 w-3.5" });
-                            $$renderer6.push(`<!----> Delete`);
+                            Trash_2($$renderer6, { class: "text-destructive h-3.5 w-3.5" });
+                            $$renderer6.push(`<!----> <span class="sr-only">Delete</span>`);
                           },
                           $$slots: { default: true }
                         });
@@ -277,7 +253,29 @@ function _page($$renderer, $$props) {
                     } else {
                       $$renderer5.push("<!--[-1-->");
                     }
-                    $$renderer5.push(`<!--]-->`);
+                    $$renderer5.push(`<!--]--></div> `);
+                    Separator($$renderer5, { class: "my-4" });
+                    $$renderer5.push(`<!----> <div class="grid gap-4 sm:grid-cols-2"><!--[-->`);
+                    const each_array_1 = ensure_array_like(groupedCapabilities());
+                    for (let $$index_1 = 0, $$length2 = each_array_1.length; $$index_1 < $$length2; $$index_1++) {
+                      let group = each_array_1[$$index_1];
+                      $$renderer5.push(`<div class="space-y-2"><p class="text-muted-foreground text-xs font-medium">${escape_html(group.title)}</p> <div class="flex flex-wrap gap-1.5"><!--[-->`);
+                      const each_array_2 = ensure_array_like(group.items);
+                      for (let $$index = 0, $$length3 = each_array_2.length; $$index < $$length3; $$index++) {
+                        let def = each_array_2[$$index];
+                        const enabled = role.capabilities.includes(def.id);
+                        Badge($$renderer5, {
+                          variant: enabled ? "secondary" : "outline",
+                          class: enabled ? "bg-primary/10 text-primary border-primary/20 text-xs font-normal" : "bg-muted/20 text-muted-foreground/60 text-xs font-normal",
+                          children: ($$renderer6) => {
+                            $$renderer6.push(`<!---->${escape_html(def.title)}`);
+                          },
+                          $$slots: { default: true }
+                        });
+                      }
+                      $$renderer5.push(`<!--]--></div></div>`);
+                    }
+                    $$renderer5.push(`<!--]--></div>`);
                   },
                   $$slots: { default: true }
                 });
@@ -415,22 +413,29 @@ function _page($$renderer, $$props) {
                     },
                     $$slots: { default: true }
                   });
-                  $$renderer5.push(`<!----> <span class="text-muted-foreground text-xs">${escape_html(form.capabilities.size)} of ${escape_html(ALL_CAPABILITIES.length)} selected</span></div> <!--[-->`);
-                  const each_array_1 = ensure_array_like(groupedCapabilities());
-                  for (let $$index_2 = 0, $$length = each_array_1.length; $$index_2 < $$length; $$index_2++) {
-                    let group = each_array_1[$$index_2];
+                  $$renderer5.push(`<!----> <span class="text-muted-foreground text-xs">${escape_html(form.capabilities.size)} of ${escape_html(totalCapabilities())} selected</span></div> <!--[-->`);
+                  const each_array_3 = ensure_array_like(groupedCapabilities());
+                  for (let $$index_4 = 0, $$length = each_array_3.length; $$index_4 < $$length; $$index_4++) {
+                    let group = each_array_3[$$index_4];
                     $$renderer5.push(`<div class="space-y-2"><p class="text-muted-foreground text-xs font-semibold tracking-wider uppercase">${escape_html(group.title)}</p> <div class="grid gap-2"><!--[-->`);
-                    const each_array_2 = ensure_array_like(group.items);
-                    for (let $$index_1 = 0, $$length2 = each_array_2.length; $$index_1 < $$length2; $$index_1++) {
-                      let cap = each_array_2[$$index_1];
-                      const implied = isImpliedRead(cap);
+                    const each_array_4 = ensure_array_like(group.items);
+                    for (let $$index_3 = 0, $$length2 = each_array_4.length; $$index_3 < $$length2; $$index_3++) {
+                      let def = each_array_4[$$index_3];
+                      const implied = isImpliedRead(def.id);
                       $$renderer5.push(`<label class="hover:bg-muted flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2">`);
                       Checkbox($$renderer5, {
-                        checked: form.capabilities.has(cap),
+                        checked: form.capabilities.has(def.id),
                         disabled: implied,
-                        onCheckedChange: (v) => toggleCapability(cap, v === true)
+                        onCheckedChange: (v) => toggleCapability(def.id, v === true)
                       });
-                      $$renderer5.push(`<!----> <div class="flex-1"><p class="text-sm font-medium">${escape_html(capabilityLabel(cap))}</p> <p class="text-muted-foreground font-mono text-[10px]">${escape_html(cap)}</p></div></label>`);
+                      $$renderer5.push(`<!----> <div class="flex-1"><p class="text-sm font-medium">${escape_html(def.title)}</p> `);
+                      if (def.description) {
+                        $$renderer5.push("<!--[0-->");
+                        $$renderer5.push(`<p class="text-muted-foreground text-xs">${escape_html(def.description)}</p>`);
+                      } else {
+                        $$renderer5.push("<!--[-1-->");
+                      }
+                      $$renderer5.push(`<!--]--> <p class="text-muted-foreground/70 font-mono text-[10px]">${escape_html(def.id)}</p></div></label>`);
                     }
                     $$renderer5.push(`<!--]--></div></div>`);
                   }

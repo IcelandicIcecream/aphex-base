@@ -1,11 +1,12 @@
 {
-  "../../node_modules/.pnpm/@aphexcms+cms-core@9.3.0_1bcbd7191e816f7ab1ae0ca163881224/node_modules/@aphexcms/cms-core/dist/graphql/index.js": {
-    "file": "chunks/index10.js",
+  "../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_8646d6e4342ac0b19b5e1035b93ce2e7/node_modules/@aphexcms/cms-core/dist/graphql/index.js": {
+    "file": "chunks/index11.js",
     "name": "index",
-    "src": "../../node_modules/.pnpm/@aphexcms+cms-core@9.3.0_1bcbd7191e816f7ab1ae0ca163881224/node_modules/@aphexcms/cms-core/dist/graphql/index.js",
+    "src": "../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_8646d6e4342ac0b19b5e1035b93ce2e7/node_modules/@aphexcms/cms-core/dist/graphql/index.js",
     "isDynamicEntry": true,
     "imports": [
-      "_auth-helpers.js",
+      "_string-case.js",
+      "_mime-detect.js",
       "_date-utils.js"
     ]
   },
@@ -28,7 +29,7 @@
     "isDynamicEntry": true
   },
   "../../node_modules/.pnpm/@better-auth+memory-adapter@1.5.3_@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@bet_fbe4ee4bb7082e9ab6c4cc0288a65ff3/node_modules/@better-auth/memory-adapter/dist/index.mjs": {
-    "file": "chunks/index5.js",
+    "file": "chunks/index6.js",
     "name": "index",
     "src": "../../node_modules/.pnpm/@better-auth+memory-adapter@1.5.3_@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@bet_fbe4ee4bb7082e9ab6c4cc0288a65ff3/node_modules/@better-auth/memory-adapter/dist/index.mjs",
     "isDynamicEntry": true,
@@ -71,6 +72,7 @@
       "_render-context.js",
       "_exports.js",
       "_utils.js",
+      "_index4.js",
       "_shared-server.js",
       "_routing.js",
       "_internal.js"
@@ -103,18 +105,29 @@
     "name": "OrganizationsList",
     "imports": [
       "_renderer.js",
+      "_sheet-content.js",
+      "_create-id.js",
       "_exports.js",
       "_utils.js",
       "_root.js",
-      "_client.js",
+      "_state.svelte.js",
       "_badge.js",
       "_date-utils.js",
+      "_client.js",
       "_button.js",
       "_instance2.js",
-      "_sheet-content.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
       "_external-link.js"
+    ]
+  },
+  "_SettingsHeaderActions.js": {
+    "file": "chunks/SettingsHeaderActions.js",
+    "name": "SettingsHeaderActions",
+    "imports": [
+      "_renderer.js",
+      "_sheet-content.js",
+      "_settings-header-actions.js"
     ]
   },
   "__commonjsHelpers.js": {
@@ -126,6 +139,7 @@
     "name": "activeTab.svelte",
     "imports": [
       "_renderer.js",
+      "_mode-states.svelte.js",
       "_sheet-content.js",
       "_button.js",
       "_create-id.js",
@@ -134,17 +148,26 @@
       "_dialog.js"
     ]
   },
+  "_alert-description.js": {
+    "file": "chunks/alert-description.js",
+    "name": "alert-description",
+    "imports": [
+      "_renderer.js",
+      "_utils2.js"
+    ]
+  },
   "_aphex.config.js": {
     "file": "chunks/aphex.config.js",
     "name": "aphex.config",
     "imports": [
+      "_shared-server.js",
+      "_index10.js",
       "_date-utils.js",
       "_user.js",
-      "_index8.js",
+      "_plugins.js",
       "_service.js",
       "_instance.js",
-      "_index2.js",
-      "_shared-server.js"
+      "_index2.js"
     ]
   },
   "_auth-client.js": {
@@ -154,11 +177,11 @@
       "_string.js"
     ]
   },
-  "_auth-helpers.js": {
-    "file": "chunks/auth-helpers.js",
-    "name": "auth-helpers",
+  "_auth.config.js": {
+    "file": "chunks/auth.config.js",
+    "name": "auth.config",
     "imports": [
-      "_date-utils.js"
+      "_shared-server.js"
     ]
   },
   "_avatar-fallback.js": {
@@ -169,6 +192,17 @@
       "_utils2.js",
       "_create-id.js",
       "_sheet-content.js"
+    ]
+  },
+  "_avatar-image.js": {
+    "file": "chunks/avatar-image.js",
+    "name": "avatar-image",
+    "imports": [
+      "_renderer.js",
+      "_sheet-content.js",
+      "_utils2.js",
+      "_avatar-fallback.js",
+      "_create-id.js"
     ]
   },
   "_badge.js": {
@@ -194,14 +228,6 @@
   "_card-content.js": {
     "file": "chunks/card-content.js",
     "name": "card-content",
-    "imports": [
-      "_renderer.js",
-      "_utils2.js"
-    ]
-  },
-  "_card-description.js": {
-    "file": "chunks/card-description.js",
-    "name": "card-description",
     "imports": [
       "_renderer.js",
       "_utils2.js"
@@ -247,19 +273,10 @@
     "file": "chunks/client.js",
     "name": "client",
     "imports": [
-      "_renderer.js",
+      "_state.svelte.js",
       "_exports.js",
-      "_root.js",
-      "_utils.js"
-    ]
-  },
-  "_collapsible-content.js": {
-    "file": "chunks/collapsible-content.js",
-    "name": "collapsible-content",
-    "imports": [
-      "_renderer.js",
-      "_create-id.js",
-      "_sheet-content.js",
+      "_utils.js",
+      "_index4.js",
       "_root.js"
     ]
   },
@@ -289,15 +306,13 @@
     "file": "chunks/date-utils.js",
     "name": "date-utils"
   },
-  "_dialog-trigger.js": {
-    "file": "chunks/dialog-trigger.js",
-    "name": "dialog-trigger",
+  "_dialog-description.js": {
+    "file": "chunks/dialog-description.js",
+    "name": "dialog-description",
     "imports": [
       "_renderer.js",
       "_utils2.js",
-      "_dialog.js",
-      "_sheet-content.js",
-      "_create-id.js"
+      "_dialog.js"
     ]
   },
   "_dialog.js": {
@@ -315,11 +330,7 @@
   },
   "_exports.js": {
     "file": "chunks/exports.js",
-    "name": "exports",
-    "imports": [
-      "_renderer.js",
-      "_root.js"
-    ]
+    "name": "exports"
   },
   "_external-link.js": {
     "file": "chunks/external-link.js",
@@ -349,6 +360,13 @@
     "file": "_app/immutable/assets/index.CV-KWLNP.css",
     "src": "_index.CV-KWLNP.css"
   },
+  "_index10.js": {
+    "file": "chunks/index10.js",
+    "name": "index",
+    "imports": [
+      "_capabilities.js"
+    ]
+  },
   "_index2.js": {
     "file": "chunks/index2.js",
     "name": "index",
@@ -367,10 +385,18 @@
   },
   "_index4.js": {
     "file": "chunks/index4.js",
+    "name": "index",
+    "imports": [
+      "_renderer.js",
+      "_root.js"
+    ]
+  },
+  "_index5.js": {
+    "file": "chunks/index5.js",
     "name": "index"
   },
-  "_index6.js": {
-    "file": "chunks/index6.js",
+  "_index7.js": {
+    "file": "chunks/index7.js",
     "name": "index",
     "imports": [
       "_renderer.js",
@@ -379,8 +405,18 @@
       "_sheet-content.js"
     ]
   },
-  "_index7.js": {
-    "file": "chunks/index7.js",
+  "_index8.js": {
+    "file": "chunks/index8.js",
+    "name": "index",
+    "imports": [
+      "_renderer.js",
+      "_utils2.js",
+      "_dialog.js",
+      "_sheet-content.js"
+    ]
+  },
+  "_index9.js": {
+    "file": "chunks/index9.js",
     "name": "index",
     "imports": [
       "_renderer.js",
@@ -393,20 +429,6 @@
     ],
     "css": [
       "_app/immutable/assets/index.CV-KWLNP.css"
-    ]
-  },
-  "_index8.js": {
-    "file": "chunks/index8.js",
-    "name": "index"
-  },
-  "_index9.js": {
-    "file": "chunks/index9.js",
-    "name": "index",
-    "imports": [
-      "_renderer.js",
-      "_sheet-content.js",
-      "_utils2.js",
-      "_dialog.js"
     ]
   },
   "_input.js": {
@@ -430,7 +452,8 @@
       "__commonjsHelpers.js",
       "_html.js",
       "_string.js",
-      "_user.js"
+      "_user.js",
+      "_auth.config.js"
     ],
     "dynamicImports": [
       "../../node_modules/.pnpm/@better-auth+memory-adapter@1.5.3_@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@bet_fbe4ee4bb7082e9ab6c4cc0288a65ff3/node_modules/@better-auth/memory-adapter/dist/index.mjs",
@@ -470,20 +493,19 @@
       "_create-id.js"
     ]
   },
-  "_lock.js": {
-    "file": "chunks/lock.js",
-    "name": "lock",
-    "imports": [
-      "_renderer.js",
-      "_sheet-content.js"
-    ]
-  },
   "_mail.js": {
     "file": "chunks/mail.js",
     "name": "mail",
     "imports": [
       "_renderer.js",
       "_sheet-content.js"
+    ]
+  },
+  "_mime-detect.js": {
+    "file": "chunks/mime-detect.js",
+    "name": "mime-detect",
+    "imports": [
+      "_date-utils.js"
     ]
   },
   "_mode-states.svelte.js": {
@@ -503,13 +525,9 @@
       "_html.js"
     ]
   },
-  "_plus.js": {
-    "file": "chunks/plus.js",
-    "name": "plus",
-    "imports": [
-      "_renderer.js",
-      "_sheet-content.js"
-    ]
+  "_plugins.js": {
+    "file": "chunks/plugins.js",
+    "name": "plugins"
   },
   "_reference-walk.js": {
     "file": "chunks/reference-walk.js",
@@ -539,6 +557,14 @@
     "name": "routing",
     "imports": [
       "_exports.js"
+    ]
+  },
+  "_search.js": {
+    "file": "chunks/search.js",
+    "name": "search",
+    "imports": [
+      "_renderer.js",
+      "_sheet-content.js"
     ]
   },
   "_separator.js": {
@@ -575,6 +601,10 @@
       "_instance2.js"
     ]
   },
+  "_settings-header-actions.js": {
+    "file": "chunks/settings-header-actions.js",
+    "name": "settings-header-actions"
+  },
   "_shared-server.js": {
     "file": "chunks/shared-server.js",
     "name": "shared-server"
@@ -587,9 +617,9 @@
       "_render-context.js"
     ]
   },
-  "_sheet-content.V_ymX4XZ.css": {
-    "file": "_app/immutable/assets/sheet-content.V_ymX4XZ.css",
-    "src": "_sheet-content.V_ymX4XZ.css"
+  "_sheet-content.BnWdosP6.css": {
+    "file": "_app/immutable/assets/sheet-content.BnWdosP6.css",
+    "src": "_sheet-content.BnWdosP6.css"
   },
   "_sheet-content.js": {
     "file": "chunks/sheet-content.js",
@@ -604,8 +634,21 @@
       "_root.js"
     ],
     "css": [
-      "_app/immutable/assets/sheet-content.V_ymX4XZ.css"
+      "_app/immutable/assets/sheet-content.BnWdosP6.css"
     ]
+  },
+  "_state.svelte.js": {
+    "file": "chunks/state.svelte.js",
+    "name": "state.svelte",
+    "imports": [
+      "_renderer.js",
+      "_exports.js",
+      "_root.js"
+    ]
+  },
+  "_string-case.js": {
+    "file": "chunks/string-case.js",
+    "name": "string-case"
   },
   "_string.js": {
     "file": "chunks/string.js",
@@ -629,22 +672,22 @@
       "_renderer.js"
     ]
   },
+  "_upload.js": {
+    "file": "chunks/upload.js",
+    "name": "upload",
+    "imports": [
+      "_renderer.js",
+      "_sheet-content.js"
+    ]
+  },
   "_user.js": {
     "file": "chunks/user.js",
     "name": "user",
     "imports": [
       "_date-utils.js",
-      "_auth-helpers.js",
+      "_mime-detect.js",
       "_reference-walk.js",
       "_capabilities.js"
-    ]
-  },
-  "_users.js": {
-    "file": "chunks/users.js",
-    "name": "users",
-    "imports": [
-      "_renderer.js",
-      "_sheet-content.js"
     ]
   },
   "_utils.js": {
@@ -674,16 +717,19 @@
       "_environment.js",
       "_date-utils.js",
       "_service.js",
-      "_user.js",
       "_capabilities.js",
+      "_user.js",
+      "_index10.js",
       "_validator.js",
       "_reference-walk.js",
       "_index2.js",
       "_instance2.js",
+      "_shared-server.js",
+      "_mime-detect.js",
       "_aphex.config.js"
     ],
     "dynamicImports": [
-      "../../node_modules/.pnpm/@aphexcms+cms-core@9.3.0_1bcbd7191e816f7ab1ae0ca163881224/node_modules/@aphexcms/cms-core/dist/graphql/index.js"
+      "../../node_modules/.pnpm/@aphexcms+cms-core@9.5.1_8646d6e4342ac0b19b5e1035b93ce2e7/node_modules/@aphexcms/cms-core/dist/graphql/index.js"
     ]
   },
   "src/lib/assets/favicon.svg": {
@@ -707,24 +753,25 @@
     "imports": [
       "_renderer.js",
       "_date-utils.js",
+      "_mode-states.svelte.js",
+      "_client.js",
+      "_index3.js",
       "_confirm-dialog.svelte.js",
       "_button.js",
       "_badge.js",
       "_instance2.js",
       "_sheet-content.js",
-      "_index3.js",
-      "_client.js",
-      "_index4.js",
+      "_index5.js",
       "_activeTab.svelte.js",
       "_utils2.js",
       "_separator.js",
       "_mode-watcher.js",
-      "_mode-states.svelte.js",
       "_toast-state.svelte.js",
-      "_index9.js",
+      "_index8.js",
       "_create-id.js",
-      "_collapsible-content.js",
+      "_root.js",
       "_mail.js",
+      "_plugins.js",
       "_auth-client.js",
       "_server2.js"
     ],
@@ -751,19 +798,23 @@
     "imports": [
       "_renderer.js",
       "_date-utils.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_index3.js",
       "_button.js",
       "_badge.js",
       "_instance2.js",
       "_sheet-content.js",
-      "_index3.js",
-      "_exports.js",
-      "_utils.js",
-      "_root.js",
-      "_client.js",
-      "_index4.js",
+      "_index5.js",
+      "_alert-description.js",
       "_utils2.js",
       "_mode-states.svelte.js",
       "_create-id.js",
+      "_client.js",
+      "_index10.js",
+      "_activeTab.svelte.js",
       "_confirm-dialog.svelte.js",
       "_reference-walk.js",
       "_external-link.js",
@@ -772,9 +823,10 @@
       "_label.js",
       "_separator.js",
       "_checkbox.js",
-      "_index6.js",
-      "_activeTab.svelte.js",
-      "_index8.js"
+      "_index7.js",
+      "_upload.js",
+      "_search.js",
+      "_plugins.js"
     ]
   },
   "src/routes/(protected)/admin/organizations/+page.server.ts": {
@@ -797,19 +849,20 @@
       "_exports.js",
       "_utils.js",
       "_root.js",
-      "_client.js",
+      "_state.svelte.js",
       "_button.js",
       "_input.js",
       "_label.js",
-      "_index6.js",
+      "_index7.js",
       "_date-utils.js",
+      "_client.js",
       "_badge.js",
       "_instance2.js",
       "_sheet-content.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
-      "_dialog-trigger.js",
-      "_OrganizationsList.js"
+      "_OrganizationsList.js",
+      "_dialog-description.js"
     ]
   },
   "src/routes/(protected)/admin/settings/+layout.server.ts": {
@@ -828,7 +881,8 @@
     "isEntry": true,
     "imports": [
       "_renderer.js",
-      "_index3.js"
+      "_index3.js",
+      "_settings-header-actions.js"
     ]
   },
   "src/routes/(protected)/admin/settings/+page.server.ts": {
@@ -853,18 +907,19 @@
       "_button.js",
       "_input.js",
       "_label.js",
-      "_card-footer.js",
       "_card-title.js",
+      "_card-footer.js",
       "_avatar-fallback.js",
-      "_separator.js",
+      "_avatar-image.js",
+      "_sheet-content.js",
+      "_alert-description.js",
       "_client.js",
       "_date-utils.js",
       "_badge.js",
       "_instance2.js",
-      "_sheet-content.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
-      "_users.js",
+      "_upload.js",
       "_copy.js",
       "_toast-state.svelte.js"
     ]
@@ -888,17 +943,16 @@
       "_badge.js",
       "_switch.js",
       "_card-content.js",
-      "_card-footer.js",
       "_card-title.js",
+      "_card-footer.js",
       "_avatar-fallback.js",
-      "_separator.js",
       "_client.js",
       "_date-utils.js",
       "_instance2.js",
       "_sheet-content.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
-      "_lock.js",
+      "_upload.js",
       "_toast-state.svelte.js"
     ]
   },
@@ -921,27 +975,26 @@
     "isEntry": true,
     "imports": [
       "_renderer.js",
-      "_button.js",
-      "_input.js",
-      "_label.js",
       "_badge.js",
-      "_index6.js",
-      "_index7.js",
+      "_button.js",
       "_card-content.js",
-      "_card-description.js",
       "_card-title.js",
       "_sheet-content.js",
-      "_collapsible-content.js",
+      "_alert-description.js",
+      "_index7.js",
+      "_input.js",
+      "_label.js",
+      "_index9.js",
       "_date-utils.js",
+      "_client.js",
       "_confirm-dialog.svelte.js",
       "_instance2.js",
-      "_client.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
-      "_plus.js",
+      "_SettingsHeaderActions.js",
       "_copy.js",
       "_toast-state.svelte.js",
-      "_dialog-trigger.js",
+      "_dialog-description.js",
       "_create-id.js"
     ]
   },
@@ -958,22 +1011,22 @@
     "isEntry": true,
     "imports": [
       "_renderer.js",
-      "_card-content.js",
-      "_card-description.js",
-      "_card-title.js",
-      "_index7.js",
       "_avatar-fallback.js",
+      "_avatar-image.js",
+      "_card-content.js",
+      "_card-title.js",
+      "_index9.js",
+      "_badge.js",
       "_button.js",
       "_input.js",
-      "_badge.js",
       "_date-utils.js",
+      "_client.js",
       "_confirm-dialog.svelte.js",
       "_instance2.js",
       "_sheet-content.js",
-      "_client.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
-      "_users.js",
+      "_search.js",
       "_mail.js",
       "_toast-state.svelte.js"
     ]
@@ -992,7 +1045,7 @@
     "imports": [
       "_renderer.js",
       "_card-content.js",
-      "_index9.js",
+      "_index8.js",
       "_button.js",
       "_input.js",
       "_utils2.js",
@@ -1000,16 +1053,14 @@
       "_checkbox.js",
       "_badge.js",
       "_separator.js",
-      "_capabilities.js",
       "_date-utils.js",
+      "_client.js",
       "_confirm-dialog.svelte.js",
       "_instance2.js",
       "_sheet-content.js",
-      "_client.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
-      "_plus.js",
-      "_lock.js",
+      "_SettingsHeaderActions.js",
       "_toast-state.svelte.js"
     ]
   },
@@ -1020,10 +1071,14 @@
     "isEntry": true,
     "imports": [
       "_renderer.js",
-      "_index4.js"
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_index5.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.CVj9CMi8.css"
+      "_app/immutable/assets/_layout.Cnnr6PaV.css"
     ],
     "assets": [
       "_app/immutable/assets/favicon.DN4o9Qxv.svg"
@@ -1033,10 +1088,7 @@
     "file": "entries/pages/_page.svelte.js",
     "name": "entries/pages/_page.svelte",
     "src": "src/routes/+page.svelte",
-    "isEntry": true,
-    "css": [
-      "_app/immutable/assets/_page.G-WQ4z9I.css"
-    ]
+    "isEntry": true
   },
   "src/routes/api/[...slug]/+server.ts": {
     "file": "entries/endpoints/api/_...slug_/_server.ts.js",
@@ -1076,6 +1128,7 @@
     "imports": [
       "_service.js",
       "_capabilities.js",
+      "_user.js",
       "_date-utils.js",
       "_instance2.js"
     ]
@@ -1110,7 +1163,7 @@
       "_exports.js",
       "_utils.js",
       "_root.js",
-      "_client.js",
+      "_state.svelte.js",
       "_mode-states.svelte.js",
       "_mode-watcher.js",
       "_auth-client.js",
@@ -1131,7 +1184,6 @@
     "imports": [
       "_renderer.js",
       "_card-content.js",
-      "_card-description.js",
       "_card-title.js"
     ]
   },
@@ -1154,20 +1206,21 @@
       "_switch.js",
       "_label.js",
       "_date-utils.js",
+      "_exports.js",
+      "_utils.js",
+      "_root.js",
+      "_state.svelte.js",
+      "_client.js",
       "_button.js",
       "_badge.js",
       "_instance2.js",
       "_sheet-content.js",
-      "_client.js",
-      "_exports.js",
-      "_utils.js",
-      "_root.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
       "_input.js",
-      "_index6.js",
-      "_dialog-trigger.js",
-      "_OrganizationsList.js"
+      "_index7.js",
+      "_OrganizationsList.js",
+      "_dialog-description.js"
     ]
   },
   "src/routes/invitations/+page.server.ts": {
@@ -1190,7 +1243,7 @@
       "_date-utils.js",
       "_instance2.js",
       "_sheet-content.js",
-      "_index4.js",
+      "_index5.js",
       "_mode-states.svelte.js",
       "_auth-client.js"
     ]
@@ -1213,7 +1266,6 @@
       "_button.js",
       "_badge.js",
       "_card-content.js",
-      "_card-description.js",
       "_card-title.js"
     ]
   },
@@ -1221,7 +1273,10 @@
     "file": "entries/pages/login/_page.server.ts.js",
     "name": "entries/pages/login/_page.server.ts",
     "src": "src/routes/login/+page.server.ts",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_auth.config.js"
+    ]
   },
   "src/routes/login/+page.svelte": {
     "file": "entries/pages/login/_page.svelte.js",
@@ -1234,15 +1289,14 @@
       "_exports.js",
       "_utils.js",
       "_root.js",
-      "_client.js",
+      "_state.svelte.js",
       "_index3.js",
       "_button.js",
       "_input.js",
       "_label.js",
       "_card-content.js",
-      "_card-description.js",
-      "_card-footer.js",
-      "_card-title.js"
+      "_card-title.js",
+      "_card-footer.js"
     ]
   },
   "src/routes/mcp/+server.ts": {
@@ -1253,8 +1307,9 @@
     "imports": [
       "__commonjsHelpers.js",
       "_date-utils.js",
-      "_auth-helpers.js",
-      "_validator.js"
+      "_mime-detect.js",
+      "_validator.js",
+      "_string-case.js"
     ]
   },
   "src/routes/media/[id]/[filename]/+server.ts": {
@@ -1286,7 +1341,6 @@
       "_input.js",
       "_label.js",
       "_card-content.js",
-      "_card-description.js",
       "_card-title.js",
       "_server2.js"
     ]
@@ -1302,7 +1356,6 @@
       "_index3.js",
       "_button.js",
       "_card-content.js",
-      "_card-description.js",
       "_card-title.js"
     ]
   }

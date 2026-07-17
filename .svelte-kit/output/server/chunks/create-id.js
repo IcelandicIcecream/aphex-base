@@ -1,5 +1,5 @@
 import { clsx } from "clsx";
-import { d as derived, A as ATTACHMENT_KEY, r as run } from "./renderer.js";
+import { f as derived, A as ATTACHMENT_KEY, r as run } from "./renderer.js";
 function isFunction(value) {
   return typeof value === "function";
 }
@@ -647,10 +647,10 @@ function createId(prefixOrUid, uid) {
 export {
   BoxSymbol as B,
   attachRef as a,
-  boolToStrTrueOrUndef as b,
-  createBitsAttrs as c,
-  createId as d,
-  boxWith as e,
+  boxWith as b,
+  createId as c,
+  boolToStrTrueOrUndef as d,
+  createBitsAttrs as e,
   boolToEmptyStrOrUndef as f,
   getDataChecked as g,
   boolToStr as h,

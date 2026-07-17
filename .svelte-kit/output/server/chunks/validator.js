@@ -34,6 +34,14 @@ const VALID_FIELD_TYPES = [...PRIMITIVE_FIELD_TYPES, "array", "object"];
 function validateSchemaReferences(schemas) {
   const schemaNames = new Set(schemas.map((schema) => schema.name));
   const errors = [];
+  const nameCounts = /* @__PURE__ */ new Map();
+  for (const schema of schemas)
+    nameCounts.set(schema.name, (nameCounts.get(schema.name) ?? 0) + 1);
+  for (const [name, count] of nameCounts) {
+    if (count > 1) {
+      errors.push(`Duplicate schema name "${name}" (defined ${count} times). Schema names must be unique across app and plugin schemas.`);
+    }
+  }
   const primitiveTypes = PRIMITIVE_FIELD_TYPES;
   const validFieldTypes = VALID_FIELD_TYPES;
   function validateField(field, parentSchema) {

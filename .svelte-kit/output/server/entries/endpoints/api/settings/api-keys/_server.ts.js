@@ -1,11 +1,12 @@
 import { json } from "@sveltejs/kit";
 import { a as authService } from "../../../../../chunks/service.js";
 import { z } from "zod";
-import { A as ALL_CAPABILITIES, n as normalizeCapabilities, h as hasCapability } from "../../../../../chunks/capabilities.js";
+import { n as normalizeCapabilities, h as hasCapability } from "../../../../../chunks/capabilities.js";
+import { c as capabilitySchema } from "../../../../../chunks/user.js";
 import "../../../../../chunks/date-utils.js";
 import "../../../../../chunks/instance2.js";
 const apiKeyPermissionSchema = z.enum(["read", "write"]);
-const apiKeyCapabilitySchema = z.enum(ALL_CAPABILITIES);
+const apiKeyCapabilitySchema = capabilitySchema;
 const createApiKeyRequest = z.object({
   name: z.string().min(1),
   permissions: z.array(apiKeyPermissionSchema).optional(),
