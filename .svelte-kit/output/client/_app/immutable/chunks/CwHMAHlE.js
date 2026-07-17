@@ -1,1 +1,0 @@
-import{et as e,xt as t,yt as n}from"./BBL2YEBp.js";var r=[];function i(){let r=t(`structure`);return{get value(){return e(r)},set value(e){n(r,e,!0)}}}var a=i();export{r as n,a as t};

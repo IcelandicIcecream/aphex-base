@@ -1,1 +1,0 @@
-import{Mt as e,jt as t,kt as n,lt as r}from"./BBL2YEBp.js";import"./xihTtKlq.js";import{t as i}from"./BrJc77IX.js";function a(a,o){e(o,!0);let s=n(i);r(()=>(s?.setActions(o.children),()=>s?.setActions(null))),t()}export{a as t};
