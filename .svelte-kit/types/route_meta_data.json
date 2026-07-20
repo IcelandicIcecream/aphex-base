@@ -1,0 +1,97 @@
+{
+	"/": [
+		"src/routes/+page.server.ts"
+	],
+	"/(protected)/admin": [
+		"src/routes/(protected)/admin/+page.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/(protected)/admin/activity": [
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/(protected)/admin/organizations": [
+		"src/routes/(protected)/admin/organizations/+page.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/(protected)/admin/settings": [
+		"src/routes/(protected)/admin/settings/+page.server.ts",
+		"src/routes/(protected)/admin/settings/+layout.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts",
+		"src/routes/(protected)/admin/settings/+layout.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/(protected)/admin/settings/account": [
+		"src/routes/(protected)/admin/settings/account/+page.server.ts",
+		"src/routes/(protected)/admin/settings/+layout.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/(protected)/admin/settings/api-keys": [
+		"src/routes/(protected)/admin/settings/api-keys/+page.server.ts",
+		"src/routes/(protected)/admin/settings/+layout.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/(protected)/admin/settings/members": [
+		"src/routes/(protected)/admin/settings/members/+page.server.ts",
+		"src/routes/(protected)/admin/settings/+layout.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/(protected)/admin/settings/plugins": [
+		"src/routes/(protected)/admin/settings/+layout.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/(protected)/admin/settings/roles": [
+		"src/routes/(protected)/admin/settings/roles/+page.server.ts",
+		"src/routes/(protected)/admin/settings/+layout.server.ts",
+		"src/routes/(protected)/admin/+layout.server.ts"
+	],
+	"/api/instance-settings": [
+		"src/routes/api/instance-settings/+server.ts"
+	],
+	"/api/invitations": [
+		"src/routes/api/invitations/+server.ts"
+	],
+	"/api/invitations/[id]/accept": [
+		"src/routes/api/invitations/[id]/accept/+server.ts"
+	],
+	"/api/invitations/[id]/reject": [
+		"src/routes/api/invitations/[id]/reject/+server.ts"
+	],
+	"/api/settings/api-keys": [
+		"src/routes/api/settings/api-keys/+server.ts"
+	],
+	"/api/settings/api-keys/[id]": [
+		"src/routes/api/settings/api-keys/[id]/+server.ts"
+	],
+	"/api/[...slug]": [
+		"src/routes/api/[...slug]/+server.ts"
+	],
+	"/god-mode": [
+		"src/routes/god-mode/+page.server.ts",
+		"src/routes/god-mode/+layout.server.ts",
+		"src/routes/god-mode/+layout.server.ts"
+	],
+	"/god-mode/organizations": [
+		"src/routes/god-mode/organizations/+page.server.ts",
+		"src/routes/god-mode/+layout.server.ts"
+	],
+	"/invitations": [
+		"src/routes/invitations/+page.server.ts"
+	],
+	"/invite/[token]": [
+		"src/routes/invite/[token]/+page.server.ts"
+	],
+	"/login": [
+		"src/routes/login/+page.server.ts"
+	],
+	"/mcp": [
+		"src/routes/mcp/+server.ts"
+	],
+	"/media/[id]/[filename]": [
+		"src/routes/media/[id]/[filename]/+server.ts"
+	],
+	"/reset-password/[token]": [
+		"src/routes/reset-password/[token]/+page.server.ts"
+	],
+	"/verify-email": []
+}

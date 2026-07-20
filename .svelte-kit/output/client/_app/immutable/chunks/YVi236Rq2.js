@@ -1,0 +1,1 @@
+import{et as e,xt as t,yt as n}from"./iK_pMUV6.js";function r(){let r=t(`structure`);return{get value(){return e(r)},set value(e){n(r,e,!0)}}}var i=r(),a=e=>e;function o(e,{delay:t=0,duration:n=400,easing:r=a}={}){let i=+getComputedStyle(e).opacity;return{delay:t,duration:n,easing:r,css:e=>`opacity: ${e*i}`}}export{i as n,o as t};

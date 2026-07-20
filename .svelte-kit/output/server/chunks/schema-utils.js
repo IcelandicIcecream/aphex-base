@@ -1,0 +1,2 @@
+import "./validator.js";
+export {};
