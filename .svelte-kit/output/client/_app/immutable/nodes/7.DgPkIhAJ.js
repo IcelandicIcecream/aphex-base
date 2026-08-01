@@ -1,1 +1,0 @@
-import{O as e,ft as t,ot as n}from"../chunks/iK_pMUV6.js";import"../chunks/xihTtKlq.js";import"../chunks/lyC9O__5.js";import{t as r}from"../chunks/BR_QRAR-.js";function i(i){e(`lhwx4o`,e=>{n(()=>{t.title=`Activity · Aphex`})}),r(i,{})}export{i as component};

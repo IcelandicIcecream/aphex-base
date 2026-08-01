@@ -2,7 +2,7 @@ import { l as normalizeCapabilities, n as BUILTIN_ROLE_NAMES, o as hasCapability
 import { r as validateSchemaReferences } from "./validator.js";
 import { n as setLogLevel, r as setLogger, t as cmsLogger } from "./logger.js";
 import { t as settingsListItems } from "./settings.js";
-import { a as SingletonOperationError, i as PermissionError, n as validateFile, o as createDocumentJobHandlers, r as createLocalAPI } from "./tools.js";
+import { a as PermissionError, i as createLocalAPI, n as resolveAgentTools, o as SingletonOperationError, r as validateFile, s as createDocumentJobHandlers } from "./tools.js";
 import "./schema-utils.js";
 import { n as toConsumerJobHandler, r as toDeliveryPayload, t as consumerJobType } from "./consumer.js";
 import { t as createPartResolver } from "./resolver.js";
@@ -17,7 +17,8 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID, 
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { zValidator } from "@hono/zod-validator";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/auth/auth-errors.js
+import { streamSSE } from "hono/streaming";
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/auth/auth-errors.js
 var AuthError = class extends Error {
 	code;
 	constructor(code, message) {
@@ -27,7 +28,7 @@ var AuthError = class extends Error {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/engine.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/engine.js
 var CMSEngine = class {
 	db;
 	config;
@@ -113,7 +114,7 @@ function createCMS(config, dbAdapter) {
 	return cmsInstance;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/auth/auth-hooks.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/auth/auth-hooks.js
 /**
 * Populate `auth.capabilities` for session auth via RolesService.
 * Runs once per request so downstream permission checks stay synchronous.
@@ -208,7 +209,7 @@ async function handleAuthHook(event, config, authProvider, db, rolesService) {
 	return null;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/preview/perspective.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/preview/perspective.js
 /**
 * Resolve the content perspective for a SvelteKit load function.
 *
@@ -230,7 +231,7 @@ function getPreviewPerspective(auth, url) {
 	return url.searchParams.has("aphex-preview") && isAuthenticated ? "draft" : "published";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/storage/adapters/local-storage-adapter.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/storage/adapters/local-storage-adapter.js
 var DEFAULT_MAX_FILE_SIZE = 10 * 1024 * 1024;
 /**
 * Pure local file system storage adapter - only handles files
@@ -394,7 +395,7 @@ var LocalStorageAdapter = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/storage/providers/storage.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/storage/providers/storage.js
 /**
 * Local file system provider
 */
@@ -449,7 +450,7 @@ function createStorageAdapter(providerName, config) {
 	return provider.createAdapter(config);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/preview/assets.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/preview/assets.js
 /**
 * Collect every asset `_ref` reachable in a value. Image and file fields, and
 * portable-text image blocks, all carry `{ asset: { _ref } }`, so one generic walk
@@ -491,7 +492,7 @@ function injectAssetData(value, resolved) {
 	for (const key in obj) injectAssetData(obj[key], resolved);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/services/asset-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/services/asset-service.js
 /**
 * Asset service - coordinates storage and database operations
 * Maintains separation of concerns while providing unified asset management
@@ -670,7 +671,7 @@ var AssetService = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/services/roles-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/services/roles-service.js
 /**
 * RolesService — caches per-org role capability lookups.
 *
@@ -748,7 +749,7 @@ function cacheKey(organizationId, roleName) {
 	return `roles:${organizationId}:${roleName}`;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/security/secret-crypto.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/security/secret-crypto.js
 var VERSION = "v1";
 var ALGORITHM = "aes-256-gcm";
 var IV_BYTES = 12;
@@ -795,7 +796,7 @@ function isEncryptedSecret(value) {
 	return typeof value === "string" && value.startsWith(`${VERSION}:`);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/services/plugin-settings-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/services/plugin-settings-service.js
 /** Placeholder shown to the client for a secret that has a stored value. */
 var SECRET_MASK = "••••••";
 var isSecret = (f) => f.type === "secret";
@@ -974,7 +975,7 @@ var PluginSettingsService = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/jobs/run-due-jobs.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/jobs/run-due-jobs.js
 var DEFAULT_BATCH_SIZE = 10;
 var DEFAULT_LEASE_MS = 3e4;
 var DEFAULT_BASE_BACKOFF_MS = 1e3;
@@ -1046,7 +1047,7 @@ async function runDueJobs(options) {
 	return result;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/jobs/relay.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/jobs/relay.js
 var DEFAULT_RELAY_BATCH_SIZE = 100;
 /**
 * Drain one bounded batch of the outbox, fanning each event out to its subscribed consumers.
@@ -1099,7 +1100,7 @@ async function relayOutbox(services, options = {}) {
 	return result;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/jobs/run-batch.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/jobs/run-batch.js
 /**
 * Run one full worker tick: relay the outbox, then run one bounded batch of due jobs with the
 * fully-assembled handler map.
@@ -1145,7 +1146,7 @@ async function runJobsBatch(services, options = {}) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/jobs/embedded-runner.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/jobs/embedded-runner.js
 /**
 * Start the loop. Ticks NEVER overlap: while a tick is in flight the next interval fire is
 * skipped, so a slow batch can't stack runs on top of each other. A thrown error in a tick is
@@ -1180,7 +1181,7 @@ function startEmbeddedJobRunner(options) {
 	} };
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/schemas.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/schemas.js
 var schemasRouter = new Hono().get("/", (c) => {
 	const { cmsEngine } = c.var.aphexCMS;
 	const schemas = cmsEngine.config.schemaTypes;
@@ -1202,7 +1203,7 @@ var schemasRouter = new Hono().get("/", (c) => {
 	});
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/api/schemas/documents.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/schemas/documents.js
 var jsonRecord = z.record(z.string(), z.unknown());
 var documentMetaSchema = z.object({
 	status: z.enum([
@@ -1214,7 +1215,8 @@ var documentMetaSchema = z.object({
 	updatedAt: z.string().optional(),
 	createdAt: z.string().optional(),
 	publishedHash: z.string().nullable().optional(),
-	draftHash: z.string().nullable().optional()
+	draftHash: z.string().nullable().optional(),
+	revision: z.number().optional()
 }).passthrough();
 var documentSchema = z.object({
 	id: z.string(),
@@ -1267,7 +1269,8 @@ z.object({
 var updateDocumentRequest = z.object({
 	draftData: jsonRecord.optional(),
 	data: jsonRecord.optional(),
-	publish: z.boolean().optional()
+	publish: z.boolean().optional(),
+	expectedRevision: z.number().optional()
 }).refine((v) => v.draftData !== void 0 || v.data !== void 0, { message: "Either draftData or data is required" });
 z.object({
 	success: z.literal(true),
@@ -1278,11 +1281,13 @@ z.object({
 	success: z.literal(true),
 	message: z.string().optional()
 });
+var publishDocumentRequest = z.object({ expectedRevision: z.number().optional() });
 z.object({
 	success: z.literal(true),
 	data: documentSchema,
 	message: z.string().optional()
 });
+var unpublishDocumentRequest = z.object({ expectedRevision: z.number().optional() });
 z.object({
 	success: z.literal(true),
 	data: documentSchema,
@@ -1329,6 +1334,7 @@ z.object({
 	success: z.literal(true),
 	data: documentVersionSchema
 });
+var restoreVersionRequest = z.object({ expectedRevision: z.number().optional() });
 z.object({
 	success: z.literal(true),
 	data: documentSchema,
@@ -1351,7 +1357,7 @@ z.object({
 	message: z.string().optional()
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/documents.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/documents.js
 var DEFAULT_PAGE_SIZE$1 = 20;
 var DEFAULT_PAGE$1 = 1;
 var documentsRouter = new Hono().get("/", zValidator("query", listDocumentsQuery, (result, c) => {
@@ -1496,7 +1502,28 @@ var documentsRouter = new Hono().get("/", zValidator("query", listDocumentsQuery
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/documents-by-id.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/db/interfaces/document.js
+/**
+* Thrown when a write's `expectedRevision` no longer matches the document's
+* current revision — another writer (a second tab, an AI agent, a concurrent
+* request) saved in between the caller's read and this write. Callers should
+* surface this distinctly from a validation error: re-fetch and let the user
+* decide, never silently retry with an overwrite.
+*/
+var RevisionConflictError = class extends Error {
+	documentId;
+	expectedRevision;
+	currentRevision;
+	constructor(message, documentId, expectedRevision, currentRevision) {
+		super(message);
+		this.documentId = documentId;
+		this.expectedRevision = expectedRevision;
+		this.currentRevision = currentRevision;
+		this.name = "RevisionConflictError";
+	}
+};
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/documents-by-id.js
 var documentsByIdRouter = new Hono().get("/:id", async (c) => {
 	try {
 		const { localAPI } = c.var.aphexCMS;
@@ -1578,7 +1605,10 @@ var documentsByIdRouter = new Hono().get("/:id", async (c) => {
 			error: "Invalid document type",
 			message: `Collection '${found.type}' not found`
 		}, 400);
-		const result = await collection.update(context, id, documentData, { publish: shouldPublish });
+		const result = await collection.update(context, id, documentData, {
+			publish: shouldPublish,
+			expectedRevision: parsed.expectedRevision
+		});
 		if (!result) return c.json({
 			success: false,
 			error: "Document not found"
@@ -1595,6 +1625,12 @@ var documentsByIdRouter = new Hono().get("/:id", async (c) => {
 			error: "Forbidden",
 			message: error.message
 		}, 403);
+		if (error instanceof RevisionConflictError) return c.json({
+			success: false,
+			error: "Conflict",
+			message: error.message,
+			currentRevision: error.currentRevision
+		}, 409);
 		if (error instanceof Error && error.message.includes("validation errors")) return c.json({
 			success: false,
 			error: "Validation failed",
@@ -1681,7 +1717,7 @@ var documentsByIdRouter = new Hono().get("/:id", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/documents-publish.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/documents-publish.js
 var documentsPublishRouter = new Hono().post("/:id/schedule", async (c) => {
 	try {
 		const { localAPI } = c.var.aphexCMS;
@@ -1834,7 +1870,14 @@ var documentsPublishRouter = new Hono().post("/:id/schedule", async (c) => {
 			error: "Invalid document type",
 			message: `Collection '${found.type}' not found`
 		}, 400);
-		const publishedDocument = await collection.publish(context, id);
+		const body = await c.req.json().catch(() => ({}));
+		const parsed = publishDocumentRequest.safeParse(body);
+		if (!parsed.success) return c.json({
+			success: false,
+			error: "Invalid request",
+			issues: parsed.error.issues
+		}, 400);
+		const publishedDocument = await collection.publish(context, id, { expectedRevision: parsed.data.expectedRevision });
 		if (!publishedDocument) return c.json({
 			success: false,
 			error: "Document not found or cannot be published",
@@ -1852,6 +1895,12 @@ var documentsPublishRouter = new Hono().post("/:id/schedule", async (c) => {
 			error: "Forbidden",
 			message: error.message
 		}, 403);
+		if (error instanceof RevisionConflictError) return c.json({
+			success: false,
+			error: "Conflict",
+			message: error.message,
+			currentRevision: error.currentRevision
+		}, 409);
 		if (error instanceof Error && error.message.includes("validation errors")) return c.json({
 			success: false,
 			error: "Cannot publish: validation errors",
@@ -1885,7 +1934,14 @@ var documentsPublishRouter = new Hono().post("/:id/schedule", async (c) => {
 			error: "Invalid document type",
 			message: `Collection '${found.type}' not found`
 		}, 400);
-		const unpublishedDocument = await collection.unpublish(context, id);
+		const body = await c.req.json().catch(() => ({}));
+		const parsed = unpublishDocumentRequest.safeParse(body);
+		if (!parsed.success) return c.json({
+			success: false,
+			error: "Invalid request",
+			issues: parsed.error.issues
+		}, 400);
+		const unpublishedDocument = await collection.unpublish(context, id, { expectedRevision: parsed.data.expectedRevision });
 		if (!unpublishedDocument) return c.json({
 			success: false,
 			error: "Document not found",
@@ -1903,6 +1959,12 @@ var documentsPublishRouter = new Hono().post("/:id/schedule", async (c) => {
 			error: "Forbidden",
 			message: error.message
 		}, 403);
+		if (error instanceof RevisionConflictError) return c.json({
+			success: false,
+			error: "Conflict",
+			message: error.message,
+			currentRevision: error.currentRevision
+		}, 409);
 		return c.json({
 			success: false,
 			error: "Failed to unpublish document",
@@ -1911,7 +1973,7 @@ var documentsPublishRouter = new Hono().post("/:id/schedule", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/documents-query.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/documents-query.js
 var DEFAULT_PAGE_SIZE = 20;
 var DEFAULT_PAGE = 1;
 /**
@@ -1977,7 +2039,7 @@ var documentsQueryRouter = new Hono().post("/query", zValidator("json", queryDoc
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/document-versions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/document-versions.js
 var documentVersionsRouter = new Hono().get("/:id/versions", zValidator("query", listVersionsQuery, (result, c) => {
 	if (!result.success) return c.json({
 		success: false,
@@ -2083,7 +2145,14 @@ var documentVersionsRouter = new Hono().get("/:id/versions", zValidator("query",
 			success: false,
 			error: "Version must be a number"
 		}, 400);
-		const document = await localAPI.versionService.restoreVersion(databaseAdapter, context.organizationId, id, versionNumber, context.user?.id);
+		const body = await c.req.json().catch(() => ({}));
+		const parsed = restoreVersionRequest.safeParse(body);
+		if (!parsed.success) return c.json({
+			success: false,
+			error: "Invalid request",
+			issues: parsed.error.issues
+		}, 400);
+		const document = await localAPI.versionService.restoreVersion(databaseAdapter, context.organizationId, id, versionNumber, context.user?.id, parsed.data.expectedRevision);
 		if (!document) return c.json({
 			success: false,
 			error: "Version not found or restore failed"
@@ -2095,6 +2164,12 @@ var documentVersionsRouter = new Hono().get("/:id/versions", zValidator("query",
 		});
 	} catch (error) {
 		cmsLogger.error("Failed to restore document version:", error);
+		if (error instanceof RevisionConflictError) return c.json({
+			success: false,
+			error: "Conflict",
+			message: error.message,
+			currentRevision: error.currentRevision
+		}, 409);
 		return c.json({
 			success: false,
 			error: "Failed to restore version"
@@ -2102,7 +2177,7 @@ var documentVersionsRouter = new Hono().get("/:id/versions", zValidator("query",
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/api/schemas/assets.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/schemas/assets.js
 var assetSchema = z.object({
 	id: z.string(),
 	organizationId: z.string(),
@@ -2187,7 +2262,7 @@ z.object({
 	data: z.record(z.string(), z.number())
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/assets.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/assets.js
 var assetsRouter = new Hono().get("/", zValidator("query", listAssetsQuery, (result, c) => {
 	if (!result.success) return c.json({
 		success: false,
@@ -2318,7 +2393,7 @@ var assetsRouter = new Hono().get("/", zValidator("query", listAssetsQuery, (res
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/assets-by-id.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/assets-by-id.js
 var assetsByIdRouter = new Hono().get("/:id", async (c) => {
 	try {
 		const { assetService } = c.var.aphexCMS;
@@ -2445,7 +2520,7 @@ var assetsByIdRouter = new Hono().get("/:id", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/assets-bulk.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/assets-bulk.js
 var assetsBulkRouter = new Hono().delete("/bulk", zValidator("json", bulkDeleteAssetsRequest, (result, c) => {
 	if (!result.success) return c.json({
 		success: false,
@@ -2498,7 +2573,7 @@ var assetsBulkRouter = new Hono().delete("/bulk", zValidator("json", bulkDeleteA
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/assets-references.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/assets-references.js
 /**
 * Asset references endpoints. Two distinct paths sharing one router file:
 *   - GET  /:id/references          → docs that reference one asset
@@ -2588,7 +2663,7 @@ var assetsReferencesRouter = new Hono().get("/:id/references", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/api/schemas/organizations.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/schemas/organizations.js
 var roleNameSchema$1 = z.string().trim().min(1).max(100).regex(/^[a-zA-Z0-9 _-]+$/);
 var organizationRoleSchema = roleNameSchema$1;
 var invitableRoleSchema = roleNameSchema$1.refine((v) => v !== "owner", { message: "owner cannot be assigned via invitation" });
@@ -2616,7 +2691,7 @@ var updateMemberRoleRequest = z.object({
 	role: organizationRoleSchema
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations.js
 var organizationsRouter = new Hono().get("/", async (c) => {
 	try {
 		const { databaseAdapter } = c.var.aphexCMS;
@@ -2702,7 +2777,7 @@ var organizationsRouter = new Hono().get("/", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations-by-id.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations-by-id.js
 var organizationsByIdRouter = new Hono().get("/:id", async (c) => {
 	try {
 		const { databaseAdapter } = c.var.aphexCMS;
@@ -2840,7 +2915,7 @@ var organizationsByIdRouter = new Hono().get("/:id", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations-invitations.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations-invitations.js
 /**
 * Note: in studio, invitations are wrapped by a SvelteKit `+server.ts`
 * that adds email sending after the invite row is created. While that
@@ -2956,7 +3031,7 @@ var organizationsInvitationsRouter = new Hono().post("/invitations", zValidator(
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations-members.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations-members.js
 var organizationsMembersRouter = new Hono().get("/members", async (c) => {
 	try {
 		const { databaseAdapter } = c.var.aphexCMS;
@@ -3111,7 +3186,7 @@ var organizationsMembersRouter = new Hono().get("/members", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations-switch.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/organizations-switch.js
 var organizationsSwitchRouter = new Hono().post("/switch", zValidator("json", switchOrganizationRequest, (result, c) => {
 	if (!result.success) return c.json({
 		success: false,
@@ -3155,7 +3230,7 @@ var organizationsSwitchRouter = new Hono().post("/switch", zValidator("json", sw
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/api/schemas/roles.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/schemas/roles.js
 var capabilitySchema = z.string().min(1).max(100).regex(/^[a-zA-Z0-9]+([.:][a-zA-Z0-9]+)+$/, { message: "Invalid capability id format" });
 var roleNameSchema = z.string().trim().min(1).max(100).regex(/^[a-zA-Z0-9 _-]+$/, { message: "Role name may only contain letters, numbers, spaces, underscores, and hyphens" });
 var createRoleRequest = z.object({
@@ -3174,7 +3249,7 @@ var updateRoleRequest = z.object({
 	capabilities: v.capabilities ? normalizeCapabilities(v.capabilities) : void 0
 }));
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/roles.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/roles.js
 /**
 * Authoritative capability validation against the runtime registry. The zod schema
 * only guards the id *format*; this rejects ids that don't actually exist in the
@@ -3383,10 +3458,10 @@ var rolesRouter = new Hono().get("/", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/api/schemas/plugin-settings.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/schemas/plugin-settings.js
 var savePluginSettingsRequest = z.object({ values: z.record(z.string(), z.unknown()) });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/plugin-settings.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/plugin-settings.js
 /**
 * Require a session with `plugin.settings.manage`. Returns the narrowed session auth
 * to proceed, or a 401/403 Response to short-circuit — so callers get a typed org id
@@ -3484,7 +3559,7 @@ var pluginSettingsRouter = new Hono().get("/", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/api/schemas/user.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/schemas/user.js
 var updateUserRequest = z.object({
 	name: z.string().min(1).optional(),
 	image: z.string().min(1).nullable().optional()
@@ -3499,7 +3574,7 @@ var resetPasswordRequest = z.object({
 	newPassword: z.string().min(8)
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/user-preferences.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/user-preferences.js
 var userPreferencesRouter = new Hono().get("/cms-preference", async (c) => {
 	try {
 		const { databaseAdapter } = c.var.aphexCMS;
@@ -3555,7 +3630,7 @@ var userPreferencesRouter = new Hono().get("/cms-preference", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/user.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/user.js
 /**
 * User account routes that delegate to the configured AuthProvider.
 *
@@ -3663,7 +3738,7 @@ var userRouter = new Hono().patch("/", zValidator("json", updateUserRequest, (re
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/workers-run.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/workers-run.js
 /**
 * Constant-time compare of the presented bearer token against the configured secret.
 * Length is compared first (and short-circuits), which leaks only the secret's length —
@@ -3704,7 +3779,33 @@ workersRunRouter.post("/run", async (c) => {
 	});
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/routes/jobs.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/resolve-created-by.js
+/**
+* Resolves `createdBy` user ids on a list of rows to a display name (or `'API Key'` for a
+* `apikey:<id>` synthetic id — see `authToContext`'s API-key branch). Shared by every
+* read-only history view (`GET /api/events`, `GET /api/agent/change-sets`, ...) — an audit
+* trail whose whole point is accountability needs to show *who*, not a raw id.
+*/
+async function withCreatedByNames(rows, auth) {
+	const userIds = [...new Set(rows.map((r) => r.createdBy).filter((id) => !!id))];
+	const userMap = /* @__PURE__ */ new Map();
+	if (userIds.length > 0 && auth) await Promise.all(userIds.map(async (userId) => {
+		if (userId.startsWith("apikey:")) {
+			userMap.set(userId, "API Key");
+			return;
+		}
+		try {
+			const user = await auth.getUserById(userId);
+			if (user) userMap.set(userId, user.name || user.email);
+		} catch {}
+	}));
+	return rows.map((r) => ({
+		...r,
+		createdByName: r.createdBy ? userMap.get(r.createdBy) ?? null : null
+	}));
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/jobs.js
 var jobStatus = z.enum([
 	"pending",
 	"leased",
@@ -3724,7 +3825,7 @@ var listEventsQuery = z.object({
 	offset: z.coerce.number().int().min(0).optional()
 });
 /** Map an adapter Page into the ApiResponse `pagination` shape the client expects. */
-function toPagination(page) {
+function toPagination$1(page) {
 	const pageSize = page.limit || 1;
 	return {
 		total: page.total,
@@ -3769,7 +3870,7 @@ var jobsRouter = new Hono().get("/jobs", async (c) => {
 		return c.json({
 			success: true,
 			data: page.items,
-			pagination: toPagination(page)
+			pagination: toPagination$1(page)
 		});
 	} catch (error) {
 		cmsLogger.error("Failed to list jobs:", error);
@@ -3789,17 +3890,18 @@ var jobsRouter = new Hono().get("/jobs", async (c) => {
 			issues: parsed.error.issues
 		}, 400);
 		const { type, limit, offset } = parsed.data;
-		const { databaseAdapter } = c.var.aphexCMS;
+		const { databaseAdapter, auth } = c.var.aphexCMS;
 		const page = await databaseAdapter.listEvents({
 			organizationId: gate.organizationId,
 			type,
 			limit,
 			offset
 		});
+		const items = await withCreatedByNames(page.items, auth);
 		return c.json({
 			success: true,
-			data: page.items,
-			pagination: toPagination(page)
+			data: items,
+			pagination: toPagination$1(page)
 		});
 	} catch (error) {
 		cmsLogger.error("Failed to list events:", error);
@@ -3810,7 +3912,558 @@ var jobsRouter = new Hono().get("/jobs", async (c) => {
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/server/api/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/schemas/agent-chat.js
+var agentChatMessageSchema = z.object({
+	role: z.enum([
+		"system",
+		"user",
+		"assistant",
+		"tool"
+	]),
+	content: z.string(),
+	toolCalls: z.array(z.object({
+		id: z.string(),
+		name: z.string(),
+		arguments: z.record(z.string(), z.unknown())
+	})).optional(),
+	toolCallId: z.string().optional()
+});
+var agentChatRequest = z.object({
+	messages: z.array(agentChatMessageSchema).min(1),
+	/** Optional override of the instance's configured default model. */
+	model: z.string().optional(),
+	/** Present when the caller has a live document editor tab open — gates the
+	* `content_patch_fields`/`content_save_draft` workspace-bridge tools into the resolved
+	* tool list (see `mcp/tools.ts`'s `resolveAgentTools`). */
+	documentContext: z.object({
+		collection: z.string(),
+		id: z.string()
+	}).optional(),
+	/** Echoes back the change-set row created on the first leg of a turn that got paused for
+	* a workspace tool, so a resume request records against the same row instead of creating
+	* a new one per leg. */
+	changeSetId: z.string().optional(),
+	/** Token usage accumulated across a paused turn's earlier legs, summed with this leg's
+	* usage when the change-set is finally completed. */
+	priorUsage: z.object({
+		promptTokens: z.number(),
+		completionTokens: z.number()
+	}).optional()
+});
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/schemas/agent-operations.js
+var recordWorkspaceOperationRequest = z.object({
+	changeSetId: z.string(),
+	toolName: z.string(),
+	collection: z.string(),
+	id: z.string(),
+	success: z.boolean(),
+	error: z.string().optional(),
+	arguments: z.record(z.string(), z.unknown()).default({}),
+	data: z.unknown().optional()
+});
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/ai/run-agent-turn.js
+var DEFAULT_MAX_TOOL_ROUNDTRIPS = 8;
+function toToolSpec(tool) {
+	return {
+		name: tool.definition.name,
+		description: tool.definition.description,
+		parameters: z.toJSONSchema(tool.definition.inputSchema)
+	};
+}
+/**
+* Streams one agent turn: sends `messages` to the model, executes any tool calls it
+* requests against `tools`, feeds the results back as `tool` messages, and repeats until
+* the model stops calling tools (or `maxToolRoundtrips` is hit — surfaced as an error
+* rather than looping forever against a model that won't stop calling tools).
+*/
+async function* runAgentTurn(opts) {
+	const messages = [...opts.messages];
+	const systemMessage = opts.systemPrompt ? {
+		role: "system",
+		content: opts.systemPrompt
+	} : null;
+	const toolsByName = new Map(opts.tools.map((t) => [t.definition.name, t]));
+	const toolSpecs = opts.tools.map(toToolSpec);
+	const maxRoundtrips = opts.maxToolRoundtrips ?? DEFAULT_MAX_TOOL_ROUNDTRIPS;
+	let roundtrips = 0;
+	for (;;) {
+		let assistantText = "";
+		const pendingToolCalls = [];
+		let finishReason = "stop";
+		let erroredOut = false;
+		for await (const event of opts.aiProvider.chatStream({
+			model: opts.model,
+			messages: systemMessage ? [systemMessage, ...messages] : messages,
+			tools: toolSpecs,
+			maxTokens: opts.maxTokens,
+			signal: opts.signal
+		})) switch (event.type) {
+			case "text":
+				assistantText += event.delta;
+				yield event;
+				break;
+			case "toolCall":
+				pendingToolCalls.push(event.toolCall);
+				yield {
+					type: "toolCall",
+					toolCallId: event.toolCall.id,
+					name: event.toolCall.name,
+					arguments: event.toolCall.arguments
+				};
+				break;
+			case "usage":
+				yield event;
+				break;
+			case "error":
+				yield event;
+				erroredOut = true;
+				break;
+			case "done":
+				finishReason = event.finishReason;
+				break;
+		}
+		if (erroredOut) {
+			if (assistantText) messages.push({
+				role: "assistant",
+				content: assistantText
+			});
+			yield {
+				type: "done",
+				finishReason: "error",
+				messages
+			};
+			return;
+		}
+		if (finishReason !== "tool_calls" || pendingToolCalls.length === 0) {
+			if (assistantText) messages.push({
+				role: "assistant",
+				content: assistantText
+			});
+			yield {
+				type: "done",
+				finishReason,
+				messages
+			};
+			return;
+		}
+		if (++roundtrips > maxRoundtrips) {
+			yield {
+				type: "error",
+				message: `Stopped after ${maxRoundtrips} tool-calling round trips.`
+			};
+			yield {
+				type: "done",
+				finishReason: "error",
+				messages
+			};
+			return;
+		}
+		messages.push({
+			role: "assistant",
+			content: assistantText,
+			toolCalls: pendingToolCalls
+		});
+		const workspaceCalls = [];
+		const executableCalls = [];
+		for (const call of pendingToolCalls) (toolsByName.get(call.name)?.definition.execution === "workspace" ? workspaceCalls : executableCalls).push(call);
+		for (const call of executableCalls) {
+			const tool = toolsByName.get(call.name);
+			let success;
+			let data;
+			let error;
+			if (!tool) {
+				success = false;
+				error = `Unknown tool: ${call.name}`;
+			} else {
+				const requiredCaps = tool.definition.requiredCapabilities ?? [];
+				const auth = opts.toolContext.context.auth;
+				if (!(requiredCaps.length === 0 || auth != null && requiredCaps.every((c) => hasCapability(auth, c)))) {
+					success = false;
+					error = `Forbidden: requires ${requiredCaps.join(", ")}`;
+				} else {
+					const parsed = tool.definition.inputSchema.safeParse(call.arguments);
+					if (!parsed.success) {
+						success = false;
+						error = `Invalid arguments: ${parsed.error.message}`;
+					} else try {
+						const result = await tool.execute(parsed.data, opts.toolContext);
+						success = result.success;
+						data = result.success ? result.data : void 0;
+						error = result.success ? void 0 : result.error;
+					} catch (err) {
+						success = false;
+						error = err instanceof Error ? err.message : String(err);
+					}
+				}
+			}
+			yield {
+				type: "toolResult",
+				toolCallId: call.id,
+				name: call.name,
+				success,
+				data,
+				error
+			};
+			messages.push({
+				role: "tool",
+				toolCallId: call.id,
+				content: JSON.stringify(success ? data ?? null : { error })
+			});
+		}
+		if (workspaceCalls.length > 0) {
+			yield {
+				type: "done",
+				finishReason: "awaiting_workspace_tool",
+				messages,
+				pendingWorkspaceCalls: workspaceCalls.map((c) => ({
+					toolCallId: c.id,
+					name: c.name,
+					arguments: c.arguments
+				}))
+			};
+			return;
+		}
+	}
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/ai/default-system-prompt.js
+var DEFAULT_AGENT_SYSTEM_PROMPT = `You are the in-admin content assistant for this CMS. You can read and edit content through the tools available to you — call \`describe_cms\` first if you don't already know what content types, fields, and tools exist in this session; never guess at a schema's shape.
+
+Guidelines:
+- Prefer drafts: create or edit content as a draft. Only call \`publish_document\` when the user has explicitly asked you to publish — writing or updating something is not itself a request to publish it.
+- If \`content_patch_fields\`/\`content_save_draft\` are available, a document is currently open in the admin editor — use those two tools (not \`update_document\`) for any edit to that document, so the change appears live in the editor instead of only in the database.
+- Before a broad or hard-to-reverse change (bulk edits, unpublishing, overwriting existing content), briefly say what you're about to do rather than doing it silently.
+- Only reference fields, collections, and tools that \`describe_cms\`/\`get_schema\` actually showed you — never invent one.
+- If a tool call fails or is forbidden, say why rather than retrying blindly or working around it.
+- Keep responses concise — don't restate what a tool result already showed.`;
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/agent-chat.js
+var SUMMARY_MAX_LENGTH = 200;
+var toolResultWithDocumentId = z.object({ document: z.object({ id: z.string() }) });
+/** `create_document` has no `id` argument (nothing to reference before it exists) — its new
+* id only shows up in the result. Falls back to that when the args don't have one, so a
+* create is still attributable to a document instead of being silently dropped. */
+function resolveDocumentId(args, data) {
+	if (typeof args.id === "string") return args.id;
+	const parsed = toolResultWithDocumentId.safeParse(data);
+	return parsed.success ? parsed.data.document.id : null;
+}
+/**
+* Best-effort audit record for one mutating tool call — looks up the two most recent
+* document-version rows to capture `versionBefore`/`versionAfter` (the version an undo would
+* restore to, and the one this write produced), then records the operation. Never throws: a
+* failure to record the audit trail must never break the actual tool call or the SSE stream.
+* Exported for unit testing — not part of the route's own public surface.
+*/
+async function recordMutatingOperation(aphexCMS, context, changeSetId, toolName, args, success, error, data) {
+	const collection = typeof args.collection === "string" ? args.collection : null;
+	const documentId = resolveDocumentId(args, data);
+	if (!collection || !documentId) return;
+	try {
+		const { databaseAdapter, localAPI } = aphexCMS;
+		const { versions } = await localAPI.versionService.listVersions(databaseAdapter, context.organizationId, documentId, { limit: 2 });
+		const [versionAfter, versionBefore] = versions;
+		await databaseAdapter.recordOperation({
+			changeSetId,
+			organizationId: context.organizationId,
+			collection,
+			documentId,
+			toolName,
+			arguments: args,
+			success,
+			error,
+			versionBefore: versionBefore?.versionNumber ?? null,
+			versionAfter: versionAfter?.versionNumber ?? null
+		});
+	} catch (err) {
+		cmsLogger.error("[agent-chat] failed to record agent operation (continuing):", err);
+	}
+}
+var agentChatRouter = new Hono();
+/**
+* POST /api/agent/chat — the in-admin agent's streaming chat endpoint (Milestone 2 item 5
+* of references/content-copilot-phase-1-plan.md). Stateless per call: the browser sends
+* the full running conversation each time (conversation persistence is a separate,
+* not-yet-built piece — see the plan). Requires an authenticated session; individual tool
+* calls are separately capability-gated by `resolveAgentTools`/each tool's own checks —
+* this endpoint is a dumb transport over the same tool-execution service MCP uses, not an
+* additional authorization layer.
+*
+* 404s (rather than 401) when no `aiProvider` is configured, so the route doesn't exist as
+* a surface at all on an instance that hasn't opted in — same "don't advertise an unset
+* feature" posture as `workers-run.ts`'s worker secret gate.
+*
+* Also records an audit/undo trail (`cms_agent_change_sets`/`cms_agent_operations`): a
+* change-set row is created eagerly for every turn (so token usage is captured even for a
+* pure Q&A turn with no mutations), and every mutating tool call gets an operation row. All
+* of this recording is best-effort — see `recordMutatingOperation` above and the try/catch
+* around change-set creation/completion below — a failure here must never break the chat.
+*/
+agentChatRouter.post("/chat", async (c) => {
+	const { aphexCMS, auth } = c.var;
+	const { aiProvider, agentModel } = aphexCMS.config;
+	const { databaseAdapter } = aphexCMS;
+	if (!aiProvider) return c.json({
+		success: false,
+		error: "Not found"
+	}, 404);
+	if (!auth) return c.json({
+		success: false,
+		error: "Unauthorized"
+	}, 401);
+	if (!agentModel) return c.json({
+		success: false,
+		error: "Server misconfigured: no agentModel configured for aiProvider"
+	}, 501);
+	const body = await c.req.json().catch(() => null);
+	const parsed = agentChatRequest.safeParse(body);
+	if (!parsed.success) return c.json({
+		success: false,
+		error: "Invalid request",
+		issues: parsed.error.issues
+	}, 400);
+	const context = authToContext(auth);
+	const tools = resolveAgentTools({
+		aphexCMS,
+		context
+	}, { documentContext: parsed.data.documentContext });
+	const toolsByName = new Map(tools.map((t) => [t.definition.name, t]));
+	const model = parsed.data.model ?? agentModel;
+	const abortController = new AbortController();
+	let changeSetId = parsed.data.changeSetId ?? null;
+	if (!changeSetId) try {
+		const firstUserMessage = parsed.data.messages.find((m) => m.role === "user")?.content ?? "";
+		changeSetId = (await databaseAdapter.createChangeSet({
+			organizationId: context.organizationId,
+			createdBy: context.user?.id ?? null,
+			summary: firstUserMessage.slice(0, SUMMARY_MAX_LENGTH) || null,
+			provider: aiProvider.name,
+			model
+		})).id;
+	} catch (err) {
+		cmsLogger.error("[agent-chat] failed to create change-set (continuing without one):", err);
+	}
+	return streamSSE(c, async (stream) => {
+		c.req.raw.signal.addEventListener("abort", () => abortController.abort());
+		let promptTokens = parsed.data.priorUsage?.promptTokens ?? 0;
+		let completionTokens = parsed.data.priorUsage?.completionTokens ?? 0;
+		let turnFailed = false;
+		let turnPaused = false;
+		const argsByToolCallId = /* @__PURE__ */ new Map();
+		try {
+			for await (const event of runAgentTurn({
+				aiProvider,
+				model,
+				messages: parsed.data.messages,
+				tools,
+				toolContext: {
+					aphexCMS,
+					context
+				},
+				systemPrompt: aphexCMS.config.agentSystemPrompt ?? DEFAULT_AGENT_SYSTEM_PROMPT,
+				signal: abortController.signal
+			})) {
+				if (event.type === "usage") {
+					promptTokens += event.promptTokens;
+					completionTokens += event.completionTokens;
+				} else if (event.type === "toolCall") argsByToolCallId.set(event.toolCallId, event.arguments);
+				else if (event.type === "toolResult" && changeSetId) {
+					const tool = toolsByName.get(event.name);
+					const args = argsByToolCallId.get(event.toolCallId);
+					if (tool?.definition.mutates && args) await recordMutatingOperation(aphexCMS, context, changeSetId, event.name, args, event.success, event.error, event.data);
+				} else if (event.type === "error") turnFailed = true;
+				if (event.type === "done") {
+					event.changeSetId = changeSetId;
+					if (event.finishReason === "awaiting_workspace_tool") turnPaused = true;
+				}
+				await stream.writeSSE({ data: JSON.stringify(event) });
+			}
+		} catch (err) {
+			turnFailed = true;
+			cmsLogger.error("[agent-chat] turn failed:", err);
+			await stream.writeSSE({ data: JSON.stringify({
+				type: "error",
+				message: err instanceof Error ? err.message : "Unknown error"
+			}) });
+		} finally {
+			if (changeSetId && !turnPaused) try {
+				await databaseAdapter.completeChangeSet(context.organizationId, changeSetId, {
+					status: turnFailed ? "failed" : "completed",
+					promptTokens,
+					completionTokens
+				});
+			} catch (err) {
+				cmsLogger.error("[agent-chat] failed to complete change-set (continuing):", err);
+			}
+		}
+	});
+});
+/**
+* POST /api/agent/operations — records an audit/undo row for a tool the *client* executed
+* against a live `DocumentWorkspace` (the `content_patch_fields`/`content_save_draft` bridge
+* tools — see `ai/content-workspace-tools.ts`). `agent-chat.ts`'s own `recordMutatingOperation`
+* call above only sees tool results resolved server-side inside `runAgentTurn`'s loop, so a
+* workspace tool's result — resolved client-side after a paused turn — needs this separate
+* path to reach the same `cms_agent_change_sets`/`cms_agent_operations` tables. Same
+* session-authenticated posture as `/chat`; not itself a mutation of document data (the
+* client already made that call directly via the normal document API), purely bookkeeping.
+*/
+agentChatRouter.post("/operations", async (c) => {
+	const { aphexCMS, auth } = c.var;
+	if (!aphexCMS.config.aiProvider) return c.json({
+		success: false,
+		error: "Not found"
+	}, 404);
+	if (!auth) return c.json({
+		success: false,
+		error: "Unauthorized"
+	}, 401);
+	const body = await c.req.json().catch(() => null);
+	const parsed = recordWorkspaceOperationRequest.safeParse(body);
+	if (!parsed.success) return c.json({
+		success: false,
+		error: "Invalid request",
+		issues: parsed.error.issues
+	}, 400);
+	await recordMutatingOperation(aphexCMS, authToContext(auth), parsed.data.changeSetId, parsed.data.toolName, {
+		collection: parsed.data.collection,
+		id: parsed.data.id,
+		...parsed.data.arguments
+	}, parsed.data.success, parsed.data.error, parsed.data.data);
+	return c.json({ success: true });
+});
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/routes/agent-change-sets.js
+var listChangeSetsQuery = z.object({
+	limit: z.coerce.number().int().min(1).max(200).optional(),
+	offset: z.coerce.number().int().min(0).optional()
+});
+/** Map an adapter Page into the ApiResponse `pagination` shape the client expects. */
+function toPagination(page) {
+	const pageSize = page.limit || 1;
+	return {
+		total: page.total,
+		page: Math.floor(page.offset / pageSize) + 1,
+		pageSize,
+		totalPages: Math.max(1, Math.ceil(page.total / pageSize)),
+		hasNextPage: page.offset + page.limit < page.total,
+		hasPrevPage: page.offset > 0
+	};
+}
+var agentChangeSetsRouter = new Hono().get("/change-sets", async (c) => {
+	const auth = c.var.auth;
+	if (!auth || auth.type === "partial_session") return c.json({
+		success: false,
+		error: "Authentication required"
+	}, 401);
+	if (!hasCapability(auth, "document.read")) return c.json({
+		success: false,
+		error: "Insufficient permissions"
+	}, 403);
+	const q = listChangeSetsQuery.safeParse(c.req.query());
+	if (!q.success) return c.json({
+		success: false,
+		error: "Invalid query parameters",
+		issues: q.error.issues
+	}, 400);
+	const { organizationId } = authToContext(auth);
+	const page = await c.var.aphexCMS.databaseAdapter.listChangeSets({
+		organizationId,
+		limit: q.data.limit,
+		offset: q.data.offset
+	});
+	const items = await withCreatedByNames(page.items, c.var.aphexCMS.auth);
+	return c.json({
+		success: true,
+		data: items,
+		pagination: toPagination(page)
+	});
+}).get("/change-sets/:id", async (c) => {
+	const auth = c.var.auth;
+	if (!auth || auth.type === "partial_session") return c.json({
+		success: false,
+		error: "Authentication required"
+	}, 401);
+	if (!hasCapability(auth, "document.read")) return c.json({
+		success: false,
+		error: "Insufficient permissions"
+	}, 403);
+	const { organizationId } = authToContext(auth);
+	const changeSet = await c.var.aphexCMS.databaseAdapter.getChangeSet(organizationId, c.req.param("id"));
+	if (!changeSet) return c.json({
+		success: false,
+		error: "Not found"
+	}, 404);
+	const [withName] = await withCreatedByNames([changeSet], c.var.aphexCMS.auth);
+	return c.json({
+		success: true,
+		data: withName
+	});
+}).post("/change-sets/:id/undo", async (c) => {
+	const auth = c.var.auth;
+	if (!auth || auth.type === "partial_session") return c.json({
+		success: false,
+		error: "Authentication required"
+	}, 401);
+	if (!hasCapability(auth, "document.update")) return c.json({
+		success: false,
+		error: "Insufficient permissions"
+	}, 403);
+	const context = authToContext(auth);
+	const { databaseAdapter, localAPI } = c.var.aphexCMS;
+	const changeSet = await databaseAdapter.getChangeSet(context.organizationId, c.req.param("id"));
+	if (!changeSet) return c.json({
+		success: false,
+		error: "Not found"
+	}, 404);
+	const undoable = changeSet.operations.filter((op) => op.success && op.versionBefore !== null).reverse();
+	const results = [];
+	for (const op of undoable) try {
+		const collection = localAPI.getCollection(op.collection);
+		if (!collection) {
+			results.push({
+				operationId: op.id,
+				documentId: op.documentId,
+				success: false,
+				error: `Unknown collection: ${op.collection}`
+			});
+			continue;
+		}
+		const current = await collection.findByID(context, op.documentId);
+		const restored = await localAPI.versionService.restoreVersion(databaseAdapter, context.organizationId, op.documentId, op.versionBefore, context.user?.id, current?._meta?.revision);
+		results.push({
+			operationId: op.id,
+			documentId: op.documentId,
+			success: restored !== null,
+			error: restored === null ? "Version not found or restore failed" : void 0
+		});
+	} catch (err) {
+		if (err instanceof RevisionConflictError) {
+			results.push({
+				operationId: op.id,
+				documentId: op.documentId,
+				success: false,
+				error: `Changed since the agent's edit (conflict): ${err.message}`
+			});
+			continue;
+		}
+		cmsLogger.error("[agent-change-sets] undo failed for operation:", op.id, err);
+		results.push({
+			operationId: op.id,
+			documentId: op.documentId,
+			success: false,
+			error: err instanceof Error ? err.message : "Unknown error"
+		});
+	}
+	return c.json({
+		success: true,
+		data: { results }
+	});
+});
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/server/api/index.js
 /**
 * Build the Aphex API Hono app shell.
 *
@@ -3864,6 +4517,8 @@ function mountAphexBuiltins(app) {
 	app.route("/user", userRouter);
 	app.route("/internal/workers", workersRunRouter);
 	app.route("/", jobsRouter);
+	app.route("/agent", agentChatRouter);
+	app.route("/agent", agentChangeSetsRouter);
 	app.get("/aphex-health", async (c) => {
 		try {
 			const { databaseAdapter } = c.var.aphexCMS;
@@ -3908,7 +4563,7 @@ function toHonoHandler(skHandler) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/hooks.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/hooks.js
 /**
 * Wrap a plugin route handler so it enforces `requiredCapabilities` before running.
 * 401 when there's no authenticated principal at all; 403 when authenticated but
@@ -3971,6 +4626,7 @@ function createCMSHook(config) {
 			const databaseAdapter = currentConfig.database;
 			const storageAdapter = currentConfig.storage ?? createDefaultStorageAdapter();
 			const emailAdapter = currentConfig.email ?? null;
+			const aiProvider = currentConfig.aiProvider ?? null;
 			const assetService = new AssetService(storageAdapter, databaseAdapter);
 			const cmsEngine = createCMS(currentConfig, databaseAdapter);
 			const rolesService = new RolesService(databaseAdapter, currentConfig.cache ?? null);
@@ -4023,6 +4679,7 @@ function createCMSHook(config) {
 				assetService,
 				storageAdapter,
 				emailAdapter,
+				aiProvider,
 				cmsEngine,
 				localAPI,
 				rolesService,
@@ -4054,7 +4711,7 @@ function createCMSHook(config) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/routes/assets-cdn.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/routes/assets-cdn.js
 var GET = async ({ params, locals, setHeaders, request }) => {
 	try {
 		const { assetService, databaseAdapter, storageAdapter, cmsEngine, config } = locals.aphexCMS;

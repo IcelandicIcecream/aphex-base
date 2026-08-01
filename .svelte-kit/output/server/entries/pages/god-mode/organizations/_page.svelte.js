@@ -1,7 +1,7 @@
 import { et as escape_html, f as spread_props, l as head } from "../../../../chunks/dev.js";
+import { i as Switch } from "../../../../chunks/stega.js";
 import { t as instance } from "../../../../chunks/api.js";
 import "../../../../chunks/navigation.js";
-import { i as Switch } from "../../../../chunks/stega.js";
 import { O as Input, t as Label } from "../../../../chunks/label.js";
 import { a as Dialog_header, i as Dialog_content, n as Dialog_trigger, o as Dialog_footer, r as Dialog_description, s as Dialog_title, t as Root } from "../../../../chunks/dialog.js";
 import { t as Button } from "../../../../chunks/button.js";

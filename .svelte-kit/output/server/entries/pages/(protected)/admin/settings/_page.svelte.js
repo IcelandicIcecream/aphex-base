@@ -1,12 +1,11 @@
 import { Q as attr, et as escape_html, f as spread_props, l as head, n as attr_class, o as derived, p as stringify } from "../../../../../chunks/dev.js";
+import { C as Copy, L as Icon, k as toast } from "../../../../../chunks/stega.js";
 import { s as organizations } from "../../../../../chunks/api.js";
 import { n as invalidateAll } from "../../../../../chunks/client.js";
 import "../../../../../chunks/navigation.js";
-import { E as Icon, v as toast } from "../../../../../chunks/stega.js";
 import { O as Input, t as Label } from "../../../../../chunks/label.js";
 import { n as Avatar_image, r as Avatar, t as Avatar_fallback } from "../../../../../chunks/avatar.js";
 import { t as Button } from "../../../../../chunks/button.js";
-import { t as Copy } from "../../../../../chunks/copy.js";
 import "../../../../../chunks/ui.js";
 import { t as Upload } from "../../../../../chunks/upload.js";
 import { t as Users } from "../../../../../chunks/users.js";

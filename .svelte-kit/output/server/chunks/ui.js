@@ -2,9 +2,9 @@ import "./index-server.js";
 import { Q as attr, c as ensure_array_like, et as escape_html, f as spread_props, n as attr_class, p as stringify } from "./dev.js";
 import "./validator.js";
 import "./schema-utils.js";
+import { L as Icon, O as Calendar_clock, _ as Refresh_cw, m as Sparkles } from "./stega.js";
 import "./utils2.js";
 import { u as apiClient } from "./api.js";
-import { E as Icon, _ as Calendar_clock, f as Refresh_cw } from "./stega.js";
 import { t as Button } from "./button.js";
 import { t as Badge } from "./badge.js";
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/radio.svelte
@@ -80,11 +80,12 @@ function Radio($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/ActivityView.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/ActivityView.svelte
 function ActivityView($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let jobs = [];
 		let events = [];
+		let changeSets = [];
 		let loading = false;
 		let error = null;
 		let total = 0;
@@ -126,7 +127,7 @@ function ActivityView($$renderer, $$props) {
 				loading = false;
 			}
 		}
-		$$renderer.push(`<div class="mx-auto w-full max-w-5xl p-4 sm:p-6"><div class="mb-4 flex items-center justify-between gap-3"><div><h1 class="text-lg font-semibold">Activity</h1> <p class="text-muted-foreground text-sm">Scheduled jobs and the domain-event log.</p></div> `);
+		$$renderer.push(`<div class="mx-auto w-full max-w-5xl p-4 sm:p-6"><div class="mb-4 flex items-center justify-between gap-3"><div><h1 class="text-lg font-semibold">Activity</h1> <p class="text-muted-foreground text-sm">Scheduled jobs, the domain-event log, and the AI assistant's audit trail.</p></div> `);
 		Button($$renderer, {
 			variant: "outline",
 			size: "sm",
@@ -143,7 +144,9 @@ function ActivityView($$renderer, $$props) {
 		Calendar_clock($$renderer, { class: "h-3.5 w-3.5" });
 		$$renderer.push(`<!----> Jobs</button> <button${attr_class(`flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition-colors ${stringify("text-muted-foreground hover:text-foreground border-transparent")}`)}>`);
 		Radio($$renderer, { class: "h-3.5 w-3.5" });
-		$$renderer.push(`<!----> Events</button></div> `);
+		$$renderer.push(`<!----> Events</button> <button${attr_class(`flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm transition-colors ${stringify("text-muted-foreground hover:text-foreground border-transparent")}`)}>`);
+		Sparkles($$renderer, { class: "h-3.5 w-3.5" });
+		$$renderer.push(`<!----> Agent Changes</button></div> `);
 		{
 			$$renderer.push("<!--[0-->");
 			$$renderer.push(`<div class="mb-3 flex flex-wrap items-center gap-1.5"><!--[-->`);
@@ -158,7 +161,7 @@ function ActivityView($$renderer, $$props) {
 		if (error) {
 			$$renderer.push("<!--[0-->");
 			$$renderer.push(`<div class="border-destructive/40 bg-destructive/10 text-destructive rounded-md border p-3 text-sm">${escape_html(error)}</div>`);
-		} else if (loading && jobs.length === 0 && events.length === 0) {
+		} else if (loading && jobs.length === 0 && events.length === 0 && changeSets.length === 0) {
 			$$renderer.push("<!--[1-->");
 			$$renderer.push(`<div class="text-muted-foreground p-8 text-center text-sm">Loading…</div>`);
 		} else {

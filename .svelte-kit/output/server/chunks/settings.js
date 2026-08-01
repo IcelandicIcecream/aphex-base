@@ -1,4 +1,4 @@
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/schema-utils/settings.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/schema-utils/settings.js
 /**
 * The select options for a settings field, normalized from `StringField.list`'s
 * loose shape (bare strings, or `{title, value}` objects) — empty when the field

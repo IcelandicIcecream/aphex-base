@@ -1,6 +1,6 @@
 import "./index-server.js";
 import { f as spread_props, gt as getContext } from "./dev.js";
-import { E as Icon } from "./stega.js";
+import { L as Icon } from "./stega.js";
 import { t as settingsHeaderActionContextKey } from "./settings-header-actions.js";
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/plus.svelte
 function Plus($$renderer, $$props) {

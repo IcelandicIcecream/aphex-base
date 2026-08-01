@@ -1,5 +1,5 @@
 import { c as mergeCapabilityCatalog, i as defineCapability } from "./capabilities.js";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/plugins/resolver.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/plugins/resolver.js
 function createPartResolver(plugins = []) {
 	const allParts = plugins.flatMap((p) => p.parts ?? []);
 	const seen = /* @__PURE__ */ new Map();
@@ -14,6 +14,12 @@ function createPartResolver(plugins = []) {
 		if (part.implements !== "aphex/settings") continue;
 		if (settingsIds.has(part.pluginId)) throw new Error(`Duplicate plugin settings declaration for "${part.pluginId}". Each plugin may declare settings once.`);
 		settingsIds.add(part.pluginId);
+	}
+	const agentToolNames = /* @__PURE__ */ new Set();
+	for (const part of allParts) {
+		if (part.implements !== "aphex/agent/tool") continue;
+		if (agentToolNames.has(part.definition.name)) throw new Error(`Duplicate agent tool name "${part.definition.name}". Tool names must be unique across all plugins.`);
+		agentToolNames.add(part.definition.name);
 	}
 	const getParts = (kind) => allParts.filter((p) => p.implements === kind);
 	const hasCaps = (required, caps, overrideAccess) => overrideAccess || !required || required.length === 0 || required.every((c) => caps.includes(c));
@@ -43,7 +49,8 @@ function createPartResolver(plugins = []) {
 			...part.handlers
 		}), {}),
 		eventConsumers: () => getParts("aphex/event/consumer"),
-		consumersForEvent: (eventType) => getParts("aphex/event/consumer").filter((c) => c.events.includes(eventType))
+		consumersForEvent: (eventType) => getParts("aphex/event/consumer").filter((c) => c.events.includes(eventType)),
+		agentToolsForCapabilities: (capabilities, overrideAccess = false) => getParts("aphex/agent/tool").filter((t) => hasCaps(t.definition.requiredCapabilities, capabilities, overrideAccess))
 	};
 }
 //#endregion

@@ -1,5 +1,5 @@
 import { a as bind_props, f as spread_props, i as attributes, o as derived, u as props_id } from "./dev.js";
-import { ct as watch, lt as Context, ot as DOMContext } from "./stega.js";
+import { _t as DOMContext, bt as Context, yt as watch } from "./stega.js";
 import { t as cn } from "./utils3.js";
 import { f as attachRef, n as createId, p as mergeProps, s as createBitsAttrs, x as boxWith } from "./label.js";
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/avatar/avatar.svelte.js
@@ -217,10 +217,10 @@ function Avatar_fallback$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar.svelte
 function Avatar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { ref = null, loadingStatus = "loading", class: className, $$slots, $$events, ...restProps } = $$props;
+		let { ref = null, loadingStatus = "loading", class: className, size = "default", $$slots, $$events, ...restProps } = $$props;
 		let $$settled = true;
 		let $$inner_renderer;
 		function $$render_inner($$renderer) {
@@ -229,7 +229,8 @@ function Avatar($$renderer, $$props) {
 				Avatar$1($$renderer, spread_props([
 					{
 						"data-slot": "avatar",
-						class: cn("relative flex size-8 shrink-0 overflow-hidden rounded-full", className)
+						"data-size": size,
+						class: cn("cn-avatar group/avatar relative flex size-8 shrink-0 overflow-hidden rounded-full", className)
 					},
 					restProps,
 					{
@@ -268,7 +269,7 @@ function Avatar($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar-image.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar-image.svelte
 function Avatar_image($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -280,7 +281,7 @@ function Avatar_image($$renderer, $$props) {
 				Avatar_image$1($$renderer, spread_props([
 					{
 						"data-slot": "avatar-image",
-						class: cn("aspect-square size-full", className)
+						class: cn("cn-avatar-image aspect-square size-full", className)
 					},
 					restProps,
 					{
@@ -309,7 +310,7 @@ function Avatar_image($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar-fallback.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar-fallback.svelte
 function Avatar_fallback($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -321,7 +322,7 @@ function Avatar_fallback($$renderer, $$props) {
 				Avatar_fallback$1($$renderer, spread_props([
 					{
 						"data-slot": "avatar-fallback",
-						class: cn("bg-muted flex size-full items-center justify-center rounded-full", className)
+						class: cn("cn-avatar-fallback bg-muted flex size-full items-center justify-center rounded-full", className)
 					},
 					restProps,
 					{

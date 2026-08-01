@@ -78,6 +78,7 @@ declare module '$env/static/private' {
 	export const LOGNAME: string;
 	export const RUNNER_OS: string;
 	export const GITHUB_API_URL: string;
+	export const GITHUB_ARTIFACTS: string;
 	export const SWIFT_PATH: string;
 	export const pnpm_config_verify_deps_before_run: string;
 	export const CHROMEWEBDRIVER: string;
@@ -164,6 +165,7 @@ declare module '$env/static/private' {
 	export const npm_command: string;
 	export const PNPM_SCRIPT_SRC_DIR: string;
 	export const ANDROID_NDK: string;
+	export const GITHUB_ARTIFACTS_LIST: string;
 	export const SGX_AESM_ADDR: string;
 	export const PSModulePath: string;
 	export const CHROME_BIN: string;
@@ -300,6 +302,7 @@ declare module '$env/dynamic/private' {
 		LOGNAME: string;
 		RUNNER_OS: string;
 		GITHUB_API_URL: string;
+		GITHUB_ARTIFACTS: string;
 		SWIFT_PATH: string;
 		pnpm_config_verify_deps_before_run: string;
 		CHROMEWEBDRIVER: string;
@@ -386,6 +389,7 @@ declare module '$env/dynamic/private' {
 		npm_command: string;
 		PNPM_SCRIPT_SRC_DIR: string;
 		ANDROID_NDK: string;
+		GITHUB_ARTIFACTS_LIST: string;
 		SGX_AESM_ADDR: string;
 		PSModulePath: string;
 		CHROME_BIN: string;

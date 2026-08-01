@@ -4,13 +4,13 @@ import "../../../../chunks/validator.js";
 import { t as cmsLogger } from "../../../../chunks/logger.js";
 import "../../../../chunks/schema-utils.js";
 import { t as createPartResolver } from "../../../../chunks/resolver.js";
+import { $ as isValidIndex, A as Circle_check, At as resolvePreviewTitle, Ct as setBlockPreviews, Dt as setFieldComponents, E as Chevron_down, Et as setAdminNav, G as Floating_layer_anchor, H as SafePolygon, I as X, K as Floating_layer, L as Icon, O as Calendar_clock, Ot as useAdminSlots, Q as chunk, R as Separator, St as useSidebar, T as Chevron_right, Tt as usePermissions, U as Popper_layer_force_mount, W as Popper_layer, Z as useId, _ as Refresh_cw, _t as DOMContext, at as noop$1, b as Image, bt as Context, ct as isBrowser, d as notifyDocumentChanged, dt as isTouch, et as isTabbable, ft as ARROW_DOWN, g as Search, gt as ENTER, ht as ARROW_UP, k as toast, kt as setSchemaContext, lt as isElement, mt as ARROW_RIGHT, n as confirmDialog, nt as resolveLocaleProp, ot as PresenceManager, p as Trash_2, pt as ARROW_LEFT, q as getFloatingContentCSSVars, st as RovingFocusGroup, t as ConfirmDialogHost, tt as Portal, ut as isHTMLElement, vt as afterTick, w as Circle_alert, wt as setPermissionsContext, x as File_text, xt as srOnlyStylesString, yt as watch } from "../../../../chunks/stega.js";
 import "../../../../chunks/utils2.js";
 import { a as assets, c as documents, l as ApiError } from "../../../../chunks/api.js";
 import { t as collectReferenceIds } from "../../../../chunks/reference-walk.js";
 import { t as goto } from "../../../../chunks/client.js";
 import "../../../../chunks/navigation.js";
 import { t as page } from "../../../../chunks/state.js";
-import { $ as isHTMLElement, B as useId, D as Separator, E as Icon, F as Floating_layer, G as resolveLocaleProp, H as isValidIndex, I as getFloatingContentCSSVars, J as noop$1, M as Popper_layer_force_mount, N as Popper_layer, P as Floating_layer_anchor, Q as isElement, T as X, U as isTabbable, V as chunk, W as Portal, X as RovingFocusGroup, Y as PresenceManager, Z as isBrowser, _ as Calendar_clock, _t as useAdminSlots, at as ENTER, ct as watch, dt as useSidebar, et as isTouch, f as Refresh_cw, ft as setBlockPreviews, gt as setFieldComponents, h as Chevron_down, ht as setAdminNav, it as ARROW_UP, j as SafePolygon, lt as Context, m as Chevron_right, mt as usePermissions, n as confirmDialog, nt as ARROW_LEFT, ot as DOMContext, pt as setPermissionsContext, rt as ARROW_RIGHT, st as afterTick, t as ConfirmDialogHost, tt as ARROW_DOWN, ut as srOnlyStylesString, v as toast, vt as setSchemaContext, y as Circle_check } from "../../../../chunks/stega.js";
 import { a as SvelteMap, o as SvelteSet, s as SvelteURLSearchParams } from "../../../../chunks/dist5.js";
 import { t as cn } from "../../../../chunks/utils3.js";
 import { O as Input, d as getDataTransitionAttrs, f as attachRef, i as boolToStr, n as createId, o as boolToTrueOrUndef, p as mergeProps, r as boolToEmptyStrOrUndef, s as createBitsAttrs, t as Label, u as getDataOpenClosed, x as boxWith } from "../../../../chunks/label.js";
@@ -19,8 +19,6 @@ import { t as Checkbox } from "../../../../chunks/checkbox.js";
 import { n as buttonVariants, t as Button } from "../../../../chunks/button.js";
 import { t as External_link } from "../../../../chunks/external-link.js";
 import { t as Lock } from "../../../../chunks/lock.js";
-import { t as Search } from "../../../../chunks/search.js";
-import { t as Trash_2 } from "../../../../chunks/trash-2.js";
 import { t as Upload } from "../../../../chunks/upload.js";
 import { t as Badge } from "../../../../chunks/badge.js";
 import "../../../../chunks/card.js";
@@ -29,7 +27,7 @@ import { t as activeTabState } from "../../../../chunks/activeTab.svelte.js";
 import { t as schemaTypes } from "../../../../chunks/schemaTypes.js";
 import { n as Alert_description, r as Alert, t as Alert_title } from "../../../../chunks/alert.js";
 import { CalendarDate, CalendarDateTime, DateFormatter, ZonedDateTime, endOfMonth, getDayOfWeek, getLocalTimeZone, isEqualMonth, isSameDay, isSameMonth, isToday, parseDate, parseDateTime, parseZonedDateTime, startOfMonth, toCalendar, today } from "@internationalized/date";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
 /**
 * Content hashing utilities for document version tracking
 * Includes timestamp for proper change detection and UX
@@ -80,89 +78,6 @@ function createPublishedHash(data) {
 function hasUnpublishedChanges(draftData, publishedHash) {
 	if (!publishedHash) return true;
 	return createPublishedHash(draftData) !== publishedHash;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/utils/preview.js
-/**
-* Walk a dot-path (e.g. `seo.title`) through an object. Returns the
-* terminal value, or `undefined` if any segment along the way is missing.
-*
-* Quoted strings (single or double) are treated as literals and returned
-* as-is, e.g. `'"My Title"'` → `'My Title'`. Useful for singletons or
-* any schema that needs a static preview title.
-*/
-function readPath(item, path) {
-	const match = path.match(/^(['"])(.+)\1$/);
-	if (match) return match[2];
-	let current = item;
-	for (const segment of path.split(".")) {
-		if (current == null) return void 0;
-		current = current[segment];
-	}
-	return current;
-}
-/**
-* Coerce a value into a printable string for preview rows. Returns `null`
-* when the value isn't worth rendering (empty, nullish, non-primitive).
-*/
-function toPreviewString(value) {
-	if (typeof value === "string") {
-		const trimmed = value.trim();
-		return trimmed ? trimmed : null;
-	}
-	if (typeof value === "number" && Number.isFinite(value)) return String(value);
-	if (typeof value === "boolean") return value ? "true" : "false";
-	return null;
-}
-/**
-* Conventional fallback field names for the title slot when a schema
-* doesn't declare a `preview.select.title`. Mirrors Sanity's heuristic
-* — the first non-empty string wins.
-*/
-var DEFAULT_TITLE_FIELDS = [
-	"title",
-	"heading",
-	"name",
-	"label"
-];
-/**
-* Run `preview.prepare` if defined: resolve every dot-path in `select`,
-* pass the resolved selection map to `prepare`, and return the result.
-* Returns `null` when no `prepare` is configured — callers should fall
-* back to direct `select.title` / `select.subtitle` reads in that case.
-*/
-function runPrepare(item, schema) {
-	const prepare = schema?.preview?.prepare;
-	if (!prepare) return null;
-	const select = schema?.preview?.select ?? {};
-	const selection = {};
-	for (const [key, path] of Object.entries(select)) selection[key] = readPath(item, path);
-	return prepare(selection);
-}
-/**
-* Resolve the title to display for an item (array row, document list row,
-* reference picker row, editor breadcrumb). Precedence: `preview.prepare()` →
-* literal `preview.title` → `select.title` dot-path → conventional field names →
-* schema title → type name.
-*/
-function resolvePreviewTitle(item, schema, defaultTypeLabel) {
-	const prepared = runPrepare(item, schema);
-	if (prepared) {
-		const resolved = toPreviewString(prepared.title);
-		if (resolved) return resolved;
-	} else {
-		const literal = toPreviewString(schema?.preview?.title);
-		if (literal) return literal;
-		const configured = schema?.preview?.select?.title;
-		if (configured) {
-			const resolved = toPreviewString(readPath(item, configured));
-			if (resolved) return resolved;
-		} else for (const name of DEFAULT_TITLE_FIELDS) {
-			const resolved = toPreviewString(item?.[name]);
-			if (resolved) return resolved;
-		}
-	}
-	return schema?.title ?? defaultTypeLabel ?? "Untitled";
 }
 //#endregion
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/internal/date-time/announcer.js
@@ -3207,87 +3122,6 @@ function Chevron_left($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/circle-alert.svelte
-function Circle_alert($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		/**
-		* @license @lucide/svelte v0.554.0 - ISC
-		*
-		* ISC License
-		*
-		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-		*
-		* Permission to use, copy, modify, and/or distribute this software for any
-		* purpose with or without fee is hereby granted, provided that the above
-		* copyright notice and this permission notice appear in all copies.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-		*
-		* ---
-		*
-		* The MIT License (MIT) (for portions derived from Feather)
-		*
-		* Copyright (c) 2013-2023 Cole Bemis
-		*
-		* Permission is hereby granted, free of charge, to any person obtaining a copy
-		* of this software and associated documentation files (the "Software"), to deal
-		* in the Software without restriction, including without limitation the rights
-		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		* copies of the Software, and to permit persons to whom the Software is
-		* furnished to do so, subject to the following conditions:
-		*
-		* The above copyright notice and this permission notice shall be included in all
-		* copies or substantial portions of the Software.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		* SOFTWARE.
-		*
-		*/
-		let { $$slots, $$events, ...props } = $$props;
-		Icon($$renderer, spread_props([
-			{ name: "circle-alert" },
-			props,
-			{
-				iconNode: [
-					["circle", {
-						"cx": "12",
-						"cy": "12",
-						"r": "10"
-					}],
-					["line", {
-						"x1": "12",
-						"x2": "12",
-						"y1": "8",
-						"y2": "12"
-					}],
-					["line", {
-						"x1": "12",
-						"x2": "12.01",
-						"y1": "16",
-						"y2": "16"
-					}]
-				],
-				children: ($$renderer) => {
-					props.children?.($$renderer);
-					$$renderer.push(`<!---->`);
-				},
-				$$slots: { default: true }
-			}
-		]));
-	});
-}
-//#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/code.svelte
 function Code($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -3569,75 +3403,6 @@ function File_image($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/file-text.svelte
-function File_text($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		/**
-		* @license @lucide/svelte v0.554.0 - ISC
-		*
-		* ISC License
-		*
-		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-		*
-		* Permission to use, copy, modify, and/or distribute this software for any
-		* purpose with or without fee is hereby granted, provided that the above
-		* copyright notice and this permission notice appear in all copies.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-		*
-		* ---
-		*
-		* The MIT License (MIT) (for portions derived from Feather)
-		*
-		* Copyright (c) 2013-2023 Cole Bemis
-		*
-		* Permission is hereby granted, free of charge, to any person obtaining a copy
-		* of this software and associated documentation files (the "Software"), to deal
-		* in the Software without restriction, including without limitation the rights
-		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		* copies of the Software, and to permit persons to whom the Software is
-		* furnished to do so, subject to the following conditions:
-		*
-		* The above copyright notice and this permission notice shall be included in all
-		* copies or substantial portions of the Software.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		* SOFTWARE.
-		*
-		*/
-		let { $$slots, $$events, ...props } = $$props;
-		Icon($$renderer, spread_props([
-			{ name: "file-text" },
-			props,
-			{
-				iconNode: [
-					["path", { "d": "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" }],
-					["path", { "d": "M14 2v5a1 1 0 0 0 1 1h5" }],
-					["path", { "d": "M10 9H8" }],
-					["path", { "d": "M16 13H8" }],
-					["path", { "d": "M16 17H8" }]
-				],
-				children: ($$renderer) => {
-					props.children?.($$renderer);
-					$$renderer.push(`<!---->`);
-				},
-				$$slots: { default: true }
-			}
-		]));
-	});
-}
-//#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/globe.svelte
 function Globe($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -3840,84 +3605,6 @@ function History($$renderer, $$props) {
 					["path", { "d": "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }],
 					["path", { "d": "M3 3v5h5" }],
 					["path", { "d": "M12 7v5l4 2" }]
-				],
-				children: ($$renderer) => {
-					props.children?.($$renderer);
-					$$renderer.push(`<!---->`);
-				},
-				$$slots: { default: true }
-			}
-		]));
-	});
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/image.svelte
-function Image($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		/**
-		* @license @lucide/svelte v0.554.0 - ISC
-		*
-		* ISC License
-		*
-		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-		*
-		* Permission to use, copy, modify, and/or distribute this software for any
-		* purpose with or without fee is hereby granted, provided that the above
-		* copyright notice and this permission notice appear in all copies.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-		*
-		* ---
-		*
-		* The MIT License (MIT) (for portions derived from Feather)
-		*
-		* Copyright (c) 2013-2023 Cole Bemis
-		*
-		* Permission is hereby granted, free of charge, to any person obtaining a copy
-		* of this software and associated documentation files (the "Software"), to deal
-		* in the Software without restriction, including without limitation the rights
-		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		* copies of the Software, and to permit persons to whom the Software is
-		* furnished to do so, subject to the following conditions:
-		*
-		* The above copyright notice and this permission notice shall be included in all
-		* copies or substantial portions of the Software.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		* SOFTWARE.
-		*
-		*/
-		let { $$slots, $$events, ...props } = $$props;
-		Icon($$renderer, spread_props([
-			{ name: "image" },
-			props,
-			{
-				iconNode: [
-					["rect", {
-						"width": "18",
-						"height": "18",
-						"x": "3",
-						"y": "3",
-						"rx": "2",
-						"ry": "2"
-					}],
-					["circle", {
-						"cx": "9",
-						"cy": "9",
-						"r": "2"
-					}],
-					["path", { "d": "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" }]
 				],
 				children: ($$renderer) => {
 					props.children?.($$renderer);
@@ -4657,7 +4344,7 @@ function Zoom_out($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs.svelte
 function Tabs($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, value = "", class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4708,7 +4395,7 @@ function Tabs($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs-content.svelte
 function Tabs_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4749,7 +4436,7 @@ function Tabs_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar.svelte
 function Calendar_1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, value = void 0, placeholder = void 0, class: className, weekdayFormat = "short", buttonVariant = "ghost", captionLayout = "label", locale = "en-US", months: monthsProp, years, monthFormat: monthFormatProp, yearFormat = "numeric", day, disableDaysOutsideMonth = false, $$slots, $$events, ...restProps } = $$props;
@@ -5046,7 +4733,7 @@ function Calendar_1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-cell.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-cell.svelte
 function Calendar_cell($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5084,7 +4771,7 @@ function Calendar_cell($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-day.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-day.svelte
 function Calendar_day($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5122,7 +4809,7 @@ function Calendar_day($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid.svelte
 function Calendar_grid($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5160,7 +4847,7 @@ function Calendar_grid($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-header.svelte
 function Calendar_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5198,7 +4885,7 @@ function Calendar_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-months.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-months.svelte
 function Calendar_months($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -5212,7 +4899,7 @@ function Calendar_months($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-row.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-row.svelte
 function Calendar_grid_row($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5250,7 +4937,7 @@ function Calendar_grid_row($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-body.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-body.svelte
 function Calendar_grid_body($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5288,7 +4975,7 @@ function Calendar_grid_body($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-head.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-head.svelte
 function Calendar_grid_head($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5326,7 +5013,7 @@ function Calendar_grid_head($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-head-cell.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-head-cell.svelte
 function Calendar_head_cell($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5364,7 +5051,7 @@ function Calendar_head_cell($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-next-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-next-button.svelte
 function Fallback$1($$renderer) {
 	Chevron_right($$renderer, { class: "size-4" });
 }
@@ -5408,7 +5095,7 @@ function Calendar_next_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-prev-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-prev-button.svelte
 function Fallback($$renderer) {
 	Chevron_left($$renderer, { class: "size-4" });
 }
@@ -5452,7 +5139,7 @@ function Calendar_prev_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month-select.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month-select.svelte
 function Calendar_month_select($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, value, onchange, $$slots, $$events, ...restProps } = $$props;
@@ -5519,7 +5206,7 @@ function Calendar_month_select($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-year-select.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-year-select.svelte
 function Calendar_year_select($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, value, $$slots, $$events, ...restProps } = $$props;
@@ -5585,7 +5272,7 @@ function Calendar_year_select($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month.svelte
 function Calendar_month($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -5599,7 +5286,7 @@ function Calendar_month($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-nav.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-nav.svelte
 function Calendar_nav($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -5613,7 +5300,7 @@ function Calendar_nav($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-caption.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-caption.svelte
 function Calendar_caption($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { captionLayout, months, monthFormat, years, yearFormat, month, locale, placeholder = void 0, monthIndex = 0 } = $$props;
@@ -5679,7 +5366,7 @@ function Calendar_caption($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-content.svelte
 function Popover_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, sideOffset = 4, align = "center", portalProps, $$slots, $$events, ...restProps } = $$props;
@@ -5734,7 +5421,7 @@ function Popover_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-trigger.svelte
 function Popover_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5775,10 +5462,10 @@ function Popover_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/popover/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/popover/index.js
 var Root = Popover;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
 /**
 * Copy a URL to the clipboard, showing a toast on success/failure.
 */
@@ -5805,7 +5492,7 @@ function downloadFile(url, filename) {
 	document.body.removeChild(a);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
 function MediaBrowser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/** When true, shows a "Select" button for picking an asset */
@@ -6685,7 +6372,7 @@ function MediaBrowser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
 /**
 * Simple English pluralization.
 * Handles common patterns: y→ies, s/sh/ch/x/z→es, otherwise appends s.
@@ -6697,20 +6384,13 @@ function pluralize(word) {
 	return word + "s";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/document-refresh.svelte.js
-var versions = new SvelteMap();
-function notifyDocumentChanged(documentId) {
-	if (!documentId) return;
-	versions.set(documentId, (versions.get(documentId) ?? 0) + 1);
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
 var SAVE_STATE_KEY = Symbol("aphex-save-state");
 function setSaveStateContext(state) {
 	setContext(SAVE_STATE_KEY, state);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
 function AdminSlot($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { name, id, order = 0, children } = $$props;
@@ -6718,7 +6398,7 @@ function AdminSlot($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/ScheduleDialog.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/ScheduleDialog.svelte
 function ScheduleDialog($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -6971,7 +6651,7 @@ function ScheduleDialog($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
 var KEY = Symbol("aphex:richtext-editors");
 function setRichtextEditorRegistry() {
 	const registry = /* @__PURE__ */ new Map();
@@ -6979,7 +6659,7 @@ function setRichtextEditorRegistry() {
 	return registry;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
 function parsedValue($$renderer, key, val, depth) {
 	if (val && typeof val === "object") {
 		$$renderer.push("<!--[0-->");
@@ -7058,6 +6738,11 @@ function DocumentEditor($$renderer, $$props) {
 		/** When set, the close control renders as a labelled "← {backLabel}" button
 		*  instead of a bare close (✕) icon — used for reference editors so the action
 		*  reads as "go back" rather than "close". */
+		/** Suppresses the bottom action bar (Publish / Schedule / Unpublish / Delete).
+		*  Set by the host when another editor is stacked on top of this one and owns
+		*  the actions instead — two action bars in the same corner give no clue which
+		*  document each one publishes. This hides the bar only; the document keeps
+		*  auto-saving and its status stays visible in the header. */
 		/** When true, the host has hidden side panels — show a Minimize toggle. */
 		/** Toggle host-driven focus mode. Omit to hide the focus button entirely. */
 		/** When true, split the editor with a live preview iframe on the right. */
@@ -7069,7 +6754,7 @@ function DocumentEditor($$renderer, $$props) {
 		/** Toggle host-driven presentation mode. Omit to hide the button entirely. */
 		/** Organization ID from the host context — used as fallback for new docs that haven't been saved yet. */
 		/** Build-time plugins; their document-action parts render in the toolbar. */
-		let { schemas, documentType, documentId, isCreating, onBack, backLabel, onSaved, onAutoSaved, onDeleted, onPublished, onUnpublished, onRestored, onOpenReference, onOpenVersionHistory, externalVersionPreview = null, isReadOnly = false, focusMode = false, onToggleFocus, presentationMode = false, refreshToken = 0, onTogglePresentation, organizationId = null, plugins = [] } = $$props;
+		let { schemas, documentType, documentId, isCreating, onBack, backLabel, onSaved, onAutoSaved, onDeleted, onPublished, onUnpublished, onRestored, onOpenReference, onOpenVersionHistory, externalVersionPreview = null, isReadOnly = false, hideActionBar = false, focusMode = false, onToggleFocus, presentationMode = false, refreshToken = 0, onTogglePresentation, organizationId = null, plugins = [] } = $$props;
 		setSchemaContext(schemas);
 		setRichtextEditorRegistry();
 		const perms = usePermissions();
@@ -7220,10 +6905,10 @@ function DocumentEditor($$renderer, $$props) {
 			for (const key of sortedKeys) sortedObj[key] = sortObjectForComparison(item[key]);
 			return sortedObj;
 		}
-		async function saveDocument(isAutoSave = false) {
-			if (saving) return;
-			saving = true;
-			saveError = null;
+		/** The actual persist — no toasts, no side-effect UI updates, just the write + CAS-conflict
+		* detection, returning a result `DocumentWorkspace.flushSave` can also consume directly.
+		* `saveDocument` (below) is the UI-facing wrapper that adds toasts/state-sync around this. */
+		async function performSave() {
 			try {
 				let response;
 				if (isCreating) {
@@ -7240,9 +6925,15 @@ function DocumentEditor($$renderer, $$props) {
 						cmsLogger.debug("[Document Editor]", "✅ Document created successfully with ID:", response.data.id);
 						fullDocument = response.data;
 						onSaved?.(response.data.id);
-					} else toast.error(response?.error || "Failed to create document");
+					} else return {
+						success: false,
+						error: response?.error || "Failed to create document"
+					};
 				} else if (documentId) {
-					response = await documents.updateById(documentId, { data: documentData });
+					response = await documents.updateById(documentId, {
+						data: documentData,
+						expectedRevision: fullDocument?._meta?.revision
+					});
 					if (response?.success && response.data) {
 						cmsLogger.debug("[Document Editor]", "meta response data:", response.data);
 						const { id: responseId, _meta } = response.data;
@@ -7253,23 +6944,54 @@ function DocumentEditor($$renderer, $$props) {
 						};
 					}
 				}
-				if (response?.success) {
-					lastSaved = /* @__PURE__ */ new Date();
-					hasUnsavedChanges = false;
-					if (response.data?.id) notifyDocumentChanged(response.data.id);
-					if (isAutoSave) {
-						validateAllFields();
-						schemaFields.forEach((fieldComponent, index) => {});
-						if (onAutoSaved && documentId) onAutoSaved(documentId, getPreviewTitle());
-					}
-				} else throw new Error(response?.error || "Failed to save document");
+				if (response?.success) return {
+					success: true,
+					revision: fullDocument?._meta?.revision
+				};
+				return {
+					success: false,
+					error: response?.error || "Failed to save document"
+				};
 			} catch (err) {
-				toast.error(err instanceof ApiError ? err.message : "Failed to save document");
-				if (err instanceof ApiError && err.response?.validationErrors) saveError = `Validation failed: ${err.response.validationErrors.map((ve) => `${ve.field}: ${ve.errors.join(", ")}`).join("; ")}`;
-				else saveError = err instanceof ApiError ? err.message : "Failed to save document";
-			} finally {
-				saving = false;
+				if (err instanceof ApiError && err.status === 409) return {
+					success: false,
+					conflict: true,
+					error: "Conflict: this document was updated by someone else. Reload the page to continue editing."
+				};
+				if (err instanceof ApiError && err.response?.validationErrors) return {
+					success: false,
+					error: `Validation failed: ${err.response.validationErrors.map((ve) => `${ve.field}: ${ve.errors.join(", ")}`).join("; ")}`
+				};
+				return {
+					success: false,
+					error: err instanceof ApiError ? err.message : "Failed to save document"
+				};
 			}
+		}
+		async function saveDocument(isAutoSave = false) {
+			if (saving) return {
+				success: false,
+				error: "Already saving"
+			};
+			saving = true;
+			saveError = null;
+			const result = await performSave();
+			if (result.success) {
+				lastSaved = /* @__PURE__ */ new Date();
+				hasUnsavedChanges = false;
+				if (fullDocument?.id) notifyDocumentChanged(fullDocument.id);
+				if (isAutoSave) {
+					validateAllFields();
+					schemaFields.forEach((fieldComponent, index) => {});
+					if (onAutoSaved && documentId) onAutoSaved(documentId, getPreviewTitle());
+				}
+			} else {
+				if (result.conflict) toast.error("This document was changed elsewhere. Reload to see the latest version.");
+				else toast.error(result.error ?? "Failed to save document");
+				saveError = result.error ?? "Failed to save document";
+			}
+			saving = false;
+			return result;
 		}
 		async function publishDocument() {
 			if (!documentId || saving) return;
@@ -7317,7 +7039,7 @@ function DocumentEditor($$renderer, $$props) {
 			saving = true;
 			saveError = null;
 			try {
-				const response = await documents.publish(documentId);
+				const response = await documents.publish(documentId, { expectedRevision: fullDocument?._meta?.revision });
 				if (response.success && response.data) {
 					const { id: _id, _meta: _m, ...syncedData } = response.data;
 					documentData = syncedData;
@@ -7330,9 +7052,14 @@ function DocumentEditor($$renderer, $$props) {
 					if (onPublished && documentId) onPublished(documentId);
 				} else throw new Error(response.error || "Failed to publish document");
 			} catch (err) {
-				toast.error(err instanceof ApiError ? err.message : "Failed to publish document");
-				if (err instanceof ApiError && err.response?.validationErrors) saveError = `Cannot publish - Validation failed: ${err.response.validationErrors.map((ve) => `${ve.field}: ${ve.errors.join(", ")}`).join("; ")}`;
-				else saveError = err instanceof ApiError ? err.message : "Failed to publish document";
+				if (err instanceof ApiError && err.status === 409) {
+					toast.error("This document was changed elsewhere. Reload to see the latest version.");
+					saveError = "Conflict: this document was updated by someone else. Reload the page to continue editing.";
+				} else {
+					toast.error(err instanceof ApiError ? err.message : "Failed to publish document");
+					if (err instanceof ApiError && err.response?.validationErrors) saveError = `Cannot publish - Validation failed: ${err.response.validationErrors.map((ve) => `${ve.field}: ${ve.errors.join(", ")}`).join("; ")}`;
+					else saveError = err instanceof ApiError ? err.message : "Failed to publish document";
+				}
 			} finally {
 				saving = false;
 			}
@@ -7359,7 +7086,7 @@ function DocumentEditor($$renderer, $$props) {
 			saving = true;
 			saveError = null;
 			try {
-				const response = await documents.unpublish(documentId);
+				const response = await documents.unpublish(documentId, { expectedRevision: fullDocument?._meta?.revision });
 				if (response.success) {
 					fullDocument = {
 						...fullDocument,
@@ -7373,7 +7100,8 @@ function DocumentEditor($$renderer, $$props) {
 					if (onUnpublished && documentId) onUnpublished(documentId);
 				} else throw new Error(response.error || "Failed to unpublish");
 			} catch (err) {
-				toast.error(err instanceof ApiError ? err.message : "Failed to unpublish document");
+				if (err instanceof ApiError && err.status === 409) toast.error("This document was changed elsewhere. Reload to see the latest version.");
+				else toast.error(err instanceof ApiError ? err.message : "Failed to unpublish document");
 			} finally {
 				saving = false;
 			}
@@ -7676,7 +7404,7 @@ function DocumentEditor($$renderer, $$props) {
 				$$renderer.push(`<!--]--></div>`);
 			} else $$renderer.push("<!--[-1-->");
 			$$renderer.push(`<!--]--></div> `);
-			if (documentId) {
+			if (documentId && !hideActionBar) {
 				$$renderer.push("<!--[0-->");
 				$$renderer.push(`<div class="border-rule bg-background relative z-50 border-t p-4">`);
 				if (isPreviewingVersion() && activePreview()) {
@@ -7693,7 +7421,7 @@ function DocumentEditor($$renderer, $$props) {
 						onclick: async () => {
 							if (!documentId || !activePreview()) return;
 							try {
-								await documents.restoreVersion(documentId, activePreview().versionNumber);
+								await documents.restoreVersion(documentId, activePreview().versionNumber, { expectedRevision: fullDocument?._meta?.revision });
 								const docRes = await documents.getById(documentId);
 								if (docRes.success && docRes.data) {
 									fullDocument = docRes.data;
@@ -7706,8 +7434,9 @@ function DocumentEditor($$renderer, $$props) {
 								publishedData = null;
 								toast.success("Revision restored");
 								if (onRestored && documentId) onRestored(documentId);
-							} catch {
-								toast.error("Failed to restore revision");
+							} catch (err) {
+								if (err instanceof ApiError && err.status === 409) toast.error("This document was changed elsewhere. Reload to see the latest version.");
+								else toast.error("Failed to restore revision");
 							}
 						},
 						children: ($$renderer) => {
@@ -7921,7 +7650,7 @@ function DocumentEditor($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
 function DocumentVersionPanel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { documentId, onClose, onPreviewVersion } = $$props;
@@ -8024,7 +7753,7 @@ function DocumentVersionPanel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
 function AdminApp($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -8359,7 +8088,7 @@ function AdminApp($$renderer, $$props) {
 		let $$settled = true;
 		let $$inner_renderer;
 		function $$render_inner($$renderer) {
-			head("1lkapyb", $$renderer, ($$renderer) => {
+			head("rgukve", $$renderer, ($$renderer) => {
 				$$renderer.title(($$renderer) => {
 					$$renderer.push(`<title>${escape_html(activeTab.value === "structure" ? "Content" : activeTab.value === "media" ? "Media" : "Vision")} - ${escape_html(title)}</title>`);
 				});
@@ -8515,7 +8244,7 @@ function AdminApp($$renderer, $$props) {
 										$$renderer.push(`<!--]--> `);
 										if (primaryEditorState().visible) {
 											$$renderer.push("<!--[0-->");
-											$$renderer.push(`<div${attr_class(`relative transition-all duration-200 ${stringify(windowWidth < 620 ? "w-screen" : "flex-1")} h-full overflow-x-hidden overflow-y-auto ${stringify(primaryEditorState().expanded ? "" : "hidden")}`)}${attr_style(windowWidth >= 620 ? "min-width: 0;" : "")}>`);
+											$$renderer.push(`<div${attr_class(`relative transition-all duration-200 ${stringify(windowWidth < 620 ? "w-screen" : "flex-1")} h-full overflow-x-hidden ${stringify(presentationModeOn ? "overflow-y-hidden" : "overflow-y-auto")} ${stringify(primaryEditorState().expanded ? "" : "hidden")}`)}${attr_style(windowWidth >= 620 ? "min-width: 0;" : "")}>`);
 											DocumentEditor($$renderer, {
 												schemas: schemas(),
 												plugins,
@@ -8526,6 +8255,7 @@ function AdminApp($$renderer, $$props) {
 												onToggleFocus: toggleFocusMode,
 												presentationMode: presentationModeOn,
 												onTogglePresentation: togglePresentationMode,
+												hideActionBar: presentationModeOn && editorStack.length > 0,
 												refreshToken: baseRefreshToken,
 												organizationId: currentOrgId,
 												onBack: navigateBack,

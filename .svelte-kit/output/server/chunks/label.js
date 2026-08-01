@@ -3,7 +3,7 @@ import { $ as clsx$1, a as bind_props, f as spread_props, i as attributes, o as 
 import "./internal.js";
 import { t as cn } from "./utils3.js";
 import { clsx } from "clsx";
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/input/input.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/input/input.svelte
 function Input($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, value = void 0, type, files = void 0, class: className, "data-slot": dataSlot = "input", $$slots, $$events, ...restProps } = $$props;
@@ -904,7 +904,7 @@ function Label$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/label/label.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/label/label.svelte
 function Label($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;

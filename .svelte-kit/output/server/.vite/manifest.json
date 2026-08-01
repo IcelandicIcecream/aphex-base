@@ -1,8 +1,8 @@
 {
-  "../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/graphql/index.js": {
+  "../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/graphql/index.js": {
     "file": "chunks/graphql2.js",
     "name": "graphql",
-    "src": "../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/graphql/index.js",
+    "src": "../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/graphql/index.js",
     "isDynamicEntry": true,
     "imports": [
       "_graphql.js"
@@ -257,14 +257,6 @@
     "file": "chunks/consumer.js",
     "name": "consumer"
   },
-  "_copy.js": {
-    "file": "chunks/copy.js",
-    "name": "copy",
-    "imports": [
-      "_dev.js",
-      "_stega.js"
-    ]
-  },
   "_db.js": {
     "file": "chunks/db.js",
     "name": "db",
@@ -443,14 +435,6 @@
     "file": "chunks/schemaTypes.js",
     "name": "schemaTypes"
   },
-  "_search.js": {
-    "file": "chunks/search.js",
-    "name": "search",
-    "imports": [
-      "_dev.js",
-      "_stega.js"
-    ]
-  },
   "_server.js": {
     "file": "chunks/server.js",
     "name": "server",
@@ -522,9 +506,9 @@
       "_client.js"
     ]
   },
-  "_stega.BpG0bVgF.css": {
-    "file": "_app/immutable/assets/stega.BpG0bVgF.css",
-    "src": "_stega.BpG0bVgF.css"
+  "_stega.DtClSfZT.css": {
+    "file": "_app/immutable/assets/stega.DtClSfZT.css",
+    "src": "_stega.DtClSfZT.css"
   },
   "_stega.js": {
     "file": "chunks/stega.js",
@@ -547,7 +531,7 @@
       "_card.js"
     ],
     "css": [
-      "_app/immutable/assets/stega.BpG0bVgF.css"
+      "_app/immutable/assets/stega.DtClSfZT.css"
     ]
   },
   "_string-case.js": {
@@ -562,6 +546,7 @@
     "file": "chunks/tools.js",
     "name": "tools",
     "imports": [
+      "_rolldown-runtime.js",
       "_capabilities.js",
       "_validator.js",
       "_logger.js",
@@ -569,14 +554,6 @@
       "_reference-walk.js",
       "_auth-helpers.js",
       "_string-case.js"
-    ]
-  },
-  "_trash-2.js": {
-    "file": "chunks/trash-2.js",
-    "name": "trash-2",
-    "imports": [
-      "_dev.js",
-      "_stega.js"
     ]
   },
   "_ui.js": {
@@ -587,9 +564,9 @@
       "_dev.js",
       "_validator.js",
       "_schema-utils.js",
+      "_stega.js",
       "_utils2.js",
       "_api.js",
-      "_stega.js",
       "_button.js",
       "_badge.js"
     ]
@@ -670,10 +647,10 @@
     "imports": [
       "_index-server.js",
       "_dev.js",
+      "_stega.js",
       "_client.js",
       "_navigation.js",
       "_state.js",
-      "_stega.js",
       "_dist5.js",
       "_ui.js",
       "_plugins.js",
@@ -703,13 +680,13 @@
       "_logger.js",
       "_schema-utils.js",
       "_resolver.js",
+      "_stega.js",
       "_utils2.js",
       "_api.js",
       "_reference-walk.js",
       "_client.js",
       "_navigation.js",
       "_state.js",
-      "_stega.js",
       "_dist5.js",
       "_utils3.js",
       "_label.js",
@@ -718,8 +695,6 @@
       "_button.js",
       "_external-link.js",
       "_lock.js",
-      "_search.js",
-      "_trash-2.js",
       "_upload.js",
       "_badge.js",
       "_card.js",
@@ -802,14 +777,13 @@
     "isEntry": true,
     "imports": [
       "_dev.js",
+      "_stega.js",
       "_api.js",
       "_client.js",
       "_navigation.js",
-      "_stega.js",
       "_label.js",
       "_avatar.js",
       "_button.js",
-      "_copy.js",
       "_ui.js",
       "_upload.js",
       "_users.js",
@@ -830,10 +804,10 @@
     "isEntry": true,
     "imports": [
       "_dev.js",
+      "_stega.js",
       "_api.js",
       "_client.js",
       "_navigation.js",
-      "_stega.js",
       "_label.js",
       "_avatar.js",
       "_button.js",
@@ -862,17 +836,15 @@
     "isEntry": true,
     "imports": [
       "_dev.js",
+      "_stega.js",
       "_api.js",
       "_client.js",
       "_navigation.js",
-      "_stega.js",
       "_label.js",
       "_dialog.js",
       "_button.js",
-      "_copy.js",
       "_SettingsHeaderActions.js",
       "_ui.js",
-      "_trash-2.js",
       "_badge.js",
       "_card.js",
       "_alert.js"
@@ -891,15 +863,14 @@
     "isEntry": true,
     "imports": [
       "_dev.js",
+      "_stega.js",
       "_api.js",
       "_client.js",
       "_navigation.js",
-      "_stega.js",
       "_label.js",
       "_avatar.js",
       "_button.js",
       "_ui.js",
-      "_search.js",
       "_users.js",
       "_badge.js",
       "_card.js"
@@ -930,16 +901,15 @@
     "isEntry": true,
     "imports": [
       "_dev.js",
+      "_stega.js",
       "_api.js",
       "_client.js",
       "_navigation.js",
-      "_stega.js",
       "_label.js",
       "_checkbox.js",
       "_button.js",
       "_SettingsHeaderActions.js",
       "_ui.js",
-      "_trash-2.js",
       "_badge.js",
       "_card.js"
     ]
@@ -956,7 +926,7 @@
       "_dist4.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.B6RgS2bn.css"
+      "_app/immutable/assets/_layout.O6yHIGR9.css"
     ]
   },
   "src/routes/+page.server.ts": {
@@ -1084,9 +1054,9 @@
     "isEntry": true,
     "imports": [
       "_dev.js",
+      "_stega.js",
       "_api.js",
       "_navigation.js",
-      "_stega.js",
       "_label.js",
       "_dialog.js",
       "_button.js",

@@ -1,15 +1,13 @@
 import { c as ensure_array_like, et as escape_html, f as spread_props, l as head, o as derived } from "../../../../../../chunks/dev.js";
+import { C as Copy, L as Icon, Tt as usePermissions, a as Root, c as Select_item, k as toast, l as Select_group, n as confirmDialog, o as Select_trigger, p as Trash_2, s as Select_content } from "../../../../../../chunks/stega.js";
 import { r as apiKeys } from "../../../../../../chunks/api.js";
 import { n as invalidateAll } from "../../../../../../chunks/client.js";
 import "../../../../../../chunks/navigation.js";
-import { E as Icon, c as Select_content, l as Select_item, mt as usePermissions, n as confirmDialog, o as Root, s as Select_trigger, u as Select_group, v as toast } from "../../../../../../chunks/stega.js";
 import { O as Input, t as Label } from "../../../../../../chunks/label.js";
 import { a as Dialog_header, i as Dialog_content, o as Dialog_footer, r as Dialog_description, s as Dialog_title, t as Root$1 } from "../../../../../../chunks/dialog.js";
 import { t as Button } from "../../../../../../chunks/button.js";
-import { t as Copy } from "../../../../../../chunks/copy.js";
 import { n as Plus, t as SettingsHeaderActions } from "../../../../../../chunks/SettingsHeaderActions.js";
 import "../../../../../../chunks/ui.js";
-import { t as Trash_2 } from "../../../../../../chunks/trash-2.js";
 import { t as Badge } from "../../../../../../chunks/badge.js";
 import { a as Card_content, i as Card_description, n as Card_header, o as Card, t as Card_title } from "../../../../../../chunks/card.js";
 import { n as Alert_description, r as Alert } from "../../../../../../chunks/alert.js";

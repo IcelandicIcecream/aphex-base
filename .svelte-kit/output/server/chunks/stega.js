@@ -1,8 +1,8 @@
 import { a as unmount, i as tick, n as mount } from "./index-server.js";
-import { $ as clsx, Q as attr, _t as hasContext, a as bind_props, c as ensure_array_like, et as escape_html, f as spread_props, gt as getContext, ht as getAllContexts, i as attributes, n as attr_class, o as derived, p as stringify, pt as run, r as attr_style, s as element, u as props_id, vt as setContext } from "./dev.js";
+import { $ as clsx, Q as attr, _t as hasContext, a as bind_props, c as ensure_array_like, et as escape_html, f as spread_props, gt as getContext, ht as getAllContexts, i as attributes, m as html$2, n as attr_class, o as derived, p as stringify, pt as run, r as attr_style, s as element, u as props_id, vt as setContext } from "./dev.js";
 import { a as on } from "./internal.js";
 import "./settings.js";
-import "./api.js";
+import { u as apiClient } from "./api.js";
 import { t as goto } from "./client.js";
 import "./navigation.js";
 import "./dist4.js";
@@ -14,13 +14,96 @@ import { n as buttonVariants, t as Button } from "./button.js";
 import "./badge.js";
 import "./card.js";
 import { tv } from "tailwind-variants";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/schema-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/utils/preview.js
+/**
+* Walk a dot-path (e.g. `seo.title`) through an object. Returns the
+* terminal value, or `undefined` if any segment along the way is missing.
+*
+* Quoted strings (single or double) are treated as literals and returned
+* as-is, e.g. `'"My Title"'` → `'My Title'`. Useful for singletons or
+* any schema that needs a static preview title.
+*/
+function readPath(item, path) {
+	const match = path.match(/^(['"])(.+)\1$/);
+	if (match) return match[2];
+	let current = item;
+	for (const segment of path.split(".")) {
+		if (current == null) return void 0;
+		current = current[segment];
+	}
+	return current;
+}
+/**
+* Coerce a value into a printable string for preview rows. Returns `null`
+* when the value isn't worth rendering (empty, nullish, non-primitive).
+*/
+function toPreviewString(value) {
+	if (typeof value === "string") {
+		const trimmed = value.trim();
+		return trimmed ? trimmed : null;
+	}
+	if (typeof value === "number" && Number.isFinite(value)) return String(value);
+	if (typeof value === "boolean") return value ? "true" : "false";
+	return null;
+}
+/**
+* Conventional fallback field names for the title slot when a schema
+* doesn't declare a `preview.select.title`. Mirrors Sanity's heuristic
+* — the first non-empty string wins.
+*/
+var DEFAULT_TITLE_FIELDS = [
+	"title",
+	"heading",
+	"name",
+	"label"
+];
+/**
+* Run `preview.prepare` if defined: resolve every dot-path in `select`,
+* pass the resolved selection map to `prepare`, and return the result.
+* Returns `null` when no `prepare` is configured — callers should fall
+* back to direct `select.title` / `select.subtitle` reads in that case.
+*/
+function runPrepare(item, schema) {
+	const prepare = schema?.preview?.prepare;
+	if (!prepare) return null;
+	const select = schema?.preview?.select ?? {};
+	const selection = {};
+	for (const [key, path] of Object.entries(select)) selection[key] = readPath(item, path);
+	return prepare(selection);
+}
+/**
+* Resolve the title to display for an item (array row, document list row,
+* reference picker row, editor breadcrumb). Precedence: `preview.prepare()` →
+* literal `preview.title` → `select.title` dot-path → conventional field names →
+* schema title → type name.
+*/
+function resolvePreviewTitle(item, schema, defaultTypeLabel) {
+	const prepared = runPrepare(item, schema);
+	if (prepared) {
+		const resolved = toPreviewString(prepared.title);
+		if (resolved) return resolved;
+	} else {
+		const literal = toPreviewString(schema?.preview?.title);
+		if (literal) return literal;
+		const configured = schema?.preview?.select?.title;
+		if (configured) {
+			const resolved = toPreviewString(readPath(item, configured));
+			if (resolved) return resolved;
+		} else for (const name of DEFAULT_TITLE_FIELDS) {
+			const resolved = toPreviewString(item?.[name]);
+			if (resolved) return resolved;
+		}
+	}
+	return schema?.title ?? defaultTypeLabel ?? "Untitled";
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/schema-context.svelte.js
 var SCHEMA_CONTEXT_KEY = Symbol("aphex-schemas");
 function setSchemaContext(schemas) {
 	setContext(SCHEMA_CONTEXT_KEY, schemas);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/admin/slots.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/admin/slots.svelte.js
 var AdminSlots = class {
 	#slots = new SvelteMap();
 	/**
@@ -59,13 +142,13 @@ function useAdminSlots() {
 	return getContext(ADMIN_SLOTS_KEY);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/admin/field-components.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/admin/field-components.svelte.js
 var FIELD_COMPONENTS_KEY = Symbol.for("aphex.admin.field-components");
 function setFieldComponents(lookup) {
 	setContext(FIELD_COMPONENTS_KEY, lookup);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/admin/nav.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/admin/nav.svelte.js
 var ADMIN_NAV_KEY = Symbol.for("aphex.admin.nav");
 function setAdminNav(basePath = "/admin") {
 	const nav = createAdminNav(basePath);
@@ -136,7 +219,7 @@ function createAdminNav(basePath = "/admin") {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/permissions-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/permissions-context.svelte.js
 var KEY = Symbol.for("aphex.permissions");
 function setPermissionsContext(getCapabilities, getRole = () => null) {
 	const ctx = {
@@ -189,13 +272,13 @@ function warnOnce() {
 	if (typeof window !== "undefined") console.warn("[aphex] usePermissions() called outside a PermissionsContext provider. All capability checks will return false. Call setPermissionsContext() in an ancestor.");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/admin/block-previews.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/admin/block-previews.svelte.js
 var BLOCK_PREVIEWS_KEY = Symbol.for("aphex.admin.block-previews");
 function setBlockPreviews(lookup) {
 	setContext(BLOCK_PREVIEWS_KEY, lookup);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/hooks/is-mobile.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/hooks/is-mobile.svelte.js
 var DEFAULT_MOBILE_BREAKPOINT = 768;
 var IsMobile = class extends MediaQuery {
 	constructor(breakpoint = DEFAULT_MOBILE_BREAKPOINT) {
@@ -203,14 +286,14 @@ var IsMobile = class extends MediaQuery {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/constants.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/constants.js
 var SIDEBAR_COOKIE_NAME = "sidebar:state";
 var SIDEBAR_COOKIE_MAX_AGE = 3600 * 24 * 7;
 var SIDEBAR_WIDTH = "16rem";
 var SIDEBAR_WIDTH_MOBILE = "18rem";
 var SIDEBAR_WIDTH_ICON = "3rem";
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/context.svelte.js
 var SidebarState = class {
 	props;
 	#open = derived(() => this.props.open());
@@ -272,7 +355,7 @@ function useSidebar() {
 	return getContext(Symbol.for(SYMBOL_KEY));
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-content.svelte
 function Sidebar_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -288,7 +371,7 @@ function Sidebar_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-footer.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-footer.svelte
 function Sidebar_footer($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -304,7 +387,7 @@ function Sidebar_footer($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-group-label.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-group-label.svelte
 function Sidebar_group_label($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, children, child, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -329,7 +412,7 @@ function Sidebar_group_label($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-group.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-group.svelte
 function Sidebar_group($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -345,7 +428,7 @@ function Sidebar_group($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-header.svelte
 function Sidebar_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -361,7 +444,7 @@ function Sidebar_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-inset.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-inset.svelte
 function Sidebar_inset($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -10008,7 +10091,7 @@ function Tooltip_provider($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/tooltip/tooltip-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/tooltip/tooltip-trigger.svelte
 function Tooltip_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -10046,7 +10129,7 @@ function Tooltip_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/tooltip/tooltip-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/tooltip/tooltip-content.svelte
 function Tooltip_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, sideOffset = 0, side = "top", children, arrowClasses, $$slots, $$events, ...restProps } = $$props;
@@ -10125,11 +10208,11 @@ function Tooltip_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/tooltip/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/tooltip/index.js
 var Root$4 = Tooltip;
 var Provider = Tooltip_provider;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-button.svelte
 var sidebarMenuButtonVariants = tv({
 	base: "peer/menu-button outline-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground group-has-data-[sidebar=menu-action]/menu-item:pr-8 data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm transition-[width,height,padding] focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
 	variants: {
@@ -10246,7 +10329,7 @@ function Sidebar_menu_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-item.svelte
 function Sidebar_menu_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -10262,7 +10345,7 @@ function Sidebar_menu_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub-button.svelte
 function Sidebar_menu_sub_button($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, children, child, class: className, size = "md", isActive = false, $$slots, $$events, ...restProps } = $$props;
@@ -10289,7 +10372,7 @@ function Sidebar_menu_sub_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub-item.svelte
 function Sidebar_menu_sub_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, children, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -10305,7 +10388,7 @@ function Sidebar_menu_sub_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub.svelte
 function Sidebar_menu_sub($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -10321,7 +10404,7 @@ function Sidebar_menu_sub($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu.svelte
 function Sidebar_menu($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -10337,7 +10420,7 @@ function Sidebar_menu($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-provider.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-provider.svelte
 function Sidebar_provider($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, open = true, onOpenChange = () => {}, class: className, style, children, $$slots, $$events, ...restProps } = $$props;
@@ -10377,7 +10460,7 @@ function Sidebar_provider($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-rail.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-rail.svelte
 function Sidebar_rail($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -10397,7 +10480,7 @@ function Sidebar_rail($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/separator/separator.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/separator/separator.svelte
 function Separator($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, "data-slot": dataSlot = "separator", $$slots, $$events, ...restProps } = $$props;
@@ -10594,7 +10677,7 @@ function Panel_left($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-trigger.svelte
 function Sidebar_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, onclick, $$slots, $$events, ...restProps } = $$props;
@@ -10625,7 +10708,7 @@ function Sidebar_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-overlay.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-overlay.svelte
 function Sheet_overlay($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -10667,7 +10750,7 @@ function Sheet_overlay($$renderer, $$props) {
 }
 //#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/x.svelte
-function X($$renderer, $$props) {
+function X$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
 		* @license @lucide/svelte v0.554.0 - ISC
@@ -10729,7 +10812,7 @@ function X($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-content.svelte
 var sheetVariants = tv({
 	base: "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
 	variants: { side: {
@@ -10776,7 +10859,7 @@ function Sheet_content($$renderer, $$props) {
 											Dialog_close($$renderer, {
 												class: "ring-offset-background focus-visible:ring-ring absolute top-4 right-4 rounded-xs opacity-70 transition-opacity hover:opacity-100 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:pointer-events-none",
 												children: ($$renderer) => {
-													X($$renderer, { class: "size-4" });
+													X$1($$renderer, { class: "size-4" });
 													$$renderer.push(`<!----> <span class="sr-only">Close</span>`);
 												},
 												$$slots: { default: true }
@@ -10814,7 +10897,7 @@ function Sheet_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-header.svelte
 function Sheet_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -10829,7 +10912,7 @@ function Sheet_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-title.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-title.svelte
 function Sheet_title($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -10870,7 +10953,7 @@ function Sheet_title($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-description.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-description.svelte
 function Sheet_description($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -10911,10 +10994,10 @@ function Sheet_description($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sheet/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sheet/index.js
 var Root$3 = Dialog;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar.svelte
 function Sidebar$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, side = "left", variant = "sidebar", collapsible = "offcanvas", class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -12361,7 +12444,7 @@ function Toaster($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/sonner/sonner.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/sonner/sonner.svelte
 function Sonner_1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { $$slots, $$events, ...restProps } = $$props;
@@ -12404,6 +12487,145 @@ function Sonner_1($$renderer, $$props) {
 				}
 			]));
 		}
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/arrow-down.svelte
+function Arrow_down($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "arrow-down" },
+			props,
+			{
+				iconNode: [["path", { "d": "M12 5v14" }], ["path", { "d": "m19 12-7 7-7-7" }]],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/bot.svelte
+function Bot($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "bot" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M12 8V4H8" }],
+					["rect", {
+						"width": "16",
+						"height": "12",
+						"x": "4",
+						"y": "8",
+						"rx": "2"
+					}],
+					["path", { "d": "M2 14h2" }],
+					["path", { "d": "M20 14h2" }],
+					["path", { "d": "M15 13v2" }],
+					["path", { "d": "M9 13v2" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
 	});
 }
 //#endregion
@@ -12796,6 +13018,719 @@ function Chevrons_up_down($$renderer, $$props) {
 	});
 }
 //#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/circle-alert.svelte
+function Circle_alert($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "circle-alert" },
+			props,
+			{
+				iconNode: [
+					["circle", {
+						"cx": "12",
+						"cy": "12",
+						"r": "10"
+					}],
+					["line", {
+						"x1": "12",
+						"x2": "12",
+						"y1": "8",
+						"y2": "12"
+					}],
+					["line", {
+						"x1": "12",
+						"x2": "12.01",
+						"y1": "16",
+						"y2": "16"
+					}]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/cloud-upload.svelte
+function Cloud_upload($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "cloud-upload" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M12 13v8" }],
+					["path", { "d": "M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" }],
+					["path", { "d": "m8 17 4-4 4 4" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/copy.svelte
+function Copy($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "copy" },
+			props,
+			{
+				iconNode: [["rect", {
+					"width": "14",
+					"height": "14",
+					"x": "8",
+					"y": "8",
+					"rx": "2",
+					"ry": "2"
+				}], ["path", { "d": "M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" }]],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/database.svelte
+function Database($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "database" },
+			props,
+			{
+				iconNode: [
+					["ellipse", {
+						"cx": "12",
+						"cy": "5",
+						"rx": "9",
+						"ry": "3"
+					}],
+					["path", { "d": "M3 5V19A9 3 0 0 0 21 19V5" }],
+					["path", { "d": "M3 12A9 3 0 0 0 21 12" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/file-code.svelte
+function File_code($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "file-code" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" }],
+					["path", { "d": "M14 2v5a1 1 0 0 0 1 1h5" }],
+					["path", { "d": "M10 12.5 8 15l2 2.5" }],
+					["path", { "d": "m14 12.5 2 2.5-2 2.5" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/file-plus.svelte
+function File_plus($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "file-plus" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" }],
+					["path", { "d": "M14 2v5a1 1 0 0 0 1 1h5" }],
+					["path", { "d": "M9 15h6" }],
+					["path", { "d": "M12 18v-6" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/file-text.svelte
+function File_text($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "file-text" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" }],
+					["path", { "d": "M14 2v5a1 1 0 0 0 1 1h5" }],
+					["path", { "d": "M10 9H8" }],
+					["path", { "d": "M16 13H8" }],
+					["path", { "d": "M16 17H8" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/image-plus.svelte
+function Image_plus($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "image-plus" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M16 5h6" }],
+					["path", { "d": "M19 2v6" }],
+					["path", { "d": "M21 11.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h7.5" }],
+					["path", { "d": "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" }],
+					["circle", {
+						"cx": "9",
+						"cy": "9",
+						"r": "2"
+					}]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/image.svelte
+function Image($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "image" },
+			props,
+			{
+				iconNode: [
+					["rect", {
+						"width": "18",
+						"height": "18",
+						"x": "3",
+						"y": "3",
+						"rx": "2",
+						"ry": "2"
+					}],
+					["circle", {
+						"cx": "9",
+						"cy": "9",
+						"r": "2"
+					}],
+					["path", { "d": "m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/layers.svelte
+function Layers($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "layers" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83z" }],
+					["path", { "d": "M2 12a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 12" }],
+					["path", { "d": "M2 17a1 1 0 0 0 .58.91l8.6 3.91a2 2 0 0 0 1.65 0l8.58-3.9A1 1 0 0 0 22 17" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/log-out.svelte
 function Log_out($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -12995,6 +13930,69 @@ function Moon($$renderer, $$props) {
 	});
 }
 //#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/pencil.svelte
+function Pencil($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "pencil" },
+			props,
+			{
+				iconNode: [["path", { "d": "M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" }], ["path", { "d": "m15 5 4 4" }]],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/refresh-cw.svelte
 function Refresh_cw($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -13053,6 +14051,136 @@ function Refresh_cw($$renderer, $$props) {
 					["path", { "d": "M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" }],
 					["path", { "d": "M8 16H3v5" }]
 				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/search.svelte
+function Search($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "search" },
+			props,
+			{
+				iconNode: [["path", { "d": "m21 21-4.34-4.34" }], ["circle", {
+					"cx": "11",
+					"cy": "11",
+					"r": "8"
+				}]],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/send.svelte
+function Send($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "send" },
+			props,
+			{
+				iconNode: [["path", { "d": "M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z" }], ["path", { "d": "m21.854 2.147-10.94 10.939" }]],
 				children: ($$renderer) => {
 					props.children?.($$renderer);
 					$$renderer.push(`<!---->`);
@@ -13130,6 +14258,69 @@ function Settings($$renderer, $$props) {
 	});
 }
 //#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/shield-check.svelte
+function Shield_check($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "shield-check" },
+			props,
+			{
+				iconNode: [["path", { "d": "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" }], ["path", { "d": "m9 12 2 2 4-4" }]],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/shield.svelte
 function Shield($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -13183,6 +14374,147 @@ function Shield($$renderer, $$props) {
 			props,
 			{
 				iconNode: [["path", { "d": "M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" }]],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/sparkles.svelte
+function Sparkles($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "sparkles" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" }],
+					["path", { "d": "M20 2v4" }],
+					["path", { "d": "M22 4h-4" }],
+					["circle", {
+						"cx": "4",
+						"cy": "20",
+						"r": "2"
+					}]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/square.svelte
+function Square($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "square" },
+			props,
+			{
+				iconNode: [["rect", {
+					"width": "18",
+					"height": "18",
+					"x": "3",
+					"y": "3",
+					"rx": "2"
+				}]],
 				children: ($$renderer) => {
 					props.children?.($$renderer);
 					$$renderer.push(`<!---->`);
@@ -13270,7 +14602,139 @@ function Sun($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-content.svelte
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/trash-2.svelte
+function Trash_2($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "trash-2" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M10 11v6" }],
+					["path", { "d": "M14 11v6" }],
+					["path", { "d": "M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" }],
+					["path", { "d": "M3 6h18" }],
+					["path", { "d": "M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/wrench.svelte
+function Wrench($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "wrench" },
+			props,
+			{
+				iconNode: [["path", { "d": "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z" }]],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-content.svelte
 function Dropdown_menu_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, sideOffset = 4, portalProps, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -13324,7 +14788,7 @@ function Dropdown_menu_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-item.svelte
 function Dropdown_menu_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, inset, variant = "default", $$slots, $$events, ...restProps } = $$props;
@@ -13367,7 +14831,7 @@ function Dropdown_menu_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-label.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-label.svelte
 function Dropdown_menu_label($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, inset, children, $$slots, $$events, ...restProps } = $$props;
@@ -13383,7 +14847,7 @@ function Dropdown_menu_label($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-separator.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-separator.svelte
 function Dropdown_menu_separator($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -13424,7 +14888,7 @@ function Dropdown_menu_separator($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-trigger.svelte
 function Dropdown_menu_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -13463,7 +14927,7 @@ function Dropdown_menu_trigger($$renderer, $$props) {
 }
 var Root$2 = Menu;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/layout/OrganizationSwitcher.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/layout/OrganizationSwitcher.svelte
 function OrganizationSwitcher($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { organizations: orgs = [], activeOrganization, canCreateOrganization = false, onOpenChange } = $$props;
@@ -13609,7 +15073,7 @@ function OrganizationSwitcher($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible.svelte
 function Collapsible($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, open = false, $$slots, $$events, ...restProps } = $$props;
@@ -13657,7 +15121,7 @@ function Collapsible($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible-trigger.svelte
 function Collapsible_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -13695,7 +15159,7 @@ function Collapsible_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible-content.svelte
 function Collapsible_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -13733,7 +15197,7 @@ function Collapsible_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavMain.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavMain.svelte
 function NavMain($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { items, label = "Content", isActive: isActiveProp } = $$props;
@@ -13903,7 +15367,7 @@ function NavMain($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavUser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavUser.svelte
 function NavUser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { user, onSignOut } = $$props;
@@ -14018,7 +15482,7 @@ function NavUser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/AppSidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/AppSidebar.svelte
 function AppSidebar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const activeView = derived(() => page.url.pathname === "/admin" ? page.url.searchParams.get("view") ?? "" : "");
@@ -14152,12 +15616,5199 @@ function AppSidebar($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/layout/Sidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/textarea/textarea.svelte
+function Textarea($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, value = void 0, class: className, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<textarea${attributes({
+			"data-slot": "textarea",
+			class: clsx(cn$1("border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className)),
+			...restProps
+		})}>`);
+		const $$body = escape_html(value);
+		if ($$body) $$renderer.push(`${$$body}`);
+		$$renderer.push(`</textarea>`);
+		bind_props($$props, {
+			ref,
+			value
+		});
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-context.svelte.js
+var MESSAGE_SCROLLER = Symbol.for("aphexcms.ui.message-scroller");
+var MessageScrollerState = class {
+	viewport = null;
+	content = null;
+	autoscrolling = false;
+	initialized = false;
+	canScrollStart = false;
+	canScrollEnd = false;
+	currentAnchorId = null;
+	visibleMessageIds = [];
+	options;
+	#items = /* @__PURE__ */ new Map();
+	#visible = /* @__PURE__ */ new Set();
+	#following = false;
+	#frame = 0;
+	#previousIds = [];
+	#previousHeight = 0;
+	#lastAnchorId = null;
+	constructor(options) {
+		this.options = options;
+	}
+	setViewport(element) {
+		this.viewport = element;
+		this.scheduleLayout();
+	}
+	setContent(element) {
+		this.content = element;
+		this.scheduleLayout();
+	}
+	registerItem(id, element, anchor) {
+		this.#items.set(id, {
+			element,
+			anchor
+		});
+		this.scheduleLayout();
+		return () => {
+			this.#items.delete(id);
+			this.#visible.delete(id);
+			this.scheduleLayout();
+		};
+	}
+	setItemVisible(id, visible) {
+		if (visible) this.#visible.add(id);
+		else this.#visible.delete(id);
+		this.visibleMessageIds = this.orderedItems().filter(([messageId]) => this.#visible.has(messageId)).map(([messageId]) => messageId);
+		this.updateCurrentAnchor();
+	}
+	releaseFollow() {
+		this.#following = false;
+	}
+	handleScroll(trusted = false) {
+		const viewport = this.viewport;
+		if (!viewport) return;
+		const distance = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+		this.canScrollStart = viewport.scrollTop > 1;
+		this.canScrollEnd = distance > 1;
+		if (trusted && this.options.autoScroll) this.#following = distance <= 2;
+		this.updateCurrentAnchor();
+	}
+	scrollToStart(behavior = "smooth") {
+		this.#following = false;
+		this.scrollTo(0, behavior);
+	}
+	scrollToEnd(behavior = "smooth") {
+		this.#following = this.options.autoScroll;
+		this.scrollTo(this.viewport?.scrollHeight ?? 0, behavior);
+	}
+	scrollToMessage(id, behavior = "smooth") {
+		const item = this.#items.get(id);
+		if (!item || !this.viewport) return false;
+		this.#following = false;
+		this.scrollTo(item.element.offsetTop, behavior);
+		return true;
+	}
+	scheduleLayout() {
+		cancelAnimationFrame(this.#frame);
+		this.#frame = requestAnimationFrame(() => this.layout());
+	}
+	destroy() {
+		cancelAnimationFrame(this.#frame);
+	}
+	orderedItems() {
+		return [...this.#items.entries()].sort((a, b) => a[1].element.offsetTop - b[1].element.offsetTop);
+	}
+	layout() {
+		const viewport = this.viewport;
+		const content = this.content;
+		if (!viewport || !content) return;
+		const items = this.orderedItems();
+		const ids = items.map(([id]) => id);
+		const lastAnchor = items.filter(([, item]) => item.anchor).at(-1) ?? null;
+		if (!this.initialized) {
+			this.initialized = true;
+			if (this.options.defaultScrollPosition === "start") this.scrollToStart("auto");
+			else if (this.options.defaultScrollPosition === "last-anchor" && lastAnchor) this.scrollTo(Math.max(0, lastAnchor[1].element.offsetTop - this.options.scrollPreviousItemPeek), "auto");
+			else this.scrollToEnd("auto");
+			this.#following = this.options.autoScroll && !this.canScrollEnd;
+		} else {
+			const previousFirst = this.#previousIds[0];
+			if ((previousFirst ? ids.indexOf(previousFirst) : -1) > 0 && this.options.preserveScrollOnPrepend) viewport.scrollTop += content.scrollHeight - this.#previousHeight;
+			else if (lastAnchor && lastAnchor[0] !== this.#lastAnchorId) {
+				this.#following = false;
+				this.scrollTo(Math.max(0, lastAnchor[1].element.offsetTop - this.options.scrollPreviousItemPeek), "smooth");
+			} else if (this.#following && this.options.autoScroll) this.scrollToEnd("auto");
+		}
+		this.#previousIds = ids;
+		this.#previousHeight = content.scrollHeight;
+		this.#lastAnchorId = lastAnchor?.[0] ?? null;
+		this.handleScroll();
+	}
+	scrollTo(top, behavior) {
+		if (!this.viewport) return;
+		this.autoscrolling = true;
+		this.viewport.scrollTo({
+			top,
+			behavior
+		});
+		requestAnimationFrame(() => {
+			this.autoscrolling = false;
+			this.handleScroll();
+		});
+	}
+	updateCurrentAnchor() {
+		const viewport = this.viewport;
+		if (!viewport) return;
+		const top = viewport.scrollTop + this.options.scrollPreviousItemPeek + 1;
+		for (const [id, item] of this.orderedItems()) if (item.anchor && item.element.offsetTop <= top) this.currentAnchorId = id;
+	}
+};
+function setMessageScroller(options) {
+	return setContext(MESSAGE_SCROLLER, new MessageScrollerState(options));
+}
+function useMessageScroller() {
+	const state = getContext(MESSAGE_SCROLLER);
+	if (!state) throw new Error("Message scroller parts must be inside MessageScrollerProvider");
+	return state;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-provider.svelte
+function Message_scroller_provider($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { autoScroll = false, defaultScrollPosition = "last-anchor", preserveScrollOnPrepend = true, scrollPreviousItemPeek = 64, children } = $$props;
+		setMessageScroller({
+			autoScroll: false,
+			defaultScrollPosition: "last-anchor",
+			preserveScrollOnPrepend: true,
+			scrollPreviousItemPeek: 64
+		});
+		children?.($$renderer);
+		$$renderer.push(`<!---->`);
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller.svelte
+function Message_scroller($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
+		const state = useMessageScroller();
+		$$renderer.push(`<div${attributes({
+			"data-slot": "message-scroller",
+			"data-autoscrolling": state.autoscrolling ? "" : void 0,
+			"data-scrollable": state.canScrollStart || state.canScrollEnd ? "" : void 0,
+			class: clsx(cn$1("cn-message-scroller group/message-scroller relative flex size-full min-h-0 flex-col overflow-hidden", className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-viewport.svelte
+function Message_scroller_viewport($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, "aria-label": ariaLabel = "Messages", $$slots, $$events, ...restProps } = $$props;
+		const state = useMessageScroller();
+		$$renderer.push(`<div${attributes({
+			"data-slot": "message-scroller-viewport",
+			"data-autoscrolling": state.autoscrolling ? "" : void 0,
+			class: clsx(cn$1("cn-message-scroller-viewport scroll-fade-b size-full min-h-0 min-w-0 scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content data-autoscrolling:scrollbar-thumb-transparent data-autoscrolling:scrollbar-track-transparent", className)),
+			role: "region",
+			"aria-label": ariaLabel,
+			tabindex: "0",
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-content.svelte
+function Message_scroller_content($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
+		useMessageScroller();
+		$$renderer.push(`<div${attributes({
+			"data-slot": "message-scroller-content",
+			class: clsx(cn$1("cn-message-scroller-content flex h-max min-h-full flex-col", className)),
+			role: "log",
+			"aria-relevant": "additions",
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-item.svelte
+function Message_scroller_item($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, messageId, scrollAnchor = false, $$slots, $$events, ...restProps } = $$props;
+		useMessageScroller();
+		$$renderer.push(`<div${attributes({
+			id: messageId,
+			"data-slot": "message-scroller-item",
+			"data-message-id": messageId,
+			"data-scroll-anchor": scrollAnchor ? "" : void 0,
+			class: clsx(cn$1("cn-message-scroller-item min-w-0 shrink-0 [contain-intrinsic-size:auto_10rem] [content-visibility:auto]", className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-button.svelte
+function Message_scroller_button($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, direction = "end", variant = "secondary", size = "icon-sm", children, $$slots, $$events, ...restProps } = $$props;
+		const state = useMessageScroller();
+		let active = derived(() => direction === "end" ? state.canScrollEnd : state.canScrollStart);
+		$$renderer.push(`<button${attributes({
+			type: "button",
+			"data-slot": "message-scroller-button",
+			"data-active": active(),
+			"data-direction": direction,
+			"data-variant": variant,
+			"data-size": size,
+			class: clsx(cn$1(buttonVariants({
+				variant,
+				size
+			}), "cn-message-scroller-button border-border bg-background text-foreground hover:bg-muted hover:text-foreground absolute inset-s-1/2 -translate-x-1/2 transition-[translate,scale,opacity] duration-200 data-[active=false]:pointer-events-none data-[active=false]:scale-95 data-[active=false]:opacity-0 data-[active=false]:duration-400 data-[active=false]:ease-[cubic-bezier(0.7,0,0.84,0)] data-[active=true]:translate-y-0 data-[active=true]:scale-100 data-[active=true]:opacity-100 data-[active=true]:ease-[cubic-bezier(0.23,1,0.32,1)] data-[direction=end]:bottom-4 data-[direction=end]:data-[active=false]:translate-y-full data-[direction=start]:top-4 data-[direction=start]:data-[active=false]:-translate-y-full rtl:translate-x-1/2 data-[direction=start]:[&_svg]:rotate-180", className)),
+			disabled: !active(),
+			tabindex: active() ? 0 : -1,
+			"aria-label": direction === "end" ? "Jump to latest message" : "Jump to first message",
+			...restProps
+		})}>`);
+		if (children) {
+			$$renderer.push("<!--[0-->");
+			children($$renderer);
+			$$renderer.push(`<!---->`);
+		} else {
+			$$renderer.push("<!--[-1-->");
+			Arrow_down($$renderer, { class: "size-4" });
+			$$renderer.push(`<!----> <span class="sr-only">${escape_html(direction === "end" ? "Scroll to end" : "Scroll to start")}</span>`);
+		}
+		$$renderer.push(`<!--]--></button>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message/message.svelte
+function Message($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, align = "start", children, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<div${attributes({
+			"data-slot": "message",
+			"data-align": align,
+			class: clsx(cn$1("cn-message group/message relative flex w-full min-w-0 data-[align=end]:flex-row-reverse", className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message/message-content.svelte
+function Message_content($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<div${attributes({
+			"data-slot": "message-content",
+			class: clsx(cn$1("cn-message-content flex w-full min-w-0 flex-col wrap-break-word", className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/message/message-footer.svelte
+function Message_footer($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<div${attributes({
+			"data-slot": "message-footer",
+			class: clsx(cn$1("cn-message-footer flex max-w-full min-w-0 items-center group-data-[align=end]/message:justify-end", className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/bubble/bubble.svelte
+var bubbleVariants = tv({
+	base: "cn-bubble group/bubble relative flex w-fit min-w-0 flex-col",
+	variants: { variant: {
+		default: "cn-bubble-variant-default",
+		secondary: "cn-bubble-variant-secondary",
+		muted: "cn-bubble-variant-muted",
+		tinted: "cn-bubble-variant-tinted",
+		outline: "cn-bubble-variant-outline",
+		ghost: "cn-bubble-variant-ghost",
+		destructive: "cn-bubble-variant-destructive"
+	} },
+	defaultVariants: { variant: "default" }
+});
+function Bubble($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, variant = "default", align = "start", children, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<div${attributes({
+			"data-slot": "bubble",
+			"data-variant": variant,
+			"data-align": align,
+			class: clsx(cn$1(bubbleVariants({ variant }), className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/bubble/bubble-content.svelte
+function Bubble_content($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<div${attributes({
+			"data-slot": "bubble-content",
+			class: clsx(cn$1("cn-bubble-content w-fit max-w-full min-w-0 overflow-hidden wrap-break-word [button]:text-left [button,a]:transition-colors", className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/marker/marker.svelte
+var markerVariants = tv({
+	base: "cn-marker group/marker relative flex w-full items-center",
+	variants: { variant: {
+		default: "cn-marker-variant-default",
+		border: "cn-marker-variant-border",
+		separator: "cn-marker-variant-separator"
+	} },
+	defaultVariants: { variant: "default" }
+});
+function Marker($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, variant = "default", children, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<div${attributes({
+			"data-slot": "marker",
+			"data-variant": variant,
+			class: clsx(cn$1(markerVariants({ variant }), className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></div>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/marker/marker-icon.svelte
+function Marker_icon($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<span${attributes({
+			"data-slot": "marker-icon",
+			class: clsx(cn$1("cn-marker-icon shrink-0", className)),
+			"aria-hidden": "true",
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></span>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/marker/marker-content.svelte
+function Marker_content($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
+		$$renderer.push(`<span${attributes({
+			"data-slot": "marker-content",
+			class: clsx(cn$1("cn-marker-content min-w-0 wrap-break-word", className)),
+			...restProps
+		})}>`);
+		children?.($$renderer);
+		$$renderer.push(`<!----></span>`);
+		bind_props($$props, { ref });
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/marked@18.0.7/node_modules/marked/lib/marked.esm.js
+/**
+* marked v18.0.7 - a markdown parser
+* Copyright (c) 2018-2026, MarkedJS. (MIT License)
+* Copyright (c) 2011-2018, Christopher Jeffrey. (MIT License)
+* https://github.com/markedjs/marked
+*/
+/**
+* DO NOT EDIT THIS FILE
+* The code in this file is generated from files in ./src/
+*/
+function z() {
+	return {
+		async: !1,
+		breaks: !1,
+		extensions: null,
+		gfm: !0,
+		hooks: null,
+		pedantic: !1,
+		renderer: null,
+		silent: !1,
+		tokenizer: null,
+		walkTokens: null
+	};
+}
+var T = z();
+function N(l) {
+	T = l;
+}
+var _ = { exec: () => null };
+function E(l) {
+	let e = [];
+	return (t) => {
+		let n = Math.max(0, Math.min(3, t - 1)), s = e[n];
+		return s || (s = l(n), e[n] = s), s;
+	};
+}
+function d(l, e = "") {
+	let t = typeof l == "string" ? l : l.source, n = {
+		replace: (s, r) => {
+			let i = typeof r == "string" ? r : r.source;
+			return i = i.replace(m.caret, "$1"), t = t.replace(s, i), n;
+		},
+		getRegex: () => new RegExp(t, e)
+	};
+	return n;
+}
+var Te = ((l = "") => {
+	try {
+		return !!new RegExp("(?<=1)(?<!1)" + l);
+	} catch {
+		return !1;
+	}
+})();
+var m = {
+	codeRemoveIndent: /^(?: {1,4}| {0,3}\t)/gm,
+	outputLinkReplace: /\\([\[\]])/g,
+	indentCodeCompensation: /^(\s+)(?:```)/,
+	beginningSpace: /^\s+/,
+	endingHash: /#$/,
+	startingSpaceChar: /^ /,
+	endingSpaceChar: / $/,
+	nonSpaceChar: /[^ ]/,
+	newLineCharGlobal: /\n/g,
+	tabCharGlobal: /\t/g,
+	multipleSpaceGlobal: /\s+/g,
+	blankLine: /^[ \t]*$/,
+	doubleBlankLine: /\n[ \t]*\n[ \t]*$/,
+	blockquoteStart: /^ {0,3}>/,
+	blockquoteSetextReplace: /\n {0,3}((?:=+|-+) *)(?=\n|$)/g,
+	blockquoteSetextReplace2: /^ {0,3}>[ \t]?/gm,
+	listReplaceNesting: /^ {1,4}(?=( {4})*[^ ])/g,
+	listIsTask: /^\[[ xX]\] +\S/,
+	listReplaceTask: /^\[[ xX]\] +/,
+	listTaskCheckbox: /\[[ xX]\]/,
+	anyLine: /\n.*\n/,
+	hrefBrackets: /^<(.*)>$/,
+	tableDelimiter: /[:|]/,
+	tableAlignChars: /^\||\| *$/g,
+	tableRowBlankLine: /\n[ \t]*$/,
+	tableAlignRight: /^ *-+: *$/,
+	tableAlignCenter: /^ *:-+: *$/,
+	tableAlignLeft: /^ *:-+ *$/,
+	startATag: /^<a /i,
+	endATag: /^<\/a>/i,
+	startPreScriptTag: /^<(pre|code|kbd|script)(\s|>)/i,
+	endPreScriptTag: /^<\/(pre|code|kbd|script)(\s|>)/i,
+	startAngleBracket: /^</,
+	endAngleBracket: />$/,
+	pedanticHrefTitle: /^([^'"]*[^\s])\s+(['"])(.*)\2/,
+	unicodeAlphaNumeric: /[\p{L}\p{N}]/u,
+	escapeTest: /[&<>"']/,
+	escapeReplace: /[&<>"']/g,
+	escapeTestNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/,
+	escapeReplaceNoEncode: /[<>"']|&(?!(#\d{1,7}|#[Xx][a-fA-F0-9]{1,6}|\w+);)/g,
+	caret: /(^|[^\[])\^/g,
+	percentDecode: /%25/g,
+	findPipe: /\|/g,
+	splitPipe: / \|/,
+	slashPipe: /\\\|/g,
+	carriageReturn: /\r\n|\r/g,
+	spaceLine: /^ +$/gm,
+	notSpaceStart: /^\S*/,
+	endingNewline: /\n$/,
+	listItemRegex: (l) => new RegExp(`^( {0,3}${l})((?:[	 ][^\\n]*)?(?:\\n|$))`),
+	nextBulletRegex: E((l) => new RegExp(`^ {0,${l}}(?:[*+-]|\\d{1,9}[.)])((?:[ 	][^\\n]*)?(?:\\n|$))`)),
+	hrRegex: E((l) => new RegExp(`^ {0,${l}}((?:- *){3,}|(?:_ *){3,}|(?:\\* *){3,})(?:\\n+|$)`)),
+	fencesBeginRegex: E((l) => new RegExp(`^ {0,${l}}(?:\`\`\`|~~~)`)),
+	headingBeginRegex: E((l) => new RegExp(`^ {0,${l}}#`)),
+	htmlBeginRegex: E((l) => new RegExp(`^ {0,${l}}<(?:[a-z].*>|!--)`, "i")),
+	blockquoteBeginRegex: E((l) => new RegExp(`^ {0,${l}}>`))
+};
+var Oe = /^(?:[ \t]*(?:\n|$))+/;
+var we = /^((?: {4}| {0,3}\t)[^\n]+(?:\n(?:[ \t]*(?:\n|$))*)?)+/;
+var ye = /^ {0,3}(`{3,}(?=[^`\n]*(?:\n|$))|~{3,})([^\n]*)(?:\n|$)(?:|([\s\S]*?)(?:\n|$))(?: {0,3}\1[~`]* *(?=\n|$)|$)/;
+var B = /^ {0,3}((?:-[\t ]*){3,}|(?:_[ \t]*){3,}|(?:\*[ \t]*){3,})(?:\n+|$)/;
+var Pe = /^ {0,3}(#{1,6})(?=\s|$)(.*)(?:\n+|$)/;
+var j = / {0,3}(?:[*+-]|\d{1,9}[.)])/;
+var oe = /^(?!bull |blockCode|fences|blockquote|heading|html|table)((?:.|\n(?!\s*?\n|bull |blockCode|fences|blockquote|heading|html|table))+?)\n {0,3}(=+|-+) *(?:\n+|$)/;
+var ae = d(oe).replace(/bull/g, j).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}(?:\s|$)/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/\|table/g, "").getRegex();
+var Se = d(oe).replace(/bull/g, j).replace(/blockCode/g, /(?: {4}| {0,3}\t)/).replace(/fences/g, / {0,3}(?:`{3,}|~{3,})/).replace(/blockquote/g, / {0,3}>/).replace(/heading/g, / {0,3}#{1,6}(?:\s|$)/).replace(/html/g, / {0,3}<[^\n>]+>\n/).replace(/table/g, / {0,3}\|?(?:[:\- ]*\|)+[\:\- ]*\n/).getRegex();
+var F = /^([^\n]+(?:\n(?!hr|heading|lheading|blockquote|fences|list|html|table|[ \t]+\n)[^\n]+)*)/;
+var $e = /^[^\n]+/;
+var U = /(?!\s*\])(?:\\[\s\S]|[^\[\]\\])+/;
+var Le = d(/^ {0,3}\[(label)\]: *(?:\n[ \t]*)?([^<\s][^\s]*|<.*?>)(?:(?: +(?:\n[ \t]*)?| *\n[ \t]*)(title))? *(?:\n+|$)/).replace("label", U).replace("title", /(?:"(?:\\"?|[^"\\])*"|'[^'\n]*(?:\n[^'\n]+)*\n?'|\([^()]*\))/).getRegex();
+var _e = d(/^(bull)([ \t][^\n]*?)?(?:\n|$)/).replace(/bull/g, j).getRegex();
+var H = "address|article|aside|base|basefont|blockquote|body|caption|center|col|colgroup|dd|details|dialog|dir|div|dl|dt|fieldset|figcaption|figure|footer|form|frame|frameset|h[1-6]|head|header|hr|html|iframe|legend|li|link|main|menu|menuitem|meta|nav|noframes|ol|optgroup|option|p|param|search|section|summary|table|tbody|td|tfoot|th|thead|title|tr|track|ul";
+var K = /<!--(?:-?>|[\s\S]*?(?:-->|$))/;
+var Me = d("^ {0,3}(?:<(script|pre|style|textarea)[\\s>][\\s\\S]*?(?:</\\1>[^\\n]*\\n*|$)|comment[^\\n]*(\\n+|$)|<\\?[\\s\\S]*?(?:\\?>[^\\n]*\\n*|$)|<![A-Z][\\s\\S]*?(?:>[^\\n]*\\n*|$)|<!\\[CDATA\\[[\\s\\S]*?(?:\\]\\]>[^\\n]*\\n*|$)|</?(tag)(?: +|\\n|/?>)[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|<(?!script|pre|style|textarea)([a-z][\\w-]*)(?:attribute)*? */?>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$)|</(?!script|pre|style|textarea)[a-z][\\w-]*\\s*>(?=[ \\t]*(?:\\n|$))[\\s\\S]*?(?:(?:\\n[ 	]*)+\\n|$))", "i").replace("comment", K).replace("tag", H).replace("attribute", / +[a-zA-Z:_][\w.:-]*(?: *= *"[^"\n]*"| *= *'[^'\n]*'| *= *[^\s"'=<>`]+)?/).getRegex();
+var le = (l) => d(F).replace("hr", B).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("|table", "").replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~~~)[^\\n]*\\n").replace("list", l).replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H).getRegex();
+var ze = le(/ {0,3}(?:[*+-]|1[.)])[ \t]+[^ \t\n]/);
+var Ee = le(/ {0,3}(?:[*+-]|\d{1,9}[.)])(?:[ \t]|\n|$)/);
+var W = {
+	blockquote: d(/^( {0,3}> ?(paragraph|[^\n]*)(?:\n|$))+/).replace("paragraph", Ee).getRegex(),
+	code: we,
+	def: Le,
+	fences: ye,
+	heading: Pe,
+	hr: B,
+	html: Me,
+	lheading: ae,
+	list: _e,
+	newline: Oe,
+	paragraph: ze,
+	table: _,
+	text: $e
+};
+var se = d("^ *([^\\n ].*)\\n {0,3}((?:\\| *)?:?-+:? *(?:\\| *:?-+:? *)*(?:\\| *)?)(?:\\n((?:(?! *\\n|hr|heading|blockquote|code|fences|list|html).*(?:\\n|$))*)\\n*|$)").replace("hr", B).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("blockquote", " {0,3}>").replace("code", "(?: {4}| {0,3}	)[^\\n]").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~~~)[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)])[ \\t]").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H).getRegex();
+var Ae = {
+	...W,
+	lheading: Se,
+	table: se,
+	paragraph: d(F).replace("hr", B).replace("heading", " {0,3}#{1,6}(?:\\s|$)").replace("|lheading", "").replace("table", se).replace("blockquote", " {0,3}>").replace("fences", " {0,3}(?:`{3,}(?=[^`\\n]*\\n)|~~~)[^\\n]*\\n").replace("list", " {0,3}(?:[*+-]|1[.)])[ \\t]+[^ \\t\\n]").replace("html", "</?(?:tag)(?: +|\\n|/?>)|<(?:script|pre|style|textarea|!--)").replace("tag", H).getRegex()
+};
+var Ie = {
+	...W,
+	html: d(`^ *(?:comment *(?:\\n|\\s*$)|<(tag)[\\s\\S]+?</\\1> *(?:\\n{2,}|\\s*$)|<tag(?:"[^"]*"|'[^']*'|\\s[^'"/>\\s]*)*?/?> *(?:\\n{2,}|\\s*$))`).replace("comment", K).replace(/tag/g, "(?!(?:a|em|strong|small|s|cite|q|dfn|abbr|data|time|code|var|samp|kbd|sub|sup|i|b|u|mark|ruby|rt|rp|bdi|bdo|span|br|wbr|ins|del|img)\\b)\\w+(?!:|[^\\w\\s@]*@)\\b").getRegex(),
+	def: /^ *\[([^\]]+)\]: *<?([^\s>]+)>?(?: +(["(][^\n]+[")]))? *(?:\n+|$)/,
+	heading: /^(#{1,6})(.*)(?:\n+|$)/,
+	fences: _,
+	lheading: /^(.+?)\n {0,3}(=+|-+) *(?:\n+|$)/,
+	paragraph: d(F).replace("hr", B).replace("heading", ` *#{1,6} *[^
+]`).replace("lheading", ae).replace("|table", "").replace("blockquote", " {0,3}>").replace("|fences", "").replace("|list", "").replace("|html", "").replace("|tag", "").getRegex()
+};
+var Be = /^\\([!"#$%&'()*+,\-./:;<=>?@\[\]\\^_`{|}~])/;
+var qe = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/;
+var ue = /^( {2,}|\\)\n(?!\s*$)/;
+var De = /^(`+|[^`])(?:(?= {2,}\n)|[\s\S]*?(?:(?=[\\<!\[`*_]|\b_|$)|[^ ](?= {2,}\n)))/;
+var C = /[\p{P}\p{S}]/u;
+var Z = /[\s\p{P}\p{S}]/u;
+var X = /[^\s\p{P}\p{S}]/u;
+var ve = d(/^((?![*_])punctSpace)/, "u").replace(/punctSpace/g, Z).getRegex();
+var pe = /(?!~)[\p{P}\p{S}]/u;
+var He = /(?!~)[\s\p{P}\p{S}]/u;
+var Ze = /(?:[^\s\p{P}\p{S}]|~)/u;
+var Ge = d(/link|precode-code|html/, "g").replace("link", /\[(?:[^\[\]`]|(?<a>`+)[^`]+\k<a>(?!`))*?\]\((?:\\[\s\S]|[^\\\(\)]|\((?:\\[\s\S]|[^\\\(\)])*\))*\)/).replace("precode-", Te ? "(?<!`)()" : "(^^|[^`])").replace("code", /(?<b>`+)[^`]+\k<b>(?!`)/).replace("html", /<(?! )[^<>]*?>/).getRegex();
+var ce = /^(?:\*+(?:((?!\*)punct)|([^\s*]))?)|^_+(?:((?!_)punct)|([^\s_]))?/;
+var Ne = d(ce, "u").replace(/punct/g, C).getRegex();
+var Qe = d(ce, "u").replace(/punct/g, pe).getRegex();
+var he = "^[^_*]*?__[^_*]*?\\*[^_*]*?(?=__)|[^*]+(?=[^*])|(?!\\*)punct(\\*+)(?=[\\s]|$)|notPunctSpace(\\*+)(?!\\*)(?=punctSpace|$)|(?!\\*)punctSpace(\\*+)(?=notPunctSpace)|[\\s](\\*+)(?!\\*)(?=punct)|(?!\\*)punct(\\*+)(?!\\*)(?=punct)|notPunctSpace(\\*+)(?=notPunctSpace)";
+var je = d(he, "gu").replace(/notPunctSpace/g, X).replace(/punctSpace/g, Z).replace(/punct/g, C).getRegex();
+var Fe = d(he, "gu").replace(/notPunctSpace/g, Ze).replace(/punctSpace/g, He).replace(/punct/g, pe).getRegex();
+var Ue = d("^[^_*]*?\\*\\*[^_*]*?_[^_*]*?(?=\\*\\*)|[^_]+(?=[^_])|(?!_)punct(_+)(?=[\\s]|$)|notPunctSpace(_+)(?!_)(?=punctSpace|$)|(?!_)punctSpace(_+)(?=notPunctSpace)|[\\s](_+)(?!_)(?=punct)|(?!_)punct(_+)(?!_)(?=punct)", "gu").replace(/notPunctSpace/g, X).replace(/punctSpace/g, Z).replace(/punct/g, C).getRegex();
+var Ke = d(/^~~?(?:((?!~)punct)|[^\s~])/, "u").replace(/punct/g, C).getRegex();
+var Xe = d("^[^~]+(?=[^~])|(?!~)punct(~~?)(?=[\\s]|$)|notPunctSpace(~~?)(?!~)(?=punctSpace|$)|(?!~)punctSpace(~~?)(?=notPunctSpace)|[\\s](~~?)(?!~)(?=punct)|(?!~)punct(~~?)(?!~)(?=punct)|notPunctSpace(~~?)(?=notPunctSpace)", "gu").replace(/notPunctSpace/g, X).replace(/punctSpace/g, Z).replace(/punct/g, C).getRegex();
+var Je = d(/\\(punct)/, "gu").replace(/punct/g, C).getRegex();
+var Ve = d(/^<(scheme:[^\s\x00-\x1f<>]*|email)>/).replace("scheme", /[a-zA-Z][a-zA-Z0-9+.-]{1,31}/).replace("email", /[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+(@)[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+(?![-_])/).getRegex();
+var Ye = d(K).replace("(?:-->|$)", "-->").getRegex();
+var et = d("^comment|^</[a-zA-Z][\\w:-]*\\s*>|^<[a-zA-Z][\\w-]*(?:attribute)*?\\s*/?>|^<\\?[\\s\\S]*?\\?>|^<![a-zA-Z]+\\s[\\s\\S]*?>|^<!\\[CDATA\\[[\\s\\S]*?\\]\\]>").replace("comment", Ye).replace("attribute", /\s+[a-zA-Z:_][\w.:-]*(?:\s*=\s*"[^"]*"|\s*=\s*'[^']*'|\s*=\s*[^\s"'=<>`]+)?/).getRegex();
+var v = /(?:\[(?:\\[\s\S]|[^\[\]\\])*\]|\\[\s\S]|`+(?!`)[^`]*?`+(?!`)|``+(?=\])|[^\[\]\\`])*?/;
+var tt = d(/^!?\[(label)\]\(\s*(href)(?:(?:[ \t]+(?:\n[ \t]*)?|\n[ \t]*)(title))?\s*\)/).replace("label", v).replace("href", /<(?:\\.|[^\n<>\\])+>|[^ \t\n\x00-\x1f]+|(?=\))/).replace("title", /"(?:\\"?|[^"\\])*"|'(?:\\'?|[^'\\])*'|\((?:\\\)?|[^)\\])*\)/).getRegex();
+var ke = d(/^!?\[(label)\]\[(ref)\]/).replace("label", v).replace("ref", U).getRegex();
+var de = d(/^!?\[(ref)\](?:\[\])?/).replace("ref", U).getRegex();
+var nt = d("reflink|nolink(?!\\()", "g").replace("reflink", ke).replace("nolink", de).getRegex();
+var ie = /[hH][tT][tT][pP][sS]?|[fF][tT][pP]/;
+var J = {
+	_backpedal: _,
+	anyPunctuation: Je,
+	autolink: Ve,
+	blockSkip: Ge,
+	br: ue,
+	code: qe,
+	del: _,
+	delLDelim: _,
+	delRDelim: _,
+	emStrongLDelim: Ne,
+	emStrongRDelimAst: je,
+	emStrongRDelimUnd: Ue,
+	escape: Be,
+	link: tt,
+	nolink: de,
+	punctuation: ve,
+	reflink: ke,
+	reflinkSearch: nt,
+	tag: et,
+	text: De,
+	url: _
+};
+var rt = {
+	...J,
+	link: d(/^!?\[(label)\]\((.*?)\)/).replace("label", v).getRegex(),
+	reflink: d(/^!?\[(label)\]\s*\[([^\]]*)\]/).replace("label", v).getRegex()
+};
+var Q = {
+	...J,
+	emStrongRDelimAst: Fe,
+	emStrongLDelim: Qe,
+	delLDelim: Ke,
+	delRDelim: Xe,
+	url: d(/^((?:protocol):\/\/|www\.)(?:[a-zA-Z0-9\-]+\.?)+[^\s<]*|^email/).replace("protocol", ie).replace("email", /[A-Za-z0-9._+-]+(@)[a-zA-Z0-9-_]+(?:\.[a-zA-Z0-9-_]*[a-zA-Z0-9])+(?![-_])/).getRegex(),
+	_backpedal: /(?:[^?!.,:;*_'"~()&]+|\([^)]*\)|&(?![a-zA-Z0-9]+;$)|[?!.,:;*_'"~)]+(?!$))+/,
+	del: /^(~~?)(?=[^\s~])((?:\\[\s\S]|[^\\])*?(?:\\[\s\S]|[^\s~\\]))\1(?=[^~]|$)/,
+	text: d(/^(`+|~+|[^`~])(?:(?=[`~])|(?= {2,}\n)|(?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)|[\s\S]*?(?:(?=[\\<!\[`*~_]|\b_|protocol:\/\/|www\.|$)|[^ ](?= {2,}\n)|[^a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-](?=[a-zA-Z0-9.!#$%&'*+\/=?_`{\|}~-]+@)))/).replace("protocol", ie).getRegex()
+};
+var st = {
+	...Q,
+	br: d(ue).replace("{2,}", "*").getRegex(),
+	text: d(Q.text).replace("\\b_", "\\b_| {2,}\\n").replace(/\{2,\}/g, "*").getRegex()
+};
+var q = {
+	normal: W,
+	gfm: Ae,
+	pedantic: Ie
+};
+var A = {
+	normal: J,
+	gfm: Q,
+	breaks: st,
+	pedantic: rt
+};
+var it = {
+	"&": "&amp;",
+	"<": "&lt;",
+	">": "&gt;",
+	"\"": "&quot;",
+	"'": "&#39;"
+};
+var ge = (l) => it[l];
+function O(l, e) {
+	if (e) {
+		if (m.escapeTest.test(l)) return l.replace(m.escapeReplace, ge);
+	} else if (m.escapeTestNoEncode.test(l)) return l.replace(m.escapeReplaceNoEncode, ge);
+	return l;
+}
+function V(l) {
+	try {
+		l = encodeURI(l).replace(m.percentDecode, "%");
+	} catch {
+		return null;
+	}
+	return l;
+}
+function Y(l, e) {
+	let n = l.replace(m.findPipe, (r, i, o) => {
+		let u = !1, a = i;
+		for (; --a >= 0 && o[a] === "\\";) u = !u;
+		return u ? "|" : " |";
+	}).split(m.splitPipe), s = 0;
+	if (n[0].trim() || n.shift(), n.length > 0 && !n.at(-1)?.trim() && n.pop(), e) if (n.length > e) n.splice(e);
+	else for (; n.length < e;) n.push("");
+	for (; s < n.length; s++) n[s] = n[s].trim().replace(m.slashPipe, "|");
+	return n;
+}
+function $(l, e, t) {
+	let n = l.length;
+	if (n === 0) return "";
+	let s = 0;
+	for (; s < n;) {
+		let r = l.charAt(n - s - 1);
+		if (r === e && !t) s++;
+		else if (r !== e && t) s++;
+		else break;
+	}
+	return l.slice(0, n - s);
+}
+function ee(l) {
+	let e = l.split(`
+`), t = e.length - 1;
+	for (; t >= 0 && m.blankLine.test(e[t]);) t--;
+	return e.length - t <= 2 ? l : e.slice(0, t + 1).join(`
+`);
+}
+function fe(l, e) {
+	if (l.indexOf(e[1]) === -1) return -1;
+	let t = 0;
+	for (let n = 0; n < l.length; n++) if (l[n] === "\\") n++;
+	else if (l[n] === e[0]) t++;
+	else if (l[n] === e[1] && (t--, t < 0)) return n;
+	return t > 0 ? -2 : -1;
+}
+function me(l, e = 0) {
+	let t = e, n = "";
+	for (let s of l) if (s === "	") {
+		let r = 4 - t % 4;
+		n += " ".repeat(r), t += r;
+	} else n += s, t++;
+	return n;
+}
+function xe(l, e, t, n, s) {
+	let r = e.href, i = e.title || null, o = l[1].replace(s.other.outputLinkReplace, "$1");
+	n.state.inLink = !0;
+	let u = {
+		type: l[0].charAt(0) === "!" ? "image" : "link",
+		raw: t,
+		href: r,
+		title: i,
+		text: o,
+		tokens: n.inlineTokens(o)
+	};
+	return n.state.inLink = !1, u;
+}
+function ot(l, e, t) {
+	let n = l.match(t.other.indentCodeCompensation);
+	if (n === null) return e;
+	let s = n[1];
+	return e.split(`
+`).map((r) => {
+		let i = r.match(t.other.beginningSpace);
+		if (i === null) return r;
+		let [o] = i;
+		return o.length >= s.length ? r.slice(s.length) : r;
+	}).join(`
+`);
+}
+var w = class {
+	options;
+	rules;
+	lexer;
+	constructor(e) {
+		this.options = e || T;
+	}
+	space(e) {
+		let t = this.rules.block.newline.exec(e);
+		if (t && t[0].length > 0) return {
+			type: "space",
+			raw: t[0]
+		};
+	}
+	code(e) {
+		let t = this.rules.block.code.exec(e);
+		if (t) {
+			let n = this.options.pedantic ? t[0] : ee(t[0]);
+			return {
+				type: "code",
+				raw: n,
+				codeBlockStyle: "indented",
+				text: n.replace(this.rules.other.codeRemoveIndent, "")
+			};
+		}
+	}
+	fences(e) {
+		let t = this.rules.block.fences.exec(e);
+		if (t) {
+			let n = t[0], s = ot(n, t[3] || "", this.rules);
+			return {
+				type: "code",
+				raw: n,
+				lang: t[2] ? t[2].trim().replace(this.rules.inline.anyPunctuation, "$1") : t[2],
+				text: s
+			};
+		}
+	}
+	heading(e) {
+		let t = this.rules.block.heading.exec(e);
+		if (t) {
+			let n = t[2].trim();
+			if (this.rules.other.endingHash.test(n)) {
+				let s = $(n, "#");
+				(this.options.pedantic || !s || this.rules.other.endingSpaceChar.test(s)) && (n = s.trim());
+			}
+			return {
+				type: "heading",
+				raw: $(t[0], `
+`),
+				depth: t[1].length,
+				text: n,
+				tokens: this.lexer.inline(n)
+			};
+		}
+	}
+	hr(e) {
+		let t = this.rules.block.hr.exec(e);
+		if (t) return {
+			type: "hr",
+			raw: $(t[0], `
+`)
+		};
+	}
+	blockquote(e) {
+		let t = this.rules.block.blockquote.exec(e);
+		if (t) {
+			let n = $(t[0], `
+`).split(`
+`), s = "", r = "", i = [];
+			for (; n.length > 0;) {
+				let o = !1, u = [], a;
+				for (a = 0; a < n.length; a++) if (this.rules.other.blockquoteStart.test(n[a])) u.push(n[a]), o = !0;
+				else if (!o) u.push(n[a]);
+				else break;
+				n = n.slice(a);
+				let p = u.join(`
+`), c = p.replace(this.rules.other.blockquoteSetextReplace, `
+    $1`).replace(this.rules.other.blockquoteSetextReplace2, "");
+				s = s ? `${s}
+${p}` : p, r = r ? `${r}
+${c}` : c;
+				let h = this.lexer.state.top;
+				if (this.lexer.state.top = !0, this.lexer.blockTokens(c, i, !0), this.lexer.state.top = h, n.length === 0) break;
+				let k = i.at(-1);
+				if (k?.type === "code") break;
+				if (k?.type === "blockquote") {
+					let R = k, f = R.raw + `
+` + n.join(`
+`), S = this.blockquote(f);
+					i[i.length - 1] = S, s = s.substring(0, s.length - R.raw.length) + S.raw, r = r.substring(0, r.length - R.text.length) + S.text;
+					break;
+				} else if (k?.type === "list") {
+					let R = k, f = R.raw + `
+` + n.join(`
+`), S = this.list(f);
+					i[i.length - 1] = S, s = s.substring(0, s.length - k.raw.length) + S.raw, r = r.substring(0, r.length - R.raw.length) + S.raw, n = f.substring(i.at(-1).raw.length).split(`
+`);
+					continue;
+				}
+			}
+			return {
+				type: "blockquote",
+				raw: s,
+				tokens: i,
+				text: r
+			};
+		}
+	}
+	list(e) {
+		let t = this.rules.block.list.exec(e);
+		if (t) {
+			let n = t[1].trim(), s = n.length > 1, r = {
+				type: "list",
+				raw: "",
+				ordered: s,
+				start: s ? +n.slice(0, -1) : "",
+				loose: !1,
+				items: []
+			};
+			n = s ? `\\d{1,9}\\${n.slice(-1)}` : `\\${n}`, this.options.pedantic && (n = s ? n : "[*+-]");
+			let i = this.rules.other.listItemRegex(n), o = !1;
+			for (; e;) {
+				let a = !1, p = "", c = "";
+				if (!(t = i.exec(e)) || this.rules.block.hr.test(e)) break;
+				p = t[0], e = e.substring(p.length);
+				let h = me(t[2].split(`
+`, 1)[0], t[1].length), k = e.split(`
+`, 1)[0], R = !h.trim(), f = 0;
+				if (this.options.pedantic ? (f = 2, c = h.trimStart()) : R ? f = t[1].length + 1 : (f = h.search(this.rules.other.nonSpaceChar), f = f > 4 ? 1 : f, c = h.slice(f), f += t[1].length), R && this.rules.other.blankLine.test(k) && (p += k + `
+`, e = e.substring(k.length + 1), a = !0), !a) {
+					let S = this.rules.other.nextBulletRegex(f), te = this.rules.other.hrRegex(f), ne = this.rules.other.fencesBeginRegex(f), re = this.rules.other.headingBeginRegex(f), be = this.rules.other.htmlBeginRegex(f), Re = this.rules.other.blockquoteBeginRegex(f);
+					for (; e;) {
+						let G = e.split(`
+`, 1)[0], I;
+						if (k = G, this.options.pedantic ? (k = k.replace(this.rules.other.listReplaceNesting, "  "), I = k) : I = k.replace(this.rules.other.tabCharGlobal, "    "), ne.test(k) || re.test(k) || be.test(k) || Re.test(k) || S.test(k) || te.test(k)) break;
+						if (I.search(this.rules.other.nonSpaceChar) >= f || !k.trim()) c += `
+` + I.slice(f);
+						else {
+							if (R || h.replace(this.rules.other.tabCharGlobal, "    ").search(this.rules.other.nonSpaceChar) >= 4 || ne.test(h) || re.test(h) || te.test(h)) break;
+							c += `
+` + k;
+						}
+						R = !k.trim(), p += G + `
+`, e = e.substring(G.length + 1), h = I.slice(f);
+					}
+				}
+				r.loose || (o ? r.loose = !0 : this.rules.other.doubleBlankLine.test(p) && (o = !0)), r.items.push({
+					type: "list_item",
+					raw: p,
+					task: !!this.options.gfm && this.rules.other.listIsTask.test(c),
+					loose: !1,
+					text: c,
+					tokens: []
+				}), r.raw += p;
+			}
+			let u = r.items.at(-1);
+			if (u) u.raw = u.raw.trimEnd(), u.text = u.text.trimEnd();
+			else return;
+			r.raw = r.raw.trimEnd();
+			for (let a of r.items) {
+				this.lexer.state.top = !1, a.tokens = this.lexer.blockTokens(a.text, []);
+				let p = a.tokens[0];
+				if (a.task && (p?.type === "text" || p?.type === "paragraph")) {
+					a.text = a.text.replace(this.rules.other.listReplaceTask, ""), p.raw = p.raw.replace(this.rules.other.listReplaceTask, ""), p.text = p.text.replace(this.rules.other.listReplaceTask, "");
+					for (let h = this.lexer.inlineQueue.length - 1; h >= 0; h--) if (this.rules.other.listIsTask.test(this.lexer.inlineQueue[h].src)) {
+						this.lexer.inlineQueue[h].src = this.lexer.inlineQueue[h].src.replace(this.rules.other.listReplaceTask, "");
+						break;
+					}
+					let c = this.rules.other.listTaskCheckbox.exec(a.raw);
+					if (c) {
+						let h = {
+							type: "checkbox",
+							raw: c[0] + " ",
+							checked: c[0] !== "[ ]"
+						};
+						a.checked = h.checked, r.loose ? a.tokens[0] && ["paragraph", "text"].includes(a.tokens[0].type) && "tokens" in a.tokens[0] && a.tokens[0].tokens ? (a.tokens[0].raw = h.raw + a.tokens[0].raw, a.tokens[0].text = h.raw + a.tokens[0].text, a.tokens[0].tokens.unshift(h)) : a.tokens.unshift({
+							type: "paragraph",
+							raw: h.raw,
+							text: h.raw,
+							tokens: [h]
+						}) : a.tokens.unshift(h);
+					}
+				} else a.task && (a.task = !1);
+				if (!r.loose) {
+					let c = a.tokens.filter((k) => k.type === "space");
+					r.loose = c.length > 0 && c.some((k) => this.rules.other.anyLine.test(k.raw));
+				}
+			}
+			if (r.loose) for (let a of r.items) {
+				a.loose = !0;
+				for (let p of a.tokens) p.type === "text" && (p.type = "paragraph");
+			}
+			return r;
+		}
+	}
+	html(e) {
+		let t = this.rules.block.html.exec(e);
+		if (t) {
+			let n = ee(t[0]);
+			return {
+				type: "html",
+				block: !0,
+				raw: n,
+				pre: t[1] === "pre" || t[1] === "script" || t[1] === "style",
+				text: n
+			};
+		}
+	}
+	def(e) {
+		let t = this.rules.block.def.exec(e);
+		if (t) {
+			let n = t[1].toLowerCase().replace(this.rules.other.multipleSpaceGlobal, " "), s = t[2] ? t[2].replace(this.rules.other.hrefBrackets, "$1").replace(this.rules.inline.anyPunctuation, "$1") : "", r = t[3] ? t[3].substring(1, t[3].length - 1).replace(this.rules.inline.anyPunctuation, "$1") : t[3];
+			return {
+				type: "def",
+				tag: n,
+				raw: $(t[0], `
+`),
+				href: s,
+				title: r
+			};
+		}
+	}
+	table(e) {
+		let t = this.rules.block.table.exec(e);
+		if (!t || !this.rules.other.tableDelimiter.test(t[2])) return;
+		let n = Y(t[1]), s = t[2].replace(this.rules.other.tableAlignChars, "").split("|"), r = t[3]?.trim() ? t[3].replace(this.rules.other.tableRowBlankLine, "").split(`
+`) : [], i = {
+			type: "table",
+			raw: $(t[0], `
+`),
+			header: [],
+			align: [],
+			rows: []
+		};
+		if (n.length === s.length) {
+			for (let o of s) this.rules.other.tableAlignRight.test(o) ? i.align.push("right") : this.rules.other.tableAlignCenter.test(o) ? i.align.push("center") : this.rules.other.tableAlignLeft.test(o) ? i.align.push("left") : i.align.push(null);
+			for (let o = 0; o < n.length; o++) i.header.push({
+				text: n[o],
+				tokens: this.lexer.inline(n[o]),
+				header: !0,
+				align: i.align[o]
+			});
+			for (let o of r) i.rows.push(Y(o, i.header.length).map((u, a) => ({
+				text: u,
+				tokens: this.lexer.inline(u),
+				header: !1,
+				align: i.align[a]
+			})));
+			return i;
+		}
+	}
+	lheading(e) {
+		let t = this.rules.block.lheading.exec(e);
+		if (t) {
+			let n = t[1].trim();
+			return {
+				type: "heading",
+				raw: $(t[0], `
+`),
+				depth: t[2].charAt(0) === "=" ? 1 : 2,
+				text: n,
+				tokens: this.lexer.inline(n)
+			};
+		}
+	}
+	paragraph(e) {
+		let t = this.rules.block.paragraph.exec(e);
+		if (t) {
+			let n = t[1].charAt(t[1].length - 1) === `
+` ? t[1].slice(0, -1) : t[1];
+			return {
+				type: "paragraph",
+				raw: t[0],
+				text: n,
+				tokens: this.lexer.inline(n)
+			};
+		}
+	}
+	text(e) {
+		let t = this.rules.block.text.exec(e);
+		if (t) return {
+			type: "text",
+			raw: t[0],
+			text: t[0],
+			tokens: this.lexer.inline(t[0])
+		};
+	}
+	escape(e) {
+		let t = this.rules.inline.escape.exec(e);
+		if (t) return {
+			type: "escape",
+			raw: t[0],
+			text: t[1]
+		};
+	}
+	tag(e) {
+		let t = this.rules.inline.tag.exec(e);
+		if (t) return !this.lexer.state.inLink && this.rules.other.startATag.test(t[0]) ? this.lexer.state.inLink = !0 : this.lexer.state.inLink && this.rules.other.endATag.test(t[0]) && (this.lexer.state.inLink = !1), !this.lexer.state.inRawBlock && this.rules.other.startPreScriptTag.test(t[0]) ? this.lexer.state.inRawBlock = !0 : this.lexer.state.inRawBlock && this.rules.other.endPreScriptTag.test(t[0]) && (this.lexer.state.inRawBlock = !1), {
+			type: "html",
+			raw: t[0],
+			inLink: this.lexer.state.inLink,
+			inRawBlock: this.lexer.state.inRawBlock,
+			block: !1,
+			text: t[0]
+		};
+	}
+	link(e) {
+		let t = this.rules.inline.link.exec(e);
+		if (t) {
+			let n = t[2].trim();
+			if (!this.options.pedantic && this.rules.other.startAngleBracket.test(n)) {
+				if (!this.rules.other.endAngleBracket.test(n)) return;
+				let i = $(n.slice(0, -1), "\\");
+				if ((n.length - i.length) % 2 === 0) return;
+			} else {
+				let i = fe(t[2], "()");
+				if (i === -2) return;
+				if (i > -1) {
+					let u = (t[0].indexOf("!") === 0 ? 5 : 4) + t[1].length + i;
+					t[2] = t[2].substring(0, i), t[0] = t[0].substring(0, u).trim(), t[3] = "";
+				}
+			}
+			let s = t[2], r = "";
+			if (this.options.pedantic) {
+				let i = this.rules.other.pedanticHrefTitle.exec(s);
+				i && (s = i[1], r = i[3]);
+			} else r = t[3] ? t[3].slice(1, -1) : "";
+			return s = s.trim(), this.rules.other.startAngleBracket.test(s) && (this.options.pedantic && !this.rules.other.endAngleBracket.test(n) ? s = s.slice(1) : s = s.slice(1, -1)), xe(t, {
+				href: s && s.replace(this.rules.inline.anyPunctuation, "$1"),
+				title: r && r.replace(this.rules.inline.anyPunctuation, "$1")
+			}, t[0], this.lexer, this.rules);
+		}
+	}
+	reflink(e, t) {
+		let n;
+		if ((n = this.rules.inline.reflink.exec(e)) || (n = this.rules.inline.nolink.exec(e))) {
+			let r = t[(n[2] || n[1]).replace(this.rules.other.multipleSpaceGlobal, " ").toLowerCase()];
+			if (!r) {
+				let i = n[0].charAt(0);
+				return {
+					type: "text",
+					raw: i,
+					text: i
+				};
+			}
+			return xe(n, r, n[0], this.lexer, this.rules);
+		}
+	}
+	emStrong(e, t, n = "") {
+		let s = this.rules.inline.emStrongLDelim.exec(e);
+		if (!s || !s[1] && !s[2] && !s[3] && !s[4] || s[4] && n.match(this.rules.other.unicodeAlphaNumeric)) return;
+		if (!(s[1] || s[3] || "") || !n || this.rules.inline.punctuation.exec(n)) {
+			let i = [...s[0]].length - 1, o, u, a = i, p = 0, c = s[0][0] === "*" ? this.rules.inline.emStrongRDelimAst : this.rules.inline.emStrongRDelimUnd;
+			for (c.lastIndex = 0, t = t.slice(-1 * e.length + i); (s = c.exec(t)) !== null;) {
+				if (o = s[1] || s[2] || s[3] || s[4] || s[5] || s[6], !o) continue;
+				if (u = [...o].length, s[3] || s[4]) {
+					a += u;
+					continue;
+				} else if ((s[5] || s[6]) && i % 3 && !((i + u) % 3)) {
+					p += u;
+					continue;
+				}
+				if (a -= u, a > 0) continue;
+				u = Math.min(u, u + a + p);
+				let h = [...s[0]][0].length, k = e.slice(0, i + s.index + h + u);
+				if (Math.min(i, u) % 2) {
+					let f = k.slice(1, -1);
+					return {
+						type: "em",
+						raw: k,
+						text: f,
+						tokens: this.lexer.inlineTokens(f)
+					};
+				}
+				let R = k.slice(2, -2);
+				return {
+					type: "strong",
+					raw: k,
+					text: R,
+					tokens: this.lexer.inlineTokens(R)
+				};
+			}
+		}
+	}
+	codespan(e) {
+		let t = this.rules.inline.code.exec(e);
+		if (t) {
+			let n = t[2].replace(this.rules.other.newLineCharGlobal, " "), s = this.rules.other.nonSpaceChar.test(n), r = this.rules.other.startingSpaceChar.test(n) && this.rules.other.endingSpaceChar.test(n);
+			return s && r && (n = n.substring(1, n.length - 1)), {
+				type: "codespan",
+				raw: t[0],
+				text: n
+			};
+		}
+	}
+	br(e) {
+		let t = this.rules.inline.br.exec(e);
+		if (t) return {
+			type: "br",
+			raw: t[0]
+		};
+	}
+	del(e, t, n = "") {
+		let s = this.rules.inline.delLDelim.exec(e);
+		if (!s) return;
+		if (!(s[1] || "") || !n || this.rules.inline.punctuation.exec(n)) {
+			let i = [...s[0]].length - 1, o, u, a = i, p = this.rules.inline.delRDelim;
+			for (p.lastIndex = 0, t = t.slice(-1 * e.length + i); (s = p.exec(t)) !== null;) {
+				if (o = s[1] || s[2] || s[3] || s[4] || s[5] || s[6], !o || (u = [...o].length, u !== i)) continue;
+				if (s[3] || s[4]) {
+					a += u;
+					continue;
+				}
+				if (a -= u, a > 0) continue;
+				u = Math.min(u, u + a);
+				let c = [...s[0]][0].length, h = e.slice(0, i + s.index + c + u), k = h.slice(i, -i);
+				return {
+					type: "del",
+					raw: h,
+					text: k,
+					tokens: this.lexer.inlineTokens(k)
+				};
+			}
+		}
+	}
+	autolink(e) {
+		let t = this.rules.inline.autolink.exec(e);
+		if (t) {
+			let n, s;
+			return t[2] === "@" ? (n = t[1], s = "mailto:" + n) : (n = t[1], s = n), {
+				type: "link",
+				raw: t[0],
+				text: n,
+				href: s,
+				tokens: [{
+					type: "text",
+					raw: n,
+					text: n
+				}]
+			};
+		}
+	}
+	url(e) {
+		let t;
+		if (t = this.rules.inline.url.exec(e)) {
+			let n, s;
+			if (t[2] === "@") n = t[0], s = "mailto:" + n;
+			else {
+				let r;
+				do
+					r = t[0], t[0] = this.rules.inline._backpedal.exec(t[0])?.[0] ?? "";
+				while (r !== t[0]);
+				n = t[0], t[1] === "www." ? s = "http://" + t[0] : s = t[0];
+			}
+			return {
+				type: "link",
+				raw: t[0],
+				text: n,
+				href: s,
+				tokens: [{
+					type: "text",
+					raw: n,
+					text: n
+				}]
+			};
+		}
+	}
+	inlineText(e) {
+		let t = this.rules.inline.text.exec(e);
+		if (t) {
+			let n = this.lexer.state.inRawBlock;
+			return {
+				type: "text",
+				raw: t[0],
+				text: t[0],
+				escaped: n
+			};
+		}
+	}
+};
+var x = class l {
+	tokens;
+	options;
+	state;
+	inlineQueue;
+	tokenizer;
+	constructor(e) {
+		this.tokens = [], this.tokens.links = Object.create(null), this.options = e || T, this.options.tokenizer = this.options.tokenizer || new w(), this.tokenizer = this.options.tokenizer, this.tokenizer.options = this.options, this.tokenizer.lexer = this, this.inlineQueue = [], this.state = {
+			inLink: !1,
+			inRawBlock: !1,
+			top: !0
+		};
+		let t = {
+			other: m,
+			block: q.normal,
+			inline: A.normal
+		};
+		this.options.pedantic ? (t.block = q.pedantic, t.inline = A.pedantic) : this.options.gfm && (t.block = q.gfm, this.options.breaks ? t.inline = A.breaks : t.inline = A.gfm), this.tokenizer.rules = t;
+	}
+	static get rules() {
+		return {
+			block: q,
+			inline: A
+		};
+	}
+	static lex(e, t) {
+		return new l(t).lex(e);
+	}
+	static lexInline(e, t) {
+		return new l(t).inlineTokens(e);
+	}
+	lex(e) {
+		e = e.replace(m.carriageReturn, `
+`), this.blockTokens(e, this.tokens);
+		for (let t = 0; t < this.inlineQueue.length; t++) {
+			let n = this.inlineQueue[t];
+			this.inlineTokens(n.src, n.tokens);
+		}
+		return this.inlineQueue = [], this.tokens;
+	}
+	blockTokens(e, t = [], n = !1) {
+		this.tokenizer.lexer = this, this.options.pedantic && (e = e.replace(m.tabCharGlobal, "    ").replace(m.spaceLine, ""));
+		let s = Infinity;
+		for (; e;) {
+			if (e.length < s) s = e.length;
+			else {
+				this.infiniteLoopError(e.charCodeAt(0));
+				break;
+			}
+			let r;
+			if (this.options.extensions?.block?.some((o) => (r = o.call({ lexer: this }, e, t)) ? (e = e.substring(r.raw.length), t.push(r), !0) : !1)) continue;
+			if (r = this.tokenizer.space(e)) {
+				e = e.substring(r.raw.length);
+				let o = t.at(-1);
+				r.raw.length === 1 && o !== void 0 ? o.raw += `
+` : t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.code(e)) {
+				e = e.substring(r.raw.length);
+				let o = t.at(-1);
+				o?.type === "paragraph" || o?.type === "text" ? (o.raw += (o.raw.endsWith(`
+`) ? "" : `
+`) + r.raw, o.text += `
+` + r.text, this.inlineQueue.at(-1).src = o.text) : t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.fences(e)) {
+				e = e.substring(r.raw.length), t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.heading(e)) {
+				e = e.substring(r.raw.length), t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.hr(e)) {
+				e = e.substring(r.raw.length), t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.blockquote(e)) {
+				e = e.substring(r.raw.length), t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.list(e)) {
+				e = e.substring(r.raw.length), t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.html(e)) {
+				e = e.substring(r.raw.length), t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.def(e)) {
+				e = e.substring(r.raw.length);
+				let o = t.at(-1);
+				o?.type === "paragraph" || o?.type === "text" ? (o.raw += (o.raw.endsWith(`
+`) ? "" : `
+`) + r.raw, o.text += `
+` + r.raw, this.inlineQueue.at(-1).src = o.text) : this.tokens.links[r.tag] || (this.tokens.links[r.tag] = {
+					href: r.href,
+					title: r.title
+				}, t.push(r));
+				continue;
+			}
+			if (r = this.tokenizer.table(e)) {
+				e = e.substring(r.raw.length), t.push(r);
+				continue;
+			}
+			if (r = this.tokenizer.lheading(e)) {
+				e = e.substring(r.raw.length), t.push(r);
+				continue;
+			}
+			let i = e;
+			if (this.options.extensions?.startBlock) {
+				let o = Infinity, u = e.slice(1), a;
+				this.options.extensions.startBlock.forEach((p) => {
+					a = p.call({ lexer: this }, u), typeof a == "number" && a >= 0 && (o = Math.min(o, a));
+				}), o < Infinity && o >= 0 && (i = e.substring(0, o + 1));
+			}
+			if (this.state.top && (r = this.tokenizer.paragraph(i))) {
+				let o = t.at(-1);
+				n && o?.type === "paragraph" ? (o.raw += (o.raw.endsWith(`
+`) ? "" : `
+`) + r.raw, o.text += `
+` + r.text, this.inlineQueue.pop(), this.inlineQueue.at(-1).src = o.text) : t.push(r), n = i.length !== e.length, e = e.substring(r.raw.length);
+				continue;
+			}
+			if (r = this.tokenizer.text(e)) {
+				e = e.substring(r.raw.length);
+				let o = t.at(-1);
+				o?.type === "text" ? (o.raw += (o.raw.endsWith(`
+`) ? "" : `
+`) + r.raw, o.text += `
+` + r.text, this.inlineQueue.pop(), this.inlineQueue.at(-1).src = o.text) : t.push(r);
+				continue;
+			}
+			if (e) {
+				this.infiniteLoopError(e.charCodeAt(0));
+				break;
+			}
+		}
+		return this.state.top = !0, t;
+	}
+	inline(e, t = []) {
+		return this.inlineQueue.push({
+			src: e,
+			tokens: t
+		}), t;
+	}
+	inlineTokens(e, t = []) {
+		this.tokenizer.lexer = this;
+		let n = e;
+		if (this.tokens.links) {
+			let o = Object.keys(this.tokens.links);
+			o.length > 0 && (n = n.replace(this.tokenizer.rules.inline.reflinkSearch, (u) => o.includes(u.slice(u.lastIndexOf("[") + 1, -1)) ? "[" + "a".repeat(u.length - 2) + "]" : u));
+		}
+		n = n.replace(this.tokenizer.rules.inline.anyPunctuation, "++"), n = n.replace(this.tokenizer.rules.inline.blockSkip, (o, u, a) => {
+			let p = a ? a.length : 0;
+			return o.slice(0, p) + "[" + "a".repeat(o.length - p - 2) + "]";
+		}), n = this.options.hooks?.emStrongMask?.call({ lexer: this }, n) ?? n;
+		let s = !1, r = "", i = Infinity;
+		for (; e;) {
+			if (e.length < i) i = e.length;
+			else {
+				this.infiniteLoopError(e.charCodeAt(0));
+				break;
+			}
+			s || (r = ""), s = !1;
+			let o;
+			if (this.options.extensions?.inline?.some((a) => (o = a.call({ lexer: this }, e, t)) ? (e = e.substring(o.raw.length), t.push(o), !0) : !1)) continue;
+			if (o = this.tokenizer.escape(e)) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			if (o = this.tokenizer.tag(e)) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			if (o = this.tokenizer.link(e)) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			if (o = this.tokenizer.reflink(e, this.tokens.links)) {
+				e = e.substring(o.raw.length);
+				let a = t.at(-1);
+				o.type === "text" && a?.type === "text" ? (a.raw += o.raw, a.text += o.text) : t.push(o);
+				continue;
+			}
+			if (o = this.tokenizer.emStrong(e, n, r)) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			if (o = this.tokenizer.codespan(e)) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			if (o = this.tokenizer.br(e)) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			if (o = this.tokenizer.del(e, n, r)) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			if (o = this.tokenizer.autolink(e)) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			if (!this.state.inLink && (o = this.tokenizer.url(e))) {
+				e = e.substring(o.raw.length), t.push(o);
+				continue;
+			}
+			let u = e;
+			if (this.options.extensions?.startInline) {
+				let a = Infinity, p = e.slice(1), c;
+				this.options.extensions.startInline.forEach((h) => {
+					c = h.call({ lexer: this }, p), typeof c == "number" && c >= 0 && (a = Math.min(a, c));
+				}), a < Infinity && a >= 0 && (u = e.substring(0, a + 1));
+			}
+			if (o = this.tokenizer.inlineText(u)) {
+				e = e.substring(o.raw.length), o.raw.slice(-1) !== "_" && (r = o.raw.slice(-1)), s = !0;
+				let a = t.at(-1);
+				a?.type === "text" ? (a.raw += o.raw, a.text += o.text) : t.push(o);
+				continue;
+			}
+			if (e) {
+				this.infiniteLoopError(e.charCodeAt(0));
+				break;
+			}
+		}
+		return t;
+	}
+	infiniteLoopError(e) {
+		let t = "Infinite loop on byte: " + e;
+		if (this.options.silent) console.error(t);
+		else throw new Error(t);
+	}
+};
+var y = class {
+	options;
+	parser;
+	constructor(e) {
+		this.options = e || T;
+	}
+	space(e) {
+		return "";
+	}
+	code({ text: e, lang: t, escaped: n }) {
+		let s = (t || "").match(m.notSpaceStart)?.[0], r = e.replace(m.endingNewline, "") + `
+`;
+		return s ? "<pre><code class=\"language-" + O(s) + "\">" + (n ? r : O(r, !0)) + `</code></pre>
+` : "<pre><code>" + (n ? r : O(r, !0)) + `</code></pre>
+`;
+	}
+	blockquote({ tokens: e }) {
+		return `<blockquote>
+${this.parser.parse(e)}</blockquote>
+`;
+	}
+	html({ text: e }) {
+		return e;
+	}
+	def(e) {
+		return "";
+	}
+	heading({ tokens: e, depth: t }) {
+		return `<h${t}>${this.parser.parseInline(e)}</h${t}>
+`;
+	}
+	hr(e) {
+		return `<hr>
+`;
+	}
+	list(e) {
+		let t = e.ordered, n = e.start, s = "";
+		for (let o = 0; o < e.items.length; o++) {
+			let u = e.items[o];
+			s += this.listitem(u);
+		}
+		let r = t ? "ol" : "ul", i = t && n !== 1 ? " start=\"" + n + "\"" : "";
+		return "<" + r + i + `>
+` + s + "</" + r + `>
+`;
+	}
+	listitem(e) {
+		return `<li>${this.parser.parse(e.tokens)}</li>
+`;
+	}
+	checkbox({ checked: e }) {
+		return "<input " + (e ? "checked=\"\" " : "") + "disabled=\"\" type=\"checkbox\"> ";
+	}
+	paragraph({ tokens: e }) {
+		return `<p>${this.parser.parseInline(e)}</p>
+`;
+	}
+	table(e) {
+		let t = "", n = "";
+		for (let r = 0; r < e.header.length; r++) n += this.tablecell(e.header[r]);
+		t += this.tablerow({ text: n });
+		let s = "";
+		for (let r = 0; r < e.rows.length; r++) {
+			let i = e.rows[r];
+			n = "";
+			for (let o = 0; o < i.length; o++) n += this.tablecell(i[o]);
+			s += this.tablerow({ text: n });
+		}
+		return s && (s = `<tbody>${s}</tbody>`), `<table>
+<thead>
+` + t + `</thead>
+` + s + `</table>
+`;
+	}
+	tablerow({ text: e }) {
+		return `<tr>
+${e}</tr>
+`;
+	}
+	tablecell(e) {
+		let t = this.parser.parseInline(e.tokens), n = e.header ? "th" : "td";
+		return (e.align ? `<${n} align="${e.align}">` : `<${n}>`) + t + `</${n}>
+`;
+	}
+	strong({ tokens: e }) {
+		return `<strong>${this.parser.parseInline(e)}</strong>`;
+	}
+	em({ tokens: e }) {
+		return `<em>${this.parser.parseInline(e)}</em>`;
+	}
+	codespan({ text: e }) {
+		return `<code>${O(e, !0)}</code>`;
+	}
+	br(e) {
+		return "<br>";
+	}
+	del({ tokens: e }) {
+		return `<del>${this.parser.parseInline(e)}</del>`;
+	}
+	link({ href: e, title: t, tokens: n }) {
+		let s = this.parser.parseInline(n), r = V(e);
+		if (r === null) return s;
+		e = r;
+		let i = "<a href=\"" + e + "\"";
+		return t && (i += " title=\"" + O(t) + "\""), i += ">" + s + "</a>", i;
+	}
+	image({ href: e, title: t, text: n, tokens: s }) {
+		s && (n = this.parser.parseInline(s, this.parser.textRenderer));
+		let r = V(e);
+		if (r === null) return O(n);
+		e = r;
+		let i = `<img src="${e}" alt="${O(n)}"`;
+		return t && (i += ` title="${O(t)}"`), i += ">", i;
+	}
+	text(e) {
+		return "tokens" in e && e.tokens ? this.parser.parseInline(e.tokens) : "escaped" in e && e.escaped ? e.text : O(e.text);
+	}
+};
+var L = class {
+	strong({ text: e }) {
+		return e;
+	}
+	em({ text: e }) {
+		return e;
+	}
+	codespan({ text: e }) {
+		return e;
+	}
+	del({ text: e }) {
+		return e;
+	}
+	html({ text: e }) {
+		return e;
+	}
+	text({ text: e }) {
+		return e;
+	}
+	link({ text: e }) {
+		return "" + e;
+	}
+	image({ text: e }) {
+		return "" + e;
+	}
+	br() {
+		return "";
+	}
+	checkbox({ raw: e }) {
+		return e;
+	}
+};
+var b = class l {
+	options;
+	renderer;
+	textRenderer;
+	constructor(e) {
+		this.options = e || T, this.options.renderer = this.options.renderer || new y(), this.renderer = this.options.renderer, this.renderer.options = this.options, this.renderer.parser = this, this.textRenderer = new L();
+	}
+	static parse(e, t) {
+		return new l(t).parse(e);
+	}
+	static parseInline(e, t) {
+		return new l(t).parseInline(e);
+	}
+	parse(e) {
+		this.renderer.parser = this;
+		let t = "";
+		for (let n = 0; n < e.length; n++) {
+			let s = e[n];
+			if (this.options.extensions?.renderers?.[s.type]) {
+				let i = s, o = this.options.extensions.renderers[i.type].call({ parser: this }, i);
+				if (o !== !1 || ![
+					"space",
+					"hr",
+					"heading",
+					"code",
+					"table",
+					"blockquote",
+					"list",
+					"html",
+					"def",
+					"paragraph",
+					"text"
+				].includes(i.type)) {
+					t += o || "";
+					continue;
+				}
+			}
+			let r = s;
+			switch (r.type) {
+				case "space":
+					t += this.renderer.space(r);
+					break;
+				case "hr":
+					t += this.renderer.hr(r);
+					break;
+				case "heading":
+					t += this.renderer.heading(r);
+					break;
+				case "code":
+					t += this.renderer.code(r);
+					break;
+				case "table":
+					t += this.renderer.table(r);
+					break;
+				case "blockquote":
+					t += this.renderer.blockquote(r);
+					break;
+				case "list":
+					t += this.renderer.list(r);
+					break;
+				case "checkbox":
+					t += this.renderer.checkbox(r);
+					break;
+				case "html":
+					t += this.renderer.html(r);
+					break;
+				case "def":
+					t += this.renderer.def(r);
+					break;
+				case "paragraph":
+					t += this.renderer.paragraph(r);
+					break;
+				case "text":
+					t += this.renderer.text(r);
+					break;
+				default: {
+					let i = "Token with \"" + r.type + "\" type was not found.";
+					if (this.options.silent) return console.error(i), "";
+					throw new Error(i);
+				}
+			}
+		}
+		return t;
+	}
+	parseInline(e, t = this.renderer) {
+		this.renderer.parser = this;
+		let n = "";
+		for (let s = 0; s < e.length; s++) {
+			let r = e[s];
+			if (this.options.extensions?.renderers?.[r.type]) {
+				let o = this.options.extensions.renderers[r.type].call({ parser: this }, r);
+				if (o !== !1 || ![
+					"escape",
+					"html",
+					"link",
+					"image",
+					"strong",
+					"em",
+					"codespan",
+					"br",
+					"del",
+					"text"
+				].includes(r.type)) {
+					n += o || "";
+					continue;
+				}
+			}
+			let i = r;
+			switch (i.type) {
+				case "escape":
+					n += t.text(i);
+					break;
+				case "html":
+					n += t.html(i);
+					break;
+				case "link":
+					n += t.link(i);
+					break;
+				case "image":
+					n += t.image(i);
+					break;
+				case "checkbox":
+					n += t.checkbox(i);
+					break;
+				case "strong":
+					n += t.strong(i);
+					break;
+				case "em":
+					n += t.em(i);
+					break;
+				case "codespan":
+					n += t.codespan(i);
+					break;
+				case "br":
+					n += t.br(i);
+					break;
+				case "del":
+					n += t.del(i);
+					break;
+				case "text":
+					n += t.text(i);
+					break;
+				default: {
+					let o = "Token with \"" + i.type + "\" type was not found.";
+					if (this.options.silent) return console.error(o), "";
+					throw new Error(o);
+				}
+			}
+		}
+		return n;
+	}
+};
+var P = class {
+	options;
+	block;
+	constructor(e) {
+		this.options = e || T;
+	}
+	static passThroughHooks = /* @__PURE__ */ new Set([
+		"preprocess",
+		"postprocess",
+		"processAllTokens",
+		"emStrongMask"
+	]);
+	static passThroughHooksRespectAsync = /* @__PURE__ */ new Set([
+		"preprocess",
+		"postprocess",
+		"processAllTokens"
+	]);
+	preprocess(e) {
+		return e;
+	}
+	postprocess(e) {
+		return e;
+	}
+	processAllTokens(e) {
+		return e;
+	}
+	emStrongMask(e) {
+		return e;
+	}
+	provideLexer(e = this.block) {
+		return e ? x.lex : x.lexInline;
+	}
+	provideParser(e = this.block) {
+		return e ? b.parse : b.parseInline;
+	}
+};
+var D = class {
+	defaults = z();
+	options = this.setOptions;
+	parse = this.parseMarkdown(!0);
+	parseInline = this.parseMarkdown(!1);
+	Parser = b;
+	Renderer = y;
+	TextRenderer = L;
+	Lexer = x;
+	Tokenizer = w;
+	Hooks = P;
+	constructor(...e) {
+		this.use(...e);
+	}
+	walkTokens(e, t) {
+		let n = [];
+		for (let s of e) switch (n = n.concat(t.call(this, s)), s.type) {
+			case "table": {
+				let r = s;
+				for (let i of r.header) n = n.concat(this.walkTokens(i.tokens, t));
+				for (let i of r.rows) for (let o of i) n = n.concat(this.walkTokens(o.tokens, t));
+				break;
+			}
+			case "list": {
+				let r = s;
+				n = n.concat(this.walkTokens(r.items, t));
+				break;
+			}
+			default: {
+				let r = s;
+				this.defaults.extensions?.childTokens?.[r.type] ? this.defaults.extensions.childTokens[r.type].forEach((i) => {
+					let o = r[i].flat(Infinity);
+					n = n.concat(this.walkTokens(o, t));
+				}) : r.tokens && (n = n.concat(this.walkTokens(r.tokens, t)));
+			}
+		}
+		return n;
+	}
+	use(...e) {
+		let t = this.defaults.extensions || {
+			renderers: {},
+			childTokens: {}
+		};
+		return e.forEach((n) => {
+			let s = { ...n };
+			if (s.async = this.defaults.async || s.async || !1, n.extensions && (n.extensions.forEach((r) => {
+				if (!r.name) throw new Error("extension name required");
+				if ("renderer" in r) {
+					let i = t.renderers[r.name];
+					i ? t.renderers[r.name] = function(...o) {
+						let u = r.renderer.apply(this, o);
+						return u === !1 && (u = i.apply(this, o)), u;
+					} : t.renderers[r.name] = r.renderer;
+				}
+				if ("tokenizer" in r) {
+					if (!r.level || r.level !== "block" && r.level !== "inline") throw new Error("extension level must be 'block' or 'inline'");
+					let i = t[r.level];
+					i ? i.unshift(r.tokenizer) : t[r.level] = [r.tokenizer], r.start && (r.level === "block" ? t.startBlock ? t.startBlock.push(r.start) : t.startBlock = [r.start] : r.level === "inline" && (t.startInline ? t.startInline.push(r.start) : t.startInline = [r.start]));
+				}
+				"childTokens" in r && r.childTokens && (t.childTokens[r.name] = r.childTokens);
+			}), s.extensions = t), n.renderer) {
+				let r = this.defaults.renderer || new y(this.defaults);
+				for (let i in n.renderer) {
+					if (!(i in r)) throw new Error(`renderer '${i}' does not exist`);
+					if (["options", "parser"].includes(i)) continue;
+					let o = i, u = n.renderer[o], a = r[o];
+					r[o] = (...p) => {
+						let c = u.apply(r, p);
+						return c === !1 && (c = a.apply(r, p)), c || "";
+					};
+				}
+				s.renderer = r;
+			}
+			if (n.tokenizer) {
+				let r = this.defaults.tokenizer || new w(this.defaults);
+				for (let i in n.tokenizer) {
+					if (!(i in r)) throw new Error(`tokenizer '${i}' does not exist`);
+					if ([
+						"options",
+						"rules",
+						"lexer"
+					].includes(i)) continue;
+					let o = i, u = n.tokenizer[o], a = r[o];
+					r[o] = (...p) => {
+						let c = u.apply(r, p);
+						return c === !1 && (c = a.apply(r, p)), c;
+					};
+				}
+				s.tokenizer = r;
+			}
+			if (n.hooks) {
+				let r = this.defaults.hooks || new P();
+				for (let i in n.hooks) {
+					if (!(i in r)) throw new Error(`hook '${i}' does not exist`);
+					if (["options", "block"].includes(i)) continue;
+					let o = i, u = n.hooks[o], a = r[o];
+					P.passThroughHooks.has(i) ? r[o] = (p) => {
+						if (this.defaults.async && P.passThroughHooksRespectAsync.has(i)) return (async () => {
+							let h = await u.call(r, p);
+							return a.call(r, h);
+						})();
+						let c = u.call(r, p);
+						return a.call(r, c);
+					} : r[o] = (...p) => {
+						if (this.defaults.async) return (async () => {
+							let h = await u.apply(r, p);
+							return h === !1 && (h = await a.apply(r, p)), h;
+						})();
+						let c = u.apply(r, p);
+						return c === !1 && (c = a.apply(r, p)), c;
+					};
+				}
+				s.hooks = r;
+			}
+			if (n.walkTokens) {
+				let r = this.defaults.walkTokens, i = n.walkTokens;
+				s.walkTokens = function(o) {
+					let u = [];
+					return u.push(i.call(this, o)), r && (u = u.concat(r.call(this, o))), u;
+				};
+			}
+			this.defaults = {
+				...this.defaults,
+				...s
+			};
+		}), this;
+	}
+	setOptions(e) {
+		return this.defaults = {
+			...this.defaults,
+			...e
+		}, this;
+	}
+	lexer(e, t) {
+		return x.lex(e, t ?? this.defaults);
+	}
+	parser(e, t) {
+		return b.parse(e, t ?? this.defaults);
+	}
+	parseMarkdown(e) {
+		return (n, s) => {
+			let r = { ...s }, i = {
+				...this.defaults,
+				...r
+			}, o = this.onError(!!i.silent, !!i.async);
+			if (this.defaults.async === !0 && r.async === !1) return o(/* @__PURE__ */ new Error("marked(): The async option was set to true by an extension. Remove async: false from the parse options object to return a Promise."));
+			if (typeof n > "u" || n === null) return o(/* @__PURE__ */ new Error("marked(): input parameter is undefined or null"));
+			if (typeof n != "string") return o(/* @__PURE__ */ new Error("marked(): input parameter is of type " + Object.prototype.toString.call(n) + ", string expected"));
+			if (i.hooks && (i.hooks.options = i, i.hooks.block = e), i.async) return (async () => {
+				let u = i.hooks ? await i.hooks.preprocess(n) : n, p = await (i.hooks ? await i.hooks.provideLexer(e) : e ? x.lex : x.lexInline)(u, i), c = i.hooks ? await i.hooks.processAllTokens(p) : p;
+				i.walkTokens && await Promise.all(this.walkTokens(c, i.walkTokens));
+				let k = await (i.hooks ? await i.hooks.provideParser(e) : e ? b.parse : b.parseInline)(c, i);
+				return i.hooks ? await i.hooks.postprocess(k) : k;
+			})().catch(o);
+			try {
+				i.hooks && (n = i.hooks.preprocess(n));
+				let a = (i.hooks ? i.hooks.provideLexer(e) : e ? x.lex : x.lexInline)(n, i);
+				i.hooks && (a = i.hooks.processAllTokens(a)), i.walkTokens && this.walkTokens(a, i.walkTokens);
+				let c = (i.hooks ? i.hooks.provideParser(e) : e ? b.parse : b.parseInline)(a, i);
+				return i.hooks && (c = i.hooks.postprocess(c)), c;
+			} catch (u) {
+				return o(u);
+			}
+		};
+	}
+	onError(e, t) {
+		return (n) => {
+			if (n.message += `
+Please report this to https://github.com/markedjs/marked.`, e) {
+				let s = "<p>An error occurred:</p><pre>" + O(n.message + "", !0) + "</pre>";
+				return t ? Promise.resolve(s) : s;
+			}
+			if (t) return Promise.reject(n);
+			throw n;
+		};
+	}
+};
+var M = new D();
+function g(l, e) {
+	return M.parse(l, e);
+}
+g.options = g.setOptions = function(l) {
+	return M.setOptions(l), g.defaults = M.defaults, N(g.defaults), g;
+};
+g.getDefaults = z;
+g.defaults = T;
+g.use = function(...l) {
+	return M.use(...l), g.defaults = M.defaults, N(g.defaults), g;
+};
+g.walkTokens = function(l, e) {
+	return M.walkTokens(l, e);
+};
+g.parseInline = M.parseInline;
+g.Parser = b;
+g.parser = b.parse;
+g.Renderer = y;
+g.TextRenderer = L;
+g.Lexer = x;
+g.lexer = x.lex;
+g.Tokenizer = w;
+g.Hooks = P;
+g.parse = g;
+g.options;
+g.setOptions;
+g.use;
+g.walkTokens;
+g.parseInline;
+b.parse;
+x.lex;
+//#endregion
+//#region ../../node_modules/.pnpm/dompurify@3.4.12/node_modules/dompurify/dist/purify.es.mjs
+/*! @license DOMPurify 3.4.12 | (c) Cure53 and other contributors | Released under the Apache license 2.0 and Mozilla Public License 2.0 | github.com/cure53/DOMPurify/blob/3.4.12/LICENSE */
+function _arrayLikeToArray(r, a) {
+	(null == a || a > r.length) && (a = r.length);
+	for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
+	return n;
+}
+function _arrayWithHoles(r) {
+	if (Array.isArray(r)) return r;
+}
+function _iterableToArrayLimit(r, l) {
+	var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"];
+	if (null != t) {
+		var e, n, i, u, a = [], f = true, o = false;
+		try {
+			if (i = (t = t.call(r)).next, 0 === l);
+			else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0);
+		} catch (r) {
+			o = true, n = r;
+		} finally {
+			try {
+				if (!f && null != t.return && (u = t.return(), Object(u) !== u)) return;
+			} finally {
+				if (o) throw n;
+			}
+		}
+		return a;
+	}
+}
+function _nonIterableRest() {
+	throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
+}
+function _slicedToArray(r, e) {
+	return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest();
+}
+function _unsupportedIterableToArray(r, a) {
+	if (r) {
+		if ("string" == typeof r) return _arrayLikeToArray(r, a);
+		var t = {}.toString.call(r).slice(8, -1);
+		return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0;
+	}
+}
+var entries = Object.entries;
+var setPrototypeOf = Object.setPrototypeOf;
+var isFrozen = Object.isFrozen;
+var getPrototypeOf = Object.getPrototypeOf;
+var getOwnPropertyDescriptor = Object.getOwnPropertyDescriptor;
+var freeze = Object.freeze;
+var seal = Object.seal;
+var create = Object.create;
+var _ref = typeof Reflect !== "undefined" && Reflect;
+var apply = _ref.apply;
+var construct = _ref.construct;
+if (!freeze) freeze = function freeze(x) {
+	return x;
+};
+if (!seal) seal = function seal(x) {
+	return x;
+};
+if (!apply) apply = function apply(func, thisArg) {
+	for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) args[_key - 2] = arguments[_key];
+	return func.apply(thisArg, args);
+};
+if (!construct) construct = function construct(Func) {
+	for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) args[_key2 - 1] = arguments[_key2];
+	return new Func(...args);
+};
+var arrayForEach = unapply(Array.prototype.forEach);
+var arrayLastIndexOf = unapply(Array.prototype.lastIndexOf);
+var arrayPop = unapply(Array.prototype.pop);
+var arrayPush = unapply(Array.prototype.push);
+var arraySplice = unapply(Array.prototype.splice);
+var arrayIsArray = Array.isArray;
+var stringToLowerCase = unapply(String.prototype.toLowerCase);
+var stringToString = unapply(String.prototype.toString);
+var stringMatch = unapply(String.prototype.match);
+var stringReplace = unapply(String.prototype.replace);
+var stringIndexOf = unapply(String.prototype.indexOf);
+var stringTrim = unapply(String.prototype.trim);
+var numberToString = unapply(Number.prototype.toString);
+var booleanToString = unapply(Boolean.prototype.toString);
+var bigintToString = typeof BigInt === "undefined" ? null : unapply(BigInt.prototype.toString);
+var symbolToString = typeof Symbol === "undefined" ? null : unapply(Symbol.prototype.toString);
+var objectHasOwnProperty = unapply(Object.prototype.hasOwnProperty);
+var objectToString = unapply(Object.prototype.toString);
+var regExpTest = unapply(RegExp.prototype.test);
+var typeErrorCreate = unconstruct(TypeError);
+/**
+* Creates a new function that calls the given function with a specified thisArg and arguments.
+*
+* @param func - The function to be wrapped and called.
+* @returns A new function that calls the given function with a specified thisArg and arguments.
+*/
+function unapply(func) {
+	return function(thisArg) {
+		if (thisArg instanceof RegExp) thisArg.lastIndex = 0;
+		for (var _len3 = arguments.length, args = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) args[_key3 - 1] = arguments[_key3];
+		return apply(func, thisArg, args);
+	};
+}
+/**
+* Creates a new function that constructs an instance of the given constructor function with the provided arguments.
+*
+* @param func - The constructor function to be wrapped and called.
+* @returns A new function that constructs an instance of the given constructor function with the provided arguments.
+*/
+function unconstruct(Func) {
+	return function() {
+		for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) args[_key4] = arguments[_key4];
+		return construct(Func, args);
+	};
+}
+/**
+* Add properties to a lookup table
+*
+* @param set - The set to which elements will be added.
+* @param array - The array containing elements to be added to the set.
+* @param transformCaseFunc - An optional function to transform the case of each element before adding to the set.
+* @returns The modified set with added elements.
+*/
+function addToSet(set, array) {
+	let transformCaseFunc = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : stringToLowerCase;
+	if (setPrototypeOf) setPrototypeOf(set, null);
+	if (!arrayIsArray(array)) return set;
+	let l = array.length;
+	while (l--) {
+		let element = array[l];
+		if (typeof element === "string") {
+			const lcElement = transformCaseFunc(element);
+			if (lcElement !== element) {
+				if (!isFrozen(array)) array[l] = lcElement;
+				element = lcElement;
+			}
+		}
+		set[element] = true;
+	}
+	return set;
+}
+/**
+* Clean up an array to harden against CSPP
+*
+* @param array - The array to be cleaned.
+* @returns The cleaned version of the array
+*/
+function cleanArray(array) {
+	for (let index = 0; index < array.length; index++) if (!objectHasOwnProperty(array, index)) array[index] = null;
+	return array;
+}
+/**
+* Shallow clone an object
+*
+* @param object - The object to be cloned.
+* @returns A new object that copies the original.
+*/
+function clone(object) {
+	const newObject = create(null);
+	for (const _ref2 of entries(object)) {
+		var _ref3 = _slicedToArray(_ref2, 2);
+		const property = _ref3[0];
+		const value = _ref3[1];
+		if (objectHasOwnProperty(object, property)) if (arrayIsArray(value)) newObject[property] = cleanArray(value);
+		else if (value && typeof value === "object" && value.constructor === Object) newObject[property] = clone(value);
+		else newObject[property] = value;
+	}
+	return newObject;
+}
+/**
+* Convert non-node values into strings without depending on direct property access.
+*
+* @param value - The value to stringify.
+* @returns A string representation of the provided value.
+*/
+function stringifyValue(value) {
+	switch (typeof value) {
+		case "string": return value;
+		case "number": return numberToString(value);
+		case "boolean": return booleanToString(value);
+		case "bigint": return bigintToString ? bigintToString(value) : "0";
+		case "symbol": return symbolToString ? symbolToString(value) : "Symbol()";
+		case "undefined": return objectToString(value);
+		case "function":
+		case "object": {
+			if (value === null) return objectToString(value);
+			const valueAsRecord = value;
+			const valueToString = lookupGetter(valueAsRecord, "toString");
+			if (typeof valueToString === "function") {
+				const stringified = valueToString(valueAsRecord);
+				return typeof stringified === "string" ? stringified : objectToString(stringified);
+			}
+			return objectToString(value);
+		}
+		default: return objectToString(value);
+	}
+}
+/**
+* This method automatically checks if the prop is function or getter and behaves accordingly.
+*
+* @param object - The object to look up the getter function in its prototype chain.
+* @param prop - The property name for which to find the getter function.
+* @returns The getter function found in the prototype chain or a fallback function.
+*/
+function lookupGetter(object, prop) {
+	while (object !== null) {
+		const desc = getOwnPropertyDescriptor(object, prop);
+		if (desc) {
+			if (desc.get) return unapply(desc.get);
+			if (typeof desc.value === "function") return unapply(desc.value);
+		}
+		object = getPrototypeOf(object);
+	}
+	function fallbackValue() {
+		return null;
+	}
+	return fallbackValue;
+}
+function isRegex(value) {
+	try {
+		regExpTest(value, "");
+		return true;
+	} catch (_unused) {
+		return false;
+	}
+}
+var html$1 = freeze([
+	"a",
+	"abbr",
+	"acronym",
+	"address",
+	"area",
+	"article",
+	"aside",
+	"audio",
+	"b",
+	"bdi",
+	"bdo",
+	"big",
+	"blink",
+	"blockquote",
+	"body",
+	"br",
+	"button",
+	"canvas",
+	"caption",
+	"center",
+	"cite",
+	"code",
+	"col",
+	"colgroup",
+	"content",
+	"data",
+	"datalist",
+	"dd",
+	"decorator",
+	"del",
+	"details",
+	"dfn",
+	"dialog",
+	"dir",
+	"div",
+	"dl",
+	"dt",
+	"element",
+	"em",
+	"fieldset",
+	"figcaption",
+	"figure",
+	"font",
+	"footer",
+	"form",
+	"h1",
+	"h2",
+	"h3",
+	"h4",
+	"h5",
+	"h6",
+	"head",
+	"header",
+	"hgroup",
+	"hr",
+	"html",
+	"i",
+	"img",
+	"input",
+	"ins",
+	"kbd",
+	"label",
+	"legend",
+	"li",
+	"main",
+	"map",
+	"mark",
+	"marquee",
+	"menu",
+	"menuitem",
+	"meter",
+	"nav",
+	"nobr",
+	"ol",
+	"optgroup",
+	"option",
+	"output",
+	"p",
+	"picture",
+	"pre",
+	"progress",
+	"q",
+	"rp",
+	"rt",
+	"ruby",
+	"s",
+	"samp",
+	"search",
+	"section",
+	"select",
+	"shadow",
+	"slot",
+	"small",
+	"source",
+	"spacer",
+	"span",
+	"strike",
+	"strong",
+	"style",
+	"sub",
+	"summary",
+	"sup",
+	"table",
+	"tbody",
+	"td",
+	"template",
+	"textarea",
+	"tfoot",
+	"th",
+	"thead",
+	"time",
+	"tr",
+	"track",
+	"tt",
+	"u",
+	"ul",
+	"var",
+	"video",
+	"wbr"
+]);
+var svg$1 = freeze([
+	"svg",
+	"a",
+	"altglyph",
+	"altglyphdef",
+	"altglyphitem",
+	"animatecolor",
+	"animatemotion",
+	"animatetransform",
+	"circle",
+	"clippath",
+	"defs",
+	"desc",
+	"ellipse",
+	"enterkeyhint",
+	"exportparts",
+	"filter",
+	"font",
+	"g",
+	"glyph",
+	"glyphref",
+	"hkern",
+	"image",
+	"inputmode",
+	"line",
+	"lineargradient",
+	"marker",
+	"mask",
+	"metadata",
+	"mpath",
+	"part",
+	"path",
+	"pattern",
+	"polygon",
+	"polyline",
+	"radialgradient",
+	"rect",
+	"stop",
+	"style",
+	"switch",
+	"symbol",
+	"text",
+	"textpath",
+	"title",
+	"tref",
+	"tspan",
+	"view",
+	"vkern"
+]);
+var svgFilters = freeze([
+	"feBlend",
+	"feColorMatrix",
+	"feComponentTransfer",
+	"feComposite",
+	"feConvolveMatrix",
+	"feDiffuseLighting",
+	"feDisplacementMap",
+	"feDistantLight",
+	"feDropShadow",
+	"feFlood",
+	"feFuncA",
+	"feFuncB",
+	"feFuncG",
+	"feFuncR",
+	"feGaussianBlur",
+	"feImage",
+	"feMerge",
+	"feMergeNode",
+	"feMorphology",
+	"feOffset",
+	"fePointLight",
+	"feSpecularLighting",
+	"feSpotLight",
+	"feTile",
+	"feTurbulence"
+]);
+var svgDisallowed = freeze([
+	"animate",
+	"color-profile",
+	"cursor",
+	"discard",
+	"font-face",
+	"font-face-format",
+	"font-face-name",
+	"font-face-src",
+	"font-face-uri",
+	"foreignobject",
+	"hatch",
+	"hatchpath",
+	"mesh",
+	"meshgradient",
+	"meshpatch",
+	"meshrow",
+	"missing-glyph",
+	"script",
+	"set",
+	"solidcolor",
+	"unknown",
+	"use"
+]);
+var mathMl$1 = freeze([
+	"math",
+	"menclose",
+	"merror",
+	"mfenced",
+	"mfrac",
+	"mglyph",
+	"mi",
+	"mlabeledtr",
+	"mmultiscripts",
+	"mn",
+	"mo",
+	"mover",
+	"mpadded",
+	"mphantom",
+	"mroot",
+	"mrow",
+	"ms",
+	"mspace",
+	"msqrt",
+	"mstyle",
+	"msub",
+	"msup",
+	"msubsup",
+	"mtable",
+	"mtd",
+	"mtext",
+	"mtr",
+	"munder",
+	"munderover",
+	"mprescripts"
+]);
+var mathMlDisallowed = freeze([
+	"maction",
+	"maligngroup",
+	"malignmark",
+	"mlongdiv",
+	"mscarries",
+	"mscarry",
+	"msgroup",
+	"mstack",
+	"msline",
+	"msrow",
+	"semantics",
+	"annotation",
+	"annotation-xml",
+	"mprescripts",
+	"none"
+]);
+var text = freeze(["#text"]);
+var html = freeze([
+	"accept",
+	"action",
+	"align",
+	"alt",
+	"autocapitalize",
+	"autocomplete",
+	"autopictureinpicture",
+	"autoplay",
+	"background",
+	"bgcolor",
+	"border",
+	"capture",
+	"cellpadding",
+	"cellspacing",
+	"checked",
+	"cite",
+	"class",
+	"clear",
+	"color",
+	"cols",
+	"colspan",
+	"command",
+	"commandfor",
+	"controls",
+	"controlslist",
+	"coords",
+	"crossorigin",
+	"datetime",
+	"decoding",
+	"default",
+	"dir",
+	"disabled",
+	"disablepictureinpicture",
+	"disableremoteplayback",
+	"download",
+	"draggable",
+	"enctype",
+	"enterkeyhint",
+	"exportparts",
+	"face",
+	"for",
+	"headers",
+	"height",
+	"hidden",
+	"high",
+	"href",
+	"hreflang",
+	"id",
+	"inert",
+	"inputmode",
+	"integrity",
+	"ismap",
+	"kind",
+	"label",
+	"lang",
+	"list",
+	"loading",
+	"loop",
+	"low",
+	"max",
+	"maxlength",
+	"media",
+	"method",
+	"min",
+	"minlength",
+	"multiple",
+	"muted",
+	"name",
+	"nonce",
+	"noshade",
+	"novalidate",
+	"nowrap",
+	"open",
+	"optimum",
+	"part",
+	"pattern",
+	"placeholder",
+	"playsinline",
+	"popover",
+	"popovertarget",
+	"popovertargetaction",
+	"poster",
+	"preload",
+	"pubdate",
+	"radiogroup",
+	"readonly",
+	"rel",
+	"required",
+	"rev",
+	"reversed",
+	"role",
+	"rows",
+	"rowspan",
+	"spellcheck",
+	"scope",
+	"selected",
+	"shape",
+	"size",
+	"sizes",
+	"slot",
+	"span",
+	"srclang",
+	"start",
+	"src",
+	"srcset",
+	"step",
+	"style",
+	"summary",
+	"tabindex",
+	"title",
+	"translate",
+	"type",
+	"usemap",
+	"valign",
+	"value",
+	"width",
+	"wrap",
+	"xmlns"
+]);
+var svg = freeze([
+	"accent-height",
+	"accumulate",
+	"additive",
+	"alignment-baseline",
+	"amplitude",
+	"ascent",
+	"attributename",
+	"attributetype",
+	"azimuth",
+	"basefrequency",
+	"baseline-shift",
+	"begin",
+	"bias",
+	"by",
+	"class",
+	"clip",
+	"clippathunits",
+	"clip-path",
+	"clip-rule",
+	"color",
+	"color-interpolation",
+	"color-interpolation-filters",
+	"color-profile",
+	"color-rendering",
+	"cx",
+	"cy",
+	"d",
+	"dx",
+	"dy",
+	"diffuseconstant",
+	"direction",
+	"display",
+	"divisor",
+	"dominant-baseline",
+	"dur",
+	"edgemode",
+	"elevation",
+	"end",
+	"exponent",
+	"fill",
+	"fill-opacity",
+	"fill-rule",
+	"filter",
+	"filterunits",
+	"flood-color",
+	"flood-opacity",
+	"font-family",
+	"font-size",
+	"font-size-adjust",
+	"font-stretch",
+	"font-style",
+	"font-variant",
+	"font-weight",
+	"fx",
+	"fy",
+	"g1",
+	"g2",
+	"glyph-name",
+	"glyphref",
+	"gradientunits",
+	"gradienttransform",
+	"height",
+	"href",
+	"id",
+	"image-rendering",
+	"in",
+	"in2",
+	"intercept",
+	"k",
+	"k1",
+	"k2",
+	"k3",
+	"k4",
+	"kerning",
+	"keypoints",
+	"keysplines",
+	"keytimes",
+	"lang",
+	"lengthadjust",
+	"letter-spacing",
+	"kernelmatrix",
+	"kernelunitlength",
+	"lighting-color",
+	"local",
+	"marker-end",
+	"marker-mid",
+	"marker-start",
+	"markerheight",
+	"markerunits",
+	"markerwidth",
+	"maskcontentunits",
+	"maskunits",
+	"max",
+	"mask",
+	"mask-type",
+	"media",
+	"method",
+	"mode",
+	"min",
+	"name",
+	"numoctaves",
+	"offset",
+	"operator",
+	"opacity",
+	"order",
+	"orient",
+	"orientation",
+	"origin",
+	"overflow",
+	"paint-order",
+	"path",
+	"pathlength",
+	"patterncontentunits",
+	"patterntransform",
+	"patternunits",
+	"points",
+	"preservealpha",
+	"preserveaspectratio",
+	"primitiveunits",
+	"r",
+	"rx",
+	"ry",
+	"radius",
+	"refx",
+	"refy",
+	"repeatcount",
+	"repeatdur",
+	"restart",
+	"result",
+	"rotate",
+	"scale",
+	"seed",
+	"shape-rendering",
+	"slope",
+	"specularconstant",
+	"specularexponent",
+	"spreadmethod",
+	"startoffset",
+	"stddeviation",
+	"stitchtiles",
+	"stop-color",
+	"stop-opacity",
+	"stroke-dasharray",
+	"stroke-dashoffset",
+	"stroke-linecap",
+	"stroke-linejoin",
+	"stroke-miterlimit",
+	"stroke-opacity",
+	"stroke",
+	"stroke-width",
+	"style",
+	"surfacescale",
+	"systemlanguage",
+	"tabindex",
+	"tablevalues",
+	"targetx",
+	"targety",
+	"transform",
+	"transform-origin",
+	"text-anchor",
+	"text-decoration",
+	"text-orientation",
+	"text-rendering",
+	"textlength",
+	"type",
+	"u1",
+	"u2",
+	"unicode",
+	"values",
+	"viewbox",
+	"visibility",
+	"version",
+	"vert-adv-y",
+	"vert-origin-x",
+	"vert-origin-y",
+	"width",
+	"word-spacing",
+	"wrap",
+	"writing-mode",
+	"xchannelselector",
+	"ychannelselector",
+	"x",
+	"x1",
+	"x2",
+	"xmlns",
+	"y",
+	"y1",
+	"y2",
+	"z",
+	"zoomandpan"
+]);
+var mathMl = freeze([
+	"accent",
+	"accentunder",
+	"align",
+	"bevelled",
+	"close",
+	"columnalign",
+	"columnlines",
+	"columnspacing",
+	"columnspan",
+	"denomalign",
+	"depth",
+	"dir",
+	"display",
+	"displaystyle",
+	"encoding",
+	"fence",
+	"frame",
+	"height",
+	"href",
+	"id",
+	"largeop",
+	"length",
+	"linethickness",
+	"lquote",
+	"lspace",
+	"mathbackground",
+	"mathcolor",
+	"mathsize",
+	"mathvariant",
+	"maxsize",
+	"minsize",
+	"movablelimits",
+	"notation",
+	"numalign",
+	"open",
+	"rowalign",
+	"rowlines",
+	"rowspacing",
+	"rowspan",
+	"rspace",
+	"rquote",
+	"scriptlevel",
+	"scriptminsize",
+	"scriptsizemultiplier",
+	"selection",
+	"separator",
+	"separators",
+	"stretchy",
+	"subscriptshift",
+	"supscriptshift",
+	"symmetric",
+	"voffset",
+	"width",
+	"xmlns"
+]);
+var xml = freeze([
+	"xlink:href",
+	"xml:id",
+	"xlink:title",
+	"xml:space",
+	"xmlns:xlink"
+]);
+var MUSTACHE_EXPR = seal(/{{[\w\W]*|^[\w\W]*}}/g);
+var ERB_EXPR = seal(/<%[\w\W]*|^[\w\W]*%>/g);
+var TMPLIT_EXPR = seal(/\${[\w\W]*/g);
+var DATA_ATTR = seal(/^data-[\-\w.\u00B7-\uFFFF]+$/);
+var ARIA_ATTR = seal(/^aria-[\-\w]+$/);
+var IS_ALLOWED_URI = seal(/^(?:(?:(?:f|ht)tps?|mailto|tel|callto|sms|cid|xmpp|matrix):|[^a-z]|[a-z+.\-]+(?:[^a-z+.\-:]|$))/i);
+var IS_SCRIPT_OR_DATA = seal(/^(?:\w+script|data):/i);
+var ATTR_WHITESPACE = seal(/[\u0000-\u0020\u00A0\u1680\u180E\u2000-\u2029\u205F\u3000]/g);
+var DOCTYPE_NAME = seal(/^html$/i);
+var CUSTOM_ELEMENT = seal(/^[a-z][.\w]*(-[.\w]+)+$/i);
+var ELEMENT_MARKUP_PROBE = seal(/<[/\w!]/g);
+var COMMENT_MARKUP_PROBE = seal(/<[/\w]/g);
+var FALLBACK_TAG_CLOSE = seal(/<\/no(script|embed|frames)/i);
+var SELF_CLOSING_TAG = seal(/\/>/i);
+var NODE_TYPE = {
+	element: 1,
+	attribute: 2,
+	text: 3,
+	cdataSection: 4,
+	entityReference: 5,
+	entityNode: 6,
+	processingInstruction: 7,
+	comment: 8,
+	document: 9,
+	documentType: 10,
+	documentFragment: 11,
+	notation: 12
+};
+var getGlobal = function getGlobal() {
+	return typeof window === "undefined" ? null : window;
+};
+/**
+* Creates a no-op policy for internal use only.
+* Don't export this function outside this module!
+* @param trustedTypes The policy factory.
+* @param purifyHostElement The Script element used to load DOMPurify (to determine policy name suffix).
+* @return The policy created (or null, if Trusted Types
+* are not supported or creating the policy failed).
+*/
+var _createTrustedTypesPolicy = function _createTrustedTypesPolicy(trustedTypes, purifyHostElement) {
+	if (typeof trustedTypes !== "object" || typeof trustedTypes.createPolicy !== "function") return null;
+	let suffix = null;
+	const ATTR_NAME = "data-tt-policy-suffix";
+	if (purifyHostElement && purifyHostElement.hasAttribute(ATTR_NAME)) suffix = purifyHostElement.getAttribute(ATTR_NAME);
+	const policyName = "dompurify" + (suffix ? "#" + suffix : "");
+	try {
+		return trustedTypes.createPolicy(policyName, {
+			createHTML(html) {
+				return html;
+			},
+			createScriptURL(scriptUrl) {
+				return scriptUrl;
+			}
+		});
+	} catch (_) {
+		console.warn("TrustedTypes policy " + policyName + " could not be created.");
+		return null;
+	}
+};
+var _createHooksMap = function _createHooksMap() {
+	return {
+		afterSanitizeAttributes: [],
+		afterSanitizeElements: [],
+		afterSanitizeShadowDOM: [],
+		beforeSanitizeAttributes: [],
+		beforeSanitizeElements: [],
+		beforeSanitizeShadowDOM: [],
+		uponSanitizeAttribute: [],
+		uponSanitizeElement: [],
+		uponSanitizeShadowNode: []
+	};
+};
+/**
+* Resolve a set-valued configuration option: a fresh set built from
+* cfg[key] when it is an own array property (seeded with a clone of
+* options.base when given, case-normalized via options.transform),
+* the fallback set otherwise.
+*
+* @param cfg the cloned, prototype-free configuration object
+* @param key the configuration property to read
+* @param fallback the set to use when the option is absent or not an array
+* @param options transform and optional base set to merge into
+* @returns the resolved set
+*/
+var _resolveSetOption = function _resolveSetOption(cfg, key, fallback, options) {
+	return objectHasOwnProperty(cfg, key) && arrayIsArray(cfg[key]) ? addToSet(options.base ? clone(options.base) : {}, cfg[key], options.transform) : fallback;
+};
+function createDOMPurify() {
+	let window = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : getGlobal();
+	const DOMPurify = (root) => createDOMPurify(root);
+	DOMPurify.version = "3.4.12";
+	DOMPurify.removed = [];
+	if (!window || !window.document || window.document.nodeType !== NODE_TYPE.document || !window.Element) {
+		DOMPurify.isSupported = false;
+		return DOMPurify;
+	}
+	let document = window.document;
+	const originalDocument = document;
+	const currentScript = originalDocument.currentScript;
+	window.DocumentFragment;
+	const HTMLTemplateElement = window.HTMLTemplateElement, Node = window.Node, Element = window.Element, NodeFilter = window.NodeFilter;
+	window.NamedNodeMap === void 0 && (window.NamedNodeMap || window.MozNamedAttrMap);
+	window.HTMLFormElement;
+	const DOMParser = window.DOMParser, trustedTypes = window.trustedTypes;
+	const ElementPrototype = Element.prototype;
+	const cloneNode = lookupGetter(ElementPrototype, "cloneNode");
+	const remove = lookupGetter(ElementPrototype, "remove");
+	const getNextSibling = lookupGetter(ElementPrototype, "nextSibling");
+	const getChildNodes = lookupGetter(ElementPrototype, "childNodes");
+	const getParentNode = lookupGetter(ElementPrototype, "parentNode");
+	const getShadowRoot = lookupGetter(ElementPrototype, "shadowRoot");
+	const getAttributes = lookupGetter(ElementPrototype, "attributes");
+	const getNodeType = Node && Node.prototype ? lookupGetter(Node.prototype, "nodeType") : null;
+	const getNodeName = Node && Node.prototype ? lookupGetter(Node.prototype, "nodeName") : null;
+	if (typeof HTMLTemplateElement === "function") {
+		const template = document.createElement("template");
+		if (template.content && template.content.ownerDocument) document = template.content.ownerDocument;
+	}
+	let trustedTypesPolicy;
+	let emptyHTML = "";
+	let defaultTrustedTypesPolicy;
+	let defaultTrustedTypesPolicyResolved = false;
+	let IN_TRUSTED_TYPES_POLICY = 0;
+	const _assertNotInTrustedTypesPolicy = function _assertNotInTrustedTypesPolicy() {
+		if (IN_TRUSTED_TYPES_POLICY > 0) throw typeErrorCreate("A configured TRUSTED_TYPES_POLICY callback (createHTML or createScriptURL) must not call DOMPurify.sanitize, as that causes infinite recursion. Do not pass a policy whose callbacks wrap DOMPurify as TRUSTED_TYPES_POLICY; see the \"DOMPurify and Trusted Types\" section of the README.");
+	};
+	const _createTrustedHTML = function _createTrustedHTML(html) {
+		_assertNotInTrustedTypesPolicy();
+		IN_TRUSTED_TYPES_POLICY++;
+		try {
+			return trustedTypesPolicy.createHTML(html);
+		} finally {
+			IN_TRUSTED_TYPES_POLICY--;
+		}
+	};
+	const _createTrustedScriptURL = function _createTrustedScriptURL(scriptUrl) {
+		_assertNotInTrustedTypesPolicy();
+		IN_TRUSTED_TYPES_POLICY++;
+		try {
+			return trustedTypesPolicy.createScriptURL(scriptUrl);
+		} finally {
+			IN_TRUSTED_TYPES_POLICY--;
+		}
+	};
+	const _getDefaultTrustedTypesPolicy = function _getDefaultTrustedTypesPolicy() {
+		if (!defaultTrustedTypesPolicyResolved) {
+			defaultTrustedTypesPolicy = _createTrustedTypesPolicy(trustedTypes, currentScript);
+			defaultTrustedTypesPolicyResolved = true;
+		}
+		return defaultTrustedTypesPolicy;
+	};
+	const _document = document, implementation = _document.implementation, createNodeIterator = _document.createNodeIterator, createDocumentFragment = _document.createDocumentFragment, getElementsByTagName = _document.getElementsByTagName;
+	const importNode = originalDocument.importNode;
+	let hooks = _createHooksMap();
+	/**
+	* Expose whether this browser supports running the full DOMPurify.
+	*/
+	DOMPurify.isSupported = typeof entries === "function" && typeof getParentNode === "function" && implementation && implementation.createHTMLDocument !== void 0;
+	const MUSTACHE_EXPR$1 = MUSTACHE_EXPR, ERB_EXPR$1 = ERB_EXPR, TMPLIT_EXPR$1 = TMPLIT_EXPR, DATA_ATTR$1 = DATA_ATTR, ARIA_ATTR$1 = ARIA_ATTR, IS_SCRIPT_OR_DATA$1 = IS_SCRIPT_OR_DATA, ATTR_WHITESPACE$1 = ATTR_WHITESPACE, CUSTOM_ELEMENT$1 = CUSTOM_ELEMENT;
+	let IS_ALLOWED_URI$1 = IS_ALLOWED_URI;
+	/**
+	* We consider the elements and attributes below to be safe. Ideally
+	* don't add any new ones but feel free to remove unwanted ones.
+	*/
+	let ALLOWED_TAGS = null;
+	const DEFAULT_ALLOWED_TAGS = addToSet({}, [
+		...html$1,
+		...svg$1,
+		...svgFilters,
+		...mathMl$1,
+		...text
+	]);
+	let ALLOWED_ATTR = null;
+	const DEFAULT_ALLOWED_ATTR = addToSet({}, [
+		...html,
+		...svg,
+		...mathMl,
+		...xml
+	]);
+	let CUSTOM_ELEMENT_HANDLING = Object.seal(create(null, {
+		tagNameCheck: {
+			writable: true,
+			configurable: false,
+			enumerable: true,
+			value: null
+		},
+		attributeNameCheck: {
+			writable: true,
+			configurable: false,
+			enumerable: true,
+			value: null
+		},
+		allowCustomizedBuiltInElements: {
+			writable: true,
+			configurable: false,
+			enumerable: true,
+			value: false
+		}
+	}));
+	let FORBID_TAGS = null;
+	let FORBID_ATTR = null;
+	const EXTRA_ELEMENT_HANDLING = Object.seal(create(null, {
+		tagCheck: {
+			writable: true,
+			configurable: false,
+			enumerable: true,
+			value: null
+		},
+		attributeCheck: {
+			writable: true,
+			configurable: false,
+			enumerable: true,
+			value: null
+		}
+	}));
+	let ALLOW_ARIA_ATTR = true;
+	let ALLOW_DATA_ATTR = true;
+	let ALLOW_UNKNOWN_PROTOCOLS = false;
+	let ALLOW_SELF_CLOSE_IN_ATTR = true;
+	let SAFE_FOR_TEMPLATES = false;
+	let SAFE_FOR_XML = true;
+	let WHOLE_DOCUMENT = false;
+	let SET_CONFIG = false;
+	let SET_CONFIG_ALLOWED_TAGS = null;
+	let SET_CONFIG_ALLOWED_ATTR = null;
+	let FORCE_BODY = false;
+	let RETURN_DOM = false;
+	let RETURN_DOM_FRAGMENT = false;
+	let RETURN_TRUSTED_TYPE = false;
+	let SANITIZE_DOM = true;
+	let SANITIZE_NAMED_PROPS = false;
+	const SANITIZE_NAMED_PROPS_PREFIX = "user-content-";
+	let KEEP_CONTENT = true;
+	let IN_PLACE = false;
+	let USE_PROFILES = {};
+	let FORBID_CONTENTS = null;
+	const DEFAULT_FORBID_CONTENTS = addToSet({}, [
+		"annotation-xml",
+		"audio",
+		"colgroup",
+		"desc",
+		"foreignobject",
+		"head",
+		"iframe",
+		"math",
+		"mi",
+		"mn",
+		"mo",
+		"ms",
+		"mtext",
+		"noembed",
+		"noframes",
+		"noscript",
+		"plaintext",
+		"script",
+		"selectedcontent",
+		"style",
+		"svg",
+		"template",
+		"thead",
+		"title",
+		"video",
+		"xmp"
+	]);
+	let DATA_URI_TAGS = null;
+	const DEFAULT_DATA_URI_TAGS = addToSet({}, [
+		"audio",
+		"video",
+		"img",
+		"source",
+		"image",
+		"track"
+	]);
+	let URI_SAFE_ATTRIBUTES = null;
+	const DEFAULT_URI_SAFE_ATTRIBUTES = addToSet({}, [
+		"alt",
+		"class",
+		"for",
+		"id",
+		"label",
+		"name",
+		"pattern",
+		"placeholder",
+		"role",
+		"summary",
+		"title",
+		"value",
+		"style",
+		"xmlns"
+	]);
+	const MATHML_NAMESPACE = "http://www.w3.org/1998/Math/MathML";
+	const SVG_NAMESPACE = "http://www.w3.org/2000/svg";
+	const HTML_NAMESPACE = "http://www.w3.org/1999/xhtml";
+	let NAMESPACE = HTML_NAMESPACE;
+	let IS_EMPTY_INPUT = false;
+	let ALLOWED_NAMESPACES = null;
+	const DEFAULT_ALLOWED_NAMESPACES = addToSet({}, [
+		MATHML_NAMESPACE,
+		SVG_NAMESPACE,
+		HTML_NAMESPACE
+	], stringToString);
+	const DEFAULT_MATHML_TEXT_INTEGRATION_POINTS = freeze([
+		"mi",
+		"mo",
+		"mn",
+		"ms",
+		"mtext"
+	]);
+	let MATHML_TEXT_INTEGRATION_POINTS = addToSet({}, DEFAULT_MATHML_TEXT_INTEGRATION_POINTS);
+	const DEFAULT_HTML_INTEGRATION_POINTS = freeze(["annotation-xml"]);
+	let HTML_INTEGRATION_POINTS = addToSet({}, DEFAULT_HTML_INTEGRATION_POINTS);
+	const COMMON_SVG_AND_HTML_ELEMENTS = addToSet({}, [
+		"title",
+		"style",
+		"font",
+		"a",
+		"script"
+	]);
+	let PARSER_MEDIA_TYPE = null;
+	const SUPPORTED_PARSER_MEDIA_TYPES = ["application/xhtml+xml", "text/html"];
+	const DEFAULT_PARSER_MEDIA_TYPE = "text/html";
+	let transformCaseFunc = null;
+	let CONFIG = null;
+	const formElement = document.createElement("form");
+	const isRegexOrFunction = function isRegexOrFunction(testValue) {
+		return testValue instanceof RegExp || testValue instanceof Function;
+	};
+	/**
+	* _parseConfig
+	*
+	* @param cfg optional config literal
+	*/
+	const _parseConfig = function _parseConfig() {
+		let cfg = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+		if (CONFIG && CONFIG === cfg) return;
+		if (!cfg || typeof cfg !== "object") cfg = {};
+		cfg = clone(cfg);
+		PARSER_MEDIA_TYPE = SUPPORTED_PARSER_MEDIA_TYPES.indexOf(cfg.PARSER_MEDIA_TYPE) === -1 ? DEFAULT_PARSER_MEDIA_TYPE : cfg.PARSER_MEDIA_TYPE;
+		transformCaseFunc = PARSER_MEDIA_TYPE === "application/xhtml+xml" ? stringToString : stringToLowerCase;
+		ALLOWED_TAGS = _resolveSetOption(cfg, "ALLOWED_TAGS", DEFAULT_ALLOWED_TAGS, { transform: transformCaseFunc });
+		ALLOWED_ATTR = _resolveSetOption(cfg, "ALLOWED_ATTR", DEFAULT_ALLOWED_ATTR, { transform: transformCaseFunc });
+		ALLOWED_NAMESPACES = _resolveSetOption(cfg, "ALLOWED_NAMESPACES", DEFAULT_ALLOWED_NAMESPACES, { transform: stringToString });
+		URI_SAFE_ATTRIBUTES = _resolveSetOption(cfg, "ADD_URI_SAFE_ATTR", DEFAULT_URI_SAFE_ATTRIBUTES, {
+			transform: transformCaseFunc,
+			base: DEFAULT_URI_SAFE_ATTRIBUTES
+		});
+		DATA_URI_TAGS = _resolveSetOption(cfg, "ADD_DATA_URI_TAGS", DEFAULT_DATA_URI_TAGS, {
+			transform: transformCaseFunc,
+			base: DEFAULT_DATA_URI_TAGS
+		});
+		FORBID_CONTENTS = _resolveSetOption(cfg, "FORBID_CONTENTS", DEFAULT_FORBID_CONTENTS, { transform: transformCaseFunc });
+		FORBID_TAGS = _resolveSetOption(cfg, "FORBID_TAGS", clone({}), { transform: transformCaseFunc });
+		FORBID_ATTR = _resolveSetOption(cfg, "FORBID_ATTR", clone({}), { transform: transformCaseFunc });
+		USE_PROFILES = objectHasOwnProperty(cfg, "USE_PROFILES") ? cfg.USE_PROFILES && typeof cfg.USE_PROFILES === "object" ? clone(cfg.USE_PROFILES) : cfg.USE_PROFILES : false;
+		ALLOW_ARIA_ATTR = cfg.ALLOW_ARIA_ATTR !== false;
+		ALLOW_DATA_ATTR = cfg.ALLOW_DATA_ATTR !== false;
+		ALLOW_UNKNOWN_PROTOCOLS = cfg.ALLOW_UNKNOWN_PROTOCOLS || false;
+		ALLOW_SELF_CLOSE_IN_ATTR = cfg.ALLOW_SELF_CLOSE_IN_ATTR !== false;
+		SAFE_FOR_TEMPLATES = cfg.SAFE_FOR_TEMPLATES || false;
+		SAFE_FOR_XML = cfg.SAFE_FOR_XML !== false;
+		WHOLE_DOCUMENT = cfg.WHOLE_DOCUMENT || false;
+		RETURN_DOM = cfg.RETURN_DOM || false;
+		RETURN_DOM_FRAGMENT = cfg.RETURN_DOM_FRAGMENT || false;
+		RETURN_TRUSTED_TYPE = cfg.RETURN_TRUSTED_TYPE || false;
+		FORCE_BODY = cfg.FORCE_BODY || false;
+		SANITIZE_DOM = cfg.SANITIZE_DOM !== false;
+		SANITIZE_NAMED_PROPS = cfg.SANITIZE_NAMED_PROPS || false;
+		KEEP_CONTENT = cfg.KEEP_CONTENT !== false;
+		IN_PLACE = cfg.IN_PLACE || false;
+		IS_ALLOWED_URI$1 = isRegex(cfg.ALLOWED_URI_REGEXP) ? cfg.ALLOWED_URI_REGEXP : IS_ALLOWED_URI;
+		NAMESPACE = typeof cfg.NAMESPACE === "string" ? cfg.NAMESPACE : HTML_NAMESPACE;
+		MATHML_TEXT_INTEGRATION_POINTS = objectHasOwnProperty(cfg, "MATHML_TEXT_INTEGRATION_POINTS") && cfg.MATHML_TEXT_INTEGRATION_POINTS && typeof cfg.MATHML_TEXT_INTEGRATION_POINTS === "object" ? clone(cfg.MATHML_TEXT_INTEGRATION_POINTS) : addToSet({}, DEFAULT_MATHML_TEXT_INTEGRATION_POINTS);
+		HTML_INTEGRATION_POINTS = objectHasOwnProperty(cfg, "HTML_INTEGRATION_POINTS") && cfg.HTML_INTEGRATION_POINTS && typeof cfg.HTML_INTEGRATION_POINTS === "object" ? clone(cfg.HTML_INTEGRATION_POINTS) : addToSet({}, DEFAULT_HTML_INTEGRATION_POINTS);
+		const customElementHandling = objectHasOwnProperty(cfg, "CUSTOM_ELEMENT_HANDLING") && cfg.CUSTOM_ELEMENT_HANDLING && typeof cfg.CUSTOM_ELEMENT_HANDLING === "object" ? clone(cfg.CUSTOM_ELEMENT_HANDLING) : create(null);
+		CUSTOM_ELEMENT_HANDLING = create(null);
+		if (objectHasOwnProperty(customElementHandling, "tagNameCheck") && isRegexOrFunction(customElementHandling.tagNameCheck)) CUSTOM_ELEMENT_HANDLING.tagNameCheck = customElementHandling.tagNameCheck;
+		if (objectHasOwnProperty(customElementHandling, "attributeNameCheck") && isRegexOrFunction(customElementHandling.attributeNameCheck)) CUSTOM_ELEMENT_HANDLING.attributeNameCheck = customElementHandling.attributeNameCheck;
+		if (objectHasOwnProperty(customElementHandling, "allowCustomizedBuiltInElements") && typeof customElementHandling.allowCustomizedBuiltInElements === "boolean") CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements = customElementHandling.allowCustomizedBuiltInElements;
+		seal(CUSTOM_ELEMENT_HANDLING);
+		if (SAFE_FOR_TEMPLATES) ALLOW_DATA_ATTR = false;
+		if (RETURN_DOM_FRAGMENT) RETURN_DOM = true;
+		if (USE_PROFILES) {
+			ALLOWED_TAGS = addToSet({}, text);
+			ALLOWED_ATTR = create(null);
+			if (USE_PROFILES.html === true) {
+				addToSet(ALLOWED_TAGS, html$1);
+				addToSet(ALLOWED_ATTR, html);
+			}
+			if (USE_PROFILES.svg === true) {
+				addToSet(ALLOWED_TAGS, svg$1);
+				addToSet(ALLOWED_ATTR, svg);
+				addToSet(ALLOWED_ATTR, xml);
+			}
+			if (USE_PROFILES.svgFilters === true) {
+				addToSet(ALLOWED_TAGS, svgFilters);
+				addToSet(ALLOWED_ATTR, svg);
+				addToSet(ALLOWED_ATTR, xml);
+			}
+			if (USE_PROFILES.mathMl === true) {
+				addToSet(ALLOWED_TAGS, mathMl$1);
+				addToSet(ALLOWED_ATTR, mathMl);
+				addToSet(ALLOWED_ATTR, xml);
+			}
+		}
+		EXTRA_ELEMENT_HANDLING.tagCheck = null;
+		EXTRA_ELEMENT_HANDLING.attributeCheck = null;
+		if (objectHasOwnProperty(cfg, "ADD_TAGS")) {
+			if (typeof cfg.ADD_TAGS === "function") EXTRA_ELEMENT_HANDLING.tagCheck = cfg.ADD_TAGS;
+			else if (arrayIsArray(cfg.ADD_TAGS)) {
+				if (ALLOWED_TAGS === DEFAULT_ALLOWED_TAGS) ALLOWED_TAGS = clone(ALLOWED_TAGS);
+				addToSet(ALLOWED_TAGS, cfg.ADD_TAGS, transformCaseFunc);
+			}
+		}
+		if (objectHasOwnProperty(cfg, "ADD_ATTR")) {
+			if (typeof cfg.ADD_ATTR === "function") EXTRA_ELEMENT_HANDLING.attributeCheck = cfg.ADD_ATTR;
+			else if (arrayIsArray(cfg.ADD_ATTR)) {
+				if (ALLOWED_ATTR === DEFAULT_ALLOWED_ATTR) ALLOWED_ATTR = clone(ALLOWED_ATTR);
+				addToSet(ALLOWED_ATTR, cfg.ADD_ATTR, transformCaseFunc);
+			}
+		}
+		if (objectHasOwnProperty(cfg, "ADD_URI_SAFE_ATTR") && arrayIsArray(cfg.ADD_URI_SAFE_ATTR)) addToSet(URI_SAFE_ATTRIBUTES, cfg.ADD_URI_SAFE_ATTR, transformCaseFunc);
+		if (objectHasOwnProperty(cfg, "FORBID_CONTENTS") && arrayIsArray(cfg.FORBID_CONTENTS)) {
+			if (FORBID_CONTENTS === DEFAULT_FORBID_CONTENTS) FORBID_CONTENTS = clone(FORBID_CONTENTS);
+			addToSet(FORBID_CONTENTS, cfg.FORBID_CONTENTS, transformCaseFunc);
+		}
+		if (objectHasOwnProperty(cfg, "ADD_FORBID_CONTENTS") && arrayIsArray(cfg.ADD_FORBID_CONTENTS)) {
+			if (FORBID_CONTENTS === DEFAULT_FORBID_CONTENTS) FORBID_CONTENTS = clone(FORBID_CONTENTS);
+			addToSet(FORBID_CONTENTS, cfg.ADD_FORBID_CONTENTS, transformCaseFunc);
+		}
+		if (KEEP_CONTENT) ALLOWED_TAGS["#text"] = true;
+		if (WHOLE_DOCUMENT) addToSet(ALLOWED_TAGS, [
+			"html",
+			"head",
+			"body"
+		]);
+		if (ALLOWED_TAGS.table) {
+			addToSet(ALLOWED_TAGS, ["tbody"]);
+			delete FORBID_TAGS.tbody;
+		}
+		if (cfg.TRUSTED_TYPES_POLICY) {
+			if (typeof cfg.TRUSTED_TYPES_POLICY.createHTML !== "function") throw typeErrorCreate("TRUSTED_TYPES_POLICY configuration option must provide a \"createHTML\" hook.");
+			if (typeof cfg.TRUSTED_TYPES_POLICY.createScriptURL !== "function") throw typeErrorCreate("TRUSTED_TYPES_POLICY configuration option must provide a \"createScriptURL\" hook.");
+			const previousTrustedTypesPolicy = trustedTypesPolicy;
+			trustedTypesPolicy = cfg.TRUSTED_TYPES_POLICY;
+			try {
+				emptyHTML = _createTrustedHTML("");
+			} catch (error) {
+				trustedTypesPolicy = previousTrustedTypesPolicy;
+				throw error;
+			}
+		} else if (cfg.TRUSTED_TYPES_POLICY === null) {
+			trustedTypesPolicy = void 0;
+			emptyHTML = "";
+		} else {
+			if (trustedTypesPolicy === void 0) trustedTypesPolicy = _getDefaultTrustedTypesPolicy();
+			if (trustedTypesPolicy && typeof emptyHTML === "string") emptyHTML = _createTrustedHTML("");
+		}
+		if (freeze) freeze(cfg);
+		CONFIG = cfg;
+	};
+	const ALL_SVG_TAGS = addToSet({}, [
+		...svg$1,
+		...svgFilters,
+		...svgDisallowed
+	]);
+	const ALL_MATHML_TAGS = addToSet({}, [...mathMl$1, ...mathMlDisallowed]);
+	/**
+	* Namespace rules for an element in the SVG namespace.
+	*
+	* @param tagName the element's lowercase tag name
+	* @param parent the (possibly simulated) parent node
+	* @param parentTagName the parent's lowercase tag name
+	* @returns true if a spec-compliant parser could produce this element
+	*/
+	const _checkSvgNamespace = function _checkSvgNamespace(tagName, parent, parentTagName) {
+		if (parent.namespaceURI === HTML_NAMESPACE) return tagName === "svg";
+		if (parent.namespaceURI === MATHML_NAMESPACE) return tagName === "svg" && (parentTagName === "annotation-xml" || MATHML_TEXT_INTEGRATION_POINTS[parentTagName]);
+		return Boolean(ALL_SVG_TAGS[tagName]);
+	};
+	/**
+	* Namespace rules for an element in the MathML namespace.
+	*
+	* @param tagName the element's lowercase tag name
+	* @param parent the (possibly simulated) parent node
+	* @param parentTagName the parent's lowercase tag name
+	* @returns true if a spec-compliant parser could produce this element
+	*/
+	const _checkMathMlNamespace = function _checkMathMlNamespace(tagName, parent, parentTagName) {
+		if (parent.namespaceURI === HTML_NAMESPACE) return tagName === "math";
+		if (parent.namespaceURI === SVG_NAMESPACE) return tagName === "math" && HTML_INTEGRATION_POINTS[parentTagName];
+		return Boolean(ALL_MATHML_TAGS[tagName]);
+	};
+	/**
+	* Namespace rules for an element in the HTML namespace.
+	*
+	* @param tagName the element's lowercase tag name
+	* @param parent the (possibly simulated) parent node
+	* @param parentTagName the parent's lowercase tag name
+	* @returns true if a spec-compliant parser could produce this element
+	*/
+	const _checkHtmlNamespace = function _checkHtmlNamespace(tagName, parent, parentTagName) {
+		if (parent.namespaceURI === SVG_NAMESPACE && !HTML_INTEGRATION_POINTS[parentTagName]) return false;
+		if (parent.namespaceURI === MATHML_NAMESPACE && !MATHML_TEXT_INTEGRATION_POINTS[parentTagName]) return false;
+		return !ALL_MATHML_TAGS[tagName] && (COMMON_SVG_AND_HTML_ELEMENTS[tagName] || !ALL_SVG_TAGS[tagName]);
+	};
+	/**
+	* @param element a DOM element whose namespace is being checked
+	* @returns Return false if the element has a
+	*  namespace that a spec-compliant parser would never
+	*  return. Return true otherwise.
+	*/
+	const _checkValidNamespace = function _checkValidNamespace(element) {
+		let parent = getParentNode(element);
+		if (!parent || !parent.tagName) parent = {
+			namespaceURI: NAMESPACE,
+			tagName: "template"
+		};
+		const tagName = stringToLowerCase(element.tagName);
+		const parentTagName = stringToLowerCase(parent.tagName);
+		if (!ALLOWED_NAMESPACES[element.namespaceURI]) return false;
+		if (element.namespaceURI === SVG_NAMESPACE) return _checkSvgNamespace(tagName, parent, parentTagName);
+		if (element.namespaceURI === MATHML_NAMESPACE) return _checkMathMlNamespace(tagName, parent, parentTagName);
+		if (element.namespaceURI === HTML_NAMESPACE) return _checkHtmlNamespace(tagName, parent, parentTagName);
+		if (PARSER_MEDIA_TYPE === "application/xhtml+xml" && ALLOWED_NAMESPACES[element.namespaceURI]) return true;
+		return false;
+	};
+	/**
+	* _forceRemove
+	*
+	* @param node a DOM node
+	*/
+	const _forceRemove = function _forceRemove(node) {
+		arrayPush(DOMPurify.removed, { element: node });
+		try {
+			getParentNode(node).removeChild(node);
+		} catch (_) {
+			remove(node);
+			if (!getParentNode(node)) throw typeErrorCreate("a node selected for removal could not be detached from its tree and cannot be safely returned; refusing to sanitize in place");
+		}
+	};
+	/**
+	* _neutralizeRoot
+	*
+	* Fail-closed teardown of an in-place root after the sanitize walk aborts
+	* (campaign-3 F2). An internal throw mid-walk — e.g. a page-registered
+	* custom element's reaction detaches a node so `_forceRemove`'s deliberate
+	* parentless guard throws, or any other re-entrant engine mutation — would
+	* otherwise leave the caller's *live* tree half-sanitized, with everything
+	* after the abort point still carrying its handlers. There is no safe way
+	* to resume the walk (the tree mutated under us), so we strip the root bare:
+	* remove every child and every attribute, then let the caller's catch see
+	* the original error. Clobber-safe (cached `remove`/`childNodes`/`attributes`
+	* getters; the root was already clobber-pre-flighted at the IN_PLACE entry).
+	*
+	* @param root the in-place root to empty
+	*/
+	const _neutralizeRoot = function _neutralizeRoot(root) {
+		_neutralizeSubtree(root);
+		const childNodes = getChildNodes(root);
+		if (childNodes) {
+			const snapshot = [];
+			arrayForEach(childNodes, (child) => {
+				arrayPush(snapshot, child);
+			});
+			arrayForEach(snapshot, (child) => {
+				try {
+					remove(child);
+				} catch (_) {}
+			});
+		}
+		const attributes = getAttributes(root);
+		if (attributes) for (let i = attributes.length - 1; i >= 0; --i) {
+			const attribute = attributes[i];
+			const name = attribute && attribute.name;
+			if (typeof name === "string") try {
+				root.removeAttribute(name);
+			} catch (_) {}
+		}
+	};
+	/**
+	* _removeAttribute
+	*
+	* @param name an Attribute name
+	* @param element a DOM node
+	*/
+	const _removeAttribute = function _removeAttribute(name, element) {
+		try {
+			arrayPush(DOMPurify.removed, {
+				attribute: element.getAttributeNode(name),
+				from: element
+			});
+		} catch (_) {
+			arrayPush(DOMPurify.removed, {
+				attribute: null,
+				from: element
+			});
+		}
+		element.removeAttribute(name);
+		if (name === "is") if (RETURN_DOM || RETURN_DOM_FRAGMENT) try {
+			_forceRemove(element);
+		} catch (_) {}
+		else try {
+			element.setAttribute(name, "");
+		} catch (_) {}
+	};
+	/**
+	* _stripDisallowedAttributes
+	*
+	* Removes every attribute the active configuration does not allow from a
+	* single element, using the same allowlist as the main attribute pass (so
+	* `on*` handlers go, but no `/^on/` blocklist is introduced). Used only to
+	* neutralise nodes that are being discarded from an in-place tree.
+	*
+	* @param element the element to strip
+	*/
+	const _stripDisallowedAttributes = function _stripDisallowedAttributes(element) {
+		const attributes = getAttributes(element);
+		if (!attributes) return;
+		for (let i = attributes.length - 1; i >= 0; --i) {
+			const attribute = attributes[i];
+			const name = attribute && attribute.name;
+			if (typeof name !== "string" || ALLOWED_ATTR[transformCaseFunc(name)]) continue;
+			try {
+				element.removeAttribute(name);
+			} catch (_) {}
+		}
+	};
+	/**
+	* _neutralizeSubtree
+	*
+	* Completes the audit-5 F1 fix across every removal path. The KEEP_CONTENT
+	* move-hoist neutralises only disallowed-tag removals; clobber, mXSS-canary,
+	* namespace, comment, processing-instruction and KEEP_CONTENT:false removals
+	* all drop their subtree wholesale via `_forceRemove`. On the IN_PLACE path
+	* those dropped nodes are detached from the caller's LIVE tree but a
+	* handler-bearing original among them (an `<img onerror>`/`<video>` that was
+	* loading) keeps its queued resource event, which fires in page scope after
+	* sanitize returns. This walks a removed subtree and strips every attribute
+	* the active configuration does not allow — so `on*` handlers are cancelled
+	* through the SAME allowlist that governs kept nodes, not a separate `/^on/`
+	* blocklist. Run synchronously before sanitize returns, i.e. before any
+	* queued event can fire. Hook-free by design: these nodes leave the output,
+	* so firing attribute hooks for them would be surprising. Clobber-safe reads;
+	* a doomed clobbered node may shadow `removeAttribute` (its own attributes are
+	* irrelevant — it is discarded — while its non-clobbered descendants, e.g.
+	* the `<img>`, are reached and scrubbed).
+	*
+	* @param root the root of a removed subtree to neutralise
+	*/
+	const _neutralizeSubtree = function _neutralizeSubtree(root) {
+		const stack = [root];
+		while (stack.length > 0) {
+			const node = stack.pop();
+			if ((getNodeType ? getNodeType(node) : node.nodeType) === NODE_TYPE.element) _stripDisallowedAttributes(node);
+			const childNodes = getChildNodes(node);
+			if (childNodes) for (let i = childNodes.length - 1; i >= 0; --i) stack.push(childNodes[i]);
+		}
+	};
+	/**
+	* _neutralizePatchLinkage
+	*
+	* IN_PLACE entry pre-pass (declarative-partial-updates / streaming
+	* hardening, https://github.com/WICG/declarative-partial-updates).
+	*
+	* The main walk strips patch linkage (`for`/`patchsrc`) and removes range
+	* markers (PIs / markup comments) node-by-node, in document order, AS it
+	* reaches each node. On a live in-place root that leaves a window: from the
+	* moment the root is connected until the walk arrives at a given node, that
+	* node's linkage is live. A patch applied on connection/stream can fire as
+	* a microtask during the walk and inject or teleport an unsanitized DOM
+	* range into a region the iterator has already passed and will not revisit,
+	* so the post-return "tree is sanitized" contract is violated. Sweep the
+	* whole tree once up front and sever every linkage before the walk begins,
+	* closing that window.
+	*
+	* This CANNOT undo a patch that already fired before sanitize ran — that is
+	* the irreducible "do not IN_PLACE a live-connected attacker tree" caveat —
+	* but it closes everything from sanitize-start onward. Gated on SAFE_FOR_XML
+	* to group with the rest of the declarative-partial-updates handling and
+	* stay overridable, consistent with the codebase.
+	*
+	* Clobber-safe traversal (cached childNodes getter); per-node try/catch so a
+	* clobbered root cannot defeat the sweep of its non-clobbered descendants.
+	*
+	* NOTE (pending real-Chrome confirmation, see test/declarative-patch-probe
+	* .html Q1): this mirrors the existing policy of keeping `for` on
+	* <label>/<output>. If the shipping feature can drive a patch through a
+	* surviving `for`-on-label/output + `id` pair, this pre-pass and the
+	* attribute check at _isBasicCustomElement's caller must additionally drop
+	* that pair on the IN_PLACE path. Left as-is until the taxonomy is verified.
+	*
+	* @param root the in-place root to sweep
+	*/
+	const _neutralizePatchLinkage = function _neutralizePatchLinkage(root) {
+		if (!SAFE_FOR_XML) return;
+		const stack = [root];
+		while (stack.length > 0) {
+			const node = stack.pop();
+			const nodeType = getNodeType ? getNodeType(node) : node.nodeType;
+			if (nodeType === NODE_TYPE.processingInstruction || nodeType === NODE_TYPE.comment && regExpTest(COMMENT_MARKUP_PROBE, node.data)) {
+				try {
+					remove(node);
+				} catch (_) {}
+				continue;
+			}
+			if (nodeType === NODE_TYPE.element) {
+				const element = node;
+				const lcTag = transformCaseFunc(getNodeName ? getNodeName(node) : node.nodeName);
+				try {
+					if (element.hasAttribute && element.hasAttribute("patchsrc")) element.removeAttribute("patchsrc");
+					if (element.hasAttribute && element.hasAttribute("for") && lcTag !== "label" && lcTag !== "output") element.removeAttribute("for");
+				} catch (_) {}
+			}
+			const childNodes = getChildNodes(node);
+			if (childNodes) for (let i = childNodes.length - 1; i >= 0; --i) stack.push(childNodes[i]);
+		}
+	};
+	/**
+	* _initDocument
+	*
+	* @param dirty - a string of dirty markup
+	* @return a DOM, filled with the dirty markup
+	*/
+	const _initDocument = function _initDocument(dirty) {
+		let doc = null;
+		let leadingWhitespace = null;
+		if (FORCE_BODY) dirty = "<remove></remove>" + dirty;
+		else {
+			const matches = stringMatch(dirty, /^[\r\n\t ]+/);
+			leadingWhitespace = matches && matches[0];
+		}
+		if (PARSER_MEDIA_TYPE === "application/xhtml+xml" && NAMESPACE === HTML_NAMESPACE) dirty = "<html xmlns=\"http://www.w3.org/1999/xhtml\"><head></head><body>" + dirty + "</body></html>";
+		const dirtyPayload = trustedTypesPolicy ? _createTrustedHTML(dirty) : dirty;
+		if (NAMESPACE === HTML_NAMESPACE) try {
+			doc = new DOMParser().parseFromString(dirtyPayload, PARSER_MEDIA_TYPE);
+		} catch (_) {}
+		if (!doc || !doc.documentElement) {
+			doc = implementation.createDocument(NAMESPACE, "template", null);
+			try {
+				doc.documentElement.innerHTML = IS_EMPTY_INPUT ? emptyHTML : dirtyPayload;
+			} catch (_) {}
+		}
+		const body = doc.body || doc.documentElement;
+		if (dirty && leadingWhitespace) body.insertBefore(document.createTextNode(leadingWhitespace), body.childNodes[0] || null);
+		if (NAMESPACE === HTML_NAMESPACE) return getElementsByTagName.call(doc, WHOLE_DOCUMENT ? "html" : "body")[0];
+		return WHOLE_DOCUMENT ? doc.documentElement : body;
+	};
+	/**
+	* Creates a NodeIterator object that you can use to traverse filtered lists of nodes or elements in a document.
+	*
+	* @param root The root element or node to start traversing on.
+	* @return The created NodeIterator
+	*/
+	const _createNodeIterator = function _createNodeIterator(root) {
+		return createNodeIterator.call(root.ownerDocument || root, root, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT | NodeFilter.SHOW_PROCESSING_INSTRUCTION | NodeFilter.SHOW_CDATA_SECTION, null);
+	};
+	/**
+	* Replace template expression syntax (mustache, ERB, template
+	* literal) with a space; shared by all SAFE_FOR_TEMPLATES scrub
+	* sites. Order matters: mustache, then ERB, then template literal.
+	*
+	* @param value the string to scrub
+	* @returns the scrubbed string
+	*/
+	const _stripTemplateExpressions = function _stripTemplateExpressions(value) {
+		value = stringReplace(value, MUSTACHE_EXPR$1, " ");
+		value = stringReplace(value, ERB_EXPR$1, " ");
+		value = stringReplace(value, TMPLIT_EXPR$1, " ");
+		return value;
+	};
+	/**
+	* Strip template-engine expressions ({{...}}, ${...}, <%...%>) from the
+	* character data of an element subtree. Used as the final safety net for
+	* SAFE_FOR_TEMPLATES on every DOM-returning code path so that expressions
+	* which only form after text-node normalization (e.g. fragments split across
+	* stripped elements) cannot survive into a template-evaluating framework.
+	*
+	* Walks text/comment/CDATA/processing-instruction nodes and mutates `.data`
+	* in place rather than round-tripping through innerHTML. This preserves
+	* descendant node references (important for IN_PLACE callers), avoids a
+	* serialize/reparse cycle, and reads literal character data — which means
+	* `<%...%>` in text content matches the ERB regex against its real bytes
+	* instead of the HTML-entity-escaped form innerHTML would produce.
+	*
+	* Attribute values are not visited here; SAFE_FOR_TEMPLATES handling for
+	* attributes is performed during the per-node `_sanitizeAttributes` pass.
+	*
+	* @param node The root element whose character data should be scrubbed.
+	*/
+	const _scrubTemplateExpressions2 = function _scrubTemplateExpressions(node) {
+		var _node$querySelectorAl;
+		node.normalize();
+		const walker = createNodeIterator.call(node.ownerDocument || node, node, NodeFilter.SHOW_TEXT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_CDATA_SECTION | NodeFilter.SHOW_PROCESSING_INSTRUCTION, null);
+		let currentNode = walker.nextNode();
+		while (currentNode) {
+			currentNode.data = _stripTemplateExpressions(currentNode.data);
+			currentNode = walker.nextNode();
+		}
+		const templates = (_node$querySelectorAl = node.querySelectorAll) === null || _node$querySelectorAl === void 0 ? void 0 : _node$querySelectorAl.call(node, "template");
+		if (templates) arrayForEach(templates, (tmpl) => {
+			if (_isDocumentFragment(tmpl.content)) _scrubTemplateExpressions2(tmpl.content);
+		});
+	};
+	/**
+	* _isClobbered
+	*
+	* Detect DOM-clobbering on HTMLFormElement nodes. Form is the only HTML
+	* interface with [LegacyOverrideBuiltIns]; a descendant element with a
+	* `name` attribute matching a prototype property shadows that property
+	* on direct reads. We use this check at the IN_PLACE entry-point and
+	* during attribute sanitization to refuse clobbered forms.
+	*
+	* @param element element to check for clobbering attacks
+	* @return true if clobbered, false if safe
+	*/
+	const _isClobbered = function _isClobbered(element) {
+		const realTagName = getNodeName ? getNodeName(element) : null;
+		if (typeof realTagName !== "string") return false;
+		if (transformCaseFunc(realTagName) !== "form") return false;
+		return typeof element.nodeName !== "string" || typeof element.textContent !== "string" || typeof element.removeChild !== "function" || element.attributes !== getAttributes(element) || typeof element.removeAttribute !== "function" || typeof element.setAttribute !== "function" || typeof element.namespaceURI !== "string" || typeof element.insertBefore !== "function" || typeof element.hasChildNodes !== "function" || element.nodeType !== getNodeType(element) || element.childNodes !== getChildNodes(element);
+	};
+	/**
+	* Checks whether the given value is a DocumentFragment from any realm.
+	*
+	* The realm-independent replacement reads `nodeType` through the cached
+	* Node.prototype getter and compares to the DOCUMENT_FRAGMENT_NODE
+	* constant (11). nodeType is a numeric value resolved from the node's
+	* internal slot, identical across realms for the same kind of node.
+	*
+	* @param value object to check
+	* @return true if value is a DocumentFragment-shaped node from any realm
+	*/
+	const _isDocumentFragment = function _isDocumentFragment(value) {
+		if (!getNodeType || typeof value !== "object" || value === null) return false;
+		try {
+			return getNodeType(value) === NODE_TYPE.documentFragment;
+		} catch (_) {
+			return false;
+		}
+	};
+	/**
+	* Checks whether the given object is a DOM node, including nodes that
+	* originate from a different window/realm (e.g. an iframe's
+	* contentDocument). The previous `value instanceof Node` check was
+	* realm-bound: nodes from a different window failed it, causing
+	* sanitize() to silently stringify them and reset IN_PLACE to false,
+	* returning the original node unsanitized. See GHSA-4w3q-35jp-p934.
+	*
+	* @param value object to check whether it's a DOM node
+	* @return true if value is a DOM node from any realm
+	*/
+	const _isNode = function _isNode(value) {
+		if (!getNodeType || typeof value !== "object" || value === null) return false;
+		try {
+			return typeof getNodeType(value) === "number";
+		} catch (_) {
+			return false;
+		}
+	};
+	function _executeHooks(hooks, currentNode, data) {
+		if (hooks.length === 0) return;
+		arrayForEach(hooks, (hook) => {
+			hook.call(DOMPurify, currentNode, data, CONFIG);
+		});
+	}
+	/**
+	* Structural-threat checks that condemn a node regardless of the
+	* allowlists: mXSS via namespace confusion, risky CSS construction,
+	* processing instructions, markup-bearing comments. Pure predicate;
+	* the caller removes. Check order is load-bearing.
+	*
+	* @param currentNode the node to inspect
+	* @param tagName the node's transformCaseFunc'd tag name
+	* @return true if the node must be removed
+	*/
+	const _isUnsafeNode = function _isUnsafeNode(currentNode, tagName) {
+		if (SAFE_FOR_XML && currentNode.hasChildNodes() && !_isNode(currentNode.firstElementChild) && regExpTest(ELEMENT_MARKUP_PROBE, currentNode.textContent) && regExpTest(ELEMENT_MARKUP_PROBE, currentNode.innerHTML)) return true;
+		if (SAFE_FOR_XML && currentNode.namespaceURI === HTML_NAMESPACE && tagName === "style" && _isNode(currentNode.firstElementChild)) return true;
+		if (currentNode.nodeType === NODE_TYPE.processingInstruction) return true;
+		if (SAFE_FOR_XML && currentNode.nodeType === NODE_TYPE.comment && regExpTest(COMMENT_MARKUP_PROBE, currentNode.data)) return true;
+		return false;
+	};
+	/**
+	* Handle a node whose tag is forbidden or not allowlisted: keep
+	* allowed custom elements (false return exits _sanitizeElements
+	* early - the namespace and fallback-tag removal checks are
+	* intentionally skipped for kept custom elements), else hoist
+	* content per KEEP_CONTENT and remove.
+	*
+	* A kept custom element is the ONLY case in which this function
+	* returns false, so the caller uses that return value to run the
+	* afterSanitizeElements hook on the kept element and keep the
+	* element-hook lifecycle consistent with normal allowlisted
+	* elements (GHSA-c2j3-45gr-mqc4).
+	*
+	* @param currentNode the disallowed node
+	* @param tagName the node's transformCaseFunc'd tag name
+	* @return true if the node was removed, false if kept
+	*/
+	const _sanitizeDisallowedNode = function _sanitizeDisallowedNode(currentNode, tagName) {
+		if (!FORBID_TAGS[tagName] && _isBasicCustomElement(tagName)) {
+			if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, tagName)) return false;
+			if (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(tagName)) return false;
+		}
+		if (KEEP_CONTENT && !FORBID_CONTENTS[tagName]) {
+			const parentNode = getParentNode(currentNode);
+			const childNodes = getChildNodes(currentNode);
+			if (childNodes && parentNode) {
+				const childCount = childNodes.length;
+				for (let i = childCount - 1; i >= 0; --i) {
+					const hoisted = IN_PLACE ? childNodes[i] : cloneNode(childNodes[i], true);
+					parentNode.insertBefore(hoisted, getNextSibling(currentNode));
+				}
+			}
+		}
+		_forceRemove(currentNode);
+		return true;
+	};
+	/**
+	* _sanitizeElements
+	*
+	* @protect nodeName
+	* @protect textContent
+	* @protect removeChild
+	* @param currentNode to check for permission to exist
+	* @return true if node was killed, false if left alive
+	*/
+	const _sanitizeElements = function _sanitizeElements(currentNode, root) {
+		_executeHooks(hooks.beforeSanitizeElements, currentNode, null);
+		if (currentNode !== root && getParentNode(currentNode) === null) return true;
+		if (_isClobbered(currentNode)) {
+			_forceRemove(currentNode);
+			return true;
+		}
+		const tagName = transformCaseFunc(getNodeName ? getNodeName(currentNode) : currentNode.nodeName);
+		_executeHooks(hooks.uponSanitizeElement, currentNode, {
+			tagName,
+			allowedTags: ALLOWED_TAGS
+		});
+		if (currentNode !== root && getParentNode(currentNode) === null) return true;
+		if (_isUnsafeNode(currentNode, tagName)) {
+			_forceRemove(currentNode);
+			return true;
+		}
+		if (FORBID_TAGS[tagName] || !(EXTRA_ELEMENT_HANDLING.tagCheck instanceof Function && EXTRA_ELEMENT_HANDLING.tagCheck(tagName)) && !ALLOWED_TAGS[tagName]) {
+			const removed = _sanitizeDisallowedNode(currentNode, tagName);
+			if (removed === false) _executeHooks(hooks.afterSanitizeElements, currentNode, null);
+			return removed;
+		}
+		if ((getNodeType ? getNodeType(currentNode) : currentNode.nodeType) === NODE_TYPE.element && !_checkValidNamespace(currentNode)) {
+			_forceRemove(currentNode);
+			return true;
+		}
+		if ((tagName === "noscript" || tagName === "noembed" || tagName === "noframes") && regExpTest(FALLBACK_TAG_CLOSE, currentNode.innerHTML)) {
+			_forceRemove(currentNode);
+			return true;
+		}
+		if (SAFE_FOR_TEMPLATES && currentNode.nodeType === NODE_TYPE.text) {
+			const content = _stripTemplateExpressions(currentNode.textContent);
+			if (currentNode.textContent !== content) {
+				arrayPush(DOMPurify.removed, { element: currentNode.cloneNode() });
+				currentNode.textContent = content;
+			}
+		}
+		_executeHooks(hooks.afterSanitizeElements, currentNode, null);
+		return false;
+	};
+	/**
+	* _isValidAttribute
+	*
+	* @param lcTag Lowercase tag name of containing element.
+	* @param lcName Lowercase attribute name.
+	* @param value Attribute value.
+	* @return Returns true if `value` is valid, otherwise false.
+	*/
+	const _isValidAttribute = function _isValidAttribute(lcTag, lcName, value) {
+		if (FORBID_ATTR[lcName]) return false;
+		if (SAFE_FOR_XML && lcName === "patchsrc") return false;
+		if (SAFE_FOR_XML && lcName === "for" && lcTag !== "label" && lcTag !== "output") return false;
+		if (SANITIZE_DOM && (lcName === "id" || lcName === "name") && (value in document || value in formElement)) return false;
+		const nameIsPermitted = ALLOWED_ATTR[lcName] || EXTRA_ELEMENT_HANDLING.attributeCheck instanceof Function && EXTRA_ELEMENT_HANDLING.attributeCheck(lcName, lcTag);
+		if (ALLOW_DATA_ATTR && regExpTest(DATA_ATTR$1, lcName));
+		else if (ALLOW_ARIA_ATTR && regExpTest(ARIA_ATTR$1, lcName));
+		else if (!nameIsPermitted) if (_isBasicCustomElement(lcTag) && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, lcTag) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(lcTag)) && (CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.attributeNameCheck, lcName) || CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.attributeNameCheck(lcName, lcTag)) || lcName === "is" && CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, value) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(value)));
+		else return false;
+		else if (URI_SAFE_ATTRIBUTES[lcName]);
+		else if (regExpTest(IS_ALLOWED_URI$1, stringReplace(value, ATTR_WHITESPACE$1, "")));
+		else if ((lcName === "src" || lcName === "xlink:href" || lcName === "href") && lcTag !== "script" && stringIndexOf(value, "data:") === 0 && DATA_URI_TAGS[lcTag]);
+		else if (ALLOW_UNKNOWN_PROTOCOLS && !regExpTest(IS_SCRIPT_OR_DATA$1, stringReplace(value, ATTR_WHITESPACE$1, "")));
+		else if (value) return false;
+		return true;
+	};
+	const RESERVED_CUSTOM_ELEMENT_NAMES = addToSet({}, [
+		"annotation-xml",
+		"color-profile",
+		"font-face",
+		"font-face-format",
+		"font-face-name",
+		"font-face-src",
+		"font-face-uri",
+		"missing-glyph"
+	]);
+	/**
+	* _isBasicCustomElement
+	* checks if at least one dash is included in tagName, and it's not the first char
+	* for more sophisticated checking see https://github.com/sindresorhus/validate-element-name
+	*
+	* @param tagName name of the tag of the node to sanitize
+	* @returns Returns true if the tag name meets the basic criteria for a custom element, otherwise false.
+	*/
+	const _isBasicCustomElement = function _isBasicCustomElement(tagName) {
+		return !RESERVED_CUSTOM_ELEMENT_NAMES[stringToLowerCase(tagName)] && regExpTest(CUSTOM_ELEMENT$1, tagName);
+	};
+	/**
+	* Wrap an attribute value in the matching Trusted Types object when
+	* the active policy requires it. Namespaced attributes pass through
+	* unchanged (no TT support yet, see
+	* https://bugs.chromium.org/p/chromium/issues/detail?id=1305293).
+	*
+	* @param lcTag lowercase tag name of the containing element
+	* @param lcName lowercase attribute name
+	* @param namespaceURI the attribute's namespace, if any
+	* @param value the attribute value to wrap
+	* @return the value, wrapped when Trusted Types demand it
+	*/
+	const _applyTrustedTypesToAttribute = function _applyTrustedTypesToAttribute(lcTag, lcName, namespaceURI, value) {
+		if (trustedTypesPolicy && typeof trustedTypes === "object" && typeof trustedTypes.getAttributeType === "function" && !namespaceURI) switch (trustedTypes.getAttributeType(lcTag, lcName)) {
+			case "TrustedHTML": return _createTrustedHTML(value);
+			case "TrustedScriptURL": return _createTrustedScriptURL(value);
+		}
+		return value;
+	};
+	/**
+	* Write a modified attribute value back onto the element. On
+	* success, re-probe for clobbering introduced by the new value and
+	* remove the element when found; otherwise pop the removal entry
+	* recorded by the earlier _removeAttribute (long-standing pairing
+	* with the SANITIZE_NAMED_PROPS path - do not "fix" casually). On
+	* failure, remove the attribute instead.
+	*
+	* @param currentNode the element carrying the attribute
+	* @param name the attribute name as present on the element
+	* @param namespaceURI the attribute's namespace, if any
+	* @param value the new attribute value
+	*/
+	const _setAttributeValue = function _setAttributeValue(currentNode, name, namespaceURI, value) {
+		try {
+			if (namespaceURI) currentNode.setAttributeNS(namespaceURI, name, value);
+			else currentNode.setAttribute(name, value);
+			if (_isClobbered(currentNode)) _forceRemove(currentNode);
+			else arrayPop(DOMPurify.removed);
+		} catch (_) {
+			_removeAttribute(name, currentNode);
+		}
+	};
+	/**
+	* _sanitizeAttributes
+	*
+	* @protect attributes
+	* @protect nodeName
+	* @protect removeAttribute
+	* @protect setAttribute
+	*
+	* @param currentNode to sanitize
+	*/
+	const _sanitizeAttributes = function _sanitizeAttributes(currentNode) {
+		_executeHooks(hooks.beforeSanitizeAttributes, currentNode, null);
+		const attributes = currentNode.attributes;
+		if (!attributes || _isClobbered(currentNode)) return;
+		const hookEvent = {
+			attrName: "",
+			attrValue: "",
+			keepAttr: true,
+			allowedAttributes: ALLOWED_ATTR,
+			forceKeepAttr: void 0
+		};
+		let l = attributes.length;
+		const lcTag = transformCaseFunc(currentNode.nodeName);
+		while (l--) {
+			const attr = attributes[l];
+			const name = attr.name, namespaceURI = attr.namespaceURI, attrValue = attr.value;
+			const lcName = transformCaseFunc(name);
+			const initValue = attrValue;
+			let value = name === "value" ? initValue : stringTrim(initValue);
+			hookEvent.attrName = lcName;
+			hookEvent.attrValue = value;
+			hookEvent.keepAttr = true;
+			hookEvent.forceKeepAttr = void 0;
+			_executeHooks(hooks.uponSanitizeAttribute, currentNode, hookEvent);
+			value = hookEvent.attrValue;
+			if (SANITIZE_NAMED_PROPS && (lcName === "id" || lcName === "name") && stringIndexOf(value, SANITIZE_NAMED_PROPS_PREFIX) !== 0) {
+				_removeAttribute(name, currentNode);
+				value = SANITIZE_NAMED_PROPS_PREFIX + value;
+			}
+			if (SAFE_FOR_XML && regExpTest(/((--!?|])>)|<\/(style|script|title|xmp|textarea|noscript|iframe|noembed|noframes)/i, value)) {
+				_removeAttribute(name, currentNode);
+				continue;
+			}
+			if (lcName === "attributename" && stringMatch(value, "href")) {
+				_removeAttribute(name, currentNode);
+				continue;
+			}
+			if (hookEvent.forceKeepAttr) continue;
+			if (!hookEvent.keepAttr) {
+				_removeAttribute(name, currentNode);
+				continue;
+			}
+			if (!ALLOW_SELF_CLOSE_IN_ATTR && regExpTest(SELF_CLOSING_TAG, value)) {
+				_removeAttribute(name, currentNode);
+				continue;
+			}
+			if (SAFE_FOR_TEMPLATES) value = _stripTemplateExpressions(value);
+			if (!_isValidAttribute(lcTag, lcName, value)) {
+				_removeAttribute(name, currentNode);
+				continue;
+			}
+			value = _applyTrustedTypesToAttribute(lcTag, lcName, namespaceURI, value);
+			if (value !== initValue) _setAttributeValue(currentNode, name, namespaceURI, value);
+		}
+		_executeHooks(hooks.afterSanitizeAttributes, currentNode, null);
+	};
+	/**
+	* _sanitizeShadowDOM
+	*
+	* @param fragment to iterate over recursively
+	*/
+	const _sanitizeShadowDOM2 = function _sanitizeShadowDOM(fragment) {
+		let shadowNode = null;
+		const shadowIterator = _createNodeIterator(fragment);
+		_executeHooks(hooks.beforeSanitizeShadowDOM, fragment, null);
+		while (shadowNode = shadowIterator.nextNode()) {
+			_executeHooks(hooks.uponSanitizeShadowNode, shadowNode, null);
+			_sanitizeElements(shadowNode, fragment);
+			_sanitizeAttributes(shadowNode);
+			if (_isDocumentFragment(shadowNode.content)) _sanitizeShadowDOM2(shadowNode.content);
+			if ((getNodeType ? getNodeType(shadowNode) : shadowNode.nodeType) === NODE_TYPE.element) {
+				const innerSr = getShadowRoot(shadowNode);
+				if (_isDocumentFragment(innerSr)) {
+					_sanitizeAttachedShadowRoots(innerSr);
+					_sanitizeShadowDOM2(innerSr);
+				}
+			}
+		}
+		_executeHooks(hooks.afterSanitizeShadowDOM, fragment, null);
+	};
+	/**
+	* _sanitizeAttachedShadowRoots
+	*
+	* Walks `root` and feeds every attached shadow root we encounter into
+	* the existing _sanitizeShadowDOM pipeline. The default node iterator
+	* does not descend into shadow trees, so nodes inside an attached
+	* shadow root would otherwise be skipped entirely.
+	*
+	* Two real input paths put attached shadow roots in front of us:
+	*   1. IN_PLACE on a DOM node that already has shadow roots attached.
+	*   2. DOM-node input where importNode(dirty, true) deep-clones the
+	*      shadow root because it was created with `clonable: true`.
+	*
+	* This pass runs once, up front, so the main iteration loop (and the
+	* existing _sanitizeShadowDOM template-content recursion) stay
+	* untouched — string-input paths are not affected.
+	*
+	* @param root the subtree root to walk for attached shadow roots
+	*/
+	const _sanitizeAttachedShadowRoots = function _sanitizeAttachedShadowRoots(root) {
+		const stack = [{
+			node: root,
+			shadow: null
+		}];
+		while (stack.length > 0) {
+			const item = stack.pop();
+			if (item.shadow) {
+				_sanitizeShadowDOM2(item.shadow);
+				continue;
+			}
+			const node = item.node;
+			const isElement = (getNodeType ? getNodeType(node) : node.nodeType) === NODE_TYPE.element;
+			const childNodes = getChildNodes(node);
+			if (childNodes) for (let i = childNodes.length - 1; i >= 0; --i) stack.push({
+				node: childNodes[i],
+				shadow: null
+			});
+			if (isElement) {
+				const rootName = getNodeName ? getNodeName(node) : null;
+				if (typeof rootName === "string" && transformCaseFunc(rootName) === "template") {
+					const content = node.content;
+					if (_isDocumentFragment(content)) stack.push({
+						node: content,
+						shadow: null
+					});
+				}
+			}
+			if (isElement) {
+				const sr = getShadowRoot(node);
+				if (_isDocumentFragment(sr)) stack.push({
+					node: null,
+					shadow: sr
+				}, {
+					node: sr,
+					shadow: null
+				});
+			}
+		}
+	};
+	DOMPurify.sanitize = function(dirty) {
+		let cfg = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+		let body = null;
+		let importedNode = null;
+		let currentNode = null;
+		let returnNode = null;
+		IS_EMPTY_INPUT = !dirty;
+		if (IS_EMPTY_INPUT) dirty = "<!-->";
+		if (typeof dirty !== "string" && !_isNode(dirty)) {
+			dirty = stringifyValue(dirty);
+			if (typeof dirty !== "string") throw typeErrorCreate("dirty is not a string, aborting");
+		}
+		if (!DOMPurify.isSupported) return dirty;
+		if (SET_CONFIG) {
+			ALLOWED_TAGS = SET_CONFIG_ALLOWED_TAGS;
+			ALLOWED_ATTR = SET_CONFIG_ALLOWED_ATTR;
+		} else _parseConfig(cfg);
+		if (hooks.uponSanitizeElement.length > 0 || hooks.uponSanitizeAttribute.length > 0) ALLOWED_TAGS = clone(ALLOWED_TAGS);
+		if (hooks.uponSanitizeAttribute.length > 0) ALLOWED_ATTR = clone(ALLOWED_ATTR);
+		DOMPurify.removed = [];
+		const inPlace = IN_PLACE && typeof dirty !== "string" && _isNode(dirty);
+		if (inPlace) {
+			_neutralizePatchLinkage(dirty);
+			const nn = getNodeName ? getNodeName(dirty) : dirty.nodeName;
+			if (typeof nn === "string") {
+				const tagName = transformCaseFunc(nn);
+				if (!ALLOWED_TAGS[tagName] || FORBID_TAGS[tagName]) {
+					_neutralizeRoot(dirty);
+					throw typeErrorCreate("root node is forbidden and cannot be sanitized in-place");
+				}
+			}
+			if (_isClobbered(dirty)) {
+				_neutralizeRoot(dirty);
+				throw typeErrorCreate("root node is clobbered and cannot be sanitized in-place");
+			}
+			try {
+				_sanitizeAttachedShadowRoots(dirty);
+			} catch (error) {
+				_neutralizeRoot(dirty);
+				throw error;
+			}
+		} else if (_isNode(dirty)) {
+			body = _initDocument("<!---->");
+			importedNode = body.ownerDocument.importNode(dirty, true);
+			if (importedNode.nodeType === NODE_TYPE.element && importedNode.nodeName === "BODY") body = importedNode;
+			else if (importedNode.nodeName === "HTML") body = importedNode;
+			else body.appendChild(importedNode);
+			_sanitizeAttachedShadowRoots(importedNode);
+		} else {
+			if (!RETURN_DOM && !SAFE_FOR_TEMPLATES && !WHOLE_DOCUMENT && dirty.indexOf("<") === -1) return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? _createTrustedHTML(dirty) : dirty;
+			body = _initDocument(dirty);
+			if (!body) return RETURN_DOM ? null : RETURN_TRUSTED_TYPE ? emptyHTML : "";
+		}
+		if (body && FORCE_BODY) _forceRemove(body.firstChild);
+		const walkRoot = inPlace ? dirty : body;
+		const nodeIterator = _createNodeIterator(walkRoot);
+		try {
+			while (currentNode = nodeIterator.nextNode()) {
+				_sanitizeElements(currentNode, walkRoot);
+				_sanitizeAttributes(currentNode);
+				if (_isDocumentFragment(currentNode.content)) _sanitizeShadowDOM2(currentNode.content);
+			}
+		} catch (error) {
+			if (inPlace) {
+				_neutralizeRoot(dirty);
+				arrayForEach(DOMPurify.removed, (entry) => {
+					if (entry.element) _neutralizeSubtree(entry.element);
+				});
+			}
+			throw error;
+		}
+		if (inPlace) {
+			arrayForEach(DOMPurify.removed, (entry) => {
+				if (entry.element) _neutralizeSubtree(entry.element);
+			});
+			if (SAFE_FOR_TEMPLATES) _scrubTemplateExpressions2(dirty);
+			return dirty;
+		}
+		if (RETURN_DOM) {
+			if (SAFE_FOR_TEMPLATES) _scrubTemplateExpressions2(body);
+			if (RETURN_DOM_FRAGMENT) {
+				returnNode = createDocumentFragment.call(body.ownerDocument);
+				while (body.firstChild) returnNode.appendChild(body.firstChild);
+			} else returnNode = body;
+			if (ALLOWED_ATTR.shadowroot || ALLOWED_ATTR.shadowrootmode) returnNode = importNode.call(originalDocument, returnNode, true);
+			return returnNode;
+		}
+		let serializedHTML = WHOLE_DOCUMENT ? body.outerHTML : body.innerHTML;
+		if (WHOLE_DOCUMENT && ALLOWED_TAGS["!doctype"] && body.ownerDocument && body.ownerDocument.doctype && body.ownerDocument.doctype.name && regExpTest(DOCTYPE_NAME, body.ownerDocument.doctype.name)) serializedHTML = "<!DOCTYPE " + body.ownerDocument.doctype.name + ">\n" + serializedHTML;
+		if (SAFE_FOR_TEMPLATES) serializedHTML = _stripTemplateExpressions(serializedHTML);
+		return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? _createTrustedHTML(serializedHTML) : serializedHTML;
+	};
+	DOMPurify.setConfig = function() {
+		let cfg = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+		_parseConfig(cfg);
+		SET_CONFIG = true;
+		SET_CONFIG_ALLOWED_TAGS = ALLOWED_TAGS;
+		SET_CONFIG_ALLOWED_ATTR = ALLOWED_ATTR;
+	};
+	DOMPurify.clearConfig = function() {
+		CONFIG = null;
+		SET_CONFIG = false;
+		SET_CONFIG_ALLOWED_TAGS = null;
+		SET_CONFIG_ALLOWED_ATTR = null;
+		trustedTypesPolicy = defaultTrustedTypesPolicy;
+		emptyHTML = "";
+	};
+	DOMPurify.isValidAttribute = function(tag, attr, value) {
+		if (!CONFIG) _parseConfig({});
+		const lcTag = transformCaseFunc(tag);
+		const lcName = transformCaseFunc(attr);
+		return _isValidAttribute(lcTag, lcName, value);
+	};
+	DOMPurify.addHook = function(entryPoint, hookFunction) {
+		if (typeof hookFunction !== "function") return;
+		if (!objectHasOwnProperty(hooks, entryPoint)) return;
+		arrayPush(hooks[entryPoint], hookFunction);
+	};
+	DOMPurify.removeHook = function(entryPoint, hookFunction) {
+		if (!objectHasOwnProperty(hooks, entryPoint)) return;
+		if (hookFunction !== void 0) {
+			const index = arrayLastIndexOf(hooks[entryPoint], hookFunction);
+			return index === -1 ? void 0 : arraySplice(hooks[entryPoint], index, 1)[0];
+		}
+		return arrayPop(hooks[entryPoint]);
+	};
+	DOMPurify.removeHooks = function(entryPoint) {
+		if (!objectHasOwnProperty(hooks, entryPoint)) return;
+		hooks[entryPoint] = [];
+	};
+	DOMPurify.removeAllHooks = function() {
+		hooks = _createHooksMap();
+	};
+	return DOMPurify;
+}
+var purify = createDOMPurify();
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/agent-chat-state.svelte.js
+var STORAGE_KEY = "aphex:agent-chat-state:v1";
+function loadPersisted() {
+	if (typeof localStorage === "undefined") return null;
+	try {
+		const raw = localStorage.getItem(STORAGE_KEY);
+		return raw ? JSON.parse(raw) : null;
+	} catch {
+		return null;
+	}
+}
+function createAgentChatState() {
+	const persisted = loadPersisted();
+	let turns = persisted?.turns ?? [];
+	let history = persisted?.history ?? [];
+	let contextSentFor = persisted?.contextSentFor ?? null;
+	let lastPromptTokens = persisted?.lastPromptTokens ?? 0;
+	for (const turn of turns) if (turn.status === "streaming") turn.status = "stopped";
+	if (typeof localStorage !== "undefined") {}
+	return {
+		get turns() {
+			return turns;
+		},
+		set turns(value) {
+			turns = value;
+		},
+		get history() {
+			return history;
+		},
+		set history(value) {
+			history = value;
+		},
+		get contextSentFor() {
+			return contextSentFor;
+		},
+		set contextSentFor(value) {
+			contextSentFor = value;
+		},
+		get lastPromptTokens() {
+			return lastPromptTokens;
+		},
+		set lastPromptTokens(value) {
+			lastPromptTokens = value;
+		}
+	};
+}
+var agentChatState = createAgentChatState();
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/document-workspace-registry.svelte.js
+function createDocumentWorkspaceRegistry() {
+	let current = null;
+	return {
+		get current() {
+			return current;
+		},
+		register(entry) {
+			current = entry;
+		},
+		/** Id-checked: an editor that already unmounted (and cleared with its own id) can't
+		* clobber a newer registration from a different document that mounted in its place
+		* during fast navigation. */
+		clear(documentId) {
+			if (current?.documentId === documentId) current = null;
+		}
+	};
+}
+var documentWorkspaceRegistry = createDocumentWorkspaceRegistry();
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/agent-chat.js
+function parseSSEFrame(frame) {
+	const payload = frame.split(/\r?\n/).filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart()).join("\n");
+	if (!payload) return null;
+	return JSON.parse(payload);
+}
+/**
+* Streams one leg of an agent turn. Not built on `apiClient` — that always `await`s and parses
+* a JSON body, which is structurally incompatible with a chunked SSE response; this is the one
+* agent-chat call that needs the raw `fetch` + `ReadableStream`. `signal` is caller-supplied
+* (not `apiClient`'s own internal 10s timeout) so the chat panel's Stop button can abort
+* mid-stream regardless of how long a turn runs.
+*
+* A turn that pauses for a workspace tool (`finishReason: 'awaiting_workspace_tool'`) ends this
+* generator normally — resolving the pause and resuming is the caller's job (`AgentChat.svelte`
+* re-calls this with the same `changeSetId` echoed back), not something this function loops on
+* itself.
+*/
+async function* streamAgentChat(body, signal) {
+	const response = await fetch("/api/agent/chat", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(body),
+		signal
+	});
+	if (!response.ok || !response.body) {
+		const errorBody = await response.json().catch(() => null);
+		throw new Error(errorBody?.error ?? `Request failed (${response.status})`);
+	}
+	const reader = response.body.getReader();
+	const decoder = new TextDecoder();
+	let buffer = "";
+	for (;;) {
+		const { done, value } = await reader.read();
+		buffer += decoder.decode(value, { stream: !done });
+		const frames = buffer.split(/\r?\n\r?\n/);
+		buffer = frames.pop() ?? "";
+		if (done && buffer.trim()) frames.push(buffer);
+		for (const frame of frames) {
+			const event = parseSSEFrame(frame);
+			if (event) yield event;
+		}
+		if (done) break;
+	}
+}
+/**
+* Records an audit row for a workspace-bridge tool (`content_patch_fields`/`content_save_draft`)
+* the client resolved locally against a live `DocumentWorkspace` — see
+* `server/api/routes/agent-chat.ts`'s `POST /operations`. Plain JSON request/response, so unlike
+* `streamAgentChat` above, this one goes through the shared `apiClient`.
+*/
+function recordWorkspaceOperation(body) {
+	return apiClient.post("/agent/operations", body);
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/document-refresh.svelte.js
+var versions = new SvelteMap();
+function notifyDocumentChanged(documentId) {
+	if (!documentId) return;
+	versions.set(documentId, (versions.get(documentId) ?? 0) + 1);
+}
+var collectionVersions = new SvelteMap();
+function notifyCollectionChanged(docType) {
+	if (!docType) return;
+	collectionVersions.set(docType, (collectionVersions.get(docType) ?? 0) + 1);
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/AgentChat.svelte
+function AgentChat($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/** A suggestion can be a bare string, or `{ text, icon }` for a leading icon — the plain
+		* string form stays the common case so existing callers don't need to change anything. */
+		const DEFAULT_SUGGESTIONS = [
+			"List the collections in this CMS",
+			"Summarize the latest published documents",
+			"Describe the schema for my pages"
+		];
+		let { embedded = false, title = "Aphex Assistant", subtitle = "CMS-aware answers and content tools", suggestions = DEFAULT_SUGGESTIONS } = $$props;
+		/** Result shape a workspace-tool handler (below) hands back — the same idea as
+		* `AgentToolResult`, kept local so this file doesn't need a server-only type import. */
+		const patchFieldsHandler = async (args, ws) => {
+			const fields = args.fields ?? {};
+			ws.apply({
+				type: "patchFields",
+				fields
+			});
+			const validation = await ws.validate();
+			return {
+				success: true,
+				data: {
+					applied: Object.keys(fields),
+					validation
+				}
+			};
+		};
+		const saveDraftHandler = async (_args, ws) => {
+			const snapshot = ws.getSnapshot();
+			const result = await ws.flushSave(snapshot.revision ?? void 0);
+			if (!result.success) return {
+				success: false,
+				error: result.conflict ? "Revision conflict — reload before continuing." : result.error ?? "Save failed"
+			};
+			return {
+				success: true,
+				data: { revision: result.revision }
+			};
+		};
+		/** Resolves `content_patch_fields`/`content_save_draft` against a live `DocumentWorkspace` —
+		* see types/document-workspace.ts and ai/content-workspace-tools.ts for why these two tools
+		* can't be executed server-side at all. */
+		const WORKSPACE_TOOL_HANDLERS = {
+			content_patch_fields: patchFieldsHandler,
+			content_save_draft: saveDraftHandler
+		};
+		/** Only a flush's outcome is worth an audit row — `content_patch_fields` just buffers an
+		* in-memory change with nothing durable to attribute yet (see the plan doc's atomicity
+		* design: one save = one operation, not one per patch). */
+		const WORKSPACE_TOOLS_RECORDED = /* @__PURE__ */ new Set(["content_save_draft"]);
+		/** `currentDocKey` is always built as `${docType}:${docId}` with both non-empty (see
+		* below), but that invariant isn't visible to `.split(':')`'s return type — parse it back
+		* out explicitly instead of asserting the shape with a cast. */
+		function parseDocKey(key) {
+			const separator = key.indexOf(":");
+			if (separator === -1) return null;
+			return {
+				collection: key.slice(0, separator),
+				id: key.slice(separator + 1)
+			};
+		}
+		let input = "";
+		let streaming = false;
+		let controller = null;
+		const currentDocKey = derived(() => {
+			const docType = page.url.searchParams.get("docType");
+			const docId = page.url.searchParams.get("docId");
+			return docType && docId ? `${docType}:${docId}` : null;
+		});
+		const matchedWorkspace = derived(() => {
+			if (!currentDocKey()) return null;
+			const [docType, docId] = currentDocKey().split(":");
+			const registered = documentWorkspaceRegistry.current;
+			if (registered && registered.documentId === docId && registered.collection === docType) return registered.workspace;
+			return null;
+		});
+		/** No schema context is threaded down to this global panel (schema context is scoped to
+		* DocumentEditor.svelte's own subtree) — resolving via conventional field names only
+		* (`resolvePreviewTitle`'s no-schema fallback path) rather than a schema's own
+		* `preview.prepare`/`select` config. Good enough for a breadcrumb chip; not worth wiring
+		* schema context app-wide just for this. */
+		function capitalize(s) {
+			return s.length > 0 ? s.charAt(0).toUpperCase() + s.slice(1) : s;
+		}
+		const documentLabel = derived(() => {
+			if (!currentDocKey()) return null;
+			const parsed = parseDocKey(currentDocKey());
+			if (!parsed) return null;
+			const typeLabel = capitalize(parsed.collection);
+			const workspace = matchedWorkspace();
+			if (!workspace) return {
+				editing: false,
+				text: typeLabel
+			};
+			return {
+				editing: true,
+				text: `${typeLabel} — ${resolvePreviewTitle(workspace.getSnapshot().data, null, typeLabel)}`
+			};
+		});
+		const LONG_CONVERSATION_TOKENS = 5e4;
+		const isGettingLong = derived(() => agentChatState.lastPromptTokens > LONG_CONVERSATION_TOKENS);
+		async function send(message = input.trim()) {
+			if (!message || streaming) return;
+			input = "";
+			if (currentDocKey() && currentDocKey() !== agentChatState.contextSentFor) {
+				const [docType, docId] = currentDocKey().split(":");
+				agentChatState.history.push({
+					role: "system",
+					content: matchedWorkspace() ? `The user is currently viewing document ${docId} in collection ${docType} in the editor. Use content_patch_fields/content_save_draft for edits to this document — do not use update_document for it, since only the workspace tools keep the open editor in sync.` : `The user is currently viewing document ${docId} in collection ${docType}.`
+				});
+				agentChatState.contextSentFor = currentDocKey();
+			}
+			const userTurn = {
+				id: crypto.randomUUID(),
+				role: "user",
+				text: message,
+				status: "complete",
+				toolCalls: [],
+				historyIndexBeforeTurn: agentChatState.history.length
+			};
+			const assistantTurn = {
+				id: crypto.randomUUID(),
+				role: "assistant",
+				text: "",
+				status: "streaming",
+				toolCalls: []
+			};
+			agentChatState.turns.push(userTurn, assistantTurn);
+			agentChatState.history.push({
+				role: "user",
+				content: message
+			});
+			const assistantIndex = agentChatState.turns.length - 1;
+			streaming = true;
+			controller = new AbortController();
+			const workspace = matchedWorkspace();
+			const documentContext = workspace && currentDocKey() ? parseDocKey(currentDocKey()) : null;
+			let changeSetId = null;
+			let cumulativeUsage = {
+				promptTokens: 0,
+				completionTokens: 0
+			};
+			let dirtySinceFlush = false;
+			if (workspace) workspace.beginBatch("agent");
+			try {
+				let messages = agentChatState.history;
+				let turnDone = false;
+				while (!turnDone) {
+					let pendingWorkspaceCalls = null;
+					for await (const event of streamAgentChat({
+						messages,
+						documentContext: documentContext ?? void 0,
+						changeSetId: changeSetId ?? void 0,
+						priorUsage: changeSetId ? cumulativeUsage : void 0
+					}, controller.signal)) {
+						if (event.type === "usage") cumulativeUsage = {
+							promptTokens: event.promptTokens,
+							completionTokens: event.completionTokens
+						};
+						if (event.type === "done") {
+							changeSetId = event.changeSetId ?? changeSetId;
+							messages = event.messages;
+							agentChatState.history = messages;
+							if (event.finishReason === "awaiting_workspace_tool") pendingWorkspaceCalls = event.pendingWorkspaceCalls ?? [];
+							else {
+								turnDone = true;
+								const turn = agentChatState.turns[assistantIndex];
+								if (turn?.status === "streaming") turn.status = event.finishReason === "error" ? "error" : "complete";
+							}
+						} else handleStreamEvent(assistantIndex, event);
+					}
+					if (pendingWorkspaceCalls && pendingWorkspaceCalls.length > 0) {
+						for (const call of pendingWorkspaceCalls) {
+							const handler = workspace ? WORKSPACE_TOOL_HANDLERS[call.name] : void 0;
+							const result = handler ? await handler(call.arguments, workspace) : {
+								success: false,
+								error: workspace ? `Unknown workspace tool: ${call.name}` : "No document is open to apply this change to."
+							};
+							if (call.name === "content_patch_fields") dirtySinceFlush = result.success;
+							if (call.name === "content_save_draft") {
+								dirtySinceFlush = false;
+								if (result.success && documentContext) notifyCollectionChanged(documentContext.collection);
+							}
+							resolveWorkspaceToolCall(assistantIndex, call.toolCallId, result);
+							messages = [...messages, {
+								role: "tool",
+								toolCallId: call.toolCallId,
+								content: JSON.stringify(result.success ? result.data ?? null : { error: result.error })
+							}];
+							if (changeSetId && documentContext && WORKSPACE_TOOLS_RECORDED.has(call.name)) await safeRecordWorkspaceOperation({
+								changeSetId,
+								toolName: call.name,
+								collection: documentContext.collection,
+								id: documentContext.id,
+								success: result.success,
+								error: result.error,
+								arguments: call.arguments,
+								data: result.data
+							});
+						}
+						agentChatState.history = messages;
+					} else if (!turnDone) turnDone = true;
+				}
+				if (dirtySinceFlush && workspace) {
+					const result = await saveDraftHandler({}, workspace);
+					if (result.success && documentContext) notifyCollectionChanged(documentContext.collection);
+					if (changeSetId && documentContext) await safeRecordWorkspaceOperation({
+						changeSetId,
+						toolName: "content_save_draft",
+						collection: documentContext.collection,
+						id: documentContext.id,
+						success: result.success,
+						error: result.error,
+						arguments: {},
+						data: result.data
+					});
+				}
+			} catch (error) {
+				const turn = agentChatState.turns[assistantIndex];
+				if (!turn) return;
+				if (error instanceof DOMException && error.name === "AbortError") turn.status = "stopped";
+				else {
+					turn.status = "error";
+					turn.error = error instanceof Error ? error.message : String(error);
+				}
+			} finally {
+				if (workspace) workspace.endBatch();
+				streaming = false;
+				controller = null;
+			}
+		}
+		const LIST_INVALIDATING_TOOLS = /* @__PURE__ */ new Set([
+			"create_document",
+			"update_document",
+			"publish_document"
+		]);
+		function handleStreamEvent(assistantIndex, event) {
+			const turn = agentChatState.turns[assistantIndex];
+			if (!turn) return;
+			if (event.type === "text") turn.text += event.delta;
+			else if (event.type === "toolCall") turn.toolCalls.push({
+				id: event.toolCallId,
+				name: event.name,
+				arguments: event.arguments,
+				status: "running"
+			});
+			else if (event.type === "toolResult") {
+				const tool = turn.toolCalls.find((call) => call.id === event.toolCallId);
+				if (tool) {
+					tool.status = event.success ? "complete" : "error";
+					tool.result = event.data;
+					tool.error = event.error;
+					if (event.success && LIST_INVALIDATING_TOOLS.has(tool.name)) {
+						const collection = tool.arguments?.collection;
+						if (typeof collection === "string") notifyCollectionChanged(collection);
+					}
+				}
+			} else if (event.type === "error") {
+				turn.status = "error";
+				turn.error = event.message;
+			} else if (event.type === "usage") agentChatState.lastPromptTokens = event.promptTokens;
+		}
+		/** Reflects a workspace tool's locally-resolved result onto its (already-rendered, still
+		* "running") entry in the turn's tool-call list — the SSE stream already emitted the
+		* `toolCall` event for it (before the server paused), just not a `toolResult`, since only
+		* the browser can produce that result. Same shape update as the `toolResult` branch above. */
+		function resolveWorkspaceToolCall(assistantIndex, toolCallId, result) {
+			const tool = agentChatState.turns[assistantIndex]?.toolCalls.find((call) => call.id === toolCallId);
+			if (tool) {
+				tool.status = result.success ? "complete" : "error";
+				tool.result = result.data;
+				tool.error = result.error;
+			}
+		}
+		/** Best-effort audit record for a workspace tool's result — `recordWorkspaceOperation`
+		* (api/agent-chat.ts) throws on any HTTP/network failure (it goes through `apiClient`); this
+		* call must never break the chat turn just because the audit write failed. */
+		async function safeRecordWorkspaceOperation(body) {
+			try {
+				await recordWorkspaceOperation(body);
+			} catch {}
+		}
+		function stop() {
+			controller?.abort();
+		}
+		function clearConversation() {
+			if (streaming) return;
+			if (!confirm("Clear this conversation? This cannot be undone.")) return;
+			agentChatState.turns = [];
+			agentChatState.history = [];
+			agentChatState.contextSentFor = null;
+			agentChatState.lastPromptTokens = 0;
+			input = "";
+		}
+		function retry(turnIndex) {
+			if (streaming || turnIndex < 1) return;
+			const prompt = agentChatState.turns[turnIndex - 1];
+			if (!prompt || prompt.role !== "user") return;
+			agentChatState.turns = agentChatState.turns.slice(0, turnIndex - 1);
+			agentChatState.history = agentChatState.history.slice(0, prompt.historyIndexBeforeTurn ?? agentChatState.history.length);
+			send(prompt.text);
+		}
+		async function copyText(text) {
+			await navigator.clipboard.writeText(text);
+		}
+		g.setOptions({
+			breaks: true,
+			gfm: true
+		});
+		function renderMarkdown(text) {
+			return purify.sanitize(g.parse(text, { async: false }));
+		}
+		function formatToolName(name) {
+			return name.replaceAll("_", " ");
+		}
+		const TOOL_VERBS = {
+			describe_cms: "inspected the CMS",
+			list_collections: "listed collections",
+			get_schema: "read a schema",
+			validate_schema: "validated a schema",
+			validate_document: "validated a document",
+			query_documents: "searched documents",
+			get_document: "read a document",
+			create_document: "created a document",
+			update_document: "updated a document",
+			publish_document: "published a document",
+			get_singleton: "read settings",
+			update_singleton: "updated settings",
+			list_assets: "browsed assets",
+			upload_asset: "uploaded a file"
+		};
+		const TOOL_ICONS = {
+			describe_cms: Info,
+			list_collections: Layers,
+			get_schema: File_code,
+			validate_schema: Shield_check,
+			validate_document: Shield_check,
+			query_documents: Search,
+			get_document: File_text,
+			create_document: File_plus,
+			update_document: Pencil,
+			publish_document: Cloud_upload,
+			get_singleton: Settings,
+			update_singleton: Settings,
+			list_assets: Image,
+			upload_asset: Image_plus
+		};
+		function toolVerb(name) {
+			return TOOL_VERBS[name] ?? formatToolName(name);
+		}
+		function toolIcon(name) {
+			return TOOL_ICONS[name] ?? Wrench;
+		}
+		function toolTitle(tool) {
+			const verb = toolVerb(tool.name);
+			return verb.charAt(0).toUpperCase() + verb.slice(1);
+		}
+		/** One line of context under a tool entry — where it looked/wrote, and a result count if
+		* the tool's own result shape has one. Kept generic across tools rather than special-cased
+		* per name, since new tools shouldn't need a matching branch here to show *something*. */
+		function plural(n, word) {
+			return `${n} ${word}${n === 1 ? "" : "s"}`;
+		}
+		/** A result note per tool, named to its actual result shape — not a generic "find the
+		* first array field" guess, which produced nonsense (e.g. counting validate_document's
+		* `errors` array as "results", or grabbing an arbitrary field off describe_cms). Tools
+		* whose result has nothing meaningful to summarize just get no note (the location line
+		* — collection/id — still shows). */
+		function toolResultNote(tool) {
+			const r = tool.result;
+			if (!r || typeof r !== "object") return null;
+			const record = r;
+			switch (tool.name) {
+				case "list_collections": {
+					const n = record.collections?.length;
+					return n === void 0 ? null : plural(n, "collection");
+				}
+				case "list_assets": {
+					const n = record.assets?.length;
+					return n === void 0 ? null : plural(n, "asset");
+				}
+				case "query_documents": {
+					const total = record.totalDocs;
+					return typeof total === "number" ? plural(total, "document") : null;
+				}
+				case "validate_document":
+				case "validate_schema":
+					if (record.isValid === true) return "valid";
+					return plural(record.errors?.length ?? 0, "error");
+				default: return null;
+			}
+		}
+		function toolDetail(tool) {
+			const parts = [];
+			const collection = tool.arguments.collection;
+			const id = tool.arguments.id;
+			if (typeof collection === "string") parts.push(collection);
+			if (typeof id === "string") parts.push(id);
+			return [parts.join(" · "), toolResultNote(tool)].filter(Boolean).join(" — ") || null;
+		}
+		function toolsSummary(turn) {
+			const seen = /* @__PURE__ */ new Set();
+			const verbs = [];
+			for (const tool of turn.toolCalls) {
+				if (seen.has(tool.name)) continue;
+				seen.add(tool.name);
+				verbs.push(toolVerb(tool.name));
+			}
+			const sentence = verbs.join(", ");
+			return sentence.charAt(0).toUpperCase() + sentence.slice(1);
+		}
+		function streamingLabel(turn) {
+			if (turn.toolCalls.some((tool) => tool.status === "running")) return "Using tools...";
+			if (turn.text) return "Generating response...";
+			return "Thinking...";
+		}
+		function handleComposerKeydown(event) {
+			if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+				event.preventDefault();
+				send();
+			}
+		}
+		let $$settled = true;
+		let $$inner_renderer;
+		function $$render_inner($$renderer) {
+			$$renderer.push(`<div class="bg-muted/20 flex h-full min-h-0 flex-col"><header${attr_class(`bg-background/90 relative flex h-14 shrink-0 items-center justify-between border-b px-4 backdrop-blur sm:px-6 ${stringify(embedded ? "pr-20 sm:pr-20" : "")}`)}><div class="flex min-w-0 items-center gap-3"><div class="bg-primary/10 text-primary flex size-8 shrink-0 items-center justify-center rounded-lg">`);
+			Sparkles($$renderer, { class: "size-4" });
+			$$renderer.push(`<!----></div> <div class="min-w-0"><h1 class="truncate text-sm font-semibold">${escape_html(title)}</h1> <p class="text-muted-foreground truncate text-xs">${escape_html(subtitle)}</p></div></div> `);
+			if (agentChatState.turns.length > 0) {
+				$$renderer.push("<!--[0-->");
+				Button($$renderer, {
+					variant: "ghost",
+					size: "icon-sm",
+					onclick: clearConversation,
+					disabled: streaming,
+					"aria-label": "Clear conversation",
+					class: embedded ? "absolute top-2 right-14" : "",
+					children: ($$renderer) => {
+						Trash_2($$renderer, {});
+					},
+					$$slots: { default: true }
+				});
+			} else $$renderer.push("<!--[-1-->");
+			$$renderer.push(`<!--]--></header> `);
+			Message_scroller_provider($$renderer, {
+				autoScroll: true,
+				defaultScrollPosition: "last-anchor",
+				scrollPreviousItemPeek: 48,
+				children: ($$renderer) => {
+					Message_scroller($$renderer, {
+						class: "min-h-0",
+						children: ($$renderer) => {
+							Message_scroller_viewport($$renderer, {
+								children: ($$renderer) => {
+									Message_scroller_content($$renderer, {
+										class: "mx-auto w-full max-w-3xl px-4 py-8 sm:px-6",
+										"aria-busy": streaming,
+										children: ($$renderer) => {
+											if (agentChatState.turns.length === 0) {
+												$$renderer.push("<!--[0-->");
+												$$renderer.push(`<div class="m-auto flex max-w-xl flex-col items-center px-4 py-12 text-center"><div class="border-primary/20 bg-primary/10 text-primary mb-5 flex size-14 items-center justify-center rounded-2xl border shadow-sm">`);
+												Bot($$renderer, { class: "size-7" });
+												$$renderer.push(`<!----></div> <h2 class="text-xl font-semibold tracking-tight">What are we working on?</h2> <p class="text-muted-foreground mt-2 max-w-md text-sm leading-relaxed">Ask about your schemas, inspect documents, or use the CMS tools available to your
+								role.</p> <div class="mt-6 grid w-full gap-2 sm:grid-cols-3"><!--[-->`);
+												const each_array = ensure_array_like(suggestions);
+												for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+													let suggestion = each_array[$$index];
+													const text = typeof suggestion === "string" ? suggestion : suggestion.text;
+													const Icon = typeof suggestion === "string" ? null : suggestion.icon;
+													$$renderer.push(`<button type="button" class="bg-background hover:bg-accent flex cursor-pointer items-start gap-2 rounded-xl border p-3 text-left text-xs leading-relaxed shadow-xs transition-colors">`);
+													if (Icon) {
+														$$renderer.push("<!--[0-->");
+														if (Icon) {
+															$$renderer.push("<!--[-->");
+															Icon($$renderer, { class: "text-muted-foreground mt-0.5 size-3.5 shrink-0" });
+															$$renderer.push("<!--]-->");
+														} else {
+															$$renderer.push("<!--[!-->");
+															$$renderer.push("<!--]-->");
+														}
+													} else $$renderer.push("<!--[-1-->");
+													$$renderer.push(`<!--]--> <span>${escape_html(text)}</span></button>`);
+												}
+												$$renderer.push(`<!--]--></div></div>`);
+											} else {
+												$$renderer.push("<!--[-1-->");
+												$$renderer.push(`<!--[-->`);
+												const each_array_1 = ensure_array_like(agentChatState.turns);
+												for (let index = 0, $$length = each_array_1.length; index < $$length; index++) {
+													let turn = each_array_1[index];
+													Message_scroller_item($$renderer, {
+														messageId: turn.id,
+														scrollAnchor: turn.role === "user",
+														children: ($$renderer) => {
+															Message($$renderer, {
+																align: turn.role === "user" ? "end" : "start",
+																children: ($$renderer) => {
+																	Message_content($$renderer, {
+																		children: ($$renderer) => {
+																			if (turn.role === "user") {
+																				$$renderer.push("<!--[0-->");
+																				Bubble($$renderer, {
+																					variant: "secondary",
+																					align: "end",
+																					children: ($$renderer) => {
+																						Bubble_content($$renderer, {
+																							class: "rounded-xl",
+																							children: ($$renderer) => {
+																								$$renderer.push(`<!---->${escape_html(turn.text)}`);
+																							},
+																							$$slots: { default: true }
+																						});
+																					},
+																					$$slots: { default: true }
+																				});
+																			} else {
+																				$$renderer.push("<!--[-1-->");
+																				if (turn.toolCalls.length > 0) {
+																					$$renderer.push("<!--[0-->");
+																					$$renderer.push(`<details class="group/tools mb-2 w-full"><summary class="text-muted-foreground hover:text-foreground flex cursor-pointer list-none items-center gap-1.5 text-xs transition-colors"><span${attr_class(clsx(turn.toolCalls.some((t) => t.status === "running") ? "shimmer" : ""))}>${escape_html(toolsSummary(turn))}</span> `);
+																					Chevron_down($$renderer, { class: "size-3 transition-transform group-open/tools:rotate-180" });
+																					$$renderer.push(`<!----></summary> <div class="bg-muted/40 mt-1.5 flex flex-col gap-2.5 rounded-lg px-2.5 py-2"><!--[-->`);
+																					const each_array_2 = ensure_array_like(turn.toolCalls);
+																					for (let $$index_1 = 0, $$length = each_array_2.length; $$index_1 < $$length; $$index_1++) {
+																						let tool = each_array_2[$$index_1];
+																						const Icon = toolIcon(tool.name);
+																						const detail = toolDetail(tool);
+																						$$renderer.push(`<div class="flex flex-col gap-0.5"><div class="text-muted-foreground flex items-center gap-2 text-xs">`);
+																						if (tool.status === "running") {
+																							$$renderer.push("<!--[0-->");
+																							Loader_circle($$renderer, { class: "size-3 shrink-0 animate-spin" });
+																						} else if (tool.status === "error") {
+																							$$renderer.push("<!--[1-->");
+																							Circle_alert($$renderer, { class: "text-destructive size-3 shrink-0" });
+																						} else {
+																							$$renderer.push("<!--[-1-->");
+																							if (Icon) {
+																								$$renderer.push("<!--[-->");
+																								Icon($$renderer, { class: "size-3 shrink-0" });
+																								$$renderer.push("<!--]-->");
+																							} else {
+																								$$renderer.push("<!--[!-->");
+																								$$renderer.push("<!--]-->");
+																							}
+																						}
+																						$$renderer.push(`<!--]--> <span>${escape_html(toolTitle(tool))}</span></div> `);
+																						if (tool.error) {
+																							$$renderer.push("<!--[0-->");
+																							$$renderer.push(`<p class="text-destructive pl-5 text-xs">${escape_html(tool.error)}</p>`);
+																						} else if (detail) {
+																							$$renderer.push("<!--[1-->");
+																							$$renderer.push(`<p class="text-muted-foreground/80 pl-5 text-xs">${escape_html(detail)}</p>`);
+																						} else $$renderer.push("<!--[-1-->");
+																						$$renderer.push(`<!--]--></div>`);
+																					}
+																					$$renderer.push(`<!--]--> <div class="text-muted-foreground flex items-center gap-2 text-xs">`);
+																					if (turn.toolCalls.some((t) => t.status === "running")) {
+																						$$renderer.push("<!--[0-->");
+																						Loader_circle($$renderer, { class: "size-3 animate-spin" });
+																						$$renderer.push(`<!----> Working…`);
+																					} else if (turn.toolCalls.some((t) => t.status === "error")) {
+																						$$renderer.push("<!--[1-->");
+																						Circle_alert($$renderer, { class: "text-destructive size-3" });
+																						$$renderer.push(`<!----> Done with errors`);
+																					} else {
+																						$$renderer.push("<!--[-1-->");
+																						Check($$renderer, { class: "size-3" });
+																						$$renderer.push(`<!----> Done`);
+																					}
+																					$$renderer.push(`<!--]--></div></div></details>`);
+																				} else $$renderer.push("<!--[-1-->");
+																				$$renderer.push(`<!--]--> `);
+																				if (turn.text) {
+																					$$renderer.push("<!--[0-->");
+																					Bubble($$renderer, {
+																						variant: "ghost",
+																						children: ($$renderer) => {
+																							Bubble_content($$renderer, {
+																								class: "markdown-body px-0",
+																								children: ($$renderer) => {
+																									$$renderer.push(`${html$2(renderMarkdown(turn.text))}`);
+																								},
+																								$$slots: { default: true }
+																							});
+																						},
+																						$$slots: { default: true }
+																					});
+																				} else $$renderer.push("<!--[-1-->");
+																				$$renderer.push(`<!--]--> `);
+																				if (turn.status === "streaming") {
+																					$$renderer.push("<!--[0-->");
+																					Marker($$renderer, {
+																						role: "status",
+																						class: "bg-muted/60 mt-1 w-fit justify-start rounded-full px-3 py-1.5",
+																						children: ($$renderer) => {
+																							Marker_icon($$renderer, {
+																								children: ($$renderer) => {
+																									Loader_circle($$renderer, { class: "animate-spin" });
+																								},
+																								$$slots: { default: true }
+																							});
+																							$$renderer.push(`<!----> `);
+																							Marker_content($$renderer, {
+																								class: "shimmer font-medium",
+																								children: ($$renderer) => {
+																									$$renderer.push(`<!---->${escape_html(streamingLabel(turn))}`);
+																								},
+																								$$slots: { default: true }
+																							});
+																							$$renderer.push(`<!---->`);
+																						},
+																						$$slots: { default: true }
+																					});
+																				} else $$renderer.push("<!--[-1-->");
+																				$$renderer.push(`<!--]--> `);
+																				if (turn.error) {
+																					$$renderer.push("<!--[0-->");
+																					Marker($$renderer, {
+																						variant: "border",
+																						class: "text-destructive border-destructive/30",
+																						children: ($$renderer) => {
+																							Marker_icon($$renderer, {
+																								children: ($$renderer) => {
+																									Circle_alert($$renderer, {});
+																								},
+																								$$slots: { default: true }
+																							});
+																							$$renderer.push(`<!---->`);
+																							Marker_content($$renderer, {
+																								children: ($$renderer) => {
+																									$$renderer.push(`<!---->${escape_html(turn.error)}`);
+																								},
+																								$$slots: { default: true }
+																							});
+																							$$renderer.push(`<!---->`);
+																						},
+																						$$slots: { default: true }
+																					});
+																				} else $$renderer.push("<!--[-1-->");
+																				$$renderer.push(`<!--]--> `);
+																				Message_footer($$renderer, {
+																					children: ($$renderer) => {
+																						if (turn.status === "stopped") {
+																							$$renderer.push("<!--[0-->");
+																							$$renderer.push(`<span>Stopped</span>`);
+																						} else $$renderer.push("<!--[-1-->");
+																						$$renderer.push(`<!--]--> `);
+																						if (turn.text && turn.status !== "streaming") {
+																							$$renderer.push("<!--[0-->");
+																							Button($$renderer, {
+																								variant: "ghost",
+																								size: "icon-sm",
+																								class: "size-7",
+																								onclick: () => copyText(turn.text),
+																								"aria-label": "Copy response",
+																								children: ($$renderer) => {
+																									Copy($$renderer, {});
+																								},
+																								$$slots: { default: true }
+																							});
+																							$$renderer.push(`<!----> `);
+																							Button($$renderer, {
+																								variant: "ghost",
+																								size: "icon-sm",
+																								class: "size-7",
+																								onclick: () => retry(index),
+																								disabled: streaming,
+																								"aria-label": "Retry response",
+																								children: ($$renderer) => {
+																									Refresh_cw($$renderer, {});
+																								},
+																								$$slots: { default: true }
+																							});
+																							$$renderer.push(`<!---->`);
+																						} else $$renderer.push("<!--[-1-->");
+																						$$renderer.push(`<!--]-->`);
+																					},
+																					$$slots: { default: true }
+																				});
+																				$$renderer.push(`<!---->`);
+																			}
+																			$$renderer.push(`<!--]-->`);
+																		},
+																		$$slots: { default: true }
+																	});
+																},
+																$$slots: { default: true }
+															});
+														},
+														$$slots: { default: true }
+													});
+												}
+												$$renderer.push(`<!--]-->`);
+											}
+											$$renderer.push(`<!--]-->`);
+										},
+										$$slots: { default: true }
+									});
+								},
+								$$slots: { default: true }
+							});
+							$$renderer.push(`<!----> `);
+							Message_scroller_button($$renderer, {});
+							$$renderer.push(`<!---->`);
+						},
+						$$slots: { default: true }
+					});
+				},
+				$$slots: { default: true }
+			});
+			$$renderer.push(`<!----> <div class="from-background via-background bg-linear-to-t to-transparent px-3 pt-2 pb-3 sm:px-6 sm:pb-5">`);
+			if (documentLabel()) {
+				$$renderer.push("<!--[0-->");
+				$$renderer.push(`<div${attr_class(`mx-auto mb-2 flex max-w-3xl items-center gap-1.5 text-xs ${stringify(documentLabel().editing ? "text-primary" : "text-muted-foreground")}`)}>`);
+				if (documentLabel().editing) {
+					$$renderer.push("<!--[0-->");
+					Pencil($$renderer, { class: "size-3.5 shrink-0" });
+					$$renderer.push(`<!----> <span class="truncate font-medium">Editing: ${escape_html(documentLabel().text)}</span>`);
+				} else {
+					$$renderer.push("<!--[-1-->");
+					File_text($$renderer, { class: "size-3.5 shrink-0" });
+					$$renderer.push(`<!----> <span class="truncate">Viewing: ${escape_html(documentLabel().text)}</span>`);
+				}
+				$$renderer.push(`<!--]--></div>`);
+			} else $$renderer.push("<!--[-1-->");
+			$$renderer.push(`<!--]--> `);
+			if (isGettingLong()) {
+				$$renderer.push("<!--[0-->");
+				$$renderer.push(`<div class="border-rule bg-muted/60 text-muted-foreground mx-auto mb-2 flex max-w-3xl items-center gap-2 rounded-lg border px-3 py-2 text-xs">`);
+				Circle_alert($$renderer, { class: "size-3.5 shrink-0" });
+				$$renderer.push(`<!----> <span class="flex-1">This conversation is getting long (~${escape_html(Math.round(agentChatState.lastPromptTokens / 1e3))}K
+					tokens sent each turn) — consider clearing it for better results.</span> `);
+				Button($$renderer, {
+					variant: "ghost",
+					size: "sm",
+					class: "h-6 shrink-0 px-2",
+					onclick: clearConversation,
+					children: ($$renderer) => {
+						$$renderer.push(`<!---->Clear`);
+					},
+					$$slots: { default: true }
+				});
+				$$renderer.push(`<!----></div>`);
+			} else $$renderer.push("<!--[-1-->");
+			$$renderer.push(`<!--]--> <form class="bg-background focus-within:border-ring focus-within:ring-ring/20 mx-auto max-w-3xl rounded-2xl border p-2 shadow-lg transition-shadow focus-within:ring-3">`);
+			Textarea($$renderer, {
+				onkeydown: handleComposerKeydown,
+				rows: 1,
+				placeholder: "Ask about your content...",
+				class: "max-h-40 min-h-11 resize-none border-0 bg-transparent px-2 shadow-none focus-visible:ring-0",
+				disabled: streaming,
+				get value() {
+					return input;
+				},
+				set value($$value) {
+					input = $$value;
+					$$settled = false;
+				}
+			});
+			$$renderer.push(`<!----> <div class="flex items-center justify-between px-1 pt-1"><div class="text-muted-foreground flex items-center gap-1.5 text-[11px]">`);
+			Database($$renderer, { class: "size-3" });
+			$$renderer.push(`<!----><span>Uses tools allowed by your role</span></div> `);
+			if (streaming) {
+				$$renderer.push("<!--[0-->");
+				Button($$renderer, {
+					type: "button",
+					size: "icon-sm",
+					variant: "outline",
+					onclick: stop,
+					"aria-label": "Stop response",
+					children: ($$renderer) => {
+						Square($$renderer, { class: "fill-current" });
+					},
+					$$slots: { default: true }
+				});
+			} else {
+				$$renderer.push("<!--[-1-->");
+				Button($$renderer, {
+					type: "submit",
+					size: "icon-sm",
+					disabled: !input.trim(),
+					"aria-label": "Send message",
+					children: ($$renderer) => {
+						Send($$renderer, {});
+					},
+					$$slots: { default: true }
+				});
+			}
+			$$renderer.push(`<!--]--></div></form> <p class="text-muted-foreground mx-auto mt-2 max-w-3xl text-center text-[10px]">AI can make mistakes. Review content changes before publishing.</p></div></div>`);
+		}
+		do {
+			$$settled = true;
+			$$inner_renderer = $$renderer.copy();
+			$$render_inner($$inner_renderer);
+		} while (!$$settled);
+		$$renderer.subsume($$inner_renderer);
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/layout/Sidebar.svelte
 function Sidebar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const slots = setAdminSlots();
 		/** Plugin registry — used to render sidebar-placed admin tools as persistent nav. */
-		let { data, onSignOut, children, enableGraphiQL = false, activeTab, onTabChange, plugins = [] } = $$props;
+		let { data, onSignOut, children, enableGraphiQL = false, enableAssistant = false, activeTab, onTabChange, plugins = [] } = $$props;
+		let assistantOpen = false;
 		function switchTab(value) {
 			if (onTabChange) onTabChange(value);
 			else if (activeTab) activeTab.value = value;
@@ -14166,92 +20817,191 @@ function Sidebar($$renderer, $$props) {
 		const sidebarTools = derived(() => (plugins ?? []).flatMap((p) => p.parts ?? []).filter((part) => part.implements === "aphex/admin/tool" && part.placement === "sidebar").filter((t) => !t.requiredCapabilities?.length || t.requiredCapabilities.every((c) => perms.can(c))).sort((a, b) => (a.order ?? 0) - (b.order ?? 0)));
 		const showTabs = derived(() => page.url.pathname === "/admin");
 		const canSeeMedia = derived(() => perms.can("asset.read"));
-		Mode_watcher($$renderer, {});
-		$$renderer.push(`<!----> `);
-		Sonner_1($$renderer, { closeButton: true });
-		$$renderer.push(`<!----> `);
-		Sidebar_provider($$renderer, {
-			class: "h-screen",
-			children: ($$renderer) => {
-				AppSidebar($$renderer, {
-					data,
-					onSignOut,
-					sidebarTools: sidebarTools(),
-					onSelectTool: (id) => switchTab(`plugin:${id}`)
-				});
-				$$renderer.push(`<!----> `);
-				Sidebar_inset($$renderer, {
-					class: "flex h-full min-w-0 flex-col",
-					children: ($$renderer) => {
-						$$renderer.push(`<header class="border-rule flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"><div class="flex w-full items-center gap-2 px-4"><div class="flex min-w-0 items-center gap-2">`);
-						Sidebar_trigger($$renderer, { class: "-ml-1" });
-						$$renderer.push(`<!----> `);
-						Separator($$renderer, {
-							orientation: "vertical",
-							class: "h-4"
-						});
-						$$renderer.push(`<!----> <!--[-->`);
-						const each_array = ensure_array_like(slots.get("navbar-start"));
-						for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
-							each_array[$$index].snippet($$renderer);
-							$$renderer.push(`<!---->`);
-						}
-						$$renderer.push(`<!--]--></div> `);
-						if (showTabs() && activeTab) {
-							$$renderer.push("<!--[0-->");
-							$$renderer.push(`<div class="bg-muted text-muted-foreground mx-auto inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]"><button${attr_class(`${stringify(activeTab.value === "structure" ? "bg-background text-foreground shadow" : "text-muted-foreground")} ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50`)}>Structure</button> `);
-							if (enableGraphiQL) {
-								$$renderer.push("<!--[0-->");
-								$$renderer.push(`<button${attr_class(`${stringify(activeTab.value === "vision" ? "bg-background text-foreground shadow" : "text-muted-foreground")} ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50`)}>Vision</button>`);
-							} else $$renderer.push("<!--[-1-->");
-							$$renderer.push(`<!--]--> `);
-							if (canSeeMedia()) {
-								$$renderer.push("<!--[0-->");
-								$$renderer.push(`<button${attr_class(`${stringify(activeTab.value === "media" ? "bg-background text-foreground shadow" : "text-muted-foreground")} ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50`)}>Media</button>`);
-							} else $$renderer.push("<!--[-1-->");
-							$$renderer.push(`<!--]--> <!--[-->`);
-							const each_array_1 = ensure_array_like(slots.get("admin-tabs"));
-							for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
-								each_array_1[$$index_1].snippet($$renderer);
+		let $$settled = true;
+		let $$inner_renderer;
+		function $$render_inner($$renderer) {
+			Mode_watcher($$renderer, {});
+			$$renderer.push(`<!----> `);
+			Sonner_1($$renderer, { closeButton: true });
+			$$renderer.push(`<!----> `);
+			Sidebar_provider($$renderer, {
+				class: "h-screen",
+				children: ($$renderer) => {
+					AppSidebar($$renderer, {
+						data,
+						onSignOut,
+						sidebarTools: sidebarTools(),
+						onSelectTool: (id) => switchTab(`plugin:${id}`)
+					});
+					$$renderer.push(`<!----> `);
+					Sidebar_inset($$renderer, {
+						class: "flex h-full min-w-0 flex-col",
+						children: ($$renderer) => {
+							$$renderer.push(`<header class="border-rule flex h-16 shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12"><div class="flex w-full items-center gap-2 px-4"><div class="flex min-w-0 items-center gap-2">`);
+							Sidebar_trigger($$renderer, { class: "-ml-1" });
+							$$renderer.push(`<!----> `);
+							Separator($$renderer, {
+								orientation: "vertical",
+								class: "h-4"
+							});
+							$$renderer.push(`<!----> <!--[-->`);
+							const each_array = ensure_array_like(slots.get("navbar-start"));
+							for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+								each_array[$$index].snippet($$renderer);
 								$$renderer.push(`<!---->`);
 							}
-							$$renderer.push(`<!--]--></div>`);
-						} else $$renderer.push("<!--[-1-->");
-						$$renderer.push(`<!--]--> <div${attr_class(`flex items-center gap-2 ${stringify(showTabs() ? "" : "ml-auto")}`)}><!--[-->`);
-						const each_array_2 = ensure_array_like(slots.get("navbar-end"));
-						for (let $$index_2 = 0, $$length = each_array_2.length; $$index_2 < $$length; $$index_2++) {
-							each_array_2[$$index_2].snippet($$renderer);
-							$$renderer.push(`<!---->`);
-						}
-						$$renderer.push(`<!--]--> `);
+							$$renderer.push(`<!--]--></div> `);
+							if (showTabs() && activeTab) {
+								$$renderer.push("<!--[0-->");
+								$$renderer.push(`<div class="bg-muted text-muted-foreground mx-auto inline-flex h-9 w-fit items-center justify-center rounded-lg p-[3px]"><button${attr_class(`${stringify(activeTab.value === "structure" ? "bg-background text-foreground shadow" : "text-muted-foreground")} ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50`)}>Structure</button> `);
+								if (enableGraphiQL) {
+									$$renderer.push("<!--[0-->");
+									$$renderer.push(`<button${attr_class(`${stringify(activeTab.value === "vision" ? "bg-background text-foreground shadow" : "text-muted-foreground")} ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50`)}>Vision</button>`);
+								} else $$renderer.push("<!--[-1-->");
+								$$renderer.push(`<!--]--> `);
+								if (canSeeMedia()) {
+									$$renderer.push("<!--[0-->");
+									$$renderer.push(`<button${attr_class(`${stringify(activeTab.value === "media" ? "bg-background text-foreground shadow" : "text-muted-foreground")} ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md px-3 py-1 text-sm font-medium whitespace-nowrap transition-all focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50`)}>Media</button>`);
+								} else $$renderer.push("<!--[-1-->");
+								$$renderer.push(`<!--]--> <!--[-->`);
+								const each_array_1 = ensure_array_like(slots.get("admin-tabs"));
+								for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
+									each_array_1[$$index_1].snippet($$renderer);
+									$$renderer.push(`<!---->`);
+								}
+								$$renderer.push(`<!--]--></div>`);
+							} else $$renderer.push("<!--[-1-->");
+							$$renderer.push(`<!--]--> <div${attr_class(`flex items-center gap-2 ${stringify(showTabs() ? "" : "ml-auto")}`)}><!--[-->`);
+							const each_array_2 = ensure_array_like(slots.get("navbar-end"));
+							for (let $$index_2 = 0, $$length = each_array_2.length; $$index_2 < $$length; $$index_2++) {
+								each_array_2[$$index_2].snippet($$renderer);
+								$$renderer.push(`<!---->`);
+							}
+							$$renderer.push(`<!--]--> `);
+							Button($$renderer, {
+								onclick: toggleMode,
+								variant: "outline",
+								size: "icon",
+								class: "cursor-pointer",
+								children: ($$renderer) => {
+									Sun($$renderer, { class: "h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" });
+									$$renderer.push(`<!----> `);
+									Moon($$renderer, { class: "absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" });
+									$$renderer.push(`<!----> <span class="sr-only">Toggle theme</span>`);
+								},
+								$$slots: { default: true }
+							});
+							$$renderer.push(`<!----></div></div></header> <main class="flex flex-1 flex-col overflow-x-hidden overflow-y-auto pt-0">`);
+							children($$renderer);
+							$$renderer.push(`<!----></main>`);
+						},
+						$$slots: { default: true }
+					});
+					$$renderer.push(`<!----> `);
+					if (enableAssistant && !assistantOpen) {
+						$$renderer.push("<!--[0-->");
 						Button($$renderer, {
-							onclick: toggleMode,
-							variant: "outline",
-							size: "icon",
-							class: "cursor-pointer",
+							size: "icon-lg",
+							class: "fixed right-5 bottom-20 z-50 size-12 rounded-full shadow-lg sm:right-6",
+							onclick: () => assistantOpen = true,
+							"aria-label": "Open Aphex Assistant",
 							children: ($$renderer) => {
-								Sun($$renderer, { class: "h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" });
-								$$renderer.push(`<!----> `);
-								Moon($$renderer, { class: "absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" });
-								$$renderer.push(`<!----> <span class="sr-only">Toggle theme</span>`);
+								Sparkles($$renderer, { class: "size-5" });
 							},
 							$$slots: { default: true }
 						});
-						$$renderer.push(`<!----></div></div></header> <main class="flex flex-1 flex-col overflow-hidden pt-0">`);
-						children($$renderer);
-						$$renderer.push(`<!----></main>`);
-					},
-					$$slots: { default: true }
-				});
-				$$renderer.push(`<!---->`);
-			},
-			$$slots: { default: true }
-		});
-		$$renderer.push(`<!---->`);
+					} else $$renderer.push("<!--[-1-->");
+					$$renderer.push(`<!--]--> `);
+					if (Root$3) {
+						$$renderer.push("<!--[-->");
+						Root$3($$renderer, {
+							get open() {
+								return assistantOpen;
+							},
+							set open($$value) {
+								assistantOpen = $$value;
+								$$settled = false;
+							},
+							children: ($$renderer) => {
+								if (Sheet_content) {
+									$$renderer.push("<!--[-->");
+									Sheet_content($$renderer, {
+										class: "w-full gap-0 p-0 sm:max-w-xl",
+										children: ($$renderer) => {
+											if (Sheet_header) {
+												$$renderer.push("<!--[-->");
+												Sheet_header($$renderer, {
+													class: "sr-only",
+													children: ($$renderer) => {
+														if (Sheet_title) {
+															$$renderer.push("<!--[-->");
+															Sheet_title($$renderer, {
+																children: ($$renderer) => {
+																	$$renderer.push(`<!---->Aphex Assistant`);
+																},
+																$$slots: { default: true }
+															});
+															$$renderer.push("<!--]-->");
+														} else {
+															$$renderer.push("<!--[!-->");
+															$$renderer.push("<!--]-->");
+														}
+														$$renderer.push(` `);
+														if (Sheet_description) {
+															$$renderer.push("<!--[-->");
+															Sheet_description($$renderer, {
+																children: ($$renderer) => {
+																	$$renderer.push(`<!---->CMS-aware answers and content tools`);
+																},
+																$$slots: { default: true }
+															});
+															$$renderer.push("<!--]-->");
+														} else {
+															$$renderer.push("<!--[!-->");
+															$$renderer.push("<!--]-->");
+														}
+													},
+													$$slots: { default: true }
+												});
+												$$renderer.push("<!--]-->");
+											} else {
+												$$renderer.push("<!--[!-->");
+												$$renderer.push("<!--]-->");
+											}
+											$$renderer.push(` `);
+											AgentChat($$renderer, { embedded: true });
+											$$renderer.push(`<!---->`);
+										},
+										$$slots: { default: true }
+									});
+									$$renderer.push("<!--]-->");
+								} else {
+									$$renderer.push("<!--[!-->");
+									$$renderer.push("<!--]-->");
+								}
+							},
+							$$slots: { default: true }
+						});
+						$$renderer.push("<!--]-->");
+					} else {
+						$$renderer.push("<!--[!-->");
+						$$renderer.push("<!--]-->");
+					}
+				},
+				$$slots: { default: true }
+			});
+			$$renderer.push(`<!---->`);
+		}
+		do {
+			$$settled = true;
+			$$inner_renderer = $$renderer.copy();
+			$$render_inner($$inner_renderer);
+		} while (!$$settled);
+		$$renderer.subsume($$inner_renderer);
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/select/select-group.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/select/select-group.svelte
 function Select_group($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -14267,7 +21017,7 @@ function Select_group($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/select/select-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/select/select-item.svelte
 function Select_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, value, label, children: childrenProp, $$slots, $$events, ...restProps } = $$props;
@@ -14333,7 +21083,7 @@ function Select_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/select/select-scroll-up-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/select/select-scroll-up-button.svelte
 function Select_scroll_up_button($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14378,7 +21128,7 @@ function Select_scroll_up_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/select/select-scroll-down-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/select/select-scroll-down-button.svelte
 function Select_scroll_down_button($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14423,7 +21173,7 @@ function Select_scroll_down_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/select/select-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/select/select-content.svelte
 function Select_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, sideOffset = 4, portalProps, children, $$slots, $$events, ...restProps } = $$props;
@@ -14500,7 +21250,7 @@ function Select_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/select/select-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/select/select-trigger.svelte
 function Select_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, size = "default", $$slots, $$events, ...restProps } = $$props;
@@ -14549,29 +21299,10 @@ function Select_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/select/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/select/index.js
 var Root$1 = Select;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/textarea/textarea.svelte
-function Textarea($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		let { ref = null, value = void 0, class: className, $$slots, $$events, ...restProps } = $$props;
-		$$renderer.push(`<textarea${attributes({
-			"data-slot": "textarea",
-			class: clsx(cn$1("border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className)),
-			...restProps
-		})}>`);
-		const $$body = escape_html(value);
-		if ($$body) $$renderer.push(`${$$body}`);
-		$$renderer.push(`</textarea>`);
-		bind_props($$props, {
-			ref,
-			value
-		});
-	});
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/switch/switch.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/switch/switch.svelte
 function Switch($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, checked = false, $$slots, $$events, ...restProps } = $$props;
@@ -14636,7 +21367,7 @@ function Switch($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/PluginSettingsPanel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/PluginSettingsPanel.svelte
 function PluginSettingsPanel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -14655,7 +21386,7 @@ function PluginSettingsPanel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/confirm-dialog.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/confirm-dialog.svelte.js
 var confirmDialogState = {
 	open: false,
 	title: "",
@@ -14684,7 +21415,7 @@ function resolveConfirmDialog(value) {
 	r?.(value);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-title.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-title.svelte
 function Alert_dialog_title($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14725,7 +21456,7 @@ function Alert_dialog_title($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-action.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-action.svelte
 function Alert_dialog_action($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14766,7 +21497,7 @@ function Alert_dialog_action($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-cancel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-cancel.svelte
 function Alert_dialog_cancel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14807,7 +21538,7 @@ function Alert_dialog_cancel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-footer.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-footer.svelte
 function Alert_dialog_footer($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -14822,7 +21553,7 @@ function Alert_dialog_footer($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-header.svelte
 function Alert_dialog_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -14837,7 +21568,7 @@ function Alert_dialog_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-overlay.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-overlay.svelte
 function Alert_dialog_overlay($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14878,7 +21609,7 @@ function Alert_dialog_overlay($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-content.svelte
 function Alert_dialog_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, portalProps, $$slots, $$events, ...restProps } = $$props;
@@ -14933,7 +21664,7 @@ function Alert_dialog_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-description.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-description.svelte
 function Alert_dialog_description($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14974,10 +21705,10 @@ function Alert_dialog_description($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.3_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_edf5374d0cfee3716c8c36a617b516d5/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/index.js
 var Root = Alert_dialog;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/ConfirmDialogHost.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/ConfirmDialogHost.svelte
 function ConfirmDialogHost($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		function handleOpenChange(open) {
@@ -15062,4 +21793,4 @@ function ConfirmDialogHost($$renderer, $$props) {
 	});
 }
 //#endregion
-export { isHTMLElement$1 as $, Dialog as A, useId as B, Sheet_header as C, Separator as D, Icon as E, Floating_layer as F, resolveLocaleProp as G, isValidIndex as H, getFloatingContentCSSVars as I, noop as J, Dialog_title as K, Hidden_input as L, Popper_layer_force_mount as M, Popper_layer as N, Dialog_content as O, Floating_layer_anchor as P, isElement$1 as Q, Dialog_description as R, Sheet_title as S, X as T, isTabbable as U, chunk as V, Portal$3 as W, RovingFocusGroup as X, PresenceManager as Y, isBrowser$1 as Z, Calendar_clock as _, useAdminSlots as _t, Textarea as a, ENTER as at, Root$3 as b, Select_content as c, watch$1 as ct, Sidebar as d, useSidebar as dt, isTouch as et, Refresh_cw as f, setBlockPreviews as ft, Check as g, setFieldComponents as gt, Chevron_down as h, setAdminNav as ht, Switch as i, ARROW_UP as it, SafePolygon as j, Dialog_close as k, Select_item as l, Context$1 as lt, Chevron_right as m, usePermissions as mt, confirmDialog as n, ARROW_LEFT as nt, Root$1 as o, DOMContext as ot, Mail as p, setPermissionsContext as pt, DialogTriggerState as q, PluginSettingsPanel as r, ARROW_RIGHT as rt, Select_trigger as s, afterTick as st, ConfirmDialogHost as t, ARROW_DOWN as tt, Select_group as u, srOnlyStylesString as ut, toast as v, setSchemaContext as vt, Sheet_content as w, Sheet_description as x, Circle_check as y, Dialog_overlay as z };
+export { isValidIndex as $, Circle_check as A, resolvePreviewTitle as At, Dialog_close as B, Copy as C, setBlockPreviews as Ct, Check as D, setFieldComponents as Dt, Chevron_down as E, setAdminNav as Et, Sheet_content as F, Floating_layer_anchor as G, SafePolygon as H, X$1 as I, Hidden_input as J, Floating_layer as K, Icon as L, Sheet_description as M, Sheet_title as N, Calendar_clock as O, useAdminSlots as Ot, Sheet_header as P, chunk as Q, Separator as R, Database as S, useSidebar as St, Chevron_right as T, usePermissions as Tt, Popper_layer_force_mount as U, Dialog as V, Popper_layer as W, Dialog_overlay as X, Dialog_description as Y, useId as Z, Refresh_cw as _, DOMContext as _t, Root$1 as a, noop as at, Image as b, Context$1 as bt, Select_item as c, isBrowser$1 as ct, notifyDocumentChanged as d, isTouch as dt, isTabbable as et, Textarea as f, ARROW_DOWN as ft, Search as g, ENTER as gt, Send as h, ARROW_UP as ht, Switch as i, DialogTriggerState as it, Root$3 as j, toast as k, setSchemaContext as kt, Select_group as l, isElement$1 as lt, Sparkles as m, ARROW_RIGHT as mt, confirmDialog as n, resolveLocaleProp as nt, Select_trigger as o, PresenceManager as ot, Trash_2 as p, ARROW_LEFT as pt, getFloatingContentCSSVars as q, PluginSettingsPanel as r, Dialog_title as rt, Select_content as s, RovingFocusGroup as st, ConfirmDialogHost as t, Portal$3 as tt, Sidebar as u, isHTMLElement$1 as ut, Pencil as v, afterTick as vt, Circle_alert as w, setPermissionsContext as wt, File_text as x, srOnlyStylesString as xt, Mail as y, watch$1 as yt, Dialog_content as z };

@@ -3,6 +3,7 @@ import { t as buildContentTools } from "../../../chunks/tools.js";
 import { t as authToContext } from "../../../chunks/auth-helpers.js";
 import { ZodOptional } from "zod";
 import { Hono } from "hono";
+import { SSEStreamingApi } from "hono/streaming";
 import * as z3rt from "zod/v3";
 import { ZodFirstPartyTypeKind } from "zod/v3";
 import * as z4mini from "zod/v4-mini";
@@ -10,7 +11,6 @@ import * as z$1 from "zod/v4";
 import "hono/cors";
 import "hono/bearer-auth";
 import { HTTPException } from "hono/http-exception";
-import { SSEStreamingApi } from "hono/streaming";
 //#region ../../node_modules/.pnpm/@modelcontextprotocol+sdk@1.29.0_zod@4.4.3/node_modules/@modelcontextprotocol/sdk/dist/esm/server/zod-compat.js
 function isZ4Schema(s) {
 	return !!s._zod;
@@ -11929,7 +11929,7 @@ var run = async (stream, cb, onError) => {
 	}
 };
 var contextStash = /* @__PURE__ */ new WeakMap();
-var streamSSE = (c, cb, onError) => {
+var streamSSE$1 = (c, cb, onError) => {
 	const { readable, writable } = new TransformStream();
 	const stream = new SSEStreamingApi(writable, readable);
 	if (isOldBunVersion()) c.req.raw.signal.addEventListener("abort", () => {
@@ -12058,7 +12058,7 @@ var StreamableHTTPTransport = class {
 				},
 				id: null
 			}) });
-			return streamSSE(ctx, async (stream) => {
+			return streamSSE$1(ctx, async (stream) => {
 				const resolvedStreamId = typeof streamId === "string" ? streamId : await streamId(stream);
 				const keepAlive = setInterval(() => {
 					if (!stream.closed) stream.writeSSE({
@@ -12181,7 +12181,7 @@ var StreamableHTTPTransport = class {
 						requestInfo
 					});
 				});
-				return streamSSE(ctx, async (stream) => {
+				return streamSSE$1(ctx, async (stream) => {
 					for (const message of messages) if (isJSONRPCRequest(message)) {
 						this.#streamMapping.set(streamId, {
 							ctx: { header: ctx.header },
@@ -12348,7 +12348,7 @@ var StreamableHTTPTransport = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/routes/mcp.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/routes/mcp.js
 var SERVER_INFO = {
 	name: "aphexcms",
 	version: "0.1.0"

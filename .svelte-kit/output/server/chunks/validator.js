@@ -663,7 +663,7 @@ var customParseFormat_default = (function(o, C, d) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
 dayjs.extend(customParseFormat_default);
 var ISO_8601_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/;
 function isIso8601DateTime(value) {
@@ -1116,7 +1116,7 @@ var utc_default = (function(option, Dayjs, dayjs) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
 dayjs.extend(customParseFormat_default);
 dayjs.extend(utc_default);
 /**
@@ -1229,7 +1229,7 @@ function normalizeDateFields(data, schema) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
 /**
 * Check if a field is required based on its validation rules
 */
@@ -1286,6 +1286,139 @@ function validateValueShape(field, value) {
 	}
 }
 /**
+* Find which `of` entry an array item belongs to. Mirrors ArrayField.svelte's own
+* resolution (`ref.name === item._type || ref.type === item._type`). An item
+* carrying an explicit `_type` must match one of the declared entries — an
+* unrecognized `_type` is an error, never silently coerced to some other entry,
+* even when only one type is declared. The single-entry fallback only applies
+* when the item has no `_type` tag at all (untagged items in a single-type array).
+*/
+function resolveArrayItemTypeRef(of, item) {
+	if (isPlainObject(item) && typeof item._type === "string") return of.find((ref) => ref.name === item._type || ref.type === item._type);
+	if (of.length === 1) return of[0];
+}
+/**
+* A leaf field error message is always formatted as `Field "<path>" <reason>`
+* (see the bottom of `validateField`). When that message becomes an input to a
+* shallower level of array-item recursion, re-wrapping it verbatim would nest
+* "Field ..." text once per level. Instead, pull the deeper path back out so the
+* caller can extend it into one clean breadcrumb and keep only the reason.
+*/
+function splitFieldMessage(message) {
+	const match = message.match(/^Field "([^"]+)"\s*(.*)$/s);
+	return match ? {
+		path: match[1] ?? null,
+		reason: match[2] ?? message
+	} : {
+		path: null,
+		reason: message
+	};
+}
+/**
+* Shape-check a single Portable Text text block (`_type: 'block'`) — `_key`, `children`
+* (spans and/or inline objects), and `markDefs` all need to be the shape
+* portable-text-serializer.ts produces, since nothing else in this write path checks it.
+* A source that isn't the TipTap editor (an agent's `content_patch_fields` call, an
+* imported document) has no other gate before this reaches storage.
+*/
+function validatePortableTextBlock(item, itemPath) {
+	if (!isPlainObject(item)) return [{
+		field: itemPath,
+		errors: [`expected a Portable Text block object, got ${describeValue(item)}`]
+	}];
+	const errors = [];
+	if (typeof item._key !== "string" || item._key.length === 0) errors.push("is missing a non-empty \"_key\"");
+	if (item.style !== void 0 && typeof item.style !== "string") errors.push(`"style" must be a string, got ${describeValue(item.style)}`);
+	if (item.listItem !== void 0 && typeof item.listItem !== "string") errors.push(`"listItem" must be a string, got ${describeValue(item.listItem)}`);
+	if (item.level !== void 0 && typeof item.level !== "number") errors.push(`"level" must be a number, got ${describeValue(item.level)}`);
+	if (!Array.isArray(item.children)) errors.push(`"children" must be an array, got ${describeValue(item.children)}`);
+	else item.children.forEach((child, childIndex) => {
+		const childLabel = `child[${childIndex}]`;
+		if (!isPlainObject(child)) {
+			errors.push(`${childLabel} expected an object, got ${describeValue(child)}`);
+			return;
+		}
+		if (typeof child._type !== "string" || child._type.length === 0) errors.push(`${childLabel} is missing a "_type"`);
+		if (typeof child._key !== "string" || child._key.length === 0) errors.push(`${childLabel} is missing a non-empty "_key"`);
+		if (child._type === "span") {
+			if (typeof child.text !== "string") errors.push(`${childLabel} (span) "text" must be a string, got ${describeValue(child.text)}`);
+			if (child.marks !== void 0 && !Array.isArray(child.marks)) errors.push(`${childLabel} (span) "marks" must be an array, got ${describeValue(child.marks)}`);
+		}
+	});
+	if (item.markDefs !== void 0) if (!Array.isArray(item.markDefs)) errors.push(`"markDefs" must be an array, got ${describeValue(item.markDefs)}`);
+	else item.markDefs.forEach((def, defIndex) => {
+		if (!isPlainObject(def)) {
+			errors.push(`markDefs[${defIndex}] expected an object, got ${describeValue(def)}`);
+			return;
+		}
+		if (typeof def._type !== "string" || def._type.length === 0) errors.push(`markDefs[${defIndex}] is missing a "_type"`);
+		if (typeof def._key !== "string" || def._key.length === 0) errors.push(`markDefs[${defIndex}] is missing a non-empty "_key"`);
+	});
+	return errors.length > 0 ? [{
+		field: itemPath,
+		errors
+	}] : [];
+}
+/**
+* Recursively validate each array item against the type it resolves to in `of`.
+* This is the check that was previously entirely missing: `validateValueShape`
+* only confirmed the field's value IS an array, never that its items match `of` —
+* so a mistyped or malformed array item (wrong `_type`, missing required nested
+* fields) passed validation silently regardless of whether `of` was well-formed.
+*
+* Named types in `of` that aren't inline objects (`fields` absent) — i.e. a
+* reference to another registered schema by name — aren't resolvable here: this
+* module has no schema registry. Those items are left unvalidated, same as
+* before this fix, rather than guessed at.
+*/
+async function validateArrayItems(field, items, context) {
+	const of = field.of ?? [];
+	const results = [];
+	for (let index = 0; index < items.length; index++) {
+		const item = items[index];
+		const itemPath = `${field.name}[${index}]`;
+		const typeRef = resolveArrayItemTypeRef(of, item);
+		if (!typeRef) {
+			const gotType = isPlainObject(item) && typeof item._type === "string" ? item._type : describeValue(item);
+			const declared = of.map((t) => t.name ?? t.type).join(", ") || "(none declared)";
+			results.push({
+				field: itemPath,
+				errors: [`has type "${gotType}", which is not one of the declared array item types: ${declared}`]
+			});
+			continue;
+		}
+		if (typeRef.type === "block") {
+			results.push(...validatePortableTextBlock(item, itemPath));
+			continue;
+		}
+		if (typeRef.type === "reference") {
+			if (!isPlainObject(item) || typeof item._ref !== "string") results.push({
+				field: itemPath,
+				errors: [`expected a reference object { _type: 'reference', _ref: '<documentId>' }, got ${describeValue(item)}`]
+			});
+			continue;
+		}
+		if (typeRef.fields) {
+			if (!isPlainObject(item)) {
+				results.push({
+					field: itemPath,
+					errors: [`expected an object, got ${describeValue(item)}`]
+				});
+				continue;
+			}
+			const nested = await validateFieldSet(typeRef.fields, item, context);
+			for (const err of nested) for (const rawMessage of err.errors) {
+				const { path, reason } = splitFieldMessage(rawMessage);
+				results.push({
+					field: `${itemPath}.${path ?? err.field}`,
+					errors: [reason]
+				});
+			}
+		}
+	}
+	return results;
+}
+/**
 * Validate a field value against its validation rules
 */
 async function validateField(field, value, context = {}) {
@@ -1303,6 +1436,13 @@ async function validateField(field, value, context = {}) {
 			message: `Field "${field.name}" ${shapeError}`
 		}]
 	};
+	if (field.type === "array" && Array.isArray(value)) {
+		const itemErrors = await validateArrayItems(field, value, context);
+		for (const err of itemErrors) allErrors.push({
+			level: "error",
+			message: `Field "${err.field}" ${err.errors.join("; ")}`
+		});
+	}
 	if (field.type === "date") {
 		const dateFormat = field.options?.dateFormat || "YYYY-MM-DD";
 		cmsLogger.debug("[validateField]", `Adding automatic DATE validation for "${field.name}"`, { dateFormat });
@@ -1380,6 +1520,32 @@ async function validateField(field, value, context = {}) {
 	};
 }
 /**
+* Validate a flat set of fields against their values in `data`. Shared by
+* top-level document validation and, recursively, by array-item/nested-object
+* validation — `context.document` carries the full top-level document through
+* either way, since it's set once by the top-level caller and left untouched on
+* recursive calls (so cross-field `Rule.custom((v, { document }) => ...)`
+* validators still see the whole document, not just the nested item).
+*/
+async function validateFieldSet(fields, data, context) {
+	const validationErrors = [];
+	for (const field of fields) {
+		const value = data[field.name];
+		const result = await validateField(field, value, {
+			...context,
+			document: context.document !== void 0 ? context.document : data
+		});
+		if (!result.isValid) {
+			const errorMessages = result.errors.filter((e) => e.level === "error").map((e) => e.message);
+			if (errorMessages.length > 0) validationErrors.push({
+				field: field.name,
+				errors: errorMessages
+			});
+		}
+	}
+	return validationErrors;
+}
+/**
 * Validate an entire document's data against a schema
 * This function:
 * 1. Normalizes date fields (converts user format to ISO for storage)
@@ -1397,34 +1563,12 @@ async function validateDocumentData(schema, data, context = {}) {
 		schemaName: schema.name,
 		data
 	});
-	const validationErrors = [];
 	const { normalizedData, dataForValidation } = normalizeDateFields(data, schema);
 	cmsLogger.debug("[validateDocumentData]", "After normalization", {
 		normalizedData,
 		dataForValidation
 	});
-	for (const field of schema.fields) {
-		const value = dataForValidation[field.name];
-		cmsLogger.debug("[validateDocumentData]", `Validating field "${field.name}"`, {
-			type: field.type,
-			value
-		});
-		const result = await validateField(field, value, {
-			...context,
-			document: dataForValidation
-		});
-		cmsLogger.debug("[validateDocumentData]", `Field "${field.name}" validation result`, {
-			isValid: result.isValid,
-			errors: result.errors
-		});
-		if (!result.isValid) {
-			const errorMessages = result.errors.filter((e) => e.level === "error").map((e) => e.message);
-			if (errorMessages.length > 0) validationErrors.push({
-				field: field.name,
-				errors: errorMessages
-			});
-		}
-	}
+	const validationErrors = await validateFieldSet(schema.fields, dataForValidation, context);
 	cmsLogger.debug("[validateDocumentData]", "Final result", {
 		isValid: validationErrors.length === 0,
 		errors: validationErrors
@@ -1436,7 +1580,7 @@ async function validateDocumentData(schema, data, context = {}) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.7.0_2a96c5f672201fc4c4a56830edff7fe4/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
 var RESERVED_FIELD_NAMES = [
 	"id",
 	"type",
@@ -1497,17 +1641,20 @@ function validateSchemaReferences(schemas) {
 		}
 		if (!validFieldTypes.includes(field.type)) errors.push(`Schema "${parentSchema}" field "${field.name}" has invalid type "${field.type}". Valid types: ${validFieldTypes.join(", ")}`);
 		if (isReservedFieldName(field.name)) errors.push(`Schema "${parentSchema}" uses reserved field name "${field.name}". Reserved names: ${RESERVED_FIELD_NAMES.join(", ")}`);
-		if (field.type === "array" && field.of) for (const arrayType of field.of) {
-			if (arrayType.type === "reference") {
-				const to = arrayType.to;
-				if (!Array.isArray(to) || to.length === 0) errors.push(`Schema "${parentSchema}" field "${field.name}" has a reference array item missing "to" — declare allowed target document types`);
-				else for (const target of to) if (!schemaNames.has(target.type)) errors.push(`Schema "${parentSchema}" field "${field.name}" reference array item targets unknown document type "${target.type}"`);
-				continue;
+		if (field.type === "array") {
+			if (!field.of || field.of.length === 0) errors.push(`Schema "${parentSchema}" field "${field.name}" is an array with no "of" — declare at least one item type`);
+			for (const arrayType of field.of ?? []) {
+				if (arrayType.type === "reference") {
+					const to = arrayType.to;
+					if (!Array.isArray(to) || to.length === 0) errors.push(`Schema "${parentSchema}" field "${field.name}" has a reference array item missing "to" — declare allowed target document types`);
+					else for (const target of to) if (!schemaNames.has(target.type)) errors.push(`Schema "${parentSchema}" field "${field.name}" reference array item targets unknown document type "${target.type}"`);
+					continue;
+				}
+				if (primitiveTypes.includes(arrayType.type)) continue;
+				if (arrayType.type === "block") continue;
+				if (arrayType.fields) continue;
+				if (!schemaNames.has(arrayType.type)) errors.push(`Schema "${parentSchema}" field "${field.name}" references unknown type "${arrayType.type}"`);
 			}
-			if (primitiveTypes.includes(arrayType.type)) continue;
-			if (arrayType.type === "block") continue;
-			if (arrayType.fields) continue;
-			if (!schemaNames.has(arrayType.type)) errors.push(`Schema "${parentSchema}" field "${field.name}" references unknown type "${arrayType.type}"`);
 		}
 		if (field.type === "object" && typeof field.fields === "string") {
 			if (!schemaNames.has(field.fields)) errors.push(`Schema "${parentSchema}" field "${field.name}" references unknown object type "${field.fields}"`);
