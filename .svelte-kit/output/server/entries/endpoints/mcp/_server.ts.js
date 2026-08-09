@@ -11907,7 +11907,7 @@ z$1.object({
 	client_secret: z$1.string().optional()
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@hono+mcp@0.3.0_@modelcontextprotocol+sdk@1.29.0_zod@4.4.3__hono-rate-limiter@0.5.3_hono@4.12.15__hono@4.12.15_zod@4.4.3/node_modules/@hono/mcp/dist/index.js
+//#region ../../node_modules/.pnpm/@hono+mcp@0.3.0_@modelcontextprotocol+sdk@1.29.0_zod@4.4.3__hono-rate-limiter@0.5.3_hono@4.12.34__hono@4.12.34_zod@4.4.3/node_modules/@hono/mcp/dist/index.js
 var isOldBunVersion = () => {
 	const version = typeof Bun !== "undefined" ? Bun.version : void 0;
 	if (version === void 0) return false;
@@ -12348,7 +12348,7 @@ var StreamableHTTPTransport = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/routes/mcp.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/routes/mcp.js
 var SERVER_INFO = {
 	name: "aphexcms",
 	version: "0.1.0"

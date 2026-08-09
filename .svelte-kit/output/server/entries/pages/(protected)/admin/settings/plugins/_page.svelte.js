@@ -1,4 +1,4 @@
-import { l as head } from "../../../../../../chunks/dev.js";
+import { c as head } from "../../../../../../chunks/server2.js";
 import { r as PluginSettingsPanel } from "../../../../../../chunks/stega.js";
 import "../../../../../../chunks/ui.js";
 import { t as plugins } from "../../../../../../chunks/plugins.js";

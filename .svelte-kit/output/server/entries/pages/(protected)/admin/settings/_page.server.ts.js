@@ -1,4 +1,4 @@
-import { o as hasCapability } from "../../../../../chunks/capabilities.js";
+import { s as hasCapability } from "../../../../../chunks/resolver.js";
 import "../../../../../chunks/dist.js";
 import { redirect } from "@sveltejs/kit";
 //#region src/routes/(protected)/admin/settings/+page.server.ts

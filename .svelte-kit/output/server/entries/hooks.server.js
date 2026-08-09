@@ -1,12 +1,12 @@
-import { n as private_env } from "../chunks/shared-server.js";
-import { t as building } from "../chunks/environment.js";
+import { t as private_env } from "../chunks/shared-server.js";
+import { t as building } from "../chunks/internal2.js";
+import { n as createCMSHook } from "../chunks/server3.js";
 import { n as auth } from "../chunks/service.js";
-import { n as createCMSHook } from "../chunks/server.js";
-import { t as aphex_config_default } from "../chunks/aphex.config.js";
 import { n as systemContext } from "../chunks/auth-helpers.js";
 import "../chunks/auth.js";
+import { t as aphex_config_default } from "../chunks/aphex.config.js";
 import { sequence } from "@sveltejs/kit/hooks";
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/integrations/svelte-kit.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/integrations/svelte-kit.mjs
 var svelteKitHandler = async ({ auth, event, resolve, building }) => {
 	if (building) return resolve(event);
 	const { request, url } = event;

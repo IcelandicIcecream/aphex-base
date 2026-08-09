@@ -1,4 +1,4 @@
-import "./dev.js";
+import "./server2.js";
 //#region src/lib/stores/activeTab.svelte.ts
 function createActiveTab() {
 	let activeTab = "structure";

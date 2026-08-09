@@ -1,9 +1,8 @@
-import { b as parse, d as coalesce_to_error, f as get_message, p as get_status } from "./shared.js";
-import "./shared-server.js";
+import { A as noop, C as escaped, D as stringify_key, E as is_primitive, O as stringify_string, S as enumerable_symbols, T as is_plain_object, d as get_message, f as get_status, k as valid_array_indices, u as coalesce_to_error, w as get_type, x as DevalueError, y as parse } from "./shared.js";
 import { json, text } from "@sveltejs/kit";
 import { HttpError, SvelteKitError } from "@sveltejs/kit/internal";
 import { with_request_store } from "@sveltejs/kit/internal/server";
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/constants.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/constants.js
 /**
 * A fake asset path used in `vite dev` and `vite preview`, so that we can
 * serve local assets while verifying that requests are correctly prefixed
@@ -30,7 +29,496 @@ var PAGE_METHODS = [
 	"HEAD"
 ];
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/runtime/form-utils.js
+//#region ../../node_modules/.pnpm/set-cookie-parser@3.1.0/node_modules/set-cookie-parser/lib/set-cookie.js
+var defaultParseOptions = {
+	decodeValues: true,
+	map: false,
+	silent: false,
+	split: "auto"
+};
+function isForbiddenKey(key) {
+	return typeof key !== "string" || key in {};
+}
+function createNullObj() {
+	return Object.create(null);
+}
+function isNonEmptyString(str) {
+	return typeof str === "string" && !!str.trim();
+}
+function parseString(setCookieValue, options) {
+	var parts = setCookieValue.split(";").filter(isNonEmptyString);
+	var parsed = parseNameValuePair(parts.shift());
+	var name = parsed.name;
+	var value = parsed.value;
+	options = options ? Object.assign({}, defaultParseOptions, options) : defaultParseOptions;
+	if (isForbiddenKey(name)) return null;
+	try {
+		value = options.decodeValues ? decodeURIComponent(value) : value;
+	} catch (e) {
+		console.error("set-cookie-parser: failed to decode cookie value. Set options.decodeValues=false to disable decoding.", e);
+	}
+	var cookie = createNullObj();
+	cookie.name = name;
+	cookie.value = value;
+	parts.forEach(function(part) {
+		var sides = part.split("=");
+		var key = sides.shift().trimLeft().toLowerCase();
+		if (isForbiddenKey(key)) return;
+		var value = sides.join("=");
+		if (key === "expires") cookie.expires = new Date(value);
+		else if (key === "max-age") {
+			var n = parseInt(value, 10);
+			if (!Number.isNaN(n)) cookie.maxAge = n;
+		} else if (key === "secure") cookie.secure = true;
+		else if (key === "httponly") cookie.httpOnly = true;
+		else if (key === "samesite") cookie.sameSite = value;
+		else if (key === "partitioned") cookie.partitioned = true;
+		else if (key) cookie[key] = value;
+	});
+	return cookie;
+}
+function parseNameValuePair(nameValuePairStr) {
+	var name = "";
+	var value = "";
+	var nameValueArr = nameValuePairStr.split("=");
+	if (nameValueArr.length > 1) {
+		name = nameValueArr.shift();
+		value = nameValueArr.join("=");
+	} else value = nameValuePairStr;
+	return {
+		name,
+		value
+	};
+}
+function parseSetCookie(input, options) {
+	options = options ? Object.assign({}, defaultParseOptions, options) : defaultParseOptions;
+	if (!input) if (!options.map) return [];
+	else return createNullObj();
+	if (input.headers) if (typeof input.headers.getSetCookie === "function") input = input.headers.getSetCookie();
+	else if (input.headers["set-cookie"]) input = input.headers["set-cookie"];
+	else {
+		var sch = input.headers[Object.keys(input.headers).find(function(key) {
+			return key.toLowerCase() === "set-cookie";
+		})];
+		if (!sch && input.headers.cookie && !options.silent) console.warn("Warning: set-cookie-parser appears to have been called on a request object. It is designed to parse Set-Cookie headers from responses, not Cookie headers from requests. Set the option {silent: true} to suppress this warning.");
+		input = sch;
+	}
+	var split = options.split;
+	var isArray = Array.isArray(input);
+	if (split === "auto") split = !isArray;
+	if (!isArray) input = [input];
+	input = input.filter(isNonEmptyString);
+	if (split) input = input.map(splitCookiesString).flat();
+	if (!options.map) return input.map(function(str) {
+		return parseString(str, options);
+	}).filter(Boolean);
+	else {
+		var cookies = createNullObj();
+		return input.reduce(function(cookies, str) {
+			var cookie = parseString(str, options);
+			if (cookie && !isForbiddenKey(cookie.name)) cookies[cookie.name] = cookie;
+			return cookies;
+		}, cookies);
+	}
+}
+function splitCookiesString(cookiesString) {
+	if (Array.isArray(cookiesString)) return cookiesString;
+	if (typeof cookiesString !== "string") return [];
+	var cookiesStrings = [];
+	var pos = 0;
+	var start;
+	var ch;
+	var lastComma;
+	var nextStart;
+	var cookiesSeparatorFound;
+	function skipWhitespace() {
+		while (pos < cookiesString.length && /\s/.test(cookiesString.charAt(pos))) pos += 1;
+		return pos < cookiesString.length;
+	}
+	function notSpecialChar() {
+		ch = cookiesString.charAt(pos);
+		return ch !== "=" && ch !== ";" && ch !== ",";
+	}
+	while (pos < cookiesString.length) {
+		start = pos;
+		cookiesSeparatorFound = false;
+		while (skipWhitespace()) {
+			ch = cookiesString.charAt(pos);
+			if (ch === ",") {
+				lastComma = pos;
+				pos += 1;
+				skipWhitespace();
+				nextStart = pos;
+				while (pos < cookiesString.length && notSpecialChar()) pos += 1;
+				if (pos < cookiesString.length && cookiesString.charAt(pos) === "=") {
+					cookiesSeparatorFound = true;
+					pos = nextStart;
+					cookiesStrings.push(cookiesString.substring(start, lastComma));
+					start = pos;
+				} else pos = lastComma + 1;
+			} else pos += 1;
+		}
+		if (!cookiesSeparatorFound || pos >= cookiesString.length) cookiesStrings.push(cookiesString.substring(start, cookiesString.length));
+	}
+	return cookiesStrings;
+}
+parseSetCookie.parseSetCookie = parseSetCookie;
+parseSetCookie.parse = parseSetCookie;
+parseSetCookie.parseString = parseString;
+parseSetCookie.splitCookiesString = splitCookiesString;
+//#endregion
+//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/uneval.js
+var chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$";
+var unsafe_chars = /[<\b\f\n\r\t\0\u2028\u2029]/g;
+var reserved = /^(?:do|if|in|for|int|let|new|try|var|byte|case|char|else|enum|goto|long|this|void|with|await|break|catch|class|const|final|float|short|super|throw|while|yield|delete|double|export|import|native|return|switch|throws|typeof|boolean|default|extends|finally|package|private|abstract|continue|debugger|function|volatile|interface|protected|transient|implements|instanceof|synchronized)$/;
+/**
+* Turn a value into the JavaScript that creates an equivalent value
+* @param {any} value
+* @param {(value: any, uneval: (value: any) => string) => string | void} [replacer]
+*/
+function uneval(value, replacer) {
+	const counts = /* @__PURE__ */ new Map();
+	/** @type {string[]} */
+	const keys = [];
+	const custom = /* @__PURE__ */ new Map();
+	/** @param {any} thing */
+	function walk(thing) {
+		if (!is_primitive(thing)) {
+			if (counts.has(thing)) {
+				counts.set(thing, counts.get(thing) + 1);
+				return;
+			}
+			counts.set(thing, 1);
+			if (replacer) {
+				const str = replacer(thing, (value) => uneval(value, replacer));
+				if (typeof str === "string") {
+					custom.set(thing, str);
+					return;
+				}
+			}
+			if (typeof thing === "function") throw new DevalueError(`Cannot stringify a function`, keys, thing, value);
+			switch (get_type(thing)) {
+				case "Number":
+				case "BigInt":
+				case "String":
+				case "Boolean":
+				case "Date":
+				case "RegExp":
+				case "URL":
+				case "URLSearchParams": return;
+				case "Array":
+					/** @type {any[]} */ thing.forEach((value, i) => {
+						keys.push(`[${i}]`);
+						walk(value);
+						keys.pop();
+					});
+					break;
+				case "Set":
+					Array.from(thing).forEach(walk);
+					break;
+				case "Map":
+					for (const [key, value] of thing) {
+						keys.push(`.get(${is_primitive(key) ? stringify_primitive(key) : "..."})`);
+						walk(key);
+						walk(value);
+						keys.pop();
+					}
+					break;
+				case "Int8Array":
+				case "Uint8Array":
+				case "Uint8ClampedArray":
+				case "Int16Array":
+				case "Uint16Array":
+				case "Float16Array":
+				case "Int32Array":
+				case "Uint32Array":
+				case "Float32Array":
+				case "Float64Array":
+				case "BigInt64Array":
+				case "BigUint64Array":
+				case "DataView":
+					walk(thing.buffer);
+					return;
+				case "ArrayBuffer": return;
+				case "Temporal.Duration":
+				case "Temporal.Instant":
+				case "Temporal.PlainDate":
+				case "Temporal.PlainTime":
+				case "Temporal.PlainDateTime":
+				case "Temporal.PlainMonthDay":
+				case "Temporal.PlainYearMonth":
+				case "Temporal.ZonedDateTime": return;
+				default:
+					if (!is_plain_object(thing)) throw new DevalueError(`Cannot stringify arbitrary non-POJOs`, keys, thing, value);
+					if (enumerable_symbols(thing).length > 0) throw new DevalueError(`Cannot stringify POJOs with symbolic keys`, keys, thing, value);
+					for (const key of Object.keys(thing)) {
+						if (key === "__proto__") throw new DevalueError(`Cannot stringify objects with __proto__ keys`, keys, thing, value);
+						keys.push(stringify_key(key));
+						walk(thing[key]);
+						keys.pop();
+					}
+			}
+		} else if (typeof thing === "symbol") throw new DevalueError(`Cannot stringify a Symbol primitive`, keys, thing, value);
+	}
+	walk(value);
+	const names = /* @__PURE__ */ new Map();
+	Array.from(counts).filter((entry) => entry[1] > 1).sort((a, b) => b[1] - a[1]).forEach((entry, i) => {
+		names.set(entry[0], get_name(i));
+	});
+	/**
+	* @param {any} thing
+	* @returns {string}
+	*/
+	function stringify(thing) {
+		if (names.has(thing)) return names.get(thing);
+		if (is_primitive(thing)) return stringify_primitive(thing);
+		if (custom.has(thing)) return custom.get(thing);
+		const type = get_type(thing);
+		switch (type) {
+			case "Number":
+			case "String":
+			case "Boolean":
+			case "BigInt": return `Object(${stringify(thing.valueOf())})`;
+			case "RegExp":
+				const { source, flags } = thing;
+				return flags ? `new RegExp(${stringify_string(source)},"${flags}")` : `new RegExp(${stringify_string(source)})`;
+			case "Date": return `new Date(${thing.getTime()})`;
+			case "URL": return `new URL(${stringify_string(thing.toString())})`;
+			case "URLSearchParams": return `new URLSearchParams(${stringify_string(thing.toString())})`;
+			case "Array": {
+				let has_holes = false;
+				let result = "[";
+				for (let i = 0; i < thing.length; i += 1) {
+					if (i > 0) result += ",";
+					if (Object.hasOwn(thing, i)) result += stringify(thing[i]);
+					else if (!has_holes) {
+						const populated_keys = valid_array_indices(thing);
+						const population = populated_keys.length;
+						const d = String(thing.length).length;
+						if (thing.length + 2 > 25 + d + population * (d + 2)) {
+							const entries = populated_keys.map((k) => `${k}:${stringify(thing[k])}`).join(",");
+							return `Object.assign(Array(${thing.length}),{${entries}})`;
+						}
+						has_holes = true;
+					}
+				}
+				const tail = thing.length === 0 || thing.length - 1 in thing ? "" : ",";
+				return result + tail + "]";
+			}
+			case "Set":
+			case "Map": return `new ${type}([${Array.from(thing).map(stringify).join(",")}])`;
+			case "Int8Array":
+			case "Uint8Array":
+			case "Uint8ClampedArray":
+			case "Int16Array":
+			case "Uint16Array":
+			case "Float16Array":
+			case "Int32Array":
+			case "Uint32Array":
+			case "Float32Array":
+			case "Float64Array":
+			case "BigInt64Array":
+			case "BigUint64Array": {
+				let str = `new ${type}`;
+				if (!names.has(thing.buffer)) str += `([${stringify_typed_array_elements(new thing.constructor(thing.buffer))}])`;
+				else str += `(${stringify(thing.buffer)})`;
+				if (thing.byteLength !== thing.buffer.byteLength) {
+					const start = thing.byteOffset / thing.BYTES_PER_ELEMENT;
+					const end = start + thing.length;
+					str += `.subarray(${start},${end})`;
+				}
+				return str;
+			}
+			case "DataView": {
+				let str = `new DataView`;
+				if (!names.has(thing.buffer)) str += `(new Uint8Array([${new Uint8Array(thing.buffer)}]).buffer`;
+				else str += `(${stringify(thing.buffer)}`;
+				if (thing.byteLength !== thing.buffer.byteLength) str += `,${thing.byteOffset},${thing.byteLength}`;
+				return str + ")";
+			}
+			case "ArrayBuffer": return `new Uint8Array([${new Uint8Array(thing).toString()}]).buffer`;
+			case "Temporal.Duration":
+			case "Temporal.Instant":
+			case "Temporal.PlainDate":
+			case "Temporal.PlainTime":
+			case "Temporal.PlainDateTime":
+			case "Temporal.PlainMonthDay":
+			case "Temporal.PlainYearMonth":
+			case "Temporal.ZonedDateTime": return `${type}.from(${stringify_string(thing.toString())})`;
+			default:
+				const keys = Object.keys(thing);
+				const obj = keys.map((key) => `${safe_key(key)}:${stringify(thing[key])}`).join(",");
+				if (Object.getPrototypeOf(thing) === null) return keys.length > 0 ? `{${obj},__proto__:null}` : `{__proto__:null}`;
+				return `{${obj}}`;
+		}
+	}
+	const str = stringify(value);
+	if (names.size) {
+		/** @type {string[]} */
+		const params = [];
+		/** @type {string[]} */
+		const statements = [];
+		/** @type {string[]} */
+		const values = [];
+		/** @type {string[]} */
+		const reconstructions = [];
+		names.forEach((name, thing) => {
+			params.push(name);
+			if (custom.has(thing)) {
+				values.push(custom.get(thing));
+				return;
+			}
+			if (is_primitive(thing)) {
+				values.push(stringify_primitive(thing));
+				return;
+			}
+			const type = get_type(thing);
+			switch (type) {
+				case "Number":
+				case "String":
+				case "Boolean":
+				case "BigInt":
+					values.push(`Object(${stringify(thing.valueOf())})`);
+					break;
+				case "RegExp":
+					const { source, flags } = thing;
+					const regexp = flags ? `new RegExp(${stringify_string(source)},"${flags}")` : `new RegExp(${stringify_string(source)})`;
+					values.push(regexp);
+					break;
+				case "Date":
+					values.push(`new Date(${thing.getTime()})`);
+					break;
+				case "URL":
+					values.push(`new URL(${stringify_string(thing.toString())})`);
+					break;
+				case "URLSearchParams":
+					values.push(`new URLSearchParams(${stringify_string(thing.toString())})`);
+					break;
+				case "Array":
+					values.push(`Array(${thing.length})`);
+					/** @type {any[]} */ thing.forEach((v, i) => {
+						statements.push(`${name}[${i}]=${stringify(v)}`);
+					});
+					break;
+				case "Set": {
+					values.push(`new Set`);
+					const adds = Array.from(thing).map((v) => `.add(${stringify(v)})`);
+					if (adds.length > 0) statements.push(name + adds.join(""));
+					break;
+				}
+				case "Map": {
+					values.push(`new Map`);
+					const sets = Array.from(thing).map(([k, v]) => `.set(${stringify(k)}, ${stringify(v)})`);
+					if (sets.length > 0) statements.push(name + sets.join(""));
+					break;
+				}
+				case "Int8Array":
+				case "Uint8Array":
+				case "Uint8ClampedArray":
+				case "Int16Array":
+				case "Uint16Array":
+				case "Float16Array":
+				case "Int32Array":
+				case "Uint32Array":
+				case "Float32Array":
+				case "Float64Array":
+				case "BigInt64Array":
+				case "BigUint64Array": {
+					let str = `new ${type}`;
+					if (!names.has(thing.buffer)) str += `([${stringify_typed_array_elements(new thing.constructor(thing.buffer))}])`;
+					else str += `(${stringify(thing.buffer)})`;
+					if (thing.byteLength !== thing.buffer.byteLength) {
+						const start = thing.byteOffset / thing.BYTES_PER_ELEMENT;
+						const end = start + thing.length;
+						str += `.subarray(${start},${end})`;
+					}
+					values.push(`{}`);
+					reconstructions.push(`${name}=${str}`);
+					break;
+				}
+				case "DataView": {
+					let str = `new DataView`;
+					if (!names.has(thing.buffer)) str += `(new Uint8Array([${new Uint8Array(thing.buffer)}]).buffer`;
+					else str += `(${stringify(thing.buffer)}`;
+					if (thing.byteLength !== thing.buffer.byteLength) str += `,${thing.byteOffset},${thing.byteLength}`;
+					str += ")";
+					values.push(`{}`);
+					reconstructions.push(`${name}=${str}`);
+					break;
+				}
+				case "ArrayBuffer":
+					values.push(`new Uint8Array([${new Uint8Array(thing)}]).buffer`);
+					break;
+				case "Temporal.Duration":
+				case "Temporal.Instant":
+				case "Temporal.PlainDate":
+				case "Temporal.PlainTime":
+				case "Temporal.PlainDateTime":
+				case "Temporal.PlainMonthDay":
+				case "Temporal.PlainYearMonth":
+				case "Temporal.ZonedDateTime":
+					values.push(`${type}.from(${stringify_string(thing.toString())})`);
+					break;
+				default:
+					values.push(Object.getPrototypeOf(thing) === null ? "Object.create(null)" : "{}");
+					Object.keys(thing).forEach((key) => {
+						statements.push(`${name}${safe_prop(key)}=${stringify(thing[key])}`);
+					});
+			}
+		});
+		statements.push(`return ${str}`);
+		const body = [...reconstructions, ...statements].join(";");
+		return `(function(${params.join(",")}){${body}}(${values.join(",")}))`;
+	} else return str;
+}
+/**
+* Serialize the elements of a typed array as a comma-separated list.
+* `BigInt64Array`/`BigUint64Array` elements are bigints and must be written
+* with an `n` suffix, otherwise the emitted `new BigInt64Array([...])` throws.
+* @param {import('./types.js').TypedArray} array
+*/
+function stringify_typed_array_elements(array) {
+	if (array instanceof BigInt64Array || array instanceof BigUint64Array) return Array.from(array, (element) => `${element}n`).join(",");
+	return array.toString();
+}
+/** @param {number} num */
+function get_name(num) {
+	let name = "";
+	do {
+		name = chars[num % 54] + name;
+		num = ~~(num / 54) - 1;
+	} while (num >= 0);
+	return reserved.test(name) ? `${name}0` : name;
+}
+/** @param {string} c */
+function escape_unsafe_char(c) {
+	return escaped[c] || c;
+}
+/** @param {string} str */
+function escape_unsafe_chars(str) {
+	return str.replace(unsafe_chars, escape_unsafe_char);
+}
+/** @param {string} key */
+function safe_key(key) {
+	return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key) ? key : escape_unsafe_chars(JSON.stringify(key));
+}
+/** @param {string} key */
+function safe_prop(key) {
+	return /^[_$a-zA-Z][_$a-zA-Z0-9]*$/.test(key) ? `.${key}` : `[${escape_unsafe_chars(JSON.stringify(key))}]`;
+}
+/** @param {any} thing */
+function stringify_primitive(thing) {
+	const type = typeof thing;
+	if (type === "string") return stringify_string(thing);
+	if (thing === void 0) return "void 0";
+	if (thing === 0 && 1 / thing < 0) return "-0";
+	const str = String(thing);
+	if (type === "number") return str.replace(/^(-)?0\./, "$1.");
+	if (type === "bigint") return thing + "n";
+	return str;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/runtime/form-utils.js
 /** @import { RemoteForm } from '@sveltejs/kit' */
 /** @import { BinaryFormMeta, InternalRemoteFormIssue } from 'types' */
 /** @import { StandardSchemaV1 } from '@standard-schema/spec' */
@@ -51,6 +539,8 @@ function set_nested_value(object, path_string, value) {
 	}
 	deep_set(object, split_path(path_string), value);
 }
+/** Pass this to set_nested_value to delete the last part of the given path */
+var DELETE_KEY = {};
 /**
 * Convert `FormData` into a POJO
 * @param {FormData} data
@@ -63,8 +553,8 @@ function convert_formdata(data) {
 		/** @type {any[]} */
 		let values = data.getAll(key);
 		if (is_array) key = key.slice(0, -2);
-		if (values.length > 1 && !is_array) throw new Error(`Form cannot contain duplicated keys — "${key}" has ${values.length} values`);
 		values = values.filter((entry) => typeof entry === "string" || entry.name !== "" || entry.size > 0);
+		if (values.length === 0 && !is_array) continue;
 		if (key.startsWith("n:")) {
 			key = key.slice(2);
 			values = values.map((v) => v === "" ? void 0 : parseFloat(v));
@@ -72,6 +562,7 @@ function convert_formdata(data) {
 			key = key.slice(2);
 			values = values.map((v) => v === "on");
 		}
+		if (values.length > 1 && !is_array) throw new Error(`Form cannot contain duplicated keys — "${key}" has ${values.length} values`);
 		set_nested_value(result, key, is_array ? values : values[0]);
 	}
 	return result;
@@ -93,8 +584,6 @@ async function deserialize_binary_form(request) {
 		};
 	}
 	if (!request.body) throw deserialize_error("no body");
-	const content_length = parseInt(request.headers.get("content-length") ?? "");
-	if (Number.isNaN(content_length)) throw deserialize_error("invalid Content-Length header");
 	const reader = request.body.getReader();
 	/** @type {Array<Promise<Uint8Array<ArrayBuffer> | undefined>>} */
 	const chunks = [];
@@ -156,9 +645,7 @@ async function deserialize_binary_form(request) {
 	if (header[0] !== BINARY_FORM_VERSION) throw deserialize_error(`got version ${header[0]}, expected version ${BINARY_FORM_VERSION}`);
 	const header_view = new DataView(header.buffer, header.byteOffset, header.byteLength);
 	const data_length = header_view.getUint32(1, true);
-	if (HEADER_BYTES + data_length > content_length) throw deserialize_error("data overflow");
 	const file_offsets_length = header_view.getUint16(5, true);
-	if (HEADER_BYTES + data_length + file_offsets_length > content_length) throw deserialize_error("file offset table overflow");
 	const data_buffer = await get_buffer(HEADER_BYTES, data_length);
 	if (!data_buffer) throw deserialize_error("data too short");
 	/** @type {Array<number | undefined>} */
@@ -181,7 +668,6 @@ async function deserialize_binary_form(request) {
 		if (offset === void 0) throw deserialize_error("duplicate file offset table index");
 		file_offsets[index] = void 0;
 		offset += files_start_offset;
-		if (offset + size > content_length) throw deserialize_error("file data overflow");
 		file_spans.push({
 			offset,
 			size
@@ -201,7 +687,7 @@ async function deserialize_binary_form(request) {
 	(async () => {
 		let has_more = true;
 		while (has_more) has_more = !!await get_chunk(chunks.length);
-	})();
+	})().catch(noop);
 	return {
 		data,
 		meta,
@@ -339,12 +825,16 @@ function deep_set(object, keys, value) {
 		const inner = Object.hasOwn(current, key) ? current[key] : void 0;
 		const exists = inner != null;
 		if (exists && is_array !== Array.isArray(inner)) throw new Error(`Invalid array key ${keys[i + 1]}`);
-		if (!exists) current[key] = is_array ? [] : {};
+		if (!exists) {
+			if (value === DELETE_KEY) return;
+			current[key] = is_array ? [] : {};
+		}
 		current = current[key];
 	}
 	const final_key = keys[keys.length - 1];
 	check_prototype_pollution(final_key);
-	current[final_key] = value;
+	if (value === DELETE_KEY) delete current[final_key];
+	else current[final_key] = value;
 }
 /**
 * @param {StandardSchemaV1.Issue} issue
@@ -402,17 +892,50 @@ function deep_get(object, path) {
 	return current;
 }
 /**
+*
+* @param {string} field_type
+* @param {boolean} is_array
+* @param {unknown} input_value
+*/
+function get_type_prefix(field_type, is_array, input_value) {
+	if (field_type === "number" || field_type === "range") return "n:";
+	if (field_type === "checkbox" && !is_array) return "b:";
+	if (field_type === "hidden" || field_type === "submit") {
+		const input_type = typeof input_value;
+		if (input_type === "number") return "n:";
+		if (input_type === "boolean") return "b:";
+	}
+	return "";
+}
+/**
+* A deep-clone implementation specifically for form data, where
+* we don't need to worry about cycles and whatnot
+* @param {any} value
+* @returns {any}
+*/
+function deep_clone(value) {
+	if (value !== null && typeof value === "object") {
+		if (value instanceof File) return value;
+		if (Array.isArray(value)) return value.map(deep_clone);
+		/** @type {Record<string, any>} */
+		const clone = {};
+		for (const key of Object.keys(value)) clone[key] = deep_clone(value[key]);
+		return clone;
+	}
+	return value;
+}
+/**
 * Creates a proxy-based field accessor for form data
 * @param {any} target - Function or empty POJO
 * @param {() => Record<string, any>} get_input - Function to get current input data
 * @param {(path: (string | number)[], value: any) => void} set_input - Function to set input data
-* @param {() => Record<string, InternalRemoteFormIssue[]>} get_issues - Function to get current issues
+* @param {(path?: (string | number)[], all?: boolean) => Record<string, InternalRemoteFormIssue[]>} get_issues - Function to get current issues
 * @param {(string | number)[]} path - Current access path
 * @returns {any} Proxy object with name(), value(), and issues() methods
 */
 function create_field_proxy(target, get_input, set_input, get_issues, path = []) {
 	const get_value = () => {
-		return deep_get(get_input(), path);
+		return deep_clone(deep_get(get_input(), path));
 	};
 	return new Proxy(target, { get(target, prop) {
 		if (typeof prop === "symbol") return target[prop];
@@ -428,15 +951,16 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
 		if (prop === "value") return create_field_proxy(get_value, get_input, set_input, get_issues, [...path, prop]);
 		if (prop === "issues" || prop === "allIssues") {
 			const issues_func = () => {
-				const all_issues = get_issues()[key === "" ? "$" : key];
+				const all_issues = get_issues(path, prop === "allIssues")[key === "" ? "$" : key];
 				if (prop === "allIssues") return all_issues?.map((issue) => ({
 					path: issue.path,
 					message: issue.message
 				}));
-				return all_issues?.filter((issue) => issue.name === key)?.map((issue) => ({
+				const issues = all_issues?.filter((issue) => issue.name === key)?.map((issue) => ({
 					path: issue.path,
 					message: issue.message
 				}));
+				return issues?.length ? issues : void 0;
 			};
 			return create_field_proxy(issues_func, get_input, set_input, get_issues, [...path, prop]);
 		}
@@ -449,7 +973,7 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
 				const is_array = type === "file multiple" || type === "select multiple" || type === "checkbox" && typeof input_value === "string";
 				/** @type {Record<string, any>} */
 				const base_props = {
-					name: (type === "number" || type === "range" ? "n:" : type === "checkbox" && !is_array ? "b:" : "") + key + (is_array ? "[]" : ""),
+					name: get_type_prefix(type, is_array, input_value) + key + (is_array ? "[]" : ""),
 					get "aria-invalid"() {
 						const issues = get_issues();
 						return key in issues ? "true" : void 0;
@@ -457,7 +981,7 @@ function create_field_proxy(target, get_input, set_input, get_issues, path = [])
 				};
 				if (type !== "text" && type !== "select" && type !== "select multiple") base_props.type = type === "file multiple" ? "file" : type;
 				if (type === "submit" || type === "hidden") return Object.defineProperties(base_props, { value: {
-					value: input_value,
+					value: typeof input_value === "boolean" ? input_value ? "on" : "off" : input_value,
 					enumerable: true
 				} });
 				if (type === "select" || type === "select multiple") return Object.defineProperties(base_props, {
@@ -591,7 +1115,7 @@ function throw_on_old_property_access(instance) {
 	} });
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/utils/http.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/utils/http.js
 /**
 * Given an Accept header and a list of possible content types, pick
 * the most suitable one to respond with
@@ -602,7 +1126,7 @@ function negotiate(accept, types) {
 	/** @type {Array<{ type: string, subtype: string, q: number, i: number }>} */
 	const parts = [];
 	accept.split(",").forEach((str, i) => {
-		const match = /([^/ \t]+)\/([^; \t]+)[ \t]*(?:;[ \t]*q=([0-9.]+))?/.exec(str);
+		const match = /^[ \t]*([^/ \t]+)\/([^; \t]+)[ \t]*(?:;[ \t]*q=([0-9.]+))?/.exec(str);
 		if (match) {
 			const [, type, subtype, q = "1"] = match;
 			parts.push({
@@ -632,6 +1156,22 @@ function negotiate(accept, types) {
 	return accepted;
 }
 /**
+* Reads all `Set-Cookie` headers as separate values. `Headers.get('set-cookie')`
+* collapses them into a single comma-joined string that browsers cannot parse, so
+* we use `Headers.getSetCookie()` where available and fall back to splitting the
+* joined string otherwise.
+*
+* TODO 3.0 `getSetCookie` is available in Node 19.7+; once we drop support for
+* older versions we can use it directly and remove the `splitCookiesString` fallback
+* @param {Headers} headers
+* @returns {string[]}
+*/
+function get_set_cookies(headers) {
+	if (typeof headers.getSetCookie === "function") return headers.getSetCookie();
+	const set_cookie = headers.get("set-cookie");
+	return set_cookie ? splitCookiesString(set_cookie) : [];
+}
+/**
 * Returns `true` if the request contains a `content-type` header with the given type
 * @param {Request} request
 * @param  {...string} types
@@ -647,7 +1187,7 @@ function is_form_content_type(request) {
 	return is_content_type(request, "application/x-www-form-urlencoded", "multipart/form-data", "text/plain", BINARY_FORM_CONTENT_TYPE);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/utils/escape.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/utils/escape.js
 /**
 * When inside a double-quoted attribute value, only `&` and `"` hold special meaning.
 * @see https://html.spec.whatwg.org/multipage/parsing.html#attribute-value-(double-quoted)-state
@@ -683,7 +1223,8 @@ function escape_html(str, is_attr) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/runtime/server/utils.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/runtime/server/utils.js
+/** @import { ServerHooks } from 'types' */
 /**
 * @param {Partial<Record<import('types').HttpMethod, any>>} mod
 * @param {import('types').HttpMethod} method
@@ -775,7 +1316,7 @@ function redirect_response(status, location) {
 * @param {Error & { path: string }} error
 */
 function clarify_devalue_error(event, error) {
-	if (error.path) return `Data returned from \`load\` while rendering ${event.route.id} is not serializable: ${error.message} (${error.path}). If you need to serialize/deserialize custom types, use transport hooks: https://svelte.dev/docs/kit/hooks#Universal-hooks-transport.`;
+	if (error.path) return `Data returned from \`load\` while rendering ${event.route.id} is not serializable: ${error.message} (${error.path}). If you need to serialize/deserialize custom types, use transport hooks: https://svelte.dev/docs/kit/hooks#transport.`;
 	if (error.path === "") return `Data returned from \`load\` while rendering ${event.route.id} is not a plain object`;
 	return error.message;
 }
@@ -830,5 +1371,20 @@ function get_node_type(node_id) {
 function count_non_ssi_comments(str) {
 	return (str.match(/<!--(?!#)/g) ?? []).length;
 }
+/**
+* Creates a serialiser for non-arbitrary POJOs using the app's transport hook
+* @param {ServerHooks['transport']} transport
+* @returns {(thing: unknown) => string | undefined}
+*/
+function create_replacer(transport) {
+	/** @param {unknown} thing */
+	const replacer = (thing) => {
+		for (const key in transport) {
+			const encoded = transport[key].encode(thing);
+			if (encoded) return `app.decode('${key}', ${uneval(encoded, replacer)})`;
+		}
+	};
+	return replacer;
+}
 //#endregion
-export { ENDPOINT_METHODS as C, SVELTE_KIT_ASSETS as E, throw_on_old_property_access as S, PAGE_METHODS as T, deep_set as _, get_node_type as a, normalize_issue as b, has_prerendered_path as c, serialize_uses as d, static_error_page as f, create_field_proxy as g, negotiate as h, get_global_name as i, method_not_allowed as l, is_form_content_type as m, count_non_ssi_comments as n, handle_error_and_jsonify as o, escape_html as p, format_server_error as r, handle_fatal_error as s, clarify_devalue_error as t, redirect_response as u, deserialize_binary_form as v, MUTATIVE_METHODS as w, set_nested_value as x, flatten_issues as y };
+export { SVELTE_KIT_ASSETS as A, set_nested_value as C, ENDPOINT_METHODS as D, parseString as E, MUTATIVE_METHODS as O, normalize_issue as S, uneval as T, negotiate as _, get_global_name as a, deserialize_binary_form as b, handle_fatal_error as c, redirect_response as d, serialize_uses as f, is_form_content_type as g, get_set_cookies as h, format_server_error as i, PAGE_METHODS as k, has_prerendered_path as l, escape_html as m, count_non_ssi_comments as n, get_node_type as o, static_error_page as p, create_replacer as r, handle_error_and_jsonify as s, clarify_devalue_error as t, method_not_allowed as u, create_field_proxy as v, throw_on_old_property_access as w, flatten_issues as x, deep_set as y };

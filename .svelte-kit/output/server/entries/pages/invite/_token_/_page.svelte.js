@@ -1,4 +1,4 @@
-import { et as escape_html, l as head, o as derived } from "../../../../chunks/dev.js";
+import { a as derived, c as head, k as escape_html } from "../../../../chunks/server2.js";
 import { t as goto } from "../../../../chunks/client.js";
 import "../../../../chunks/navigation.js";
 import { t as page } from "../../../../chunks/state.js";

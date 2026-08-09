@@ -1,9 +1,111 @@
-import { u as logger } from "./error.js";
-import { t as createAdapterFactory } from "./adapter.js";
-//#region ../../node_modules/.pnpm/@better-auth+memory-adapter@1.5.3_@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@bet_65dbf6c9f7aea2eb0e0841f91479363f/node_modules/@better-auth/memory-adapter/dist/index.mjs
+import { b as logger, t as createAdapterFactory } from "./factory.js";
+//#region ../../node_modules/.pnpm/@better-auth+memory-adapter@1.6.25_@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@b_d5fb59eca64add7ed1be7cc3e0da8b04/node_modules/@better-auth/memory-adapter/dist/index.mjs
+/**
+* Case-insensitive in-memory comparison helpers.
+* Used when evaluating where clauses in the memory adapter.
+*/
+function insensitiveCompare(a, b) {
+	if (typeof a === "string" && typeof b === "string") return a.toLowerCase() === b.toLowerCase();
+	return a === b;
+}
+function insensitiveIn(recordVal, values) {
+	if (typeof recordVal !== "string") return values.includes(recordVal);
+	return values.some((v) => typeof v === "string" && recordVal.toLowerCase() === v.toLowerCase());
+}
+function insensitiveNotIn(recordVal, values) {
+	return !insensitiveIn(recordVal, values);
+}
+function insensitiveContains(recordVal, value) {
+	if (typeof recordVal !== "string" || typeof value !== "string") return false;
+	return recordVal.toLowerCase().includes(value.toLowerCase());
+}
+function insensitiveStartsWith(recordVal, value) {
+	if (typeof recordVal !== "string" || typeof value !== "string") return false;
+	return recordVal.toLowerCase().startsWith(value.toLowerCase());
+}
+function insensitiveEndsWith(recordVal, value) {
+	if (typeof recordVal !== "string" || typeof value !== "string") return false;
+	return recordVal.toLowerCase().endsWith(value.toLowerCase());
+}
+/**
+* Index a table's rows by their `id` for row-level reconciliation. Every
+* better-auth row carries an `id` (the adapter's join logic already keys on
+* `record.id`), so the id is a stable identity for the three-way merge.
+*/
+function indexById(rows) {
+	const byId = /* @__PURE__ */ new Map();
+	for (const row of rows) byId.set(row.id, row);
+	return byId;
+}
+/**
+* Commit a transaction onto the live database with a three-way merge so a
+* concurrent write that interleaved at an `await` point survives.
+*
+* `base` is the snapshot taken when the transaction started; `clone` is that
+* snapshot after the transaction mutated it; `target` is the live database as
+* it stands now (possibly carrying concurrent writes). Replaying only the
+* `base -> clone` delta onto `target` applies the transaction's own creates,
+* updates, and deletes without disturbing rows or tables the transaction never
+* touched. A row the transaction did not change keeps the live version, so a
+* concurrent edit to a different row is preserved. A row the transaction did
+* change wins last-writer-wins over a concurrent edit to the same row, which is
+* acceptable for an in-memory development adapter; isolation is guaranteed only
+* at row/table granularity.
+*
+* `target` is mutated in place so any reference held elsewhere (for example the
+* `db` object the caller passed to `memoryAdapter`) stays valid.
+*/
+function mergeTransactionInto(target, base, clone) {
+	const models = /* @__PURE__ */ new Set([...Object.keys(base), ...Object.keys(clone)]);
+	for (const model of models) {
+		if (!(model in clone)) {
+			delete target[model];
+			continue;
+		}
+		const baseById = indexById(base[model] ?? []);
+		const cloneRows = clone[model] ?? [];
+		const cloneById = indexById(cloneRows);
+		const liveRows = target[model] ?? [];
+		const merged = [];
+		const placed = /* @__PURE__ */ new Set();
+		for (const liveRow of liveRows) {
+			const id = liveRow.id;
+			const baseRow = baseById.get(id);
+			const cloneRow = cloneById.get(id);
+			if (baseRow !== void 0 && cloneRow === void 0) continue;
+			if (cloneRow !== void 0 && rowChanged(baseRow, cloneRow)) merged.push(cloneRow);
+			else merged.push(liveRow);
+			placed.add(id);
+		}
+		for (const cloneRow of cloneRows) if (!baseById.has(cloneRow.id) && !placed.has(cloneRow.id)) merged.push(cloneRow);
+		target[model] = merged;
+	}
+}
+/**
+* Whether the transaction mutated a row, comparing its pre-transaction
+* snapshot to its post-transaction state. Rows hold scalar columns and
+* adapter-serializable values, so JSON equality reliably tells a
+* transaction-made edit apart from an untouched row.
+*/
+function rowChanged(baseRow, cloneRow) {
+	if (baseRow === void 0) return true;
+	return JSON.stringify(baseRow) !== JSON.stringify(cloneRow);
+}
 var memoryAdapter = (db, config) => {
 	let lazyOptions = null;
-	const adapterCreator = createAdapterFactory({
+	/**
+	* Build an adapter factory whose operations read and write `activeDb`.
+	* The non-transactional adapter targets the live `db`. A transaction
+	* targets an isolated clone so its uncommitted writes are invisible to
+	* concurrent operations against the live `db`. A failed transaction leaves
+	* the live `db` untouched, and a committed one replays only its own
+	* row/table changes, so a concurrent write that interleaved at an `await`
+	* point survives either outcome. Isolation is at row/table granularity:
+	* the in-memory adapter does not serialize writes, so two operations that
+	* edit the same row resolve last-writer-wins. It is built for development
+	* and tests, not production concurrency control.
+	*/
+	const buildAdapterFactory = (activeDb) => createAdapterFactory({
 		config: {
 			adapterId: "memory",
 			adapterName: "Memory Adapter",
@@ -11,19 +113,15 @@ var memoryAdapter = (db, config) => {
 			debugLogs: config?.debugLogs || false,
 			supportsArrays: true,
 			customTransformInput(props) {
-				if (props.options.advanced?.database?.generateId === "serial" && props.field === "id" && props.action === "create") return db[props.model].length + 1;
+				if (props.options.advanced?.database?.generateId === "serial" && props.field === "id" && props.action === "create") return activeDb[props.model].length + 1;
 				return props.data;
 			},
 			transaction: async (cb) => {
-				const clone = structuredClone(db);
-				try {
-					return await cb(adapterCreator(lazyOptions));
-				} catch (error) {
-					Object.keys(db).forEach((key) => {
-						db[key] = clone[key];
-					});
-					throw error;
-				}
+				const base = structuredClone(activeDb);
+				const clone = structuredClone(activeDb);
+				const result = await cb(buildAdapterFactory(clone)(lazyOptions));
+				mergeTransactionInto(activeDb, base, clone);
+				return result;
 			}
 		},
 		adapter: ({ getFieldName, getDefaultFieldName, options, getModelName }) => {
@@ -50,29 +148,41 @@ var memoryAdapter = (db, config) => {
 			};
 			function convertWhereClause(where, model, join, select) {
 				const baseRecords = (() => {
-					const table = db[model];
+					const table = activeDb[model];
 					if (!table) {
-						logger.error(`[MemoryAdapter] Model ${model} not found in the DB`, Object.keys(db));
+						logger.error(`[MemoryAdapter] Model ${model} not found in the DB`, Object.keys(activeDb));
 						throw new Error(`Model ${model} not found`);
 					}
 					const evalClause = (record, clause) => {
-						const { field, value, operator } = clause;
+						const { field, value, operator, mode = "sensitive" } = clause;
+						const isInsensitive = mode === "insensitive" && (typeof value === "string" || Array.isArray(value) && value.every((v) => typeof v === "string"));
 						switch (operator) {
 							case "in":
 								if (!Array.isArray(value)) throw new Error("Value must be an array");
+								if (isInsensitive) return insensitiveIn(record[field], value);
 								return value.includes(record[field]);
 							case "not_in":
 								if (!Array.isArray(value)) throw new Error("Value must be an array");
+								if (isInsensitive) return insensitiveNotIn(record[field], value);
 								return !value.includes(record[field]);
-							case "contains": return record[field].includes(value);
-							case "starts_with": return record[field].startsWith(value);
-							case "ends_with": return record[field].endsWith(value);
-							case "ne": return record[field] !== value;
+							case "contains":
+								if (isInsensitive) return insensitiveContains(record[field], value);
+								return record[field]?.includes(value);
+							case "starts_with":
+								if (isInsensitive) return insensitiveStartsWith(record[field], value);
+								return record[field].startsWith(value);
+							case "ends_with":
+								if (isInsensitive) return insensitiveEndsWith(record[field], value);
+								return record[field].endsWith(value);
+							case "ne": return isInsensitive ? !insensitiveCompare(record[field], value) : record[field] !== value;
 							case "gt": return value != null && Boolean(record[field] > value);
 							case "gte": return value != null && Boolean(record[field] >= value);
 							case "lt": return value != null && Boolean(record[field] < value);
 							case "lte": return value != null && Boolean(record[field] <= value);
-							default: return record[field] === value;
+							default:
+								if (isInsensitive) return insensitiveCompare(record[field], value);
+								if (value === null) return record[field] == null;
+								return record[field] === value;
 						}
 					};
 					let records = table.filter((record) => {
@@ -111,9 +221,9 @@ var memoryAdapter = (db, config) => {
 					const nestedEntry = grouped.get(baseId);
 					for (const [joinModel, joinAttr] of Object.entries(join)) {
 						const joinModelName = getModelName(joinModel);
-						const joinTable = db[joinModelName];
+						const joinTable = activeDb[joinModelName];
 						if (!joinTable) {
-							logger.error(`[MemoryAdapter] JoinOption model ${joinModelName} not found in the DB`, Object.keys(db));
+							logger.error(`[MemoryAdapter] JoinOption model ${joinModelName} not found in the DB`, Object.keys(activeDb));
 							throw new Error(`JoinOption model ${joinModelName} not found`);
 						}
 						const matchingRecords = joinTable.filter((joinRecord) => joinRecord[joinAttr.on.to] === baseRecord[joinAttr.on.from]);
@@ -137,9 +247,9 @@ var memoryAdapter = (db, config) => {
 			}
 			return {
 				create: async ({ model, data }) => {
-					if (options.advanced?.database?.generateId === "serial") data.id = db[getModelName(model)].length + 1;
-					if (!db[model]) db[model] = [];
-					db[model].push(data);
+					if (options.advanced?.database?.generateId === "serial") data.id = activeDb[getModelName(model)].length + 1;
+					if (!activeDb[model]) activeDb[model] = [];
+					activeDb[model].push(data);
 					return data;
 				},
 				findOne: async ({ model, where, select, join }) => {
@@ -169,9 +279,10 @@ var memoryAdapter = (db, config) => {
 				},
 				count: async ({ model, where }) => {
 					if (where) return convertWhereClause(where, model).length;
-					return db[model].length;
+					return activeDb[model].length;
 				},
 				update: async ({ model, where, update }) => {
+					if (where.length === 0) return null;
 					const res = convertWhereClause(where, model);
 					res.forEach((record) => {
 						Object.assign(record, update);
@@ -179,15 +290,16 @@ var memoryAdapter = (db, config) => {
 					return res[0] || null;
 				},
 				delete: async ({ model, where }) => {
-					const table = db[model];
+					if (where.length === 0) return;
+					const table = activeDb[model];
 					const res = convertWhereClause(where, model);
-					db[model] = table.filter((record) => !res.includes(record));
+					activeDb[model] = table.filter((record) => !res.includes(record));
 				},
 				deleteMany: async ({ model, where }) => {
-					const table = db[model];
+					const table = activeDb[model];
 					const res = convertWhereClause(where, model);
 					let count = 0;
-					db[model] = table.filter((record) => {
+					activeDb[model] = table.filter((record) => {
 						if (res.includes(record)) {
 							count++;
 							return false;
@@ -196,16 +308,31 @@ var memoryAdapter = (db, config) => {
 					});
 					return count;
 				},
-				updateMany({ model, where, update }) {
+				consumeOne: async ({ model, where }) => {
+					const table = activeDb[model];
+					const target = convertWhereClause(where, model)[0];
+					if (!target) return null;
+					activeDb[model] = table.filter((record) => record !== target);
+					return target;
+				},
+				incrementOne: async ({ model, where, increment, set }) => {
+					const target = convertWhereClause(where, model)[0];
+					if (!target) return null;
+					for (const [field, delta] of Object.entries(increment)) target[field] = (typeof target[field] === "number" ? target[field] : 0) + delta;
+					if (set) Object.assign(target, set);
+					return target;
+				},
+				updateMany: async ({ model, where, update }) => {
 					const res = convertWhereClause(where, model);
 					res.forEach((record) => {
 						Object.assign(record, update);
 					});
-					return res[0] || null;
+					return res.length;
 				}
 			};
 		}
 	});
+	const adapterCreator = buildAdapterFactory(db);
 	return (options) => {
 		lazyOptions = options;
 		return adapterCreator(options);

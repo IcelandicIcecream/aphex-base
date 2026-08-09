@@ -43,7 +43,7 @@ declare module "$app/types" {
 		};
 		LayoutParams(): {
 			"/(protected)": Record<string, never>;
-			"/": { id?: string; slug?: string; token?: string; filename?: string };
+			"/": { id?: string | undefined; slug?: string | undefined; token?: string | undefined; filename?: string | undefined };
 			"/(protected)/admin": Record<string, never>;
 			"/(protected)/admin/activity": Record<string, never>;
 			"/(protected)/admin/organizations": Record<string, never>;
@@ -55,28 +55,28 @@ declare module "$app/types" {
 			"/(protected)/admin/settings/members": Record<string, never>;
 			"/(protected)/admin/settings/plugins": Record<string, never>;
 			"/(protected)/admin/settings/roles": Record<string, never>;
-			"/api": { id?: string; slug?: string };
+			"/api": { id?: string | undefined; slug?: string | undefined };
 			"/api/instance-settings": Record<string, never>;
-			"/api/invitations": { id?: string };
+			"/api/invitations": { id?: string | undefined };
 			"/api/invitations/[id]": { id: string };
 			"/api/invitations/[id]/accept": { id: string };
 			"/api/invitations/[id]/reject": { id: string };
-			"/api/settings": { id?: string };
-			"/api/settings/api-keys": { id?: string };
+			"/api/settings": { id?: string | undefined };
+			"/api/settings/api-keys": { id?: string | undefined };
 			"/api/settings/api-keys/[id]": { id: string };
 			"/api/[...slug]": { slug: string };
 			"/god-mode": Record<string, never>;
 			"/god-mode/_components": Record<string, never>;
 			"/god-mode/organizations": Record<string, never>;
 			"/invitations": Record<string, never>;
-			"/invite": { token?: string };
+			"/invite": { token?: string | undefined };
 			"/invite/[token]": { token: string };
 			"/login": Record<string, never>;
 			"/mcp": Record<string, never>;
-			"/media": { id?: string; filename?: string };
-			"/media/[id]": { id: string; filename?: string };
+			"/media": { id?: string | undefined; filename?: string | undefined };
+			"/media/[id]": { id: string; filename?: string | undefined };
 			"/media/[id]/[filename]": { id: string; filename: string };
-			"/reset-password": { token?: string };
+			"/reset-password": { token?: string | undefined };
 			"/reset-password/[token]": { token: string };
 			"/verify-email": Record<string, never>
 		};

@@ -1,4 +1,4 @@
-import { et as escape_html, f as spread_props, l as head } from "../../../../chunks/dev.js";
+import { c as head, d as spread_props, k as escape_html } from "../../../../chunks/server2.js";
 import { i as Switch } from "../../../../chunks/stega.js";
 import { t as instance } from "../../../../chunks/api.js";
 import "../../../../chunks/navigation.js";

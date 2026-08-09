@@ -1,5 +1,5 @@
 import { z } from "zod";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/events/consumer.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/consumer.js
 /**
 * Reserved job-type prefix for consumer deliveries. Namespaced so a delivery job can never
 * collide with a document job or a plugin's own `aphex/job/handler` type. The relay enqueues
@@ -54,6 +54,7 @@ function toConsumerJobHandler(handler, deps) {
 			databaseAdapter,
 			logger,
 			settings: { get: (pluginId) => deps.pluginSettingsService.get(event.organizationId, pluginId) },
+			assetService: deps.assetService ?? null,
 			emailAdapter: deps.emailAdapter ?? null
 		});
 	};

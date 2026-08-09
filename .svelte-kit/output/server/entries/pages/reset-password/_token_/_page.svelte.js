@@ -1,4 +1,4 @@
-import { et as escape_html, l as head } from "../../../../chunks/dev.js";
+import { c as head, k as escape_html } from "../../../../chunks/server2.js";
 import { s as resolve, t as goto } from "../../../../chunks/client.js";
 import "../../../../chunks/navigation.js";
 import "../../../../chunks/state.js";

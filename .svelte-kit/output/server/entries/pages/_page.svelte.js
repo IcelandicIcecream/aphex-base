@@ -1,4 +1,4 @@
-import { c as ensure_array_like, et as escape_html } from "../../chunks/dev.js";
+import { k as escape_html, s as ensure_array_like } from "../../chunks/server2.js";
 //#region src/routes/+page.svelte
 function _page($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {

@@ -1,4 +1,4 @@
-import { et as escape_html, f as spread_props, l as head, o as derived } from "../../../../../chunks/dev.js";
+import { a as derived, c as head, d as spread_props, k as escape_html } from "../../../../../chunks/server2.js";
 import "../../../../../chunks/navigation.js";
 import { t as page } from "../../../../../chunks/state.js";
 import { O as Input, t as Label } from "../../../../../chunks/label.js";

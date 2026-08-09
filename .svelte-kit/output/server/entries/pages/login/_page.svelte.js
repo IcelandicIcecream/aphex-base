@@ -1,4 +1,4 @@
-import { Q as attr, et as escape_html, l as head, o as derived } from "../../../chunks/dev.js";
+import { D as attr, a as derived, c as head, k as escape_html } from "../../../chunks/server2.js";
 import "../../../chunks/navigation.js";
 import { t as page } from "../../../chunks/state.js";
 import { O as Input, t as Label } from "../../../chunks/label.js";

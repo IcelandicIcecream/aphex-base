@@ -1,7 +1,7 @@
-import { Q as attr, c as ensure_array_like, et as escape_html } from "./dev.js";
+import { D as attr, k as escape_html, s as ensure_array_like } from "./server2.js";
 import "./navigation.js";
-import { t as External_link } from "./external-link.js";
 import "./ui.js";
+import { t as External_link } from "./external-link.js";
 import { t as Badge } from "./badge.js";
 //#region src/routes/(protected)/admin/organizations/_components/OrganizationsList.svelte
 function OrganizationsList($$renderer, $$props) {

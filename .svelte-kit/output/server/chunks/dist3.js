@@ -1,7 +1,7 @@
-import { t as createAdapterFactory } from "./adapter.js";
+import { b as logger, t as createAdapterFactory } from "./factory.js";
 import { t as capitalizeFirstLetter } from "./string.js";
 import { Kysely, MssqlDialect, MysqlDialect, PostgresDialect, SqliteDialect, sql } from "kysely";
-//#region ../../node_modules/.pnpm/@better-auth+kysely-adapter@1.5.3_@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@bet_5186b0592e9bdae316885c332b83d7e0/node_modules/@better-auth/kysely-adapter/dist/index.mjs
+//#region ../../node_modules/.pnpm/@better-auth+kysely-adapter@1.6.25_@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@b_88eec0ea5b2cc80ce9897437ef60bea4/node_modules/@better-auth/kysely-adapter/dist/index.mjs
 function getKyselyDatabaseType(db) {
 	if (!db) return null;
 	if ("dialect" in db) return getKyselyDatabaseType(db.dialect);
@@ -43,7 +43,7 @@ var createKyselyAdapter = async (config) => {
 	if ("getConnection" in db) dialect = new MysqlDialect(db);
 	if ("connect" in db) dialect = new PostgresDialect({ pool: db });
 	if ("fileControl" in db) {
-		const { BunSqliteDialect } = await import("./bun-sqlite-dialect-C8OaCWSL.js");
+		const { BunSqliteDialect } = await import("./bun-sqlite-dialect-DTyyejk1.js");
 		dialect = new BunSqliteDialect({ database: db });
 	}
 	if ("createSession" in db) {
@@ -64,7 +64,7 @@ var createKyselyAdapter = async (config) => {
 		}
 	}
 	if ("batch" in db && "exec" in db && "prepare" in db) {
-		const { D1SqliteDialect } = await import("./d1-sqlite-dialect-sYHNqBte.js");
+		const { D1SqliteDialect } = await import("./d1-sqlite-dialect-CDCl_qH4.js");
 		dialect = new D1SqliteDialect({ database: db });
 	}
 	return {
@@ -73,10 +73,60 @@ var createKyselyAdapter = async (config) => {
 		transaction: void 0
 	};
 };
+/**
+* Case-insensitive ILIKE/LIKE for pattern matching.
+* Uses ILIKE on PostgreSQL, LOWER()+LIKE on MySQL/SQLite/MSSQL.
+*/
+function insensitiveIlike(columnRef, pattern, dbType) {
+	return dbType === "postgres" ? sql`${sql.ref(columnRef)} ILIKE ${pattern}` : sql`LOWER(${sql.ref(columnRef)}) LIKE LOWER(${pattern})`;
+}
+/**
+* Case-insensitive IN for string arrays.
+* Returns { lhs, values } for use with eb(lhs, "in", values).
+*/
+function insensitiveIn(columnRef, values) {
+	return {
+		lhs: sql`LOWER(${sql.ref(columnRef)})`,
+		values: values.map((v) => v.toLowerCase())
+	};
+}
+/**
+* Case-insensitive NOT IN for string arrays.
+*/
+function insensitiveNotIn(columnRef, values) {
+	return {
+		lhs: sql`LOWER(${sql.ref(columnRef)})`,
+		values: values.map((v) => v.toLowerCase())
+	};
+}
+/**
+* Case-insensitive equality for strings.
+* Returns { lhs, value } for use with eb(lhs, "=", value).
+*/
+function insensitiveEq(columnRef, value) {
+	return {
+		lhs: sql`LOWER(${sql.ref(columnRef)})`,
+		value: value.toLowerCase()
+	};
+}
+/**
+* Case-insensitive inequality for strings.
+*/
+function insensitiveNe(columnRef, value) {
+	return {
+		lhs: sql`LOWER(${sql.ref(columnRef)})`,
+		value: value.toLowerCase()
+	};
+}
 var kyselyAdapter = (db, config) => {
 	let lazyOptions = null;
-	const createCustomAdapter = (db) => {
-		return ({ getFieldName, schema, getDefaultFieldName, getDefaultModelName, getFieldAttributes, getModelName }) => {
+	let mysqlNoIdWarned = false;
+	const createCustomAdapter = (db, inTransaction = false) => {
+		return ({ getFieldName, schema, getDefaultFieldName, getDefaultModelName, getFieldAttributes, getModelName, options }) => {
+			if (config?.type === "mysql" && options.advanced?.database?.generateId === false && !mysqlNoIdWarned) {
+				mysqlNoIdWarned = true;
+				logger.warn("[Kysely Adapter] MySQL does not support INSERT...RETURNING. With generateId set to false, the adapter uses best-effort fallback strategies (unique columns, full-field match) to retrieve inserted rows. For reliable behavior, use Better Auth's default ID generation, a custom generateId function, or generateId: \"serial\" for auto-increment.");
+			}
 			const selectAllJoins = (join) => {
 				const allSelects = [];
 				const allSelectsStr = [];
@@ -100,33 +150,71 @@ var kyselyAdapter = (db, config) => {
 				};
 			};
 			const withReturning = async (values, builder, model, where) => {
-				let res;
 				if (config?.type === "mysql") {
-					await builder.execute();
-					const field = values.id ? "id" : where.length > 0 && where[0]?.field ? where[0].field : "id";
-					if (!values.id && where.length === 0) {
-						res = await db.selectFrom(model).selectAll().orderBy(getFieldName({
+					if (where.length > 0) {
+						const updateResult = await builder.executeTakeFirst();
+						if (!updateResult || Number(updateResult.numUpdatedRows ?? 0) === 0) return null;
+						const idEqualityWhere = where.find((w) => w.field === "id" && (w.operator === void 0 || w.operator === "eq") && w.connector !== "OR" && w.value !== void 0 && w.value !== null);
+						let reselectField;
+						let reselectValue;
+						if (values.id !== void 0 && values.id !== null) {
+							reselectField = "id";
+							reselectValue = values.id;
+						} else if (idEqualityWhere) {
+							reselectField = "id";
+							reselectValue = idEqualityWhere.value;
+						} else if (where[0]?.field) {
+							reselectField = where[0].field;
+							reselectValue = values[reselectField] !== void 0 ? values[reselectField] : where[0].value;
+						} else return null;
+						return await db.selectFrom(model).selectAll().where(getFieldName({
 							model,
-							field
-						}), "desc").limit(1).executeTakeFirst();
-						return res;
+							field: reselectField
+						}), reselectValue === null ? "is" : "=", reselectValue).limit(1).executeTakeFirst();
 					}
-					const value = values[field] || where[0]?.value;
-					res = await db.selectFrom(model).selectAll().orderBy(getFieldName({
-						model,
-						field
-					}), "desc").where(getFieldName({
-						model,
-						field
-					}), "=", value).limit(1).executeTakeFirst();
-					return res;
+					await builder.execute();
+					const fetchInserted = async (trx) => {
+						if (values.id) return await trx.selectFrom(model).selectAll().where(getFieldName({
+							model,
+							field: "id"
+						}), "=", values.id).limit(1).executeTakeFirst();
+						if (options.advanced?.database?.generateId === "serial") {
+							const lastId = (await sql`SELECT LAST_INSERT_ID() as id`.execute(trx)).rows[0]?.id;
+							if (lastId) return await trx.selectFrom(model).selectAll().where(getFieldName({
+								model,
+								field: "id"
+							}), "=", lastId).limit(1).executeTakeFirst();
+						}
+						const modelSchema = schema[getDefaultModelName(model)]?.fields;
+						if (modelSchema) for (const [fieldKey, fieldAttr] of Object.entries(modelSchema)) {
+							if (!fieldAttr.unique) continue;
+							const dbFieldName = getFieldName({
+								model,
+								field: fieldKey
+							});
+							const val = values[dbFieldName];
+							if (val === void 0 || val === null) continue;
+							const row = await trx.selectFrom(model).selectAll().where(dbFieldName, "=", val).limit(1).executeTakeFirst();
+							if (row) return row;
+						}
+						let query = trx.selectFrom(model).selectAll();
+						let hasConditions = false;
+						for (const [key, val] of Object.entries(values)) {
+							if (val === void 0) continue;
+							query = query.where(key, val === null ? "is" : "=", val);
+							hasConditions = true;
+						}
+						if (hasConditions) {
+							const rows = await query.limit(2).execute();
+							if (rows.length === 1) return rows[0];
+						}
+						logger.warn(`[Kysely Adapter] Unable to safely identify the inserted "${model}" row on MySQL. Enable Better Auth ID generation or use generateId: "serial" for reliable behavior.`);
+						return null;
+					};
+					return inTransaction ? fetchInserted(db) : db.transaction().execute(fetchInserted);
 				}
-				if (config?.type === "mssql") {
-					res = await builder.outputAll("inserted").executeTakeFirst();
-					return res;
-				}
-				res = await builder.returningAll().executeTakeFirst();
-				return res;
+				if (config?.type === "mssql") return await builder.outputAll("inserted").executeTakeFirst();
+				return await builder.returningAll().executeTakeFirst();
 			};
 			function convertWhereClause(model, w) {
 				if (!w) return {
@@ -138,21 +226,57 @@ var kyselyAdapter = (db, config) => {
 					or: []
 				};
 				w.forEach((condition) => {
-					const { field: _field, value: _value, operator = "=", connector = "AND" } = condition;
+					const { field: _field, value: _value, operator = "eq", connector = "AND", mode = "sensitive" } = condition;
 					const value = _value;
 					const field = getFieldName({
 						model,
 						field: _field
 					});
+					const isInsensitive = mode === "insensitive" && (typeof value === "string" || Array.isArray(value) && value.every((v) => typeof v === "string"));
 					const expr = (eb) => {
 						const f = `${model}.${field}`;
-						if (operator.toLowerCase() === "in") return eb(f, "in", Array.isArray(value) ? value : [value]);
-						if (operator.toLowerCase() === "not_in") return eb(f, "not in", Array.isArray(value) ? value : [value]);
-						if (operator === "contains") return eb(f, "like", `%${value}%`);
-						if (operator === "starts_with") return eb(f, "like", `${value}%`);
-						if (operator === "ends_with") return eb(f, "like", `%${value}`);
-						if (operator === "eq") return eb(f, "=", value);
-						if (operator === "ne") return eb(f, "<>", value);
+						if (operator.toLowerCase() === "in") {
+							if (isInsensitive) {
+								const { lhs, values } = insensitiveIn(f, Array.isArray(value) ? value : [value]);
+								return eb(lhs, "in", values);
+							}
+							return eb(f, "in", Array.isArray(value) ? value : [value]);
+						}
+						if (operator.toLowerCase() === "not_in") {
+							if (isInsensitive) {
+								const { lhs, values } = insensitiveNotIn(f, Array.isArray(value) ? value : [value]);
+								return eb(lhs, "not in", values);
+							}
+							return eb(f, "not in", Array.isArray(value) ? value : [value]);
+						}
+						if (operator === "contains") {
+							if (isInsensitive && typeof value === "string") return insensitiveIlike(f, `%${value}%`, config?.type);
+							return eb(f, "like", `%${value}%`);
+						}
+						if (operator === "starts_with") {
+							if (isInsensitive && typeof value === "string") return insensitiveIlike(f, `${value}%`, config?.type);
+							return eb(f, "like", `${value}%`);
+						}
+						if (operator === "ends_with") {
+							if (isInsensitive && typeof value === "string") return insensitiveIlike(f, `%${value}`, config?.type);
+							return eb(f, "like", `%${value}`);
+						}
+						if (operator === "eq") {
+							if (value === null) return eb(f, "is", null);
+							if (isInsensitive && typeof value === "string") {
+								const { lhs, value: v } = insensitiveEq(f, value);
+								return eb(lhs, "=", v);
+							}
+							return eb(f, "=", value);
+						}
+						if (operator === "ne") {
+							if (value === null) return eb(f, "is not", null);
+							if (isInsensitive && typeof value === "string") {
+								const { lhs, value: v } = insensitiveNe(f, value);
+								return eb(lhs, "<>", v);
+							}
+							return eb(f, "<>", value);
+						}
 						if (operator === "gt") return eb(f, ">", value);
 						if (operator === "gte") return eb(f, ">=", value);
 						if (operator === "lt") return eb(f, "<", value);
@@ -229,7 +353,8 @@ var kyselyAdapter = (db, config) => {
 			}
 			return {
 				async create({ data, model }) {
-					return await withReturning(data, db.insertInto(model).values(data), model, []);
+					const builder = db.insertInto(model).values(data);
+					return await withReturning(data, builder, model, []);
 				},
 				async findOne({ model, where, select, join }) {
 					const { and, or } = convertWhereClause(model, where);
@@ -301,6 +426,7 @@ var kyselyAdapter = (db, config) => {
 					return res;
 				},
 				async update({ model, where, update: values }) {
+					if (where.length === 0) return null;
 					const { and, or } = convertWhereClause(model, where);
 					let query = db.updateTable(model).set(values);
 					if (and) query = query.where((eb) => eb.and(and.map((expr) => expr(eb))));
@@ -340,6 +466,75 @@ var kyselyAdapter = (db, config) => {
 					const res = (await query.executeTakeFirst()).numDeletedRows;
 					return res > Number.MAX_SAFE_INTEGER ? Number.MAX_SAFE_INTEGER : Number(res);
 				},
+				async consumeOne({ model, where }) {
+					const { and, or } = convertWhereClause(model, where);
+					const applyWhere = (query) => {
+						if (and) query = query.where((eb) => eb.and(and.map((expr) => expr(eb))));
+						if (or) query = query.where((eb) => eb.or(or.map((expr) => expr(eb))));
+						return query;
+					};
+					const idField = getFieldName({
+						model,
+						field: "id"
+					});
+					const deleteSelectedRow = async (db, row) => {
+						const targetId = row[idField] ?? row.id;
+						if (targetId === void 0 || targetId === null) return null;
+						const query = db.deleteFrom(model).where(`${model}.${idField}`, "=", targetId);
+						if (config?.type === "mysql") {
+							const result = await query.executeTakeFirst();
+							return Number(result.numDeletedRows) > 0 ? row : null;
+						}
+						if (config?.type === "mssql") return await query.outputAll("deleted").executeTakeFirst() ?? null;
+						return await query.returningAll().executeTakeFirst() ?? null;
+					};
+					const deleteWithReturning = async (query) => {
+						if (config?.type === "mssql") return await query.outputAll("deleted").executeTakeFirst() ?? null;
+						return await query.returningAll().executeTakeFirst() ?? null;
+					};
+					if (config?.type === "mysql") {
+						const claimFromTransaction = async (trx) => {
+							const row = await applyWhere(trx.selectFrom(model).selectAll().forUpdate()).limit(1).executeTakeFirst();
+							if (!row) return null;
+							return deleteSelectedRow(trx, row);
+						};
+						return inTransaction ? claimFromTransaction(db) : db.transaction().execute(claimFromTransaction);
+					}
+					const selectIds = applyWhere(db.selectFrom(model).select(`${model}.${idField}`));
+					const targetIds = config?.type === "mssql" ? selectIds.top(1) : selectIds.limit(1);
+					return deleteWithReturning(db.deleteFrom(model).where(`${model}.${idField}`, "in", targetIds));
+				},
+				async incrementOne({ model, where, increment, set }) {
+					const { and, or } = convertWhereClause(model, where);
+					const applyWhere = (query) => {
+						if (and) query = query.where((eb) => eb.and(and.map((expr) => expr(eb))));
+						if (or) query = query.where((eb) => eb.or(or.map((expr) => expr(eb))));
+						return query;
+					};
+					const assignments = { ...set ?? {} };
+					for (const [field, delta] of Object.entries(increment)) assignments[field] = sql`${sql.ref(field)} + ${delta}`;
+					const idField = getFieldName({
+						model,
+						field: "id"
+					});
+					if (config?.type === "mysql") {
+						const incrementInTransaction = async (trx) => {
+							const target = await applyWhere(trx.selectFrom(model).select(`${model}.${idField}`).forUpdate()).limit(1).executeTakeFirst();
+							if (!target) return null;
+							const targetId = target[idField] ?? target.id;
+							if (targetId === void 0 || targetId === null) return null;
+							const updated = await applyWhere(trx.updateTable(model).set(assignments)).where(`${model}.${idField}`, "=", targetId).executeTakeFirst();
+							if (Number(updated.numUpdatedRows) === 0) return null;
+							return await trx.selectFrom(model).selectAll().where(`${model}.${idField}`, "=", targetId).limit(1).executeTakeFirst() ?? null;
+						};
+						return inTransaction ? incrementInTransaction(db) : db.transaction().execute(incrementInTransaction);
+					}
+					const selectIds = applyWhere(db.selectFrom(model).select(`${model}.${idField}`));
+					const targetIds = config?.type === "mssql" ? selectIds.top(1) : selectIds.limit(1);
+					const updateQuery = db.updateTable(model).set(assignments).where(`${model}.${idField}`, "in", targetIds);
+					if (config?.type === "mssql") return await updateQuery.outputAll("inserted").executeTakeFirst() ?? null;
+					return await updateQuery.returningAll().executeTakeFirst() ?? null;
+				},
 				options: config
 			};
 		};
@@ -358,8 +553,11 @@ var kyselyAdapter = (db, config) => {
 			supportsUUIDs: config?.type === "postgres" ? true : false,
 			transaction: config?.transaction ? (cb) => db.transaction().execute((trx) => {
 				return cb(createAdapterFactory({
-					config: adapterOptions.config,
-					adapter: createCustomAdapter(trx)
+					config: {
+						...adapterOptions.config,
+						transaction: false
+					},
+					adapter: createCustomAdapter(trx, true)
 				})(lazyOptions));
 			}) : false
 		},

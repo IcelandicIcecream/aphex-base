@@ -1,7 +1,7 @@
-import { $ as clsx, a as bind_props, i as attributes, s as element } from "./dev.js";
+import { O as clsx, i as bind_props, o as element, r as attributes } from "./server2.js";
 import { t as cn } from "./utils3.js";
 import { tv } from "tailwind-variants";
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/badge/badge.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/badge/badge.svelte
 var badgeVariants = tv({
 	base: "focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive inline-flex w-fit shrink-0 items-center justify-center gap-1 overflow-hidden whitespace-nowrap rounded-md border px-2 py-0.5 text-xs font-medium transition-[color,box-shadow] focus-visible:ring-[3px] [&>svg]:pointer-events-none [&>svg]:size-3",
 	variants: { variant: {

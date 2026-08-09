@@ -1,22 +1,28 @@
-import { a as __require, i as __reExport$1, r as __exportAll$1, s as __toESM, t as __commonJSMin } from "./rolldown-runtime.js";
-import { $ as clsx, d as render$2, et as escape_html, i as attributes, m as html$1, n as attr_class, o as derived, p as stringify$1, r as attr_style, s as element } from "./dev.js";
-import { n as private_env } from "./shared-server.js";
-import { t as building } from "./environment.js";
+import { a as __require, i as __reExport, r as __exportAll, s as __toESM, t as __commonJSMin } from "./rolldown-runtime.js";
+import { t as private_env } from "./shared-server.js";
+import { O as clsx, a as derived, f as stringify$1, k as escape_html, m as html$1, n as attr_style, o as element, r as attributes, t as attr_class, u as render$2 } from "./server2.js";
+import { t as building } from "./internal2.js";
 import { a as user, i as apikey, n as dbDialect, r as drizzleDb, t as db } from "./db.js";
+import { a as BUILTIN_ROLE_SEED } from "./resolver.js";
 import { t as cmsLogger } from "./logger.js";
 import "./dist.js";
-import { a as getBaseURL, c as getProtocol, d as wildcardMatch, i as defu, l as isDynamicBaseURLConfig, o as getHost, r as createDefu, s as getOrigin, t as betterFetch, u as resolveBaseURL } from "./dist2.js";
-import { _ as isDevelopment, a as ValidationError, d as shouldPublishLog, g as getEnvVar, h as getBooleanEnvVar, i as BetterCallError, l as createLogger, m as env, n as BetterAuthError, o as kAPIErrorHeaderSymbol, p as ENV, r as APIError$1, s as BASE_ERROR_CODES, t as APIError, u as logger, v as isProduction, y as isTest } from "./error.js";
-import { a as safeJSONParse, i as generateId$1, n as initGetModelName, o as getAuthTables, r as initGetFieldName, s as createRandomStringGenerator } from "./adapter.js";
+import { o as AuthError } from "./server3.js";
+import { c as getHost, d as isDynamicBaseURLConfig, f as isRequestLike, i as defu, l as getOrigin, m as wildcardMatch, o as normalizePathname, p as resolveBaseURL, r as createDefu, s as getBaseURL, t as betterFetch, u as getProtocol } from "./dist2.js";
+import { a as ValidationError, c as env, d as isDevelopment, f as isProduction, i as BetterCallError, l as getBooleanEnvVar, n as BetterAuthError, o as kAPIErrorHeaderSymbol, p as isTest, r as APIError$1, s as ENV, t as APIError, u as getEnvVar } from "./error.js";
+import { _ as getAuthTables, a as withSpan, b as logger, c as ATTR_HTTP_ROUTE, d as runWithAdapter, f as runWithTransaction, g as safeJSONParse, h as getBetterAuthVersion, i as generateId$1, l as getCurrentAdapter, m as __getBetterAuthGlobal, n as initGetModelName, o as ATTR_DB_COLLECTION_NAME, p as getAsyncLocalStorage, r as initGetFieldName, s as ATTR_HTTP_RESPONSE_STATUS_CODE, u as queueAfterTransactionHook, v as createRandomStringGenerator, x as shouldPublishLog, y as createLogger } from "./factory.js";
 import { n as getKyselyDatabaseType, t as createKyselyAdapter } from "./dist3.js";
-import { a as AuthError } from "./server.js";
 import { t as authOptions } from "./auth.config.js";
 import * as z$1 from "zod";
 import { ZodObject, ZodOptional } from "zod";
+import path from "node:path";
+import fs from "node:fs";
 import { createMailpitAdapter } from "@aphexcms/nodemailer-adapter";
 import { createResendAdapter } from "@aphexcms/resend-adapter";
 import { compile } from "tailwindcss";
+import { randomBytes, scrypt } from "node:crypto";
 import { sql } from "kysely";
+import fsPromises from "node:fs/promises";
+import os from "node:os";
 import { apiKey } from "@better-auth/api-key";
 import { eq } from "drizzle-orm";
 //#endregion
@@ -10586,7 +10592,7 @@ var require_source_map = /* @__PURE__ */ __commonJSMin(((exports) => {
 //#region ../../node_modules/.pnpm/postcss@8.5.19/node_modules/postcss/lib/previous-map.js
 var require_previous_map = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var { existsSync, readFileSync } = __require("fs");
-	var { dirname: dirname$1, isAbsolute: isAbsolute$1, join, relative: relative$1, sep: sep$1 } = __require("path");
+	var { dirname: dirname$2, isAbsolute: isAbsolute$1, join, relative: relative$1, sep: sep$1 } = __require("path");
 	var { SourceMapConsumer, SourceMapGenerator } = require_source_map();
 	function fromBase64(str) {
 		if (Buffer) return Buffer.from(str, "base64").toString();
@@ -10603,7 +10609,7 @@ var require_previous_map = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			let prev = opts.map ? opts.map.prev : void 0;
 			let text = this.loadMap(opts.from, prev);
 			if (!this.mapFile && opts.from) this.mapFile = opts.from;
-			if (this.mapFile) this.root = dirname$1(this.mapFile);
+			if (this.mapFile) this.root = dirname$2(this.mapFile);
 			if (text) this.text = text;
 		}
 		consumer() {
@@ -10639,11 +10645,11 @@ var require_previous_map = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			if (!trusted && !this.unsafeMap) {
 				if (!/\.map$/i.test(path)) return;
 				if (cssFile) {
-					let relativePath = relative$1(dirname$1(cssFile), path);
+					let relativePath = relative$1(dirname$2(cssFile), path);
 					if (relativePath === ".." || relativePath.startsWith(".." + sep$1) || isAbsolute$1(relativePath)) return;
 				}
 			}
-			this.root = dirname$1(path);
+			this.root = dirname$2(path);
 			if (existsSync(path)) {
 				this.mapFile = path;
 				return readFileSync(path, "utf-8").toString().trim();
@@ -10666,7 +10672,7 @@ var require_previous_map = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			else if (this.inline) return this.decodeInline(this.annotation);
 			else if (this.annotation) {
 				let map = this.annotation;
-				if (file) map = join(dirname$1(file), map);
+				if (file) map = join(dirname$2(file), map);
 				let unknown = this.loadFile(map, file, false);
 				if (unknown) try {
 					/* c8 ignore next 4 */
@@ -10692,7 +10698,7 @@ var require_previous_map = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 //#region ../../node_modules/.pnpm/postcss@8.5.19/node_modules/postcss/lib/input.js
 var require_input = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var { nanoid } = require_non_secure();
-	var { isAbsolute, resolve: resolve$1 } = __require("path");
+	var { isAbsolute, resolve: resolve$2 } = __require("path");
 	var { SourceMapConsumer, SourceMapGenerator } = require_source_map();
 	var { fileURLToPath, pathToFileURL: pathToFileURL$1 } = __require("url");
 	var CssSyntaxError = require_css_syntax_error();
@@ -10700,7 +10706,7 @@ var require_input = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var terminalHighlight = require_terminal_highlight();
 	var lineToIndexCache = Symbol("lineToIndexCache");
 	var sourceMapAvailable = Boolean(SourceMapConsumer && SourceMapGenerator);
-	var pathAvailable = Boolean(resolve$1 && isAbsolute);
+	var pathAvailable = Boolean(resolve$2 && isAbsolute);
 	function getLineToIndex(input) {
 		if (input[lineToIndexCache]) return input[lineToIndexCache];
 		let lines = input.css.split("\n");
@@ -10727,7 +10733,7 @@ var require_input = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 			this.document = this.css;
 			if (opts.document) this.document = opts.document.toString();
 			if (opts.from) if (!pathAvailable || /^\w+:\/\//.test(opts.from) || isAbsolute(opts.from)) this.file = opts.from;
-			else this.file = resolve$1(opts.from);
+			else this.file = resolve$2(opts.from);
 			if (pathAvailable && sourceMapAvailable) {
 				let map = new PreviousMap(this.css, opts);
 				if (map.text) {
@@ -10828,7 +10834,7 @@ var require_input = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 		}
 		mapResolve(file) {
 			if (/^\w+:\/\//.test(file)) return file;
-			return resolve$1(this.map.consumer().sourceRoot || this.map.root || ".", file);
+			return resolve$2(this.map.consumer().sourceRoot || this.map.root || ".", file);
 		}
 		origin(line, column, endLine, endColumn) {
 			if (!this.map) return false;
@@ -11082,12 +11088,12 @@ var require_fromJSON = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 //#endregion
 //#region ../../node_modules/.pnpm/postcss@8.5.19/node_modules/postcss/lib/map-generator.js
 var require_map_generator = /* @__PURE__ */ __commonJSMin(((exports, module) => {
-	var { dirname, relative, resolve, sep } = __require("path");
+	var { dirname: dirname$1, relative, resolve: resolve$1, sep } = __require("path");
 	var { SourceMapConsumer, SourceMapGenerator } = require_source_map();
 	var { pathToFileURL } = __require("url");
 	var Input = require_input();
 	var sourceMapAvailable = Boolean(SourceMapConsumer && SourceMapGenerator);
-	var pathAvailable = Boolean(dirname && resolve && relative && sep);
+	var pathAvailable = Boolean(dirname$1 && resolve$1 && relative && sep);
 	var MapGenerator = class {
 		constructor(stringify, root, opts, cssString) {
 			this.stringify = stringify;
@@ -11114,7 +11120,7 @@ var require_map_generator = /* @__PURE__ */ __commonJSMin(((exports, module) => 
 		applyPrevMaps() {
 			for (let prev of this.previous()) {
 				let from = this.toUrl(this.path(prev.file));
-				let root = prev.root || dirname(prev.file);
+				let root = prev.root || dirname$1(prev.file);
 				let map;
 				if (this.mapOpts.sourcesContent === false) {
 					map = new SourceMapConsumer(prev.text);
@@ -11279,8 +11285,8 @@ var require_map_generator = /* @__PURE__ */ __commonJSMin(((exports, module) => 
 			if (/^\w+:\/\//.test(file)) return file;
 			let cached = this.memoizedPaths.get(file);
 			if (cached) return cached;
-			let from = this.opts.to ? dirname(this.opts.to) : ".";
-			if (typeof this.mapOpts.annotation === "string") from = dirname(resolve(from, this.mapOpts.annotation));
+			let from = this.opts.to ? dirname$1(this.opts.to) : ".";
+			if (typeof this.mapOpts.annotation === "string") from = dirname$1(resolve$1(from, this.mapOpts.annotation));
 			let path = relative(from, file);
 			this.memoizedPaths.set(file, path);
 			return path;
@@ -12606,7 +12612,7 @@ import_postcss.default.Rule;
 import_postcss.default.Root;
 import_postcss.default.Node;
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/html/walk.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/html/walk.js
 /**
 * Walk through an HTML AST and transform nodes using a callback function.
 *
@@ -12631,7 +12637,7 @@ function walk(ast, callback) {
 	return ast;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/tailwindcss/tailwind-stylesheets/index.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/tailwindcss/tailwind-stylesheets/index.js
 var css$3 = `
 @layer theme, base, components, utilities;
 
@@ -13531,7 +13537,7 @@ var css$3 = `
 }
 `;
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/tailwindcss/tailwind-stylesheets/preflight.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/tailwindcss/tailwind-stylesheets/preflight.js
 var css$2 = `
 /*
   1. Prevent padding and border from affecting element width. (https://github.com/mozdevs/cssremedy/issues/4)
@@ -13928,7 +13934,7 @@ input:where([type='button'], [type='reset'], [type='submit']),
 }
 `;
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/tailwindcss/tailwind-stylesheets/theme.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/tailwindcss/tailwind-stylesheets/theme.js
 var css$1 = `
 @theme default {
   --font-sans:
@@ -14394,12 +14400,12 @@ var css$1 = `
 }
 `;
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/tailwindcss/tailwind-stylesheets/utilities.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/tailwindcss/tailwind-stylesheets/utilities.js
 var css = `
 @tailwind utilities;
 `;
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/tailwindcss/sanitize-custom-css.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/tailwindcss/sanitize-custom-css.js
 function sanitizeCustomCss(css) {
 	const root = postcss_default.parse(css);
 	root.walkAtRules((atRule) => {
@@ -14408,7 +14414,7 @@ function sanitizeCustomCss(css) {
 	return root.toString();
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/tailwindcss/setup-tailwind.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/tailwindcss/setup-tailwind.js
 /**
 * Set up Tailwind CSS compiler with optional custom CSS injection
 * @param config - Tailwind configuration
@@ -14812,7 +14818,7 @@ var require_unit = /* @__PURE__ */ __commonJSMin(((exports, module) => {
 	};
 }));
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/resolve-all-css-variables.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/resolve-all-css-variables.js
 var import_lib = /* @__PURE__ */ __toESM((/* @__PURE__ */ __commonJSMin(((exports, module) => {
 	var parse = require_parse();
 	var walk = require_walk();
@@ -14952,7 +14958,7 @@ function resolveAllCssVariables(root) {
 	if (iteration === MAX_CSS_VARIABLE_RESOLUTION_ITERATIONS) console.warn(`[better-svelte-email] CSS variable resolution hit maximum iterations (${MAX_CSS_VARIABLE_RESOLUTION_ITERATIONS}). This may indicate circular variable references.`);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/resolve-calc-expressions.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/resolve-calc-expressions.js
 function parseValue(str) {
 	const match = str.match(/^(-?[\d.]+)(%|[a-z]+)?$/i);
 	if (match) {
@@ -15151,7 +15157,7 @@ function resolveCalcExpressions(root, config) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/sanitize-declarations.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/sanitize-declarations.js
 /**
 * Converts a CSS length value to pixels.
 * Returns null for units that cannot be converted (%, vw, vh, ch, ex, etc.)
@@ -15451,14 +15457,14 @@ function sanitizeDeclarations(root, config) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/sanitize-stylesheet.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/sanitize-stylesheet.js
 function sanitizeStyleSheet(root, config) {
 	resolveAllCssVariables(root);
 	resolveCalcExpressions(root, config);
 	sanitizeDeclarations(root, config);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/is-rule-inlinable.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/is-rule-inlinable.js
 var NON_INLINABLE_AT_RULES = /* @__PURE__ */ new Set([
 	"media",
 	"supports",
@@ -15485,7 +15491,7 @@ function isRuleInlinable(rule) {
 	return !/::?[\w-]+(\([^)]*\))?/.test(rule.selector);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/extract-rules-per-class.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/extract-rules-per-class.js
 function unescapeClassName(name) {
 	return name.replace(/\\(.)/g, "$1");
 }
@@ -15504,7 +15510,7 @@ function extractRulesPerClass(root, classes) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/split-selector-list.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/split-selector-list.js
 /**
 * Splits a CSS selector list by commas, respecting parentheses and brackets.
 * e.g., "*, ::before, ::after" → ["*", "::before", "::after"]
@@ -15537,7 +15543,7 @@ function splitSelectorList(selector) {
 	return result;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/extract-global-rules.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/extract-global-rules.js
 /**
 * Checks if a selector string contains pseudo-classes or pseudo-elements.
 * e.g., :hover, ::before, :nth-child()
@@ -15616,7 +15622,7 @@ function isRuleInMediaQuery(rule) {
 	return false;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/get-custom-properties.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/get-custom-properties.js
 function getCustomProperties(root) {
 	const customProperties = /* @__PURE__ */ new Map();
 	root.walkAtRules("property", (atRule) => {
@@ -15634,7 +15640,7 @@ function getCustomProperties(root) {
 	return customProperties;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/compatibility/sanitize-class-name.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/compatibility/sanitize-class-name.js
 var digitToNameMap = {
 	"0": "zero",
 	"1": "one",
@@ -15659,7 +15665,7 @@ function sanitizeClassName(className) {
 	}).replace(/[^a-zA-Z0-9\-_]/g, "_");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/sanitize-non-inlinable-rules.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/sanitize-non-inlinable-rules.js
 /**
 * This function goes through a few steps to ensure the best email client support and
 * to ensure that media queries and pseudo classes are applied correctly alongside
@@ -15682,7 +15688,7 @@ function sanitizeNonInlinableRules(root) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/make-inline-styles-for.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/make-inline-styles-for.js
 function makeInlineStylesFor(inlinableRules, customProperties) {
 	let styles = "";
 	const localVariableDeclarations = /* @__PURE__ */ new Map();
@@ -15723,7 +15729,7 @@ function makeInlineStylesFor(inlinableRules, customProperties) {
 	return styles;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/utils/index.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/utils/index.js
 /**
 * Convert a style object to a CSS string
 * @param style - Object containing CSS properties
@@ -15777,7 +15783,7 @@ function combineStyles(...styles) {
 	return styles.filter(Boolean).map((s) => s?.split(";").map((s) => s.trim()).filter(Boolean)).flat().join(";");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/css/get-matching-global-rules-for-element.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/css/get-matching-global-rules-for-element.js
 var ALWAYS_APPLY_PROPS = ["box-sizing", "margin"];
 var CONDITIONAL_PROPS_PATTERN = /(border|outline)-color/g;
 function getMatchingGlobalRulesForElement(rules, element) {
@@ -15806,7 +15812,7 @@ function getMatchingGlobalRulesForElement(rules, element) {
 	return matchingRules;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/tailwindcss/add-inlined-styles-to-element.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/tailwindcss/add-inlined-styles-to-element.js
 /**
 * Gets global styles for an element based on its tag name.
 * Applies rules in specificity order: universal (*) -> element -> :root (for html only)
@@ -15879,12 +15885,12 @@ function addInlinedStylesToElement(element, inlinableRules, nonInlinableRules, c
 	return element;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/html/is-valid-node.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/html/is-valid-node.js
 function isValidNode(node) {
 	return !node.nodeName.startsWith("#");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/utils/html/remove-attributes-functions.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/utils/html/remove-attributes-functions.js
 function removeAttributesFunctions(ast) {
 	return walk(ast, (node) => {
 		if (isValidNode(node)) node.attrs = node.attrs?.filter((attr) => !["onload", "onerror"].includes(attr.name)) ?? [];
@@ -21099,7 +21105,7 @@ function handleDeprecatedOptions(options) {
 	for (const definition of options.selectors) if (definition.format === "anchor" && get(definition, ["options", "noLinkBrackets"])) set(definition, ["options", "linkBrackets"], false);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/render/index.js
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/render/index.js
 /**
 * Email renderer that converts Svelte components to email-safe HTML with inlined Tailwind styles.
 *
@@ -21248,7 +21254,7 @@ async function renderEmail(component, props) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Body.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Body.svelte
 function Body($$renderer, $$props) {
 	let { children, style, class: className, $$slots, $$events, ...restProps } = $$props;
 	$$renderer.push(`<body${attributes({ ...restProps })} onload="this.__e=event" onerror="this.__e=event"><table align="center" width="100%" border="0" cellspacing="0" cellpadding="0" role="presentation"><tbody><tr><td${attr_style(style)}${attr_class(clsx(className))}>`);
@@ -21256,7 +21262,7 @@ function Body($$renderer, $$props) {
 	$$renderer.push(`<!----></td></tr></tbody></table></body>`);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Button.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Button.svelte
 function Button($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { href = "#", target = "_blank", style = "", pX = 0, pY = 0, children, $$slots, $$events, ...restProps } = $$props;
@@ -21288,7 +21294,7 @@ function Button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Container.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Container.svelte
 function Container($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { children, style, $$slots, $$events, ...restProps } = $$props;
@@ -21308,7 +21314,7 @@ function Container($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Head.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Head.svelte
 function Head($$renderer, $$props) {
 	let { children } = $$props;
 	$$renderer.push(`<head><meta http-equiv="content-type" content="text/html; charset=UTF-8"/> <meta name="viewport" content="width=device-width, initial-scale=1.0"/> <meta name="x-apple-disable-message-reformatting"/> <meta http-equiv="x-ua-compatible" content="IE=edge"/> `);
@@ -21316,7 +21322,7 @@ function Head($$renderer, $$props) {
 	$$renderer.push(`<!----></head>`);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Heading.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Heading.svelte
 function Heading($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { style, as, children, $$slots, $$events, ...restProps } = $$props;
@@ -21341,7 +21347,7 @@ function Heading($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Hr.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Hr.svelte
 function Hr($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { style, $$slots, $$events, ...restProps } = $$props;
@@ -21359,7 +21365,7 @@ function Hr($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Html.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Html.svelte
 function Html($$renderer, $$props) {
 	let { lang = "en", dir = "ltr", children, $$slots, $$events, ...restProps } = $$props;
 	$$renderer.push(`${html$1("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">")} <html${attributes({
@@ -21372,7 +21378,7 @@ function Html($$renderer, $$props) {
 	$$renderer.push(`<!----></html>`);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Preview.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Preview.svelte
 function Preview($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const PREVIEW_MAX_LENGTH = 150;
@@ -21398,7 +21404,7 @@ function Preview($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Section.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Section.svelte
 function Section($$renderer, $$props) {
 	let { children, $$slots, $$events, ...restProps } = $$props;
 	$$renderer.push(`<table${attributes({
@@ -21414,7 +21420,7 @@ function Section($$renderer, $$props) {
 	$$renderer.push(`<!----></td></tr></tbody></table>`);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_5f02c0e18debe90b776af5a768484932/node_modules/better-svelte-email/dist/components/Text.svelte
+//#region ../../node_modules/.pnpm/better-svelte-email@1.4.0_@react-email+render@1.1.2_react-dom@19.2.0_react@19.2.0__reac_e1207f71dcf47b291c5fb2d4b6546b23/node_modules/better-svelte-email/dist/components/Text.svelte
 function Text($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { as = "p", style, children, $$slots, $$events, ...restProps } = $$props;
@@ -21722,23 +21728,70 @@ var emailConfig = {
 	invitation
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/crypto/random.mjs
-var generateRandomString = createRandomStringGenerator("a-z", "0-9", "A-Z", "-_");
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/crypto/buffer.mjs
-/**
-* Compare two buffers in constant time.
-*/
-function constantTimeEqual(a, b) {
-	if (typeof a === "string") a = new TextEncoder().encode(a);
-	if (typeof b === "string") b = new TextEncoder().encode(b);
-	const aBuffer = new Uint8Array(a);
-	const bBuffer = new Uint8Array(b);
-	let c = aBuffer.length ^ bBuffer.length;
-	const length = Math.max(aBuffer.length, bBuffer.length);
-	for (let i = 0; i < length; i++) c |= (i < aBuffer.length ? aBuffer[i] : 0) ^ (i < bBuffer.length ? bBuffer[i] : 0);
-	return c === 0;
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/utils/error-codes.mjs
+function defineErrorCodes(codes) {
+	return Object.fromEntries(Object.entries(codes).map(([key, value]) => [key, {
+		code: key,
+		message: value,
+		toString: () => key
+	}]));
 }
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/error/codes.mjs
+var BASE_ERROR_CODES = defineErrorCodes({
+	USER_NOT_FOUND: "User not found",
+	FAILED_TO_CREATE_USER: "Failed to create user",
+	FAILED_TO_CREATE_SESSION: "Failed to create session",
+	FAILED_TO_UPDATE_USER: "Failed to update user",
+	FAILED_TO_GET_SESSION: "Failed to get session",
+	INVALID_PASSWORD: "Invalid password",
+	INVALID_EMAIL: "Invalid email",
+	INVALID_EMAIL_OR_PASSWORD: "Invalid email or password",
+	INVALID_USER: "Invalid user",
+	SOCIAL_ACCOUNT_ALREADY_LINKED: "Social account already linked",
+	PROVIDER_NOT_FOUND: "Provider not found",
+	INVALID_TOKEN: "Invalid token",
+	TOKEN_EXPIRED: "Token expired",
+	ID_TOKEN_NOT_SUPPORTED: "id_token not supported",
+	FAILED_TO_GET_USER_INFO: "Failed to get user info",
+	USER_EMAIL_NOT_FOUND: "User email not found",
+	EMAIL_NOT_VERIFIED: "Email not verified",
+	PASSWORD_TOO_SHORT: "Password too short",
+	PASSWORD_TOO_LONG: "Password too long",
+	USER_ALREADY_EXISTS: "User already exists.",
+	USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "User already exists. Use another email.",
+	EMAIL_CAN_NOT_BE_UPDATED: "Email can not be updated",
+	CHANGE_EMAIL_DISABLED: "Change email is disabled",
+	CREDENTIAL_ACCOUNT_NOT_FOUND: "Credential account not found",
+	SESSION_EXPIRED: "Session expired. Re-authenticate to perform this action.",
+	FAILED_TO_UNLINK_LAST_ACCOUNT: "You can't unlink your last account",
+	ACCOUNT_NOT_FOUND: "Account not found",
+	USER_ALREADY_HAS_PASSWORD: "User already has a password. Provide that to delete the account.",
+	CROSS_SITE_NAVIGATION_LOGIN_BLOCKED: "Cross-site navigation login blocked. This request appears to be a CSRF attack.",
+	VERIFICATION_EMAIL_NOT_ENABLED: "Verification email isn't enabled",
+	EMAIL_ALREADY_VERIFIED: "Email is already verified",
+	EMAIL_MISMATCH: "Email mismatch",
+	SESSION_NOT_FRESH: "Session is not fresh",
+	LINKED_ACCOUNT_ALREADY_EXISTS: "Linked account already exists",
+	INVALID_ORIGIN: "Invalid origin",
+	INVALID_CALLBACK_URL: "Invalid callbackURL",
+	INVALID_REDIRECT_URL: "Invalid redirectURL",
+	INVALID_ERROR_CALLBACK_URL: "Invalid errorCallbackURL",
+	INVALID_NEW_USER_CALLBACK_URL: "Invalid newUserCallbackURL",
+	MISSING_OR_NULL_ORIGIN: "Missing or null Origin",
+	CALLBACK_URL_REQUIRED: "callbackURL is required",
+	FAILED_TO_CREATE_VERIFICATION: "Unable to create verification",
+	FIELD_NOT_ALLOWED: "Field not allowed to be set",
+	ASYNC_VALIDATION_NOT_SUPPORTED: "Async validation is not supported",
+	VALIDATION_ERROR: "Validation Error",
+	MISSING_FIELD: "Field is required",
+	METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED: "POST method requires deferSessionRefresh to be enabled in session config",
+	BODY_MUST_BE_AN_OBJECT: "Body must be an object",
+	PASSWORD_ALREADY_SET: "User already has a password set"
+});
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/crypto/random.mjs
+var generateRandomString = createRandomStringGenerator("a-z", "0-9", "A-Z", "-_");
 //#endregion
 //#region ../../node_modules/.pnpm/@noble+hashes@2.0.1/node_modules/@noble/hashes/utils.js
 /**
@@ -21787,10 +21840,6 @@ function aoutput$1(out, instance) {
 	const min = instance.outputLen;
 	if (out.length < min) throw new Error("\"digestInto() output\" expected to be of length >=" + min);
 }
-/** Cast u8 / u16 / u32 to u32. */
-function u32$1(arr) {
-	return new Uint32Array(arr.buffer, arr.byteOffset, Math.floor(arr.byteLength / 4));
-}
 /** Zeroize a byte array. Warning: JS provides no guarantees. */
 function clean$1(...arrays) {
 	for (let i = 0; i < arrays.length; i++) arrays[i].fill(0);
@@ -21802,97 +21851,6 @@ function createView$1(arr) {
 /** The rotate right (circular right shift) operation for uint32 */
 function rotr(word, shift) {
 	return word << 32 - shift | word >>> shift;
-}
-/** The rotate left (circular left shift) operation for uint32 */
-function rotl$1(word, shift) {
-	return word << shift | word >>> 32 - shift >>> 0;
-}
-/** Is current platform little-endian? Most are. Big-Endian platform: IBM */
-var isLE$1 = /* @__PURE__ */ (() => new Uint8Array(new Uint32Array([287454020]).buffer)[0] === 68)();
-/** The byte swap operation for uint32 */
-function byteSwap(word) {
-	return word << 24 & 4278190080 | word << 8 & 16711680 | word >>> 8 & 65280 | word >>> 24 & 255;
-}
-/** In place byte swap for Uint32Array */
-function byteSwap32(arr) {
-	for (let i = 0; i < arr.length; i++) arr[i] = byteSwap(arr[i]);
-	return arr;
-}
-var swap32IfBE = isLE$1 ? (u) => u : byteSwap32;
-var hasHexBuiltin$1 = /* @__PURE__ */ (() => typeof Uint8Array.from([]).toHex === "function" && typeof Uint8Array.fromHex === "function")();
-var asciis$1 = {
-	_0: 48,
-	_9: 57,
-	A: 65,
-	F: 70,
-	a: 97,
-	f: 102
-};
-function asciiToBase16$1(ch) {
-	if (ch >= asciis$1._0 && ch <= asciis$1._9) return ch - asciis$1._0;
-	if (ch >= asciis$1.A && ch <= asciis$1.F) return ch - (asciis$1.A - 10);
-	if (ch >= asciis$1.a && ch <= asciis$1.f) return ch - (asciis$1.a - 10);
-}
-/**
-* Convert hex string to byte array. Uses built-in function, when available.
-* @example hexToBytes('cafe0123') // Uint8Array.from([0xca, 0xfe, 0x01, 0x23])
-*/
-function hexToBytes$1(hex) {
-	if (typeof hex !== "string") throw new Error("hex string expected, got " + typeof hex);
-	if (hasHexBuiltin$1) return Uint8Array.fromHex(hex);
-	const hl = hex.length;
-	const al = hl / 2;
-	if (hl % 2) throw new Error("hex string expected, got unpadded hex of length " + hl);
-	const array = new Uint8Array(al);
-	for (let ai = 0, hi = 0; ai < al; ai++, hi += 2) {
-		const n1 = asciiToBase16$1(hex.charCodeAt(hi));
-		const n2 = asciiToBase16$1(hex.charCodeAt(hi + 1));
-		if (n1 === void 0 || n2 === void 0) {
-			const char = hex[hi] + hex[hi + 1];
-			throw new Error("hex string expected, got non-hex character \"" + char + "\" at index " + hi);
-		}
-		array[ai] = n1 * 16 + n2;
-	}
-	return array;
-}
-/**
-* There is no setImmediate in browser and setTimeout is slow.
-* Call of async fn will return Promise, which will be fullfiled only on
-* next scheduler queue processing step and this is exactly what we need.
-*/
-var nextTick = async () => {};
-/** Returns control to thread each 'tick' ms to avoid blocking. */
-async function asyncLoop(iters, tick, cb) {
-	let ts = Date.now();
-	for (let i = 0; i < iters; i++) {
-		cb(i);
-		const diff = Date.now() - ts;
-		if (diff >= 0 && diff < tick) continue;
-		await nextTick();
-		ts += diff;
-	}
-}
-/**
-* Converts string to bytes using UTF8 encoding.
-* Built-in doesn't validate input to be string: we do the check.
-* @example utf8ToBytes('abc') // Uint8Array.from([97, 98, 99])
-*/
-function utf8ToBytes$1(str) {
-	if (typeof str !== "string") throw new Error("string expected");
-	return new Uint8Array(new TextEncoder().encode(str));
-}
-/**
-* Helper for KDFs: consumes uint8array or string.
-* When string is passed, does utf8 decoding, using TextDecoder.
-*/
-function kdfInputToBytes(data, errorTitle = "") {
-	if (typeof data === "string") return utf8ToBytes$1(data);
-	return abytes$1(data, void 0, errorTitle);
-}
-/** Merges default options and passed options. */
-function checkOpts$1(defaults, opts) {
-	if (opts !== void 0 && {}.toString.call(opts) !== "[object Object]") throw new Error("options must be object or undefined");
-	return Object.assign(defaults, opts);
 }
 /** Creates function with outputLen, blockLen, create properties from a class constructor. */
 function createHasher(hashCons, info = {}) {
@@ -22755,7 +22713,7 @@ async function cbcEncrypt(enc, plaintext, cek, iv, aad) {
 		iv
 	};
 }
-async function timingSafeEqual(a, b) {
+async function timingSafeEqual$1(a, b) {
 	if (!(a instanceof Uint8Array)) throw new TypeError("First argument must be a buffer");
 	if (!(b instanceof Uint8Array)) throw new TypeError("Second argument must be a buffer");
 	const algorithm = {
@@ -22775,7 +22733,7 @@ async function cbcDecrypt(enc, cek, ciphertext, iv, tag, aad) {
 	const expectedTag = await cbcHmacTag(macKey, concat(aad, iv, ciphertext, uint64be(aad.length << 3)), keySize);
 	let macCheckPassed;
 	try {
-		macCheckPassed = await timingSafeEqual(tag, expectedTag);
+		macCheckPassed = await timingSafeEqual$1(tag, expectedTag);
 	} catch {}
 	if (!macCheckPassed) throw new JWEDecryptionFailed();
 	let plaintext;
@@ -24793,7 +24751,7 @@ function decodeJwt(jwt) {
 	return result;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/crypto/jwt.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/crypto/jwt.mjs
 async function signJWT(payload, secret, expiresIn = 3600) {
 	return await new SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime(Math.floor(Date.now() / 1e3) + expiresIn).sign(new TextEncoder().encode(secret));
 }
@@ -24930,285 +24888,56 @@ async function symmetricDecodeJWT(token, secret, salt) {
 	}
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+utils@0.3.1/node_modules/@better-auth/utils/dist/hex.mjs
-var hexadecimal = "0123456789abcdef";
-var hex = {
-	encode: (data) => {
-		if (typeof data === "string") data = new TextEncoder().encode(data);
-		if (data.byteLength === 0) return "";
-		const buffer = new Uint8Array(data);
-		let result = "";
-		for (const byte of buffer) result += byte.toString(16).padStart(2, "0");
-		return result;
-	},
-	decode: (data) => {
-		if (!data) return "";
-		if (typeof data === "string") {
-			if (data.length % 2 !== 0) throw new Error("Invalid hexadecimal string");
-			if (!new RegExp(`^[${hexadecimal}]+$`).test(data)) throw new Error("Invalid hexadecimal string");
-			const result = new Uint8Array(data.length / 2);
-			for (let i = 0; i < data.length; i += 2) result[i / 2] = parseInt(data.slice(i, i + 2), 16);
-			return new TextDecoder().decode(result);
-		}
-		return new TextDecoder().decode(data);
-	}
-};
-//#endregion
-//#region ../../node_modules/.pnpm/@noble+hashes@2.0.1/node_modules/@noble/hashes/pbkdf2.js
-/**
-* PBKDF (RFC 2898). Can be used to create a key from password and salt.
-* @module
-*/
-function pbkdf2Init(hash, _password, _salt, _opts) {
-	ahash(hash);
-	const { c, dkLen, asyncTick } = checkOpts$1({
-		dkLen: 32,
-		asyncTick: 10
-	}, _opts);
-	anumber$1(c, "c");
-	anumber$1(dkLen, "dkLen");
-	anumber$1(asyncTick, "asyncTick");
-	if (c < 1) throw new Error("iterations (c) must be >= 1");
-	const password = kdfInputToBytes(_password, "password");
-	const salt = kdfInputToBytes(_salt, "salt");
-	const DK = new Uint8Array(dkLen);
-	const PRF = hmac.create(hash, password);
-	return {
-		c,
-		dkLen,
-		asyncTick,
-		DK,
-		PRF,
-		PRFSalt: PRF._cloneInto().update(salt)
-	};
-}
-function pbkdf2Output(PRF, PRFSalt, DK, prfW, u) {
-	PRF.destroy();
-	PRFSalt.destroy();
-	if (prfW) prfW.destroy();
-	clean$1(u);
-	return DK;
-}
-/**
-* PBKDF2-HMAC: RFC 2898 key derivation function
-* @param hash - hash function that would be used e.g. sha256
-* @param password - password from which a derived key is generated
-* @param salt - cryptographic salt
-* @param opts - {c, dkLen} where c is work factor and dkLen is output message size
-* @example
-* const key = pbkdf2(sha256, 'password', 'salt', { dkLen: 32, c: Math.pow(2, 18) });
-*/
-function pbkdf2(hash, password, salt, opts) {
-	const { c, dkLen, DK, PRF, PRFSalt } = pbkdf2Init(hash, password, salt, opts);
-	let prfW;
-	const arr = /* @__PURE__ */ new Uint8Array(4);
-	const view = createView$1(arr);
-	const u = new Uint8Array(PRF.outputLen);
-	for (let ti = 1, pos = 0; pos < dkLen; ti++, pos += PRF.outputLen) {
-		const Ti = DK.subarray(pos, pos + PRF.outputLen);
-		view.setInt32(0, ti, false);
-		(prfW = PRFSalt._cloneInto(prfW)).update(arr).digestInto(u);
-		Ti.set(u.subarray(0, Ti.length));
-		for (let ui = 1; ui < c; ui++) {
-			PRF._cloneInto(prfW).update(u).digestInto(u);
-			for (let i = 0; i < Ti.length; i++) Ti[i] ^= u[i];
-		}
-	}
-	return pbkdf2Output(PRF, PRFSalt, DK, prfW, u);
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@noble+hashes@2.0.1/node_modules/@noble/hashes/scrypt.js
-/**
-* RFC 7914 Scrypt KDF. Can be used to create a key from password and salt.
-* @module
-*/
-function XorAndSalsa(prev, pi, input, ii, out, oi) {
-	let y00 = prev[pi++] ^ input[ii++], y01 = prev[pi++] ^ input[ii++];
-	let y02 = prev[pi++] ^ input[ii++], y03 = prev[pi++] ^ input[ii++];
-	let y04 = prev[pi++] ^ input[ii++], y05 = prev[pi++] ^ input[ii++];
-	let y06 = prev[pi++] ^ input[ii++], y07 = prev[pi++] ^ input[ii++];
-	let y08 = prev[pi++] ^ input[ii++], y09 = prev[pi++] ^ input[ii++];
-	let y10 = prev[pi++] ^ input[ii++], y11 = prev[pi++] ^ input[ii++];
-	let y12 = prev[pi++] ^ input[ii++], y13 = prev[pi++] ^ input[ii++];
-	let y14 = prev[pi++] ^ input[ii++], y15 = prev[pi++] ^ input[ii++];
-	let x00 = y00, x01 = y01, x02 = y02, x03 = y03, x04 = y04, x05 = y05, x06 = y06, x07 = y07, x08 = y08, x09 = y09, x10 = y10, x11 = y11, x12 = y12, x13 = y13, x14 = y14, x15 = y15;
-	for (let i = 0; i < 8; i += 2) {
-		x04 ^= rotl$1(x00 + x12 | 0, 7);
-		x08 ^= rotl$1(x04 + x00 | 0, 9);
-		x12 ^= rotl$1(x08 + x04 | 0, 13);
-		x00 ^= rotl$1(x12 + x08 | 0, 18);
-		x09 ^= rotl$1(x05 + x01 | 0, 7);
-		x13 ^= rotl$1(x09 + x05 | 0, 9);
-		x01 ^= rotl$1(x13 + x09 | 0, 13);
-		x05 ^= rotl$1(x01 + x13 | 0, 18);
-		x14 ^= rotl$1(x10 + x06 | 0, 7);
-		x02 ^= rotl$1(x14 + x10 | 0, 9);
-		x06 ^= rotl$1(x02 + x14 | 0, 13);
-		x10 ^= rotl$1(x06 + x02 | 0, 18);
-		x03 ^= rotl$1(x15 + x11 | 0, 7);
-		x07 ^= rotl$1(x03 + x15 | 0, 9);
-		x11 ^= rotl$1(x07 + x03 | 0, 13);
-		x15 ^= rotl$1(x11 + x07 | 0, 18);
-		x01 ^= rotl$1(x00 + x03 | 0, 7);
-		x02 ^= rotl$1(x01 + x00 | 0, 9);
-		x03 ^= rotl$1(x02 + x01 | 0, 13);
-		x00 ^= rotl$1(x03 + x02 | 0, 18);
-		x06 ^= rotl$1(x05 + x04 | 0, 7);
-		x07 ^= rotl$1(x06 + x05 | 0, 9);
-		x04 ^= rotl$1(x07 + x06 | 0, 13);
-		x05 ^= rotl$1(x04 + x07 | 0, 18);
-		x11 ^= rotl$1(x10 + x09 | 0, 7);
-		x08 ^= rotl$1(x11 + x10 | 0, 9);
-		x09 ^= rotl$1(x08 + x11 | 0, 13);
-		x10 ^= rotl$1(x09 + x08 | 0, 18);
-		x12 ^= rotl$1(x15 + x14 | 0, 7);
-		x13 ^= rotl$1(x12 + x15 | 0, 9);
-		x14 ^= rotl$1(x13 + x12 | 0, 13);
-		x15 ^= rotl$1(x14 + x13 | 0, 18);
-	}
-	out[oi++] = y00 + x00 | 0;
-	out[oi++] = y01 + x01 | 0;
-	out[oi++] = y02 + x02 | 0;
-	out[oi++] = y03 + x03 | 0;
-	out[oi++] = y04 + x04 | 0;
-	out[oi++] = y05 + x05 | 0;
-	out[oi++] = y06 + x06 | 0;
-	out[oi++] = y07 + x07 | 0;
-	out[oi++] = y08 + x08 | 0;
-	out[oi++] = y09 + x09 | 0;
-	out[oi++] = y10 + x10 | 0;
-	out[oi++] = y11 + x11 | 0;
-	out[oi++] = y12 + x12 | 0;
-	out[oi++] = y13 + x13 | 0;
-	out[oi++] = y14 + x14 | 0;
-	out[oi++] = y15 + x15 | 0;
-}
-function BlockMix(input, ii, out, oi, r) {
-	let head = oi + 0;
-	let tail = oi + 16 * r;
-	for (let i = 0; i < 16; i++) out[tail + i] = input[ii + (2 * r - 1) * 16 + i];
-	for (let i = 0; i < r; i++, head += 16, ii += 16) {
-		XorAndSalsa(out, tail, input, ii, out, head);
-		if (i > 0) tail += 16;
-		XorAndSalsa(out, head, input, ii += 16, out, tail);
-	}
-}
-function scryptInit(password, salt, _opts) {
-	const { N, r, p, dkLen, asyncTick, maxmem, onProgress } = checkOpts$1({
-		dkLen: 32,
-		asyncTick: 10,
-		maxmem: 1024 ** 3 + 1024
-	}, _opts);
-	anumber$1(N, "N");
-	anumber$1(r, "r");
-	anumber$1(p, "p");
-	anumber$1(dkLen, "dkLen");
-	anumber$1(asyncTick, "asyncTick");
-	anumber$1(maxmem, "maxmem");
-	if (onProgress !== void 0 && typeof onProgress !== "function") throw new Error("progressCb must be a function");
-	const blockSize = 128 * r;
-	const blockSize32 = blockSize / 4;
-	const pow32 = Math.pow(2, 32);
-	if (N <= 1 || (N & N - 1) !== 0 || N > pow32) throw new Error("\"N\" expected a power of 2, and 2^1 <= N <= 2^32");
-	if (p < 1 || p > (pow32 - 1) * 32 / blockSize) throw new Error("\"p\" expected integer 1..((2^32 - 1) * 32) / (128 * r)");
-	if (dkLen < 1 || dkLen > (pow32 - 1) * 32) throw new Error("\"dkLen\" expected integer 1..(2^32 - 1) * 32");
-	if (blockSize * (N + p) > maxmem) throw new Error("\"maxmem\" limit was hit, expected 128*r*(N+p) <= \"maxmem\"=" + maxmem);
-	const B = pbkdf2(sha256, password, salt, {
-		c: 1,
-		dkLen: blockSize * p
-	});
-	const B32 = u32$1(B);
-	const V = u32$1(new Uint8Array(blockSize * N));
-	const tmp = u32$1(new Uint8Array(blockSize));
-	let blockMixCb = () => {};
-	if (onProgress) {
-		const totalBlockMix = 2 * N * p;
-		const callbackPer = Math.max(Math.floor(totalBlockMix / 1e4), 1);
-		let blockMixCnt = 0;
-		blockMixCb = () => {
-			blockMixCnt++;
-			if (onProgress && (!(blockMixCnt % callbackPer) || blockMixCnt === totalBlockMix)) onProgress(blockMixCnt / totalBlockMix);
-		};
-	}
-	return {
-		N,
-		r,
-		p,
-		dkLen,
-		blockSize32,
-		V,
-		B32,
-		B,
-		tmp,
-		blockMixCb,
-		asyncTick
-	};
-}
-function scryptOutput(password, dkLen, B, V, tmp) {
-	const res = pbkdf2(sha256, password, B, {
-		c: 1,
-		dkLen
-	});
-	clean$1(B, V, tmp);
-	return res;
-}
-/**
-* Scrypt KDF from RFC 7914. Async version. See {@link ScryptOpts}.
-* @example
-* await scryptAsync('password', 'salt', { N: 2**18, r: 8, p: 1, dkLen: 32 });
-*/
-async function scryptAsync(password, salt, opts) {
-	const { N, r, p, dkLen, blockSize32, V, B32, B, tmp, blockMixCb, asyncTick } = scryptInit(password, salt, opts);
-	swap32IfBE(B32);
-	for (let pi = 0; pi < p; pi++) {
-		const Pi = blockSize32 * pi;
-		for (let i = 0; i < blockSize32; i++) V[i] = B32[Pi + i];
-		let pos = 0;
-		await asyncLoop(N - 1, asyncTick, () => {
-			BlockMix(V, pos, V, pos += blockSize32, r);
-			blockMixCb();
-		});
-		BlockMix(V, (N - 1) * blockSize32, B32, Pi, r);
-		blockMixCb();
-		await asyncLoop(N, asyncTick, () => {
-			const j = (B32[Pi + blockSize32 - 16] & N - 1) >>> 0;
-			for (let k = 0; k < blockSize32; k++) tmp[k] = B32[Pi + k] ^ V[j * blockSize32 + k];
-			BlockMix(tmp, 0, B32, Pi, r);
-			blockMixCb();
-		});
-	}
-	swap32IfBE(B32);
-	return scryptOutput(password, dkLen, B, V, tmp);
-}
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/crypto/password.mjs
+//#region ../../node_modules/.pnpm/@better-auth+utils@0.4.2/node_modules/@better-auth/utils/dist/password.node.mjs
 var config = {
 	N: 16384,
 	r: 16,
 	p: 1,
 	dkLen: 64
 };
-async function generateKey(password, salt) {
-	return await scryptAsync(password.normalize("NFKC"), salt, {
-		N: config.N,
-		p: config.p,
-		r: config.r,
-		dkLen: config.dkLen,
-		maxmem: 128 * config.N * config.r * 2
+function generateKey(password, salt) {
+	return new Promise((resolve, reject) => {
+		scrypt(password.normalize("NFKC"), salt, config.dkLen, {
+			N: config.N,
+			r: config.r,
+			p: config.p,
+			maxmem: 128 * config.N * config.r * 2
+		}, (err, key) => {
+			if (err) reject(err);
+			else resolve(key);
+		});
 	});
 }
-var hashPassword = async (password) => {
-	const salt = hex.encode(crypto.getRandomValues(/* @__PURE__ */ new Uint8Array(16)));
-	const key = await generateKey(password, salt);
-	return `${salt}:${hex.encode(key)}`;
-};
-var verifyPassword$1 = async ({ hash, password }) => {
+async function hashPassword(password) {
+	const salt = randomBytes(16).toString("hex");
+	return `${salt}:${(await generateKey(password, salt)).toString("hex")}`;
+}
+async function verifyPassword$2(hash, password) {
 	const [salt, key] = hash.split(":");
-	if (!salt || !key) throw new BetterAuthError("Invalid password hash");
-	return constantTimeEqual(await generateKey(password, salt), hexToBytes$1(key));
+	if (!salt || !key) throw new Error("Invalid password hash");
+	return (await generateKey(password, salt)).toString("hex") === key;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/crypto/password.mjs
+/**
+* `@better-auth/utils/password` uses the "node" export condition in package.json
+* to automatically pick the right implementation:
+*   - Node.js / Bun / Deno → `node:crypto scrypt` (libuv thread pool, non-blocking)
+*   - Unsupported runtimes → `@noble/hashes scrypt` (pure JS fallback)
+*/
+var hashPassword$1 = hashPassword;
+var verifyPassword$1 = async ({ hash, password }) => {
+	return verifyPassword$2(hash, password);
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+utils@0.3.1/node_modules/@better-auth/utils/dist/base64.mjs
+//#region ../../node_modules/.pnpm/@better-auth+utils@0.4.2/node_modules/@better-auth/utils/dist/index.mjs
+function getWebcryptoSubtle() {
+	const cr = typeof globalThis !== "undefined" && globalThis.crypto;
+	if (cr && typeof cr.subtle === "object" && cr.subtle != null) return cr.subtle;
+	throw new Error("crypto.subtle must be defined");
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+utils@0.4.2/node_modules/@better-auth/utils/dist/base64.mjs
 function getAlphabet(urlSafe) {
 	return urlSafe ? "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_" : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 }
@@ -25271,15 +25000,8 @@ var base64Url = {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+utils@0.3.1/node_modules/@better-auth/utils/dist/index.mjs
-function getWebcryptoSubtle() {
-	const cr = typeof globalThis !== "undefined" && globalThis.crypto;
-	if (cr && typeof cr.subtle === "object" && cr.subtle != null) return cr.subtle;
-	throw new Error("crypto.subtle must be defined");
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+utils@0.3.1/node_modules/@better-auth/utils/dist/hash.mjs
-function createHash(algorithm, encoding) {
+//#region ../../node_modules/.pnpm/@better-auth+utils@0.4.2/node_modules/@better-auth/utils/dist/hash.mjs
+function createHash$1(algorithm, encoding) {
 	return { digest: async (input) => {
 		const encoder = new TextEncoder();
 		const data = typeof input === "string" ? encoder.encode(input) : input;
@@ -25500,7 +25222,7 @@ function copyBytes(bytes) {
 	return Uint8Array.from(bytes);
 }
 /** Cryptographically secure PRNG. Uses internal OS-level `crypto.getRandomValues`. */
-function randomBytes(bytesLength = 32) {
+function randomBytes$1(bytesLength = 32) {
 	const cr = typeof globalThis === "object" ? globalThis.crypto : null;
 	if (typeof cr?.getRandomValues !== "function") throw new Error("crypto.getRandomValues must be defined");
 	return cr.getRandomValues(new Uint8Array(bytesLength));
@@ -25518,7 +25240,7 @@ function randomBytes(bytesLength = 32) {
 * const ciphr = gcm(key).encrypt(data);
 * const plain = gcm(key).decrypt(ciph);
 */
-function managedNonce(fn, randomBytes_ = randomBytes) {
+function managedNonce(fn, randomBytes_ = randomBytes$1) {
 	const { nonceLength } = fn;
 	anumber(nonceLength);
 	const addNonce = (nonce, ciphertext) => {
@@ -26223,7 +25945,7 @@ var xchacha20poly1305 = /* @__PURE__ */ wrapCipher({
 	tagLength: 16
 }, _poly1305_aead(xchacha20));
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/crypto/index.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/crypto/index.mjs
 var ENVELOPE_PREFIX = "$ba$";
 function parseEnvelope(data) {
 	if (!data.startsWith(ENVELOPE_PREFIX)) return null;
@@ -26241,12 +25963,12 @@ function formatEnvelope(version, ciphertext) {
 	return `${ENVELOPE_PREFIX}${version}$${ciphertext}`;
 }
 async function rawEncrypt(secret, data) {
-	const keyAsBytes = await createHash("SHA-256").digest(secret);
+	const keyAsBytes = await createHash$1("SHA-256").digest(secret);
 	const dataAsBytes = utf8ToBytes(data);
 	return bytesToHex(managedNonce(xchacha20poly1305)(new Uint8Array(keyAsBytes)).encrypt(dataAsBytes));
 }
 async function rawDecrypt(secret, hex) {
-	const keyAsBytes = await createHash("SHA-256").digest(secret);
+	const keyAsBytes = await createHash$1("SHA-256").digest(secret);
 	const dataAsBytes = hexToBytes(hex);
 	const chacha = managedNonce(xchacha20poly1305)(new Uint8Array(keyAsBytes));
 	return new TextDecoder().decode(chacha.decrypt(dataAsBytes));
@@ -26270,75 +25992,18 @@ var symmetricDecrypt = async ({ key, data }) => {
 	throw new Error("Cannot decrypt legacy bare-hex payload: no legacy secret available. Set BETTER_AUTH_SECRET for backwards compatibility.");
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/utils/date.mjs
-var getDate = (span, unit = "ms") => {
-	return new Date(Date.now() + (unit === "sec" ? span * 1e3 : span));
-};
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/context/store-capabilities.mjs
+function hasServerSessionStore(options) {
+	return !!options.database || !!options.secondaryStorage;
+}
+function hasServerAccountStore(options) {
+	return !!options.database;
+}
+function shouldBindAccountCookieToSessionUser(options) {
+	return hasServerAccountStore(options);
+}
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/db/schema/shared.mjs
-var coreSchema = z$1.object({
-	id: z$1.string(),
-	createdAt: z$1.date().default(() => /* @__PURE__ */ new Date()),
-	updatedAt: z$1.date().default(() => /* @__PURE__ */ new Date())
-});
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/db/schema/account.mjs
-var accountSchema = coreSchema.extend({
-	providerId: z$1.string(),
-	accountId: z$1.string(),
-	userId: z$1.coerce.string(),
-	accessToken: z$1.string().nullish(),
-	refreshToken: z$1.string().nullish(),
-	idToken: z$1.string().nullish(),
-	accessTokenExpiresAt: z$1.date().nullish(),
-	refreshTokenExpiresAt: z$1.date().nullish(),
-	scope: z$1.string().nullish(),
-	password: z$1.string().nullish()
-});
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/db/schema/rate-limit.mjs
-var rateLimitSchema = z$1.object({
-	key: z$1.string(),
-	count: z$1.number(),
-	lastRequest: z$1.number()
-});
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/db/schema/session.mjs
-var sessionSchema = coreSchema.extend({
-	userId: z$1.coerce.string(),
-	expiresAt: z$1.date(),
-	token: z$1.string(),
-	ipAddress: z$1.string().nullish(),
-	userAgent: z$1.string().nullish()
-});
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/db/schema/user.mjs
-var userSchema = coreSchema.extend({
-	email: z$1.string().transform((val) => val.toLowerCase()),
-	emailVerified: z$1.boolean().default(false),
-	name: z$1.string(),
-	image: z$1.string().nullish()
-});
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/db/schema/verification.mjs
-var verificationSchema = coreSchema.extend({
-	value: z$1.string(),
-	expiresAt: z$1.date(),
-	identifier: z$1.string()
-});
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/db/index.mjs
-var db_exports$1 = /* @__PURE__ */ __exportAll$1({
-	accountSchema: () => accountSchema,
-	coreSchema: () => coreSchema,
-	getAuthTables: () => getAuthTables,
-	rateLimitSchema: () => rateLimitSchema,
-	sessionSchema: () => sessionSchema,
-	userSchema: () => userSchema,
-	verificationSchema: () => verificationSchema
-});
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/utils/db.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/utils/db.mjs
 /**
 * Filters output data by removing fields with the `returned: false` attribute.
 * This ensures sensitive fields are not exposed in API responses.
@@ -26352,7 +26017,7 @@ function filterOutputFields(data, additionalFields) {
 	}), {});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/schema.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/db/schema.mjs
 var cache = /* @__PURE__ */ new WeakMap();
 function getFields(options, modelName, mode) {
 	const cacheKey = `${modelName}:${mode}`;
@@ -26374,6 +26039,31 @@ function getFields(options, modelName, mode) {
 }
 function parseUserOutput(options, user) {
 	return filterOutputFields(user, getFields(options, "user", "output"));
+}
+/**
+* Builds a synthetic user object that matches the shape of a real user
+* returned from the database. This ensures enumeration protection works
+* correctly by making synthetic and real user responses indistinguishable.
+*
+* The function iterates over the user output schema and:
+* - Includes all fields that should be returned (returned !== false)
+* - Uses provided values when available
+* - Sets optional fields to null when no value is provided
+* - Applies default values where defined
+* - Always includes the 'id' field (not part of schema but always present)
+*/
+function buildSyntheticUserOutput(options, data) {
+	const schema = getFields(options, "user", "output");
+	const result = {};
+	for (const key in schema) {
+		const fieldAttr = schema[key];
+		if (fieldAttr.returned === false) continue;
+		if (key in data && data[key] !== void 0) result[key] = data[key];
+		else if (fieldAttr.defaultValue !== void 0) result[key] = typeof fieldAttr.defaultValue === "function" ? fieldAttr.defaultValue() : fieldAttr.defaultValue;
+		else if (!fieldAttr.required) result[key] = null;
+	}
+	if ("id" in data) result.id = data.id;
+	return result;
 }
 function parseSessionOutput(options, session) {
 	return filterOutputFields(session, getFields(options, "session", "output"));
@@ -26439,12 +26129,17 @@ function parseUserInput(options, user = {}, action) {
 		action
 	});
 }
-function parseAdditionalUserInput(options, user) {
+function parseAdditionalUserInputFromProviderProfile(options, profile = {}, action) {
 	const schema = getFields(options, "user", "input");
-	return parseInputData(user || {}, { fields: schema });
-}
-function parseAccountInput(options, account) {
-	return parseInputData(account, { fields: getFields(options, "account", "input") });
+	const allowedProfileFields = Object.create(null);
+	for (const key of Object.keys(profile)) {
+		if (schema[key]?.input === false) continue;
+		allowedProfileFields[key] = profile[key];
+	}
+	return parseInputData(allowedProfileFields, {
+		fields: schema,
+		action
+	});
 }
 function parseSessionInput(options, session, action) {
 	return parseInputData(session, {
@@ -26458,218 +26153,18 @@ function getSessionDefaultFields(options) {
 	for (const key in fields) if (fields[key].defaultValue !== void 0) defaults[key] = typeof fields[key].defaultValue === "function" ? fields[key].defaultValue() : fields[key].defaultValue;
 	return defaults;
 }
-function mergeSchema(schema, newSchema) {
-	if (!newSchema) return schema;
-	for (const table in newSchema) {
-		const newModelName = newSchema[table]?.modelName;
-		if (newModelName) schema[table].modelName = newModelName;
-		for (const field in schema[table].fields) {
-			const newField = newSchema[table]?.fields?.[field];
-			if (!newField) continue;
-			schema[table].fields[field].fieldName = newField;
-		}
-	}
-	return schema;
-}
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/utils/is-promise.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/utils/date.mjs
+var getDate = (span, unit = "ms") => {
+	return new Date(Date.now() + (unit === "sec" ? span * 1e3 : span));
+};
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/utils/is-promise.mjs
 function isPromise(obj) {
 	return !!obj && (typeof obj === "object" || typeof obj === "function") && typeof obj.then === "function";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/cookies/session-store.mjs
-var ALLOWED_COOKIE_SIZE = 4096;
-var ESTIMATED_EMPTY_COOKIE_SIZE = 200;
-var CHUNK_SIZE = ALLOWED_COOKIE_SIZE - ESTIMATED_EMPTY_COOKIE_SIZE;
-/**
-* Parse cookies from the request headers
-*/
-function parseCookiesFromContext(ctx) {
-	const cookieHeader = ctx.headers?.get("cookie");
-	if (!cookieHeader) return {};
-	const cookies = {};
-	const pairs = cookieHeader.split("; ");
-	for (const pair of pairs) {
-		const [name, ...valueParts] = pair.split("=");
-		if (name && valueParts.length > 0) cookies[name] = valueParts.join("=");
-	}
-	return cookies;
-}
-/**
-* Extract the chunk index from a cookie name
-*/
-function getChunkIndex(cookieName) {
-	const parts = cookieName.split(".");
-	const lastPart = parts[parts.length - 1];
-	const index = parseInt(lastPart || "0", 10);
-	return isNaN(index) ? 0 : index;
-}
-/**
-* Read all existing chunks from cookies
-*/
-function readExistingChunks(cookieName, ctx) {
-	const chunks = {};
-	const cookies = parseCookiesFromContext(ctx);
-	for (const [name, value] of Object.entries(cookies)) if (name.startsWith(cookieName)) chunks[name] = value;
-	return chunks;
-}
-/**
-* Get the full session data by joining all chunks
-*/
-function joinChunks(chunks) {
-	return Object.keys(chunks).sort((a, b) => {
-		return getChunkIndex(a) - getChunkIndex(b);
-	}).map((key) => chunks[key]).join("");
-}
-/**
-* Split a cookie value into chunks if needed
-*/
-function chunkCookie(storeName, cookie, chunks, logger) {
-	const chunkCount = Math.ceil(cookie.value.length / CHUNK_SIZE);
-	if (chunkCount === 1) {
-		chunks[cookie.name] = cookie.value;
-		return [cookie];
-	}
-	const cookies = [];
-	for (let i = 0; i < chunkCount; i++) {
-		const name = `${cookie.name}.${i}`;
-		const start = i * CHUNK_SIZE;
-		const value = cookie.value.substring(start, start + CHUNK_SIZE);
-		cookies.push({
-			...cookie,
-			name,
-			value
-		});
-		chunks[name] = value;
-	}
-	logger.debug(`CHUNKING_${storeName.toUpperCase()}_COOKIE`, {
-		message: `${storeName} cookie exceeds allowed ${ALLOWED_COOKIE_SIZE} bytes.`,
-		emptyCookieSize: ESTIMATED_EMPTY_COOKIE_SIZE,
-		valueSize: cookie.value.length,
-		chunkCount,
-		chunks: cookies.map((c) => c.value.length + ESTIMATED_EMPTY_COOKIE_SIZE)
-	});
-	return cookies;
-}
-/**
-* Get all cookies that should be cleaned (removed)
-*/
-function getCleanCookies(chunks, cookieOptions) {
-	const cleanedChunks = {};
-	for (const name in chunks) cleanedChunks[name] = {
-		name,
-		value: "",
-		attributes: {
-			...cookieOptions,
-			maxAge: 0
-		}
-	};
-	return cleanedChunks;
-}
-/**
-* Create a session store for handling cookie chunking.
-* When session data exceeds 4KB, it automatically splits it into multiple cookies.
-*
-* Based on next-auth's SessionStore implementation.
-* @see https://github.com/nextauthjs/next-auth/blob/27b2519b84b8eb9cf053775dea29d577d2aa0098/packages/next-auth/src/core/lib/cookie.ts
-*/
-var storeFactory = (storeName) => (cookieName, cookieOptions, ctx) => {
-	const chunks = readExistingChunks(cookieName, ctx);
-	const logger = ctx.context.logger;
-	return {
-		getValue() {
-			return joinChunks(chunks);
-		},
-		hasChunks() {
-			return Object.keys(chunks).length > 0;
-		},
-		chunk(value, options) {
-			const cleanedChunks = getCleanCookies(chunks, cookieOptions);
-			for (const name in chunks) delete chunks[name];
-			const cookies = cleanedChunks;
-			const chunked = chunkCookie(storeName, {
-				name: cookieName,
-				value,
-				attributes: {
-					...cookieOptions,
-					...options
-				}
-			}, chunks, logger);
-			for (const chunk of chunked) cookies[chunk.name] = chunk;
-			return Object.values(cookies);
-		},
-		clean() {
-			const cleanedChunks = getCleanCookies(chunks, cookieOptions);
-			for (const name in chunks) delete chunks[name];
-			return Object.values(cleanedChunks);
-		},
-		setCookies(cookies) {
-			for (const cookie of cookies) ctx.setCookie(cookie.name, cookie.value, cookie.attributes);
-		}
-	};
-};
-var createSessionStore = storeFactory("Session");
-var createAccountStore = storeFactory("Account");
-function getChunkedCookie(ctx, cookieName) {
-	const value = ctx.getCookie(cookieName);
-	if (value) return value;
-	const chunks = [];
-	const cookieHeader = ctx.headers?.get("cookie");
-	if (!cookieHeader) return null;
-	const cookies = {};
-	const pairs = cookieHeader.split("; ");
-	for (const pair of pairs) {
-		const [name, ...valueParts] = pair.split("=");
-		if (name && valueParts.length > 0) cookies[name] = valueParts.join("=");
-	}
-	for (const [name, val] of Object.entries(cookies)) if (name.startsWith(cookieName + ".")) {
-		const indexStr = name.split(".").at(-1);
-		const index = parseInt(indexStr || "0", 10);
-		if (!isNaN(index)) chunks.push({
-			index,
-			value: val
-		});
-	}
-	if (chunks.length > 0) {
-		chunks.sort((a, b) => a.index - b.index);
-		return chunks.map((c) => c.value).join("");
-	}
-	return null;
-}
-async function setAccountCookie(c, accountData) {
-	const accountDataCookie = c.context.authCookies.accountData;
-	const options = {
-		maxAge: 300,
-		...accountDataCookie.attributes
-	};
-	const data = await symmetricEncodeJWT(accountData, c.context.secretConfig, "better-auth-account", options.maxAge);
-	if (data.length > ALLOWED_COOKIE_SIZE) {
-		const accountStore = createAccountStore(accountDataCookie.name, options, c);
-		const cookies = accountStore.chunk(data, options);
-		accountStore.setCookies(cookies);
-	} else {
-		const accountStore = createAccountStore(accountDataCookie.name, options, c);
-		if (accountStore.hasChunks()) {
-			const cleanCookies = accountStore.clean();
-			accountStore.setCookies(cleanCookies);
-		}
-		c.setCookie(accountDataCookie.name, data, options);
-	}
-}
-async function getAccountCookie(c) {
-	const accountCookie = getChunkedCookie(c, c.context.authCookies.accountData.name);
-	if (accountCookie) {
-		const accountData = safeJSONParse(await symmetricDecodeJWT(accountCookie, c.context.secretConfig, "better-auth-account"));
-		if (accountData) return accountData;
-	}
-	return null;
-}
-var getSessionQuerySchema = z$1.optional(z$1.object({
-	disableCookieCache: z$1.coerce.boolean().meta({ description: "Disable cookie cache and fetch session from database" }).optional(),
-	disableRefresh: z$1.coerce.boolean().meta({ description: "Disable session refresh. Useful for checking session status, without updating the session" }).optional()
-}));
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/utils/time.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/utils/time.mjs
 var SEC = 1e3;
 var MIN = SEC * 60;
 var HOUR = MIN * 60;
@@ -26750,532 +26245,109 @@ function sec(value) {
 	return Math.round(parse(value) / 1e3);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/cookies/cookie-utils.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/cookies/cookie-utils.mjs
+function tryDecode$1(str) {
+	if (str.indexOf("%") === -1) return str;
+	try {
+		return decodeURIComponent(str);
+	} catch {
+		return str;
+	}
+}
 var SECURE_COOKIE_PREFIX = "__Secure-";
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+utils@0.3.1/node_modules/@better-auth/utils/dist/binary.mjs
-var decoders = /* @__PURE__ */ new Map();
-var binary = {
-	decode: (data, encoding = "utf-8") => {
-		if (!decoders.has(encoding)) decoders.set(encoding, new TextDecoder(encoding));
-		return decoders.get(encoding).decode(data);
-	},
-	encode: new TextEncoder().encode
-};
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+utils@0.3.1/node_modules/@better-auth/utils/dist/hmac.mjs
-var createHMAC = (algorithm = "SHA-256", encoding = "none") => {
-	const hmac = {
-		importKey: async (key, keyUsage) => {
-			return getWebcryptoSubtle().importKey("raw", typeof key === "string" ? new TextEncoder().encode(key) : key, {
-				name: "HMAC",
-				hash: { name: algorithm }
-			}, false, [keyUsage]);
-		},
-		sign: async (hmacKey, data) => {
-			if (typeof hmacKey === "string") hmacKey = await hmac.importKey(hmacKey, "sign");
-			const signature = await getWebcryptoSubtle().sign("HMAC", hmacKey, typeof data === "string" ? new TextEncoder().encode(data) : data);
-			if (encoding === "hex") return hex.encode(signature);
-			if (encoding === "base64" || encoding === "base64url" || encoding === "base64urlnopad") return base64Url.encode(signature, { padding: encoding !== "base64urlnopad" });
-			return signature;
-		},
-		verify: async (hmacKey, data, signature) => {
-			if (typeof hmacKey === "string") hmacKey = await hmac.importKey(hmacKey, "verify");
-			if (encoding === "hex") signature = hex.decode(signature);
-			if (encoding === "base64" || encoding === "base64url" || encoding === "base64urlnopad") signature = await base64.decode(signature);
-			return getWebcryptoSubtle().verify("HMAC", hmacKey, typeof signature === "string" ? new TextEncoder().encode(signature) : signature, typeof data === "string" ? new TextEncoder().encode(data) : data);
-		}
-	};
-	return hmac;
-};
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/cookies/index.mjs
-function createCookieGetter(options) {
-	const baseURLString = typeof options.baseURL === "string" ? options.baseURL : void 0;
-	const dynamicProtocol = typeof options.baseURL === "object" && options.baseURL !== null ? options.baseURL.protocol : void 0;
-	const secureCookiePrefix = (options.advanced?.useSecureCookies !== void 0 ? options.advanced?.useSecureCookies : dynamicProtocol === "https" ? true : dynamicProtocol === "http" ? false : baseURLString ? baseURLString.startsWith("https://") : isProduction) ? SECURE_COOKIE_PREFIX : "";
-	const crossSubdomainEnabled = !!options.advanced?.crossSubDomainCookies?.enabled;
-	const domain = crossSubdomainEnabled ? options.advanced?.crossSubDomainCookies?.domain || (baseURLString ? new URL(baseURLString).hostname : void 0) : void 0;
-	if (crossSubdomainEnabled && !domain && !isDynamicBaseURLConfig(options.baseURL)) throw new BetterAuthError("baseURL is required when crossSubdomainCookies are enabled.");
-	function createCookie(cookieName, overrideAttributes = {}) {
-		const prefix = options.advanced?.cookiePrefix || "better-auth";
-		const name = options.advanced?.cookies?.[cookieName]?.name || `${prefix}.${cookieName}`;
-		const attributes = options.advanced?.cookies?.[cookieName]?.attributes ?? {};
-		return {
-			name: `${secureCookiePrefix}${name}`,
-			attributes: {
-				secure: !!secureCookiePrefix,
-				sameSite: "lax",
-				path: "/",
-				httpOnly: true,
-				...crossSubdomainEnabled ? { domain } : {},
-				...options.advanced?.defaultCookieAttributes,
-				...overrideAttributes,
-				...attributes
+/**
+* Split a comma-joined `Set-Cookie` header string into individual cookies.
+*/
+function splitSetCookieHeader(setCookie) {
+	if (!setCookie) return [];
+	const result = [];
+	let start = 0;
+	let i = 0;
+	while (i < setCookie.length) {
+		if (setCookie[i] === ",") {
+			let j = i + 1;
+			while (j < setCookie.length && setCookie[j] === " ") j++;
+			while (j < setCookie.length && setCookie[j] !== "=" && setCookie[j] !== ";" && setCookie[j] !== ",") j++;
+			if (j < setCookie.length && setCookie[j] === "=") {
+				const part = setCookie.slice(start, i).trim();
+				if (part) result.push(part);
+				start = i + 1;
+				while (start < setCookie.length && setCookie[start] === " ") start++;
+				i = start;
+				continue;
 			}
-		};
-	}
-	return createCookie;
-}
-function getCookies(options) {
-	const createCookie = createCookieGetter(options);
-	const sessionToken = createCookie("session_token", { maxAge: options.session?.expiresIn || sec("7d") });
-	const sessionData = createCookie("session_data", { maxAge: options.session?.cookieCache?.maxAge || 300 });
-	const accountData = createCookie("account_data", { maxAge: options.session?.cookieCache?.maxAge || 300 });
-	const dontRememberToken = createCookie("dont_remember");
-	return {
-		sessionToken: {
-			name: sessionToken.name,
-			attributes: sessionToken.attributes
-		},
-		sessionData: {
-			name: sessionData.name,
-			attributes: sessionData.attributes
-		},
-		dontRememberToken: {
-			name: dontRememberToken.name,
-			attributes: dontRememberToken.attributes
-		},
-		accountData: {
-			name: accountData.name,
-			attributes: accountData.attributes
 		}
-	};
-}
-async function setCookieCache(ctx, session, dontRememberMe) {
-	if (!ctx.context.options.session?.cookieCache?.enabled) return;
-	const filteredSession = filterOutputFields(session.session, ctx.context.options.session?.additionalFields);
-	const filteredUser = parseUserOutput(ctx.context.options, session.user);
-	const versionConfig = ctx.context.options.session?.cookieCache?.version;
-	let version = "1";
-	if (versionConfig) {
-		if (typeof versionConfig === "string") version = versionConfig;
-		else if (typeof versionConfig === "function") {
-			const result = versionConfig(session.session, session.user);
-			version = isPromise(result) ? await result : result;
-		}
+		i++;
 	}
-	const sessionData = {
-		session: filteredSession,
-		user: filteredUser,
-		updatedAt: Date.now(),
-		version
-	};
-	const options = {
-		...ctx.context.authCookies.sessionData.attributes,
-		maxAge: dontRememberMe ? void 0 : ctx.context.authCookies.sessionData.attributes.maxAge
-	};
-	const expiresAtDate = getDate(options.maxAge || 60, "sec").getTime();
-	const strategy = ctx.context.options.session?.cookieCache?.strategy || "compact";
-	let data;
-	if (strategy === "jwe") data = await symmetricEncodeJWT(sessionData, ctx.context.secretConfig, "better-auth-session", options.maxAge || 300);
-	else if (strategy === "jwt") data = await signJWT(sessionData, ctx.context.secret, options.maxAge || 300);
-	else data = base64Url.encode(JSON.stringify({
-		session: sessionData,
-		expiresAt: expiresAtDate,
-		signature: await createHMAC("SHA-256", "base64urlnopad").sign(ctx.context.secret, JSON.stringify({
-			...sessionData,
-			expiresAt: expiresAtDate
-		}))
-	}), { padding: false });
-	if (data.length > 4093) {
-		const sessionStore = createSessionStore(ctx.context.authCookies.sessionData.name, options, ctx);
-		const cookies = sessionStore.chunk(data, options);
-		sessionStore.setCookies(cookies);
-	} else {
-		const sessionStore = createSessionStore(ctx.context.authCookies.sessionData.name, options, ctx);
-		if (sessionStore.hasChunks()) {
-			const cleanCookies = sessionStore.clean();
-			sessionStore.setCookies(cleanCookies);
-		}
-		ctx.setCookie(ctx.context.authCookies.sessionData.name, data, options);
-	}
-	if (ctx.context.options.account?.storeAccountCookie) {
-		const accountData = await getAccountCookie(ctx);
-		if (accountData) await setAccountCookie(ctx, accountData);
-	}
-}
-async function setSessionCookie(ctx, session, dontRememberMe, overrides) {
-	const dontRememberMeCookie = await ctx.getSignedCookie(ctx.context.authCookies.dontRememberToken.name, ctx.context.secret);
-	dontRememberMe = dontRememberMe !== void 0 ? dontRememberMe : !!dontRememberMeCookie;
-	const options = ctx.context.authCookies.sessionToken.attributes;
-	const maxAge = dontRememberMe ? void 0 : ctx.context.sessionConfig.expiresIn;
-	await ctx.setSignedCookie(ctx.context.authCookies.sessionToken.name, session.session.token, ctx.context.secret, {
-		...options,
-		maxAge,
-		...overrides
-	});
-	if (dontRememberMe) await ctx.setSignedCookie(ctx.context.authCookies.dontRememberToken.name, "true", ctx.context.secret, ctx.context.authCookies.dontRememberToken.attributes);
-	await setCookieCache(ctx, session, dontRememberMe);
-	ctx.context.setNewSession(session);
+	const last = setCookie.slice(start).trim();
+	if (last) result.push(last);
+	return result;
 }
 /**
-* Expires a cookie by setting `maxAge: 0` while preserving its attributes
+* Cookie-name token char set per RFC 7230 §3.2.6.
+*
+* @see https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.6
 */
-function expireCookie(ctx, cookie) {
-	ctx.setCookie(cookie.name, "", {
-		...cookie.attributes,
-		maxAge: 0
-	});
-}
-function deleteSessionCookie(ctx, skipDontRememberMe) {
-	expireCookie(ctx, ctx.context.authCookies.sessionToken);
-	expireCookie(ctx, ctx.context.authCookies.sessionData);
-	if (ctx.context.options.account?.storeAccountCookie) {
-		expireCookie(ctx, ctx.context.authCookies.accountData);
-		const accountStore = createAccountStore(ctx.context.authCookies.accountData.name, ctx.context.authCookies.accountData.attributes, ctx);
-		const cleanCookies = accountStore.clean();
-		accountStore.setCookies(cleanCookies);
-	}
-	if (ctx.context.oauthConfig.storeStateStrategy === "cookie") expireCookie(ctx, ctx.context.createAuthCookie("oauth_state"));
-	const sessionStore = createSessionStore(ctx.context.authCookies.sessionData.name, ctx.context.authCookies.sessionData.attributes, ctx);
-	const cleanCookies = sessionStore.clean();
-	sessionStore.setCookies(cleanCookies);
-	if (!skipDontRememberMe) expireCookie(ctx, ctx.context.authCookies.dontRememberToken);
-}
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/state.mjs
-var stateDataSchema = z$1.looseObject({
-	callbackURL: z$1.string(),
-	codeVerifier: z$1.string(),
-	errorURL: z$1.string().optional(),
-	newUserURL: z$1.string().optional(),
-	expiresAt: z$1.number(),
-	link: z$1.object({
-		email: z$1.string(),
-		userId: z$1.coerce.string()
-	}).optional(),
-	requestSignUp: z$1.boolean().optional()
-});
-var StateError = class extends BetterAuthError {
-	code;
-	details;
-	constructor(message, options) {
-		super(message, options);
-		this.code = options.code;
-		this.details = options.details;
-	}
-};
-async function generateGenericState(c, stateData, settings) {
-	const state = generateRandomString(32);
-	if (c.context.oauthConfig.storeStateStrategy === "cookie") {
-		const encryptedData = await symmetricEncrypt({
-			key: c.context.secretConfig,
-			data: JSON.stringify(stateData)
-		});
-		const stateCookie = c.context.createAuthCookie(settings?.cookieName ?? "oauth_state", { maxAge: 600 });
-		c.setCookie(stateCookie.name, encryptedData, stateCookie.attributes);
-		return {
-			state,
-			codeVerifier: stateData.codeVerifier
-		};
-	}
-	const stateCookie = c.context.createAuthCookie(settings?.cookieName ?? "state", { maxAge: 300 });
-	await c.setSignedCookie(stateCookie.name, state, c.context.secret, stateCookie.attributes);
-	const expiresAt = /* @__PURE__ */ new Date();
-	expiresAt.setMinutes(expiresAt.getMinutes() + 10);
-	const verification = await c.context.internalAdapter.createVerificationValue({
-		value: JSON.stringify(stateData),
-		identifier: state,
-		expiresAt
-	});
-	if (!verification) throw new StateError("Unable to create verification. Make sure the database adapter is properly working and there is a verification table in the database", { code: "state_generation_error" });
-	return {
-		state: verification.identifier,
-		codeVerifier: stateData.codeVerifier
-	};
-}
-async function parseGenericState(c, state, settings) {
-	const storeStateStrategy = c.context.oauthConfig.storeStateStrategy;
-	let parsedData;
-	if (storeStateStrategy === "cookie") {
-		const stateCookie = c.context.createAuthCookie(settings?.cookieName ?? "oauth_state");
-		const encryptedData = c.getCookie(stateCookie.name);
-		if (!encryptedData) throw new StateError("State mismatch: auth state cookie not found", {
-			code: "state_mismatch",
-			details: { state }
-		});
-		try {
-			const decryptedData = await symmetricDecrypt({
-				key: c.context.secretConfig,
-				data: encryptedData
-			});
-			parsedData = stateDataSchema.parse(JSON.parse(decryptedData));
-		} catch (error) {
-			throw new StateError("State invalid: Failed to decrypt or parse auth state", {
-				code: "state_invalid",
-				details: { state },
-				cause: error
-			});
-		}
-		expireCookie(c, stateCookie);
-	} else {
-		const data = await c.context.internalAdapter.findVerificationValue(state);
-		if (!data) throw new StateError("State mismatch: verification not found", {
-			code: "state_mismatch",
-			details: { state }
-		});
-		parsedData = stateDataSchema.parse(JSON.parse(data.value));
-		const stateCookie = c.context.createAuthCookie(settings?.cookieName ?? "state");
-		const stateCookieValue = await c.getSignedCookie(stateCookie.name, c.context.secret);
-		if (!c.context.oauthConfig.skipStateCookieCheck && (!stateCookieValue || stateCookieValue !== state)) throw new StateError("State mismatch: State not persisted correctly", {
-			code: "state_security_mismatch",
-			details: { state }
-		});
-		expireCookie(c, stateCookie);
-		await c.context.internalAdapter.deleteVerificationByIdentifier(state);
-	}
-	if (parsedData.expiresAt < Date.now()) throw new StateError("Invalid state: request expired", {
-		code: "state_mismatch",
-		details: { expiresAt: parsedData.expiresAt }
-	});
-	return parsedData;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/context/global.mjs
-var symbol = Symbol.for("better-auth:global");
-var bind = null;
-var __context = {};
-var __betterAuthVersion = "1.5.3";
+var cookieNameRegex = /^[\x21\x23-\x27\x2A\x2B\x2D\x2E\x30-\x39\x41-\x5A\x5E\x5F\x60\x61-\x7A\x7C\x7E]+$/;
 /**
-* We store context instance in the globalThis.
+* Cookie-value char set per RFC 6265 §4.1.1, plus space and comma.
 *
-* The reason we do this is that some bundlers, web framework, or package managers might
-* create multiple copies of BetterAuth in the same process intentionally or unintentionally.
-*
-* For example, yarn v1, Next.js, SSR, Vite...
-*
-* @internal
+* @see https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1
+* @see https://github.com/golang/go/issues/7243
 */
-function __getBetterAuthGlobal() {
-	if (!globalThis[symbol]) {
-		globalThis[symbol] = {
-			version: __betterAuthVersion,
-			epoch: 1,
-			context: __context
-		};
-		bind = globalThis[symbol];
-	}
-	bind = globalThis[symbol];
-	if (bind.version !== __betterAuthVersion) {
-		bind.version = __betterAuthVersion;
-		bind.epoch++;
-	}
-	return globalThis[symbol];
-}
-function getBetterAuthVersion() {
-	return __getBetterAuthGlobal().version;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/async_hooks/index.mjs
-var AsyncLocalStoragePromise = import(
-	/* @vite-ignore */
-	/* webpackIgnore: true */
-	"node:async_hooks"
-).then((mod) => mod.AsyncLocalStorage).catch((err) => {
-	if ("AsyncLocalStorage" in globalThis) return globalThis.AsyncLocalStorage;
-	if (typeof window !== "undefined") return null;
-	console.warn("[better-auth] Warning: AsyncLocalStorage is not available in this environment. Some features may not work as expected.");
-	console.warn("[better-auth] Please read more about this warning at https://better-auth.com/docs/installation#mount-handler");
-	console.warn("[better-auth] If you are using Cloudflare Workers, please see: https://developers.cloudflare.com/workers/configuration/compatibility-flags/#nodejs-compatibility-flag");
-	throw err;
-});
-async function getAsyncLocalStorage() {
-	const mod = await AsyncLocalStoragePromise;
-	if (mod === null) throw new Error("getAsyncLocalStorage is only available in server code");
-	else return mod;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/context/endpoint-context.mjs
-var ensureAsyncStorage$2 = async () => {
-	const betterAuthGlobal = __getBetterAuthGlobal();
-	if (!betterAuthGlobal.context.endpointContextAsyncStorage) {
-		const AsyncLocalStorage = await getAsyncLocalStorage();
-		betterAuthGlobal.context.endpointContextAsyncStorage = new AsyncLocalStorage();
-	}
-	return betterAuthGlobal.context.endpointContextAsyncStorage;
-};
-async function getCurrentAuthContext() {
-	const context = (await ensureAsyncStorage$2()).getStore();
-	if (!context) throw new Error("No auth context found. Please make sure you are calling this function within a `runWithEndpointContext` callback.");
-	return context;
-}
-async function runWithEndpointContext(context, fn) {
-	return (await ensureAsyncStorage$2()).run(context, fn);
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/context/request-state.mjs
-var ensureAsyncStorage$1 = async () => {
-	const betterAuthGlobal = __getBetterAuthGlobal();
-	if (!betterAuthGlobal.context.requestStateAsyncStorage) {
-		const AsyncLocalStorage = await getAsyncLocalStorage();
-		betterAuthGlobal.context.requestStateAsyncStorage = new AsyncLocalStorage();
-	}
-	return betterAuthGlobal.context.requestStateAsyncStorage;
-};
-async function hasRequestState() {
-	return (await ensureAsyncStorage$1()).getStore() !== void 0;
-}
-async function getCurrentRequestState() {
-	const store = (await ensureAsyncStorage$1()).getStore();
-	if (!store) throw new Error("No request state found. Please make sure you are calling this function within a `runWithRequestState` callback.");
-	return store;
-}
-async function runWithRequestState(store, fn) {
-	return (await ensureAsyncStorage$1()).run(store, fn);
-}
-function defineRequestState(initFn) {
-	const ref = Object.freeze({});
-	return {
-		get ref() {
-			return ref;
-		},
-		async get() {
-			const store = await getCurrentRequestState();
-			if (!store.has(ref)) {
-				const initialValue = await initFn();
-				store.set(ref, initialValue);
-				return initialValue;
-			}
-			return store.get(ref);
-		},
-		async set(value) {
-			(await getCurrentRequestState()).set(ref, value);
-		}
-	};
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/context/transaction.mjs
-var ensureAsyncStorage = async () => {
-	const betterAuthGlobal = __getBetterAuthGlobal();
-	if (!betterAuthGlobal.context.adapterAsyncStorage) {
-		const AsyncLocalStorage = await getAsyncLocalStorage();
-		betterAuthGlobal.context.adapterAsyncStorage = new AsyncLocalStorage();
-	}
-	return betterAuthGlobal.context.adapterAsyncStorage;
-};
-var getCurrentAdapter = async (fallback) => {
-	return ensureAsyncStorage().then((als) => {
-		return als.getStore()?.adapter || fallback;
-	}).catch(() => {
-		return fallback;
-	});
-};
-var runWithAdapter = async (adapter, fn) => {
-	let called = false;
-	return ensureAsyncStorage().then(async (als) => {
-		called = true;
-		const pendingHooks = [];
-		let result;
-		let error;
-		let hasError = false;
-		try {
-			result = await als.run({
-				adapter,
-				pendingHooks
-			}, fn);
-		} catch (err) {
-			error = err;
-			hasError = true;
-		}
-		for (const hook of pendingHooks) await hook();
-		if (hasError) throw error;
-		return result;
-	}).catch((err) => {
-		if (!called) return fn();
-		throw err;
-	});
-};
-var runWithTransaction = async (adapter, fn) => {
-	let called = true;
-	return ensureAsyncStorage().then(async (als) => {
-		called = true;
-		const pendingHooks = [];
-		let result;
-		let error;
-		let hasError = false;
-		try {
-			result = await adapter.transaction(async (trx) => {
-				return als.run({
-					adapter: trx,
-					pendingHooks
-				}, fn);
-			});
-		} catch (e) {
-			hasError = true;
-			error = e;
-		}
-		for (const hook of pendingHooks) await hook();
-		if (hasError) throw error;
-		return result;
-	}).catch((err) => {
-		if (!called) return fn();
-		throw err;
-	});
-};
+var cookieValueRegex = /^[\x20\x21\x23-\x3A\x3C-\x5B\x5D-\x7E]*$/;
 /**
-* Queue a hook to be executed after the current transaction commits.
-* If not in a transaction, the hook will execute immediately.
+* Strip surrounding double-quotes per RFC 6265 §4.1.1 quoted-string form.
+*
+* @see https://datatracker.ietf.org/doc/html/rfc6265#section-4.1.1
 */
-var queueAfterTransactionHook = async (hook) => {
-	return ensureAsyncStorage().then((als) => {
-		const store = als.getStore();
-		if (store) store.pendingHooks.push(hook);
-		else return hook();
-	}).catch(() => {
-		return hook();
-	});
-};
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/state/oauth.mjs
-var { get: getOAuthState, set: setOAuthState } = defineRequestState(() => null);
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/oauth2/state.mjs
-async function generateState(c, link, additionalData) {
-	const callbackURL = c.body?.callbackURL || c.context.options.baseURL;
-	if (!callbackURL) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.CALLBACK_URL_REQUIRED);
-	const codeVerifier = generateRandomString(128);
-	const stateData = {
-		...additionalData ? additionalData : {},
-		callbackURL,
-		codeVerifier,
-		errorURL: c.body?.errorCallbackURL,
-		newUserURL: c.body?.newUserCallbackURL,
-		link,
-		expiresAt: Date.now() + 600 * 1e3,
-		requestSignUp: c.body?.requestSignUp
-	};
-	await setOAuthState(stateData);
-	try {
-		return generateGenericState(c, stateData);
-	} catch (error) {
-		c.context.logger.error("Failed to create verification", error);
-		throw new APIError("INTERNAL_SERVER_ERROR", {
-			message: "Unable to create verification",
-			cause: error
-		});
-	}
+function unquoteCookieValue(value) {
+	if (value.length < 2 || !value.startsWith("\"") || !value.endsWith("\"")) return value;
+	return value.slice(1, -1);
 }
-async function parseState(c) {
-	const state = c.query.state || c.body.state;
-	const errorURL = c.context.options.onAPIError?.errorURL || `${c.context.baseURL}/error`;
-	let parsedData;
-	try {
-		parsedData = await parseGenericState(c, state);
-	} catch (error) {
-		c.context.logger.error("Failed to parse state", error);
-		if (error instanceof StateError && error.code === "state_security_mismatch") throw c.redirect(`${errorURL}?error=state_mismatch`);
-		throw c.redirect(`${errorURL}?error=please_restart_the_process`);
+/**
+* Trim leading/trailing OWS (space / horizontal tab) per RFC 7230 §3.2.3.
+* Narrower than `String.prototype.trim()`, which strips CR/LF and other
+* whitespace and would let CTLs escape `cookieValueRegex`.
+*
+* @see https://datatracker.ietf.org/doc/html/rfc7230#section-3.2.3
+*/
+function trimOWS(s) {
+	let start = 0;
+	let end = s.length;
+	while (start < end) {
+		const c = s.charCodeAt(start);
+		if (c !== 32 && c !== 9) break;
+		start++;
 	}
-	if (!parsedData.errorURL) parsedData.errorURL = errorURL;
-	if (parsedData) await setOAuthState(parsedData);
-	return parsedData;
+	while (end > start) {
+		const c = s.charCodeAt(end - 1);
+		if (c !== 32 && c !== 9) break;
+		end--;
+	}
+	return start === 0 && end === s.length ? s : s.slice(start, end);
+}
+/**
+* Tolerates `;` separators without the SP that RFC 6265 §4.2.1 mandates,
+* since proxies and runtimes commonly strip it. Silently drops entries
+* whose name violates RFC 7230 token or whose value violates RFC 6265
+* cookie-octet (plus space and comma). Strips optional surrounding
+* double-quotes per RFC 6265 §4.1.1.
+*/
+function parseCookies$1(cookie) {
+	const cookieMap = /* @__PURE__ */ new Map();
+	if (cookie.length < 2) return cookieMap;
+	for (const chunk of cookie.split(";")) {
+		const eq = chunk.indexOf("=");
+		if (eq === -1) continue;
+		const key = trimOWS(chunk.slice(0, eq));
+		const val = unquoteCookieValue(trimOWS(chunk.slice(eq + 1)));
+		if (cookieNameRegex.test(key) && cookieValueRegex.test(val)) cookieMap.set(key, tryDecode$1(val));
+	}
+	return cookieMap;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/utils/hide-metadata.mjs
-var HIDE_METADATA = { scope: "server" };
-//#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/utils.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/utils.mjs
 var jsonContentTypeRegex = /^application\/([a-z0-9.+-]*\+)?json/i;
 async function getBody(request, allowedMediaTypes) {
 	const contentType = request.headers.get("content-type") || "";
@@ -27297,7 +26369,15 @@ async function getBody(request, allowedMediaTypes) {
 			});
 		}
 	}
-	if (jsonContentTypeRegex.test(normalizedContentType)) return await request.json();
+	if (jsonContentTypeRegex.test(normalizedContentType)) try {
+		return await request.json();
+	} catch (e) {
+		if (e instanceof SyntaxError) throw new APIError$1(400, {
+			message: "Invalid JSON in request body",
+			code: "BAD_REQUEST"
+		});
+		throw e;
+	}
 	if (normalizedContentType.includes("application/x-www-form-urlencoded")) {
 		const formData = await request.formData();
 		const result = {};
@@ -27352,7 +26432,7 @@ function isRequest(obj) {
 	return obj instanceof Request || Object.prototype.toString.call(obj) === "[object Request]";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/to-response.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/to-response.mjs
 function isJSONSerializable(value) {
 	if (value === void 0) return false;
 	const t = typeof value;
@@ -27362,29 +26442,97 @@ function isJSONSerializable(value) {
 	if (value.buffer) return false;
 	return value.constructor && value.constructor.name === "Object" || typeof value.toJSON === "function";
 }
-function safeStringify(obj, replacer, space) {
+function safeStringify(obj) {
+	const parents = /* @__PURE__ */ new WeakMap();
+	const ids = /* @__PURE__ */ new WeakMap();
 	let id = 0;
-	const seen = /* @__PURE__ */ new WeakMap();
-	const safeReplacer = (key, value) => {
+	const isAncestor = (value, holder) => {
+		let curr = holder;
+		while (curr) {
+			if (curr === value) return true;
+			curr = parents.get(curr);
+		}
+		return false;
+	};
+	return JSON.stringify(obj, function(_key, value) {
 		if (typeof value === "bigint") return value.toString();
 		if (typeof value === "object" && value !== null) {
-			if (seen.has(value)) return `[Circular ref-${seen.get(value)}]`;
-			seen.set(value, id++);
+			if (isAncestor(value, this)) return `[Circular ref-${ids.get(value)}]`;
+			parents.set(value, this);
+			if (!ids.has(value)) ids.set(value, id++);
 		}
-		if (replacer) return replacer(key, value);
 		return value;
-	};
-	return JSON.stringify(obj, safeReplacer, space);
+	});
 }
 function isJSONResponse(value) {
 	if (!value || typeof value !== "object") return false;
 	return "_flag" in value && value._flag === "json";
 }
+/**
+* Headers that MUST be stripped when building an HTTP response from
+* arbitrary header input. These are request-only, hop-by-hop, or
+* transport-managed headers that cause protocol violations when present
+* on responses (e.g. Content-Length mismatch → net::ERR_CONTENT_LENGTH_MISMATCH).
+*
+* Sources:
+*   - RFC 9110 §10.1   (Request Context Fields)
+*   - RFC 9110 §7.6.1  (Connection / hop-by-hop)
+*   - RFC 9110 §11.6-7 (Authentication credentials)
+*   - RFC 9110 §12.5   (Content negotiation)
+*   - RFC 9110 §13.1   (Conditional request headers)
+*   - RFC 9110 §14.2   (Range requests)
+*   - RFC 6265 §5.4    (Cookie)
+*   - RFC 6454         (Origin)
+*/
+var REQUEST_ONLY_HEADERS = /* @__PURE__ */ new Set([
+	"host",
+	"user-agent",
+	"referer",
+	"from",
+	"expect",
+	"authorization",
+	"proxy-authorization",
+	"cookie",
+	"origin",
+	"accept-charset",
+	"accept-encoding",
+	"accept-language",
+	"if-match",
+	"if-none-match",
+	"if-modified-since",
+	"if-unmodified-since",
+	"if-range",
+	"range",
+	"max-forwards",
+	"connection",
+	"keep-alive",
+	"transfer-encoding",
+	"te",
+	"upgrade",
+	"trailer",
+	"proxy-connection",
+	"content-length"
+]);
+function stripRequestOnlyHeaders(headers) {
+	for (const name of REQUEST_ONLY_HEADERS) headers.delete(name);
+}
+/**
+* Copy headers from `source` into `target`. `Set-Cookie` is appended (one
+* header per cookie) because RFC 9110 §5.3 notes it cannot be combined
+* into a single comma-separated value; other headers are set (replace).
+*/
+function copyHeaders(target, source) {
+	if (!source) return;
+	for (const [key, value] of new Headers(source).entries()) if (key.toLowerCase() === "set-cookie") target.append(key, value);
+	else target.set(key, value);
+}
 function toResponse(data, init) {
 	if (data instanceof Response) {
-		if (init?.headers instanceof Headers) init.headers.forEach((value, key) => {
-			data.headers.set(key, value);
-		});
+		if (init?.headers) {
+			const safeHeaders = new Headers(init.headers);
+			stripRequestOnlyHeaders(safeHeaders);
+			copyHeaders(data.headers, safeHeaders);
+		}
 		return data;
 	}
 	if (isJSONResponse(data)) {
@@ -27392,12 +26540,13 @@ function toResponse(data, init) {
 		const routerResponse = data.routerResponse;
 		if (routerResponse instanceof Response) return routerResponse;
 		const headers = new Headers();
-		if (routerResponse?.headers) {
-			const headers = new Headers(routerResponse.headers);
-			for (const [key, value] of headers.entries()) headers.set(key, value);
+		copyHeaders(headers, routerResponse?.headers);
+		copyHeaders(headers, data.headers);
+		if (init?.headers) {
+			const safeHeaders = new Headers(init.headers);
+			stripRequestOnlyHeaders(safeHeaders);
+			copyHeaders(headers, safeHeaders);
 		}
-		if (data.headers) for (const [key, value] of new Headers(data.headers).entries()) headers.set(key, value);
-		if (init?.headers) for (const [key, value] of new Headers(init.headers).entries()) headers.set(key, value);
 		headers.set("Content-Type", "application/json");
 		return new Response(JSON.stringify(body), {
 			...routerResponse,
@@ -27412,7 +26561,8 @@ function toResponse(data, init) {
 		headers: init?.headers || data.headers
 	});
 	let body = data;
-	let headers = new Headers(init?.headers);
+	const headers = new Headers(init?.headers);
+	stripRequestOnlyHeaders(headers);
 	if (!data) {
 		if (data === null) body = JSON.stringify(null);
 		headers.set("content-type", "application/json");
@@ -27442,7 +26592,7 @@ function toResponse(data, init) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/crypto.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/crypto.mjs
 var algorithm = {
 	name: "HMAC",
 	hash: "SHA-256"
@@ -27473,7 +26623,7 @@ var signCookieValue = async (value, secret) => {
 	return value;
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/cookies.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/cookies.mjs
 var getCookieKey = (key, prefix) => {
 	let finalKey = key;
 	if (prefix) if (prefix === "secure") finalKey = "__Secure-" + key;
@@ -27551,7 +26701,7 @@ var serializeSignedCookie = async (key, value, secret, opt) => {
 	return _serialize(key, value, opt);
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/validator.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/validator.mjs
 /**
 * Runs validation on body and query
 * @returns error and data object
@@ -27605,7 +26755,7 @@ function fromError(error, validating) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/context.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/context.mjs
 var createInternalContext = async (context, { options, path }) => {
 	const headers = new Headers();
 	let responseStatus = void 0;
@@ -27699,7 +26849,7 @@ var createInternalContext = async (context, { options, path }) => {
 	return internalContext;
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/endpoint.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/endpoint.mjs
 function createEndpoint(pathOrOptions, handlerOrOptions, handlerOrNever) {
 	const path = typeof pathOrOptions === "string" ? pathOrOptions : void 0;
 	const options = typeof handlerOrOptions === "object" ? handlerOrOptions : pathOrOptions;
@@ -27761,7 +26911,7 @@ createEndpoint.create = (opts) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/middleware.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/middleware.mjs
 function createMiddleware(optionsOrHandler, handler) {
 	const internalHandler = async (inputCtx) => {
 		const context = inputCtx;
@@ -27781,7 +26931,7 @@ function createMiddleware(optionsOrHandler, handler) {
 		} catch (e) {
 			if (isAPIError$1(e)) Object.defineProperty(e, kAPIErrorHeaderSymbol, {
 				enumerable: false,
-				configurable: false,
+				configurable: true,
 				get() {
 					return internalContext.responseHeaders;
 				}
@@ -27805,7 +26955,7 @@ createMiddleware.create = (opts) => {
 	return fn;
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/openapi.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/openapi.mjs
 var paths = {};
 function getTypeFromZodType(zodType) {
 	switch (zodType.constructor.name) {
@@ -28193,7 +27343,7 @@ function _findAll(ctx, node, method, segments, index, matches = []) {
 	return matches;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/router.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/router.mjs
 var createRouter$1 = (endpoints, config) => {
 	if (!config?.openapi?.disabled) {
 		const openapi = {
@@ -28214,19 +27364,19 @@ var createRouter$1 = (endpoints, config) => {
 		for (const method of methods) addRoute(router, method, endpoint.path, endpoint);
 	}
 	if (config?.routerMiddleware?.length) for (const { path, middleware } of config.routerMiddleware) addRoute(middlewareRouter, "*", path, middleware);
+	const basePath = config?.basePath && config.basePath !== "/" ? config.basePath.replace(/\/+$/, "") : "";
 	const processRequest = async (request) => {
 		const url = new URL(request.url);
 		const pathname = url.pathname;
-		const path = config?.basePath && config.basePath !== "/" ? pathname.split(config.basePath).reduce((acc, curr, index) => {
-			if (index !== 0) if (index > 1) acc.push(`${config.basePath}${curr}`);
-			else acc.push(curr);
-			return acc;
-		}, []).join("") : url.pathname;
-		if (!path?.length) return new Response(null, {
-			status: 404,
-			statusText: "Not Found"
-		});
-		if (/\/{2,}/.test(path)) return new Response(null, {
+		let path;
+		if (basePath) {
+			if (!pathname.startsWith(`${basePath}/`)) return new Response(null, {
+				status: 404,
+				statusText: "Not Found"
+			});
+			path = pathname.slice(basePath.length);
+		} else path = pathname;
+		if (path.length === 0 || /\/{2,}/.test(path)) return new Response(null, {
 			status: 404,
 			statusText: "Not Found"
 		});
@@ -28301,12 +27451,794 @@ var createRouter$1 = (endpoints, config) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/utils/is-api-error.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/cookies/session-store.mjs
+/**
+* Per-cookie byte ceiling.
+* Safari's ~4093 floor is the lowest among browsers.
+* Kept a little under it for attributes added after sizing.
+*
+* @see https://datatracker.ietf.org/doc/html/rfc6265#section-6.1
+* @see https://github.com/dotnet/aspnetcore/blob/aa5493528640932601bb82ef3295e4d8ca7e11c5/src/Shared/ChunkingCookieManager/ChunkingCookieManager.cs#L40
+*/
+var MAX_COOKIE_SIZE = 4050;
+/**
+* Max chunks per cookie.
+* A larger value does not belong in a cookie.
+*/
+var MAX_COOKIE_CHUNKS = 100;
+/**
+* Largest value that keeps the serialized cookie within {@link MAX_COOKIE_SIZE},
+* measured with the real `serializeCookie` writer so it stays in sync with the
+* wire. Non-positive when the name and attributes alone overflow.
+*/
+function getMaxCookieValueSize(name, options) {
+	return MAX_COOKIE_SIZE - serializeCookie(name, "", { ...options }).length;
+}
+/**
+* Read all existing chunks from cookies
+*/
+function readExistingChunks(cookieName, ctx) {
+	const chunks = {};
+	const cookies = parseCookies$1(ctx.headers?.get("cookie") || "");
+	for (const [name, value] of cookies) if (name.startsWith(cookieName)) chunks[name] = value;
+	return chunks;
+}
+/**
+* Split a cookie value into chunks if needed
+*/
+function chunkCookie(storeName, cookie, chunks, logger) {
+	const chunkSize = getMaxCookieValueSize(`${cookie.name}.${MAX_COOKIE_CHUNKS - 1}`, cookie.attributes);
+	const chunkCount = chunkSize > 0 ? Math.ceil(cookie.value.length / chunkSize) : Infinity;
+	if (chunkCount <= 1) {
+		chunks[cookie.name] = cookie.value;
+		return [cookie];
+	}
+	if (chunkCount > MAX_COOKIE_CHUNKS) {
+		logger.warn(`${storeName} cookie is too large to store even after chunking, so the cache was skipped. Reduce the cached data or use a database session.`);
+		return [];
+	}
+	const cookies = [];
+	for (let i = 0; i < chunkCount; i++) {
+		const name = `${cookie.name}.${i}`;
+		const start = i * chunkSize;
+		const value = cookie.value.substring(start, start + chunkSize);
+		cookies.push({
+			...cookie,
+			name,
+			value
+		});
+		chunks[name] = value;
+	}
+	logger.debug(`CHUNKING_${storeName.toUpperCase()}_COOKIE`, {
+		message: `${storeName} cookie exceeds the ${MAX_COOKIE_SIZE} byte limit and was split into ${chunkCount} chunks.`,
+		valueSize: cookie.value.length,
+		chunkCount,
+		chunkSizes: cookies.map((c) => c.value.length)
+	});
+	return cookies;
+}
+/**
+* Get all cookies that should be cleaned (removed)
+*/
+function getCleanCookies(chunks, cookieOptions) {
+	const cleanedChunks = {};
+	for (const name in chunks) cleanedChunks[name] = {
+		name,
+		value: "",
+		attributes: {
+			...cookieOptions,
+			maxAge: 0
+		}
+	};
+	return cleanedChunks;
+}
+/**
+* Store that splits a cookie into numbered chunks when its serialized form
+* would exceed the per-cookie byte limit, expiring stale chunks as needed.
+*
+* @see https://github.com/nextauthjs/next-auth/blob/27b2519b84b8eb9cf053775dea29d577d2aa0098/packages/next-auth/src/core/lib/cookie.ts
+*/
+var storeFactory = (storeName) => (cookieName, cookieOptions, ctx) => {
+	const chunks = readExistingChunks(cookieName, ctx);
+	const logger = ctx.context.logger;
+	const expireExistingChunks = () => {
+		const expired = getCleanCookies(chunks, cookieOptions);
+		for (const name in chunks) delete chunks[name];
+		return expired;
+	};
+	return {
+		chunk(value, options) {
+			const cookies = expireExistingChunks();
+			const chunked = chunkCookie(storeName, {
+				name: cookieName,
+				value,
+				attributes: {
+					...cookieOptions,
+					...options
+				}
+			}, chunks, logger);
+			for (const chunk of chunked) cookies[chunk.name] = chunk;
+			return Object.values(cookies);
+		},
+		clean() {
+			return Object.values(expireExistingChunks());
+		},
+		setCookies(cookies) {
+			for (const cookie of cookies) ctx.setCookie(cookie.name, cookie.value, cookie.attributes);
+		}
+	};
+};
+var createSessionStore = storeFactory("Session");
+var createAccountStore = storeFactory("Account");
+function getChunkedCookie(ctx, cookieName) {
+	const value = ctx.getCookie(cookieName);
+	if (value) return value;
+	const chunks = [];
+	const cookieHeader = ctx.headers?.get("cookie");
+	if (!cookieHeader) return null;
+	for (const [name, val] of parseCookies$1(cookieHeader)) if (name.startsWith(cookieName + ".")) {
+		const indexStr = name.split(".").at(-1);
+		const index = parseInt(indexStr || "0", 10);
+		if (!isNaN(index)) chunks.push({
+			index,
+			value: val
+		});
+	}
+	if (chunks.length > 0) {
+		chunks.sort((a, b) => a.index - b.index);
+		return chunks.map((c) => c.value).join("");
+	}
+	return null;
+}
+async function setAccountCookie(c, accountData) {
+	const accountDataCookie = c.context.authCookies.accountData;
+	const options = {
+		maxAge: 300,
+		...accountDataCookie.attributes
+	};
+	const data = await symmetricEncodeJWT(accountData, c.context.secretConfig, "better-auth-account", options.maxAge);
+	const accountStore = createAccountStore(accountDataCookie.name, options, c);
+	accountStore.setCookies(accountStore.chunk(data, options));
+}
+async function getAccountCookie(c) {
+	const accountCookie = getChunkedCookie(c, c.context.authCookies.accountData.name);
+	if (accountCookie) {
+		const accountData = safeJSONParse(await symmetricDecodeJWT(accountCookie, c.context.secretConfig, "better-auth-account"));
+		if (accountData) return accountData;
+	}
+	return null;
+}
+var getSessionQuerySchema = z$1.optional(z$1.object({
+	/**
+	* If cookie cache is enabled, it will disable the cache
+	* and fetch the session from the database
+	*/
+	disableCookieCache: z$1.coerce.boolean().meta({ description: "Disable cookie cache and fetch session from database" }).optional(),
+	disableRefresh: z$1.coerce.boolean().meta({ description: "Disable session refresh. Useful for checking session status, without updating the session" }).optional()
+}));
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+utils@0.4.2/node_modules/@better-auth/utils/dist/binary.mjs
+var decoders = /* @__PURE__ */ new Map();
+var binary = {
+	decode: (data, encoding = "utf-8") => {
+		if (!decoders.has(encoding)) decoders.set(encoding, new TextDecoder(encoding));
+		return decoders.get(encoding).decode(data);
+	},
+	encode: new TextEncoder().encode
+};
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+utils@0.4.2/node_modules/@better-auth/utils/dist/hex.mjs
+var hexadecimal = "0123456789abcdef";
+var hex = {
+	encode: (data) => {
+		if (typeof data === "string") data = new TextEncoder().encode(data);
+		if (data.byteLength === 0) return "";
+		const buffer = new Uint8Array(data);
+		let result = "";
+		for (const byte of buffer) result += byte.toString(16).padStart(2, "0");
+		return result;
+	},
+	decode: (data) => {
+		if (!data) return "";
+		if (typeof data === "string") {
+			if (data.length % 2 !== 0) throw new Error("Invalid hexadecimal string");
+			if (!new RegExp(`^[${hexadecimal}]+$`).test(data)) throw new Error("Invalid hexadecimal string");
+			const result = new Uint8Array(data.length / 2);
+			for (let i = 0; i < data.length; i += 2) result[i / 2] = parseInt(data.slice(i, i + 2), 16);
+			return new TextDecoder().decode(result);
+		}
+		return new TextDecoder().decode(data);
+	}
+};
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+utils@0.4.2/node_modules/@better-auth/utils/dist/hmac.mjs
+var createHMAC = (algorithm = "SHA-256", encoding = "none") => {
+	const hmac = {
+		importKey: async (key, keyUsage) => {
+			return getWebcryptoSubtle().importKey("raw", typeof key === "string" ? new TextEncoder().encode(key) : key, {
+				name: "HMAC",
+				hash: { name: algorithm }
+			}, false, [keyUsage]);
+		},
+		sign: async (hmacKey, data) => {
+			if (typeof hmacKey === "string") hmacKey = await hmac.importKey(hmacKey, "sign");
+			const signature = await getWebcryptoSubtle().sign("HMAC", hmacKey, typeof data === "string" ? new TextEncoder().encode(data) : data);
+			if (encoding === "hex") return hex.encode(signature);
+			if (encoding === "base64" || encoding === "base64url" || encoding === "base64urlnopad") return base64Url.encode(signature, { padding: encoding !== "base64urlnopad" });
+			return signature;
+		},
+		verify: async (hmacKey, data, signature) => {
+			if (typeof hmacKey === "string") hmacKey = await hmac.importKey(hmacKey, "verify");
+			if (encoding === "hex") signature = hex.decode(signature);
+			if (encoding === "base64" || encoding === "base64url" || encoding === "base64urlnopad") signature = await base64.decode(signature);
+			return getWebcryptoSubtle().verify("HMAC", hmacKey, typeof signature === "string" ? new TextEncoder().encode(signature) : signature, typeof data === "string" ? new TextEncoder().encode(data) : data);
+		}
+	};
+	return hmac;
+};
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/cookies/index.mjs
+function createCookieGetter(options) {
+	const baseURLString = typeof options.baseURL === "string" ? options.baseURL : void 0;
+	const dynamicProtocol = typeof options.baseURL === "object" && options.baseURL !== null ? options.baseURL.protocol : void 0;
+	const secureCookiePrefix = (options.advanced?.useSecureCookies !== void 0 ? options.advanced?.useSecureCookies : dynamicProtocol === "https" ? true : dynamicProtocol === "http" ? false : baseURLString ? baseURLString.startsWith("https://") : isProduction) ? SECURE_COOKIE_PREFIX : "";
+	const crossSubdomainEnabled = !!options.advanced?.crossSubDomainCookies?.enabled;
+	const domain = crossSubdomainEnabled ? options.advanced?.crossSubDomainCookies?.domain || (baseURLString ? new URL(baseURLString).hostname : void 0) : void 0;
+	if (crossSubdomainEnabled && !domain && !isDynamicBaseURLConfig(options.baseURL)) throw new BetterAuthError("baseURL is required when crossSubdomainCookies are enabled.");
+	function createCookie(cookieName, overrideAttributes = {}) {
+		const prefix = options.advanced?.cookiePrefix || "better-auth";
+		const name = options.advanced?.cookies?.[cookieName]?.name || `${prefix}.${cookieName}`;
+		const attributes = options.advanced?.cookies?.[cookieName]?.attributes ?? {};
+		return {
+			name: `${secureCookiePrefix}${name}`,
+			attributes: {
+				secure: !!secureCookiePrefix,
+				sameSite: "lax",
+				path: "/",
+				httpOnly: true,
+				...crossSubdomainEnabled ? { domain } : {},
+				...options.advanced?.defaultCookieAttributes,
+				...overrideAttributes,
+				...attributes
+			}
+		};
+	}
+	return createCookie;
+}
+function getCookies(options) {
+	const createCookie = createCookieGetter(options);
+	const sessionToken = createCookie("session_token", { maxAge: options.session?.expiresIn || sec("7d") });
+	const sessionData = createCookie("session_data", { maxAge: options.session?.cookieCache?.maxAge || 300 });
+	const accountData = createCookie("account_data", { maxAge: options.session?.cookieCache?.maxAge || 300 });
+	const dontRememberToken = createCookie("dont_remember");
+	return {
+		sessionToken: {
+			name: sessionToken.name,
+			attributes: sessionToken.attributes
+		},
+		/**
+		* This cookie is used to store the session data in the cookie
+		* This is useful for when you want to cache the session in the cookie
+		*/
+		sessionData: {
+			name: sessionData.name,
+			attributes: sessionData.attributes
+		},
+		dontRememberToken: {
+			name: dontRememberToken.name,
+			attributes: dontRememberToken.attributes
+		},
+		accountData: {
+			name: accountData.name,
+			attributes: accountData.attributes
+		}
+	};
+}
+async function setCookieCache(ctx, session, dontRememberMe) {
+	if (!ctx.context.options.session?.cookieCache?.enabled) return;
+	const filteredSession = filterOutputFields(session.session, ctx.context.options.session?.additionalFields);
+	const filteredUser = parseUserOutput(ctx.context.options, session.user);
+	const versionConfig = ctx.context.options.session?.cookieCache?.version;
+	let version = "1";
+	if (versionConfig) {
+		if (typeof versionConfig === "string") version = versionConfig;
+		else if (typeof versionConfig === "function") {
+			const result = versionConfig(session.session, session.user);
+			version = isPromise(result) ? await result : result;
+		}
+	}
+	const sessionData = {
+		session: filteredSession,
+		user: filteredUser,
+		updatedAt: Date.now(),
+		version
+	};
+	const options = {
+		...ctx.context.authCookies.sessionData.attributes,
+		maxAge: dontRememberMe ? void 0 : ctx.context.authCookies.sessionData.attributes.maxAge
+	};
+	const expiresAtDate = getDate(options.maxAge || 60, "sec").getTime();
+	const strategy = ctx.context.options.session?.cookieCache?.strategy || "compact";
+	let data;
+	if (strategy === "jwe") data = await symmetricEncodeJWT(sessionData, ctx.context.secretConfig, "better-auth-session", options.maxAge || 300);
+	else if (strategy === "jwt") data = await signJWT(sessionData, ctx.context.secret, options.maxAge || 300);
+	else data = base64Url.encode(JSON.stringify({
+		session: sessionData,
+		expiresAt: expiresAtDate,
+		signature: await createHMAC("SHA-256", "base64urlnopad").sign(ctx.context.secret, JSON.stringify({
+			...sessionData,
+			expiresAt: expiresAtDate
+		}))
+	}), { padding: false });
+	const sessionStore = createSessionStore(ctx.context.authCookies.sessionData.name, options, ctx);
+	sessionStore.setCookies(sessionStore.chunk(data, options));
+	if (ctx.context.options.account?.storeAccountCookie && !hasPendingSetCookie(ctx, ctx.context.authCookies.accountData.name)) {
+		const accountData = await getAccountCookie(ctx);
+		if (accountData) if (!shouldBindAccountCookieToSessionUser(ctx.context.options) || accountData.userId === session.user.id) await setAccountCookie(ctx, accountData);
+		else {
+			expireCookie(ctx, ctx.context.authCookies.accountData);
+			const accountStore = createAccountStore(ctx.context.authCookies.accountData.name, ctx.context.authCookies.accountData.attributes, ctx);
+			accountStore.setCookies(accountStore.clean());
+		}
+	}
+}
+async function setSessionCookie(ctx, session, dontRememberMe, overrides) {
+	const dontRememberMeCookie = await ctx.getSignedCookie(ctx.context.authCookies.dontRememberToken.name, ctx.context.secret);
+	dontRememberMe = dontRememberMe !== void 0 ? dontRememberMe : !!dontRememberMeCookie;
+	const options = ctx.context.authCookies.sessionToken.attributes;
+	const maxAge = dontRememberMe ? void 0 : ctx.context.sessionConfig.expiresIn;
+	await ctx.setSignedCookie(ctx.context.authCookies.sessionToken.name, session.session.token, ctx.context.secret, {
+		...options,
+		maxAge,
+		...overrides
+	});
+	if (dontRememberMe) await ctx.setSignedCookie(ctx.context.authCookies.dontRememberToken.name, "true", ctx.context.secret, ctx.context.authCookies.dontRememberToken.attributes);
+	await setCookieCache(ctx, session, dontRememberMe);
+	ctx.context.setNewSession(session);
+}
+/**
+* Remove any prior `Set-Cookie` entries on the current response whose cookie
+* name matches `cookieName` or any chunked variant (`${cookieName}.0`, etc.).
+*
+* Prevents a valid cookie value from leaking on the wire when the same cookie
+* is set and then expired within a single request (e.g. `/sign-in/email`
+* writes credential session cookies and the 2FA after-hook expires them).
+* Browsers honor the expiring entry, but anything reading the raw response
+* headers — proxy/LB logs, server-side SDK consumers, observability tools —
+* sees the earlier valid value and could replay it (bypassing the 2FA gate
+* when the cookie cache is enabled).
+*
+* Scrubs both the local middleware scope's `responseHeaders` and the outer
+* endpoint scope's `ctx.context.responseHeaders`, because plugin after-hooks
+* run in a fresh local scope while accumulated response headers live on the
+* outer one. `scoped.context` is required by {@link GenericEndpointContext}
+* but unit-test mocks pass a minimal object via `as any`, so we use optional
+* chaining defensively. The `Set` collapses the case where both scopes
+* reference the same `Headers`.
+*/
+function removeSetCookieEntries(ctx, cookieName) {
+	const scoped = ctx;
+	const targets = /* @__PURE__ */ new Set();
+	if (scoped.responseHeaders) targets.add(scoped.responseHeaders);
+	if (scoped.context?.responseHeaders) targets.add(scoped.context.responseHeaders);
+	const exact = `${cookieName}=`;
+	const chunk = `${cookieName}.`;
+	for (const headers of targets) {
+		const existing = typeof headers.getSetCookie === "function" ? headers.getSetCookie() : splitSetCookieHeader(headers.get("set-cookie") || "");
+		if (!existing.length) continue;
+		const survivors = existing.filter((entry) => !entry.startsWith(exact) && !entry.startsWith(chunk));
+		if (survivors.length === existing.length) continue;
+		headers.delete("set-cookie");
+		for (const entry of survivors) headers.append("set-cookie", entry);
+	}
+}
+/**
+* Whether the response already has a pending `Set-Cookie` for `cookieName`
+* or a chunked variant.
+*/
+function hasPendingSetCookie(ctx, cookieName) {
+	const scoped = ctx;
+	const targets = /* @__PURE__ */ new Set();
+	if (scoped.responseHeaders) targets.add(scoped.responseHeaders);
+	if (scoped.context?.responseHeaders) targets.add(scoped.context.responseHeaders);
+	const exact = `${cookieName}=`;
+	const chunk = `${cookieName}.`;
+	for (const headers of targets) if ((typeof headers.getSetCookie === "function" ? headers.getSetCookie() : splitSetCookieHeader(headers.get("set-cookie") || "")).some((entry) => entry.startsWith(exact) || entry.startsWith(chunk))) return true;
+	return false;
+}
+/**
+* Expires a cookie by setting `maxAge: 0` while preserving its attributes
+*/
+function expireCookie(ctx, cookie) {
+	removeSetCookieEntries(ctx, cookie.name);
+	ctx.setCookie(cookie.name, "", {
+		...cookie.attributes,
+		maxAge: 0
+	});
+}
+function deleteSessionCookie(ctx, skipDontRememberMe) {
+	expireCookie(ctx, ctx.context.authCookies.sessionToken);
+	expireCookie(ctx, ctx.context.authCookies.sessionData);
+	if (ctx.context.options.account?.storeAccountCookie) {
+		expireCookie(ctx, ctx.context.authCookies.accountData);
+		const accountStore = createAccountStore(ctx.context.authCookies.accountData.name, ctx.context.authCookies.accountData.attributes, ctx);
+		const cleanCookies = accountStore.clean();
+		accountStore.setCookies(cleanCookies);
+	}
+	if (ctx.context.oauthConfig.storeStateStrategy === "cookie") expireCookie(ctx, ctx.context.createAuthCookie("oauth_state"));
+	const sessionStore = createSessionStore(ctx.context.authCookies.sessionData.name, ctx.context.authCookies.sessionData.attributes, ctx);
+	const cleanCookies = sessionStore.clean();
+	sessionStore.setCookies(cleanCookies);
+	if (!skipDontRememberMe) expireCookie(ctx, ctx.context.authCookies.dontRememberToken);
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/state.mjs
+var stateDataSchema = z$1.looseObject({
+	callbackURL: z$1.string(),
+	codeVerifier: z$1.string(),
+	errorURL: z$1.string().optional(),
+	newUserURL: z$1.string().optional(),
+	expiresAt: z$1.number(),
+	/**
+	* CSRF nonce returned to the OAuth provider. When using cookie state storage,
+	* this must match the callback `state` query parameter.
+	*/
+	oauthState: z$1.string().optional(),
+	link: z$1.object({
+		email: z$1.string(),
+		userId: z$1.coerce.string()
+	}).optional(),
+	requestSignUp: z$1.boolean().optional()
+});
+new Set(Object.keys(stateDataSchema.shape));
+var StateError = class extends BetterAuthError {
+	code;
+	details;
+	/**
+	* The per-flow `errorCallbackURL` recovered from the parsed state, when the
+	* failure happened after the state was successfully parsed (for example a
+	* nonce or state-cookie mismatch). It was origin-validated at sign-in, so
+	* the callback can safely redirect there instead of the default error page.
+	* Absent when the state could not be parsed at all.
+	*/
+	errorURL;
+	constructor(message, options) {
+		super(message, options);
+		this.code = options.code;
+		this.details = options.details;
+		this.errorURL = options.errorURL;
+	}
+};
+async function generateGenericState(c, stateData, settings) {
+	const state = generateRandomString(32);
+	if (c.context.oauthConfig.storeStateStrategy === "cookie") {
+		const payload = {
+			...stateData,
+			oauthState: state
+		};
+		const encryptedData = await symmetricEncrypt({
+			key: c.context.secretConfig,
+			data: JSON.stringify(payload)
+		});
+		const stateCookie = c.context.createAuthCookie(settings?.cookieName ?? "oauth_state", { maxAge: 600 });
+		c.setCookie(stateCookie.name, encryptedData, stateCookie.attributes);
+		return {
+			state,
+			codeVerifier: stateData.codeVerifier
+		};
+	}
+	const stateCookie = c.context.createAuthCookie(settings?.cookieName ?? "state", { maxAge: 300 });
+	await c.setSignedCookie(stateCookie.name, state, c.context.secret, stateCookie.attributes);
+	const expiresAt = /* @__PURE__ */ new Date();
+	expiresAt.setMinutes(expiresAt.getMinutes() + 10);
+	if (!await c.context.internalAdapter.createVerificationValue({
+		value: JSON.stringify({
+			...stateData,
+			oauthState: state
+		}),
+		identifier: state,
+		expiresAt
+	})) throw new StateError("Unable to create verification. Make sure the database adapter is properly working and there is a verification table in the database", { code: "state_generation_error" });
+	return {
+		state,
+		codeVerifier: stateData.codeVerifier
+	};
+}
+async function parseGenericState(c, state, settings) {
+	if (!state) throw new StateError("State not found in OAuth callback", { code: "state_not_found" });
+	const storeStateStrategy = c.context.oauthConfig.storeStateStrategy;
+	let parsedData;
+	if (storeStateStrategy === "cookie") {
+		const stateCookie = c.context.createAuthCookie(settings?.cookieName ?? "oauth_state");
+		const encryptedData = c.getCookie(stateCookie.name);
+		if (!encryptedData) throw new StateError("State mismatch: auth state cookie not found", {
+			code: "state_mismatch",
+			details: { state }
+		});
+		try {
+			const decryptedData = await symmetricDecrypt({
+				key: c.context.secretConfig,
+				data: encryptedData
+			});
+			parsedData = stateDataSchema.parse(JSON.parse(decryptedData));
+		} catch (error) {
+			throw new StateError("State invalid: Failed to decrypt or parse auth state", {
+				code: "state_invalid",
+				details: { state },
+				cause: error
+			});
+		}
+		if (!parsedData.oauthState || parsedData.oauthState !== state) throw new StateError("State mismatch: OAuth state parameter does not match stored state", {
+			code: "state_security_mismatch",
+			details: { state },
+			errorURL: parsedData.errorURL
+		});
+		expireCookie(c, stateCookie);
+	} else {
+		const data = await c.context.internalAdapter.findVerificationValue(state);
+		if (!data) throw new StateError("State mismatch: verification not found", {
+			code: "state_mismatch",
+			details: { state }
+		});
+		parsedData = stateDataSchema.parse(JSON.parse(data.value));
+		if (parsedData.oauthState !== void 0 && parsedData.oauthState !== state) throw new StateError("State mismatch: OAuth state parameter does not match stored state", {
+			code: "state_security_mismatch",
+			details: { state },
+			errorURL: parsedData.errorURL
+		});
+		const stateCookie = c.context.createAuthCookie(settings?.cookieName ?? "state");
+		const stateCookieValue = await c.getSignedCookie(stateCookie.name, c.context.secret);
+		if (!(settings?.skipStateCookieCheck ?? c.context.oauthConfig.skipStateCookieCheck) && (!stateCookieValue || stateCookieValue !== state)) throw new StateError("State mismatch: State not persisted correctly", {
+			code: "state_security_mismatch",
+			details: { state },
+			errorURL: parsedData.errorURL
+		});
+		expireCookie(c, stateCookie);
+		await c.context.internalAdapter.deleteVerificationByIdentifier(state);
+	}
+	if (parsedData.expiresAt < Date.now()) throw new StateError("Invalid state: request expired", {
+		code: "state_mismatch",
+		details: { expiresAt: parsedData.expiresAt },
+		errorURL: parsedData.errorURL
+	});
+	return parsedData;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/oauth2/errors.mjs
+var HANDLING_DOCS_URL = "https://www.better-auth.com/docs/concepts/oauth#handling-providers-without-email";
+/**
+* Redirect the user to the OAuth error page with a machine-readable `error`
+* code (and optional `error_description`).
+*
+* Every OAuth callback path routes its failures through this helper so the
+* query parameter name, the `?`/`&` separator, and URL encoding are decided in
+* one place. The error page reads the `error` query parameter, so callers must
+* never hand-build the redirect with a different parameter name.
+*/
+function redirectOnError(ctx, errorURL, error, description) {
+	const params = new URLSearchParams({ error });
+	if (description) params.set("error_description", description);
+	const sep = errorURL.includes("?") ? "&" : "?";
+	throw ctx.redirect(`${errorURL}${sep}${params.toString()}`);
+}
+/**
+* Build the logger message shown when an OAuth provider does not return an
+* email address. Kept in one place so every rejection site points users at
+* the same workaround docs.
+*/
+function missingEmailLogMessage(providerId, options) {
+	return `${options?.source === "generic" ? `Generic OAuth provider "${providerId}"` : `Provider "${providerId}"`} did not return an email${options?.source === "id_token" ? " in the id token" : ""}. Either request the provider's email scope, or synthesize one via \`mapProfileToUser\`. See ${HANDLING_DOCS_URL}`;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/context/endpoint-context.mjs
+var ensureAsyncStorage$1 = async () => {
+	const betterAuthGlobal = __getBetterAuthGlobal();
+	if (!betterAuthGlobal.context.endpointContextAsyncStorage) {
+		const AsyncLocalStorage = await getAsyncLocalStorage();
+		betterAuthGlobal.context.endpointContextAsyncStorage = new AsyncLocalStorage();
+	}
+	return betterAuthGlobal.context.endpointContextAsyncStorage;
+};
+async function getCurrentAuthContext() {
+	const context = (await ensureAsyncStorage$1()).getStore();
+	if (!context) throw new Error("No auth context found. Please make sure you are calling this function within a `runWithEndpointContext` callback.");
+	return context;
+}
+async function runWithEndpointContext(context, fn) {
+	return (await ensureAsyncStorage$1()).run(context, fn);
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/context/request-state.mjs
+var asyncStorageInit = null;
+var ensureAsyncStorage = async () => {
+	const betterAuthGlobal = __getBetterAuthGlobal();
+	const existing = betterAuthGlobal.context.requestStateAsyncStorage;
+	if (existing) return existing;
+	if (!asyncStorageInit) asyncStorageInit = getAsyncLocalStorage().then((AsyncLocalStorage) => {
+		betterAuthGlobal.context.requestStateAsyncStorage ??= new AsyncLocalStorage();
+		return betterAuthGlobal.context.requestStateAsyncStorage;
+	});
+	return asyncStorageInit;
+};
+async function hasRequestState() {
+	return (await ensureAsyncStorage()).getStore() !== void 0;
+}
+async function getCurrentRequestState() {
+	const store = (await ensureAsyncStorage()).getStore();
+	if (!store) throw new Error("No request state found. Please make sure you are calling this function within a `runWithRequestState` callback.");
+	return store;
+}
+async function runWithRequestState(store, fn) {
+	return (await ensureAsyncStorage()).run(store, fn);
+}
+function defineRequestState(initFn) {
+	const ref = Object.freeze({});
+	return {
+		get ref() {
+			return ref;
+		},
+		async get() {
+			const store = await getCurrentRequestState();
+			if (!store.has(ref)) {
+				const initialValue = await initFn();
+				store.set(ref, initialValue);
+				return initialValue;
+			}
+			return store.get(ref);
+		},
+		async set(value) {
+			(await getCurrentRequestState()).set(ref, value);
+		}
+	};
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/state/oauth.mjs
+var { get: getOAuthState, set: setOAuthState } = defineRequestState(() => null);
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/oauth2/state.mjs
+async function generateState(c, link, additionalData) {
+	const callbackURL = c.body?.callbackURL || c.context.options.baseURL;
+	if (!callbackURL) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.CALLBACK_URL_REQUIRED);
+	const codeVerifier = generateRandomString(128);
+	const stateData = {
+		...additionalData ? additionalData : {},
+		callbackURL,
+		codeVerifier,
+		errorURL: c.body?.errorCallbackURL,
+		newUserURL: c.body?.newUserCallbackURL,
+		link,
+		expiresAt: Date.now() + 600 * 1e3,
+		requestSignUp: c.body?.requestSignUp
+	};
+	await setOAuthState(stateData);
+	try {
+		return generateGenericState(c, stateData);
+	} catch (error) {
+		c.context.logger.error("Failed to create verification", error);
+		throw new APIError("INTERNAL_SERVER_ERROR", {
+			message: "Unable to create verification",
+			cause: error
+		});
+	}
+}
+async function parseState(c) {
+	const state = c.query.state || c.body?.state;
+	const errorURL = c.context.options.onAPIError?.errorURL || `${c.context.baseURL}/error`;
+	let parsedData;
+	try {
+		parsedData = await parseGenericState(c, state);
+	} catch (error) {
+		c.context.logger.error("Failed to parse state", error);
+		let code = "internal_server_error";
+		let redirectErrorURL = errorURL;
+		if (error instanceof StateError) {
+			code = error.code === "state_security_mismatch" ? "state_mismatch" : error.code;
+			redirectErrorURL = error.errorURL ?? errorURL;
+		}
+		redirectOnError(c, redirectErrorURL, code);
+	}
+	if (!parsedData.errorURL) parsedData.errorURL = errorURL;
+	if (parsedData) await setOAuthState(parsedData);
+	return parsedData;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/utils/hide-metadata.mjs
+var HIDE_METADATA = { scope: "server" };
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/utils/is-api-error.mjs
 function isAPIError(error) {
 	return error instanceof APIError$1 || error instanceof APIError || error?.name === "APIError";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/auth/trusted-origins.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/api/index.mjs
+/**
+* Better-call's createEndpoint re-throws APIError without exposing the headers
+* accumulated on ctx.responseHeaders (e.g. Set-Cookie from deleteSessionCookie
+* before throw). Attach them to the error via kAPIErrorHeaderSymbol — matching
+* better-call's createMiddleware contract so the outer pipeline can merge them
+* into the response.
+*/
+function attachResponseHeadersToAPIError(responseHeaders, e) {
+	if (!isAPIError(e) || !responseHeaders) return;
+	Object.defineProperty(e, kAPIErrorHeaderSymbol, {
+		enumerable: false,
+		configurable: true,
+		value: responseHeaders,
+		writable: false
+	});
+}
+var optionsMiddleware = createMiddleware(async () => {
+	/**
+	* This will be passed on the instance of
+	* the context. Used to infer the type
+	* here.
+	*/
+	return {};
+});
+var createAuthMiddleware = createMiddleware.create({ use: [optionsMiddleware, createMiddleware(async () => {
+	return {};
+})] });
+var use = [optionsMiddleware];
+function createAuthEndpoint(pathOrOptions, handlerOrOptions, handlerOrNever) {
+	const path = typeof pathOrOptions === "string" ? pathOrOptions : void 0;
+	const options = typeof handlerOrOptions === "object" ? handlerOrOptions : pathOrOptions;
+	const handler = typeof handlerOrOptions === "function" ? handlerOrOptions : handlerOrNever;
+	const wrapped = async (ctx) => {
+		const runtimeCtx = ctx;
+		try {
+			return await runWithEndpointContext(ctx, () => handler(ctx));
+		} catch (e) {
+			attachResponseHeadersToAPIError(runtimeCtx.responseHeaders, e);
+			throw e;
+		}
+	};
+	if (path) return createEndpoint(path, {
+		...options,
+		use: [...options?.use || [], ...use]
+	}, wrapped);
+	return createEndpoint({
+		...options,
+		use: [...options?.use || [], ...use]
+	}, wrapped);
+}
+/**
+* Set `metadata.SERVER_ONLY` while preserving any existing metadata
+* (`$Infer`, `openapi`, ...).
+*/
+function withServerOnly(options) {
+	return {
+		...options,
+		metadata: {
+			...options.metadata,
+			SERVER_ONLY: true
+		}
+	};
+}
+/**
+* Declare a **server-only** endpoint.
+*
+* The endpoint is callable through `auth.api.*` from trusted server code but is
+* never registered on the HTTP router and never emitted into the OpenAPI
+* schema. It takes no path because it has no URL to be reached at.
+*
+* Prefer this over the path-less `createAuthEndpoint({ ... }, handler)` form.
+* Setting `metadata.SERVER_ONLY` makes the intent explicit at the call site and
+* keeps the endpoint off the HTTP surface even if a path is later added by
+* mistake: better-call's router skips an endpoint when its path is missing *or*
+* when `SERVER_ONLY` is set, so the two together are defense in depth. Relying
+* on path omission alone is invisible and one keystroke away from exposure.
+*
+* @example
+* ```ts
+* viewBackupCodes: createAuthEndpoint.serverOnly(
+* 	{ method: "POST", body: schema },
+* 	async (ctx) => { ... },
+* )
+* ```
+*/
+createAuthEndpoint.serverOnly = (options, handler) => createAuthEndpoint(withServerOnly(options), handler);
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/auth/trusted-origins.mjs
 /**
 * Matches the given url against an origin or origin pattern
 * See "options.trustedOrigins" for details of supported patterns
@@ -28331,64 +28263,7 @@ var matchesOriginPattern = (url, pattern, settings) => {
 	return protocol === "http:" || protocol === "https:" || !protocol ? pattern === getOrigin(url) : url.startsWith(pattern);
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/utils/url.mjs
-/**
-* Normalizes a request pathname by removing the basePath prefix and trailing slashes.
-* This is useful for matching paths against configured path lists.
-*
-* @param requestUrl - The full request URL
-* @param basePath - The base path of the auth API (e.g., "/api/auth")
-* @returns The normalized path without basePath prefix or trailing slashes,
-*          or "/" if URL parsing fails
-*
-* @example
-* normalizePathname("http://localhost:3000/api/auth/sso/saml2/callback/provider1", "/api/auth")
-* // Returns: "/sso/saml2/callback/provider1"
-*
-* normalizePathname("http://localhost:3000/sso/saml2/callback/provider1/", "/")
-* // Returns: "/sso/saml2/callback/provider1"
-*/
-function normalizePathname(requestUrl, basePath) {
-	let pathname;
-	try {
-		pathname = new URL(requestUrl).pathname.replace(/\/+$/, "") || "/";
-	} catch {
-		return "/";
-	}
-	if (basePath === "/" || basePath === "") return pathname;
-	if (pathname === basePath) return "/";
-	if (pathname.startsWith(basePath + "/")) return pathname.slice(basePath.length).replace(/\/+$/, "") || "/";
-	return pathname;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/api/index.mjs
-var optionsMiddleware = createMiddleware(async () => {
-	/**
-	* This will be passed on the instance of
-	* the context. Used to infer the type
-	* here.
-	*/
-	return {};
-});
-var createAuthMiddleware = createMiddleware.create({ use: [optionsMiddleware, createMiddleware(async () => {
-	return {};
-})] });
-var use = [optionsMiddleware];
-function createAuthEndpoint(pathOrOptions, handlerOrOptions, handlerOrNever) {
-	const path = typeof pathOrOptions === "string" ? pathOrOptions : void 0;
-	const options = typeof handlerOrOptions === "object" ? handlerOrOptions : pathOrOptions;
-	const handler = typeof handlerOrOptions === "function" ? handlerOrOptions : handlerOrNever;
-	if (path) return createEndpoint(path, {
-		...options,
-		use: [...options?.use || [], ...use]
-	}, async (ctx) => runWithEndpointContext(ctx, () => handler(ctx)));
-	return createEndpoint({
-		...options,
-		use: [...options?.use || [], ...use]
-	}, async (ctx) => runWithEndpointContext(ctx, () => handler(ctx)));
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/utils/deprecate.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/utils/deprecate.mjs
 /**
 * Wraps a function to log a deprecation warning at once.
 */
@@ -28403,7 +28278,7 @@ function deprecate(fn, message, logger) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/middlewares/origin-check.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/middlewares/origin-check.mjs
 /**
 * Checks if CSRF should be skipped for backward compatibility.
 * Previously, disableOriginCheck also disabled CSRF checks.
@@ -28412,6 +28287,23 @@ function deprecate(fn, message, logger) {
 */
 function shouldSkipCSRFForBackwardCompat(ctx) {
 	return ctx.context.skipOriginCheck === true && ctx.context.options.advanced?.disableCSRFCheck === void 0;
+}
+/**
+* Checks if the origin check should be skipped for the current request.
+* Handles both boolean (skip all) and array (skip specific paths) configurations.
+*/
+function shouldSkipOriginCheck(ctx) {
+	const skipOriginCheck = ctx.context.skipOriginCheck;
+	if (skipOriginCheck === true) return true;
+	if (Array.isArray(skipOriginCheck) && ctx.request) try {
+		const basePath = new URL(ctx.context.baseURL).pathname;
+		const currentPath = normalizePathname(ctx.request.url, basePath);
+		return skipOriginCheck.some((skipPath) => {
+			const normalizedSkipPath = skipPath.replace(/\/+$/, "");
+			return currentPath === normalizedSkipPath || currentPath.startsWith(`${normalizedSkipPath}/`);
+		});
+	} catch {}
+	return false;
 }
 /**
 * Logs deprecation warning for users relying on coupled behavior.
@@ -28425,7 +28317,7 @@ var logBackwardCompatWarning = deprecate(function logBackwardCompatWarning() {},
 var originCheckMiddleware = createAuthMiddleware(async (ctx) => {
 	if (ctx.request?.method === "GET" || ctx.request?.method === "OPTIONS" || ctx.request?.method === "HEAD" || !ctx.request) return;
 	await validateOrigin(ctx);
-	if (ctx.context.skipOriginCheck) return;
+	if (shouldSkipOriginCheck(ctx)) return;
 	const { body, query } = ctx;
 	const callbackURL = body?.callbackURL || query?.callbackURL;
 	const redirectURL = body?.redirectTo;
@@ -28433,6 +28325,7 @@ var originCheckMiddleware = createAuthMiddleware(async (ctx) => {
 	const newUserCallbackURL = body?.newUserCallbackURL;
 	const validateURL = (url, label) => {
 		if (!url) return;
+		if (typeof url !== "string") throw APIError.fromStatus("BAD_REQUEST", { message: `Invalid ${label}: expected a string` });
 		if (!ctx.context.isTrustedOrigin(url, { allowRelativePaths: label !== "origin" })) {
 			ctx.context.logger.error(`Invalid ${label}: ${url}`);
 			ctx.context.logger.info(`If it's a valid URL, please add ${url} to trustedOrigins in your auth config\n`, `Current list of trustedOrigins: ${ctx.context.trustedOrigins}`);
@@ -28451,7 +28344,7 @@ var originCheckMiddleware = createAuthMiddleware(async (ctx) => {
 });
 var originCheck = (getValue) => createAuthMiddleware(async (ctx) => {
 	if (!ctx.request) return;
-	if (ctx.context.skipOriginCheck) return;
+	if (shouldSkipOriginCheck(ctx)) return;
 	const callbackURL = getValue(ctx);
 	const validateURL = (url, label) => {
 		if (!url) return;
@@ -28484,12 +28377,7 @@ async function validateOrigin(ctx, forceValidate = false) {
 		ctx.context.options.advanced?.disableOriginCheck === true && logBackwardCompatWarning();
 		return;
 	}
-	const skipOriginCheck = ctx.context.skipOriginCheck;
-	if (Array.isArray(skipOriginCheck)) try {
-		const basePath = new URL(ctx.context.baseURL).pathname;
-		const currentPath = normalizePathname(ctx.request.url, basePath);
-		if (skipOriginCheck.some((skipPath) => currentPath.startsWith(skipPath))) return;
-	} catch {}
+	if (shouldSkipOriginCheck(ctx)) return;
 	if (!(forceValidate || useCookies)) return;
 	if (!originHeader || originHeader === "null") throw APIError.from("FORBIDDEN", BASE_ERROR_CODES.MISSING_OR_NULL_ORIGIN);
 	const trustedOrigins = Array.isArray(ctx.context.options.trustedOrigins) ? ctx.context.trustedOrigins : [...ctx.context.trustedOrigins, ...(await ctx.context.options.trustedOrigins?.(ctx.request))?.filter((v) => Boolean(v)) || []];
@@ -28532,9 +28420,10 @@ async function validateFormCsrf(ctx) {
 		}
 		return await validateOrigin(ctx, true);
 	}
+	if (headers.get("origin") || headers.get("referer")) return await validateOrigin(ctx, true);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/utils/ip.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/utils/ip.mjs
 /**
 * Checks if an IP is valid IPv4 or IPv6
 */
@@ -28595,8 +28484,8 @@ function expandIPv6(ipv6) {
 */
 function normalizeIPv6(ipv6, subnetPrefix) {
 	const groups = expandIPv6(ipv6);
-	if (subnetPrefix && subnetPrefix < 128) {
-		let bitsRemaining = subnetPrefix;
+	if (subnetPrefix !== void 0 && subnetPrefix < 128) {
+		let bitsRemaining = Math.max(0, Math.floor(subnetPrefix));
 		return groups.map((group) => {
 			if (bitsRemaining <= 0) return "0000";
 			if (bitsRemaining >= 16) {
@@ -28634,7 +28523,120 @@ function normalizeIP(ip, options = {}) {
 	if (!isIPv6(ip)) return ip.toLowerCase();
 	const ipv4 = extractIPv4FromMapped(ip);
 	if (ipv4) return ipv4.toLowerCase();
-	return normalizeIPv6(ip, options.ipv6Subnet || 64);
+	return normalizeIPv6(ip, options.ipv6Subnet ?? 64);
+}
+/**
+* Raw bytes of an IP for CIDR comparison. Returns `null` for an invalid IP.
+*/
+function ipToBytes(ip) {
+	if (z$1.ipv4().safeParse(ip).success) return Uint8Array.from(ip.split(".").map((octet) => Number(octet)));
+	if (!isIPv6(ip)) return null;
+	const mapped = extractIPv4FromMapped(ip);
+	if (mapped) return Uint8Array.from(mapped.split(".").map((octet) => Number(octet)));
+	const groups = expandIPv6(ip);
+	const bytes = /* @__PURE__ */ new Uint8Array(16);
+	for (let i = 0; i < 8; i++) {
+		const group = Number.parseInt(groups[i] ?? "0", 16);
+		bytes[i * 2] = group >> 8 & 255;
+		bytes[i * 2 + 1] = group & 255;
+	}
+	return bytes;
+}
+var CIDR_PREFIX_PATTERN = /^\d+$/;
+/**
+* Parses an IP or `IP/prefix` string into network bytes and a prefix length.
+* The prefix must be digits only and within the address family. `null` if the
+* value is not a valid IP or CIDR range, which keeps a malformed entry from
+* silently behaving like a non-match.
+*/
+function parseCIDR(value) {
+	const slash = value.lastIndexOf("/");
+	const bytes = ipToBytes(slash === -1 ? value : value.slice(0, slash));
+	if (!bytes) return null;
+	const maxBits = bytes.length * 8;
+	if (slash === -1) return {
+		bytes,
+		prefix: maxBits
+	};
+	const prefixPart = value.slice(slash + 1);
+	if (!CIDR_PREFIX_PATTERN.test(prefixPart)) return null;
+	const prefix = Number(prefixPart);
+	return prefix <= maxBits ? {
+		bytes,
+		prefix
+	} : null;
+}
+/**
+* Whether `ipBytes` falls inside an already-parsed CIDR network.
+*/
+function matchesCIDR(ipBytes, net) {
+	if (ipBytes.length !== net.bytes.length) return false;
+	let bitsRemaining = net.prefix;
+	for (let i = 0; i < ipBytes.length && bitsRemaining > 0; i++) {
+		const take = bitsRemaining >= 8 ? 8 : bitsRemaining;
+		const mask = take === 8 ? 255 : 255 << 8 - take & 255;
+		if (((ipBytes[i] ?? 0) & mask) !== ((net.bytes[i] ?? 0) & mask)) return false;
+		bitsRemaining -= 8;
+	}
+	return true;
+}
+/**
+* Trusted-proxy entries that are not a valid IP address or CIDR range.
+*/
+function findInvalidTrustedProxies(entries) {
+	return entries.filter((entry) => parseCIDR(entry) === null);
+}
+/**
+* Resolves the client IP from a forwarded header. The leftmost token is spoofable,
+* so with `trustedProxies` the chain is stripped from the right to the first
+* untrusted hop. Otherwise only a single-value header is trusted. Returns `null`
+* when no trustworthy client IP can be resolved.
+*/
+function getIPFromHeader(value, options = {}) {
+	const forwardedIps = value.split(",").map((ip) => ip.trim()).filter(Boolean);
+	if (forwardedIps.length === 0) return null;
+	const trustedProxies = (options.trustedProxies ?? []).map(parseCIDR).filter((proxy) => {
+		return proxy !== null;
+	});
+	if (trustedProxies.length > 0) {
+		for (let i = forwardedIps.length - 1; i >= 0; i--) {
+			const ip = forwardedIps[i];
+			const ipBytes = ip ? ipToBytes(ip) : null;
+			if (!ip || !ipBytes) return null;
+			if (trustedProxies.some((proxy) => matchesCIDR(ipBytes, proxy))) continue;
+			return normalizeIP(ip, { ipv6Subnet: options.ipv6Subnet });
+		}
+		return null;
+	}
+	if (forwardedIps.length !== 1) return null;
+	const selectedIp = forwardedIps[0];
+	if (!selectedIp || !isValidIP(selectedIp)) return null;
+	return normalizeIP(selectedIp, { ipv6Subnet: options.ipv6Subnet });
+}
+var LOCALHOST_IP = "127.0.0.1";
+var DEFAULT_IP_HEADERS = ["x-forwarded-for"];
+/**
+* Resolves the client IP for a request from the configured IP headers.
+* Honors `disableIpTracking`, walks `ipAddressHeaders` in order (default
+* `x-forwarded-for`), and falls back to localhost in development and test.
+* Returns `null` when tracking is disabled or no trustworthy IP can be resolved.
+*/
+function getIp(req, options) {
+	if (options.advanced?.ipAddress?.disableIpTracking) return null;
+	const headers = "headers" in req ? req.headers : req;
+	const ipHeaders = options.advanced?.ipAddress?.ipAddressHeaders || DEFAULT_IP_HEADERS;
+	for (const key of ipHeaders) {
+		const value = "get" in headers ? headers.get(key) : headers[key];
+		if (typeof value === "string") {
+			const ip = getIPFromHeader(value, {
+				ipv6Subnet: options.advanced?.ipAddress?.ipv6Subnet,
+				trustedProxies: options.advanced?.ipAddress?.trustedProxies
+			});
+			if (ip) return ip;
+		}
+	}
+	if (isTest() || isDevelopment()) return LOCALHOST_IP;
+	return null;
 }
 /**
 * Creates a rate limit key from IP and path
@@ -28648,29 +28650,64 @@ function createRateLimitKey(ip, path) {
 	return `${ip}|${path}`;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/utils/get-request-ip.mjs
-var LOCALHOST_IP = "127.0.0.1";
-function getIp(req, options) {
-	if (options.advanced?.ipAddress?.disableIpTracking) return null;
-	const headers = "headers" in req ? req.headers : req;
-	const ipHeaders = options.advanced?.ipAddress?.ipAddressHeaders || ["x-forwarded-for"];
-	for (const key of ipHeaders) {
-		const value = "get" in headers ? headers.get(key) : headers[key];
-		if (typeof value === "string") {
-			const ip = value.split(",")[0].trim();
-			if (isValidIP(ip)) return normalizeIP(ip, { ipv6Subnet: options.advanced?.ipAddress?.ipv6Subnet });
-		}
-	}
-	if (isTest() || isDevelopment()) return LOCALHOST_IP;
-	return null;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/rate-limiter/index.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/rate-limiter/index.mjs
 var memory = /* @__PURE__ */ new Map();
-function shouldRateLimit(max, window, rateLimitData) {
+var MEMORY_STORE_MAX_ENTRIES = 1e5;
+function pruneMemoryStore() {
 	const now = Date.now();
-	const windowInMs = window * 1e3;
-	return now - rateLimitData.lastRequest < windowInMs && rateLimitData.count >= max;
+	for (const [key, entry] of memory) if (now >= entry.expiresAt) memory.delete(key);
+	if (memory.size <= MEMORY_STORE_MAX_ENTRIES) return;
+	const overflow = memory.size - MEMORY_STORE_MAX_ENTRIES;
+	let removed = 0;
+	for (const key of memory.keys()) {
+		memory.delete(key);
+		if (++removed >= overflow) break;
+	}
+}
+/**
+* Decide an atomic rate-limit step against an in-memory `RateLimit` snapshot
+* for the rolling `window` (seconds) and `max`. Shared by the memory backend
+* (read-decide-write is atomic under single-threaded JS) and as the fallback
+* for storages lacking an atomic primitive.
+*/
+function decideConsume(data, rule, now) {
+	const windowInMs = rule.window * 1e3;
+	if (!data) return {
+		next: {
+			key: "",
+			count: 1,
+			lastRequest: now
+		},
+		update: false,
+		allowed: true,
+		retryAfter: null
+	};
+	if (now - data.lastRequest > windowInMs) return {
+		next: {
+			...data,
+			count: 1,
+			lastRequest: now
+		},
+		update: true,
+		allowed: true,
+		retryAfter: null
+	};
+	if (data.count >= rule.max) return {
+		next: data,
+		update: true,
+		allowed: false,
+		retryAfter: getRetryAfter(data.lastRequest, rule.window)
+	};
+	return {
+		next: {
+			...data,
+			count: data.count + 1,
+			lastRequest: now
+		},
+		update: true,
+		allowed: true,
+		retryAfter: null
+	};
 }
 function rateLimitResponse(retryAfter) {
 	return new Response(JSON.stringify({ message: "Too many requests. Please try again later." }), {
@@ -28687,18 +28724,109 @@ function getRetryAfter(lastRequest, window) {
 function createDatabaseStorageWrapper(ctx) {
 	const model = "rateLimit";
 	const db = ctx.adapter;
-	return {
-		get: async (key) => {
-			const data = (await db.findMany({
+	const readRow = async (key) => {
+		const data = (await db.findMany({
+			model,
+			where: [{
+				field: "key",
+				value: key
+			}]
+		}))[0];
+		if (typeof data?.lastRequest === "bigint") data.lastRequest = Number(data.lastRequest);
+		return data;
+	};
+	const consume = async (key, rule) => {
+		const windowInMs = rule.window * 1e3;
+		const data = await readRow(key);
+		const now = Date.now();
+		if (!data) try {
+			await db.create({
+				model,
+				data: {
+					key,
+					count: 1,
+					lastRequest: now
+				}
+			});
+			return {
+				allowed: true,
+				retryAfter: null
+			};
+		} catch (error) {
+			if (!await readRow(key)) throw error;
+			return consume(key, rule);
+		}
+		if (now - data.lastRequest > windowInMs) {
+			if (await db.incrementOne({
 				model,
 				where: [{
 					field: "key",
 					value: key
-				}]
-			}))[0];
-			if (typeof data?.lastRequest === "bigint") data.lastRequest = Number(data.lastRequest);
-			return data;
-		},
+				}, {
+					field: "lastRequest",
+					operator: "lte",
+					value: data.lastRequest
+				}],
+				increment: {},
+				set: {
+					count: 1,
+					lastRequest: now
+				}
+			})) {
+				deleteExpiredRows(now);
+				return {
+					allowed: true,
+					retryAfter: null
+				};
+			}
+			return consume(key, rule);
+		}
+		const windowStart = now - windowInMs;
+		if (await db.incrementOne({
+			model,
+			where: [
+				{
+					field: "key",
+					value: key
+				},
+				{
+					field: "lastRequest",
+					operator: "gt",
+					value: windowStart
+				},
+				{
+					field: "count",
+					operator: "lt",
+					value: rule.max
+				}
+			],
+			increment: { count: 1 },
+			set: { lastRequest: now }
+		})) return {
+			allowed: true,
+			retryAfter: null
+		};
+		const fresh = await readRow(key);
+		if (!fresh) return consume(key, rule);
+		if (now - fresh.lastRequest > windowInMs) return consume(key, rule);
+		return {
+			allowed: false,
+			retryAfter: getRetryAfter(fresh.lastRequest, rule.window)
+		};
+	};
+	const deleteExpiredRows = (now) => {
+		const cutoff = now - Math.max(ctx.rateLimit.window, ...getDefaultSpecialRules().map((r) => r.window)) * 1e3;
+		ctx.runInBackground(db.deleteMany({
+			model,
+			where: [{
+				field: "lastRequest",
+				operator: "lt",
+				value: cutoff
+			}]
+		}).then(() => void 0).catch((e) => ctx.logger.error("Error pruning rate limit rows", e)));
+	};
+	return {
+		get: readRow,
 		set: async (key, value, _update) => {
 			try {
 				if (_update) await db.updateMany({
@@ -28723,58 +28851,88 @@ function createDatabaseStorageWrapper(ctx) {
 			} catch (e) {
 				ctx.logger.error("Error setting rate limit", e);
 			}
-		}
+		},
+		consume
 	};
 }
 function getRateLimitStorage(ctx, rateLimitSettings) {
 	if (ctx.options.rateLimit?.customStorage) return ctx.options.rateLimit.customStorage;
 	const storage = ctx.rateLimit.storage;
-	if (storage === "secondary-storage") return {
-		get: async (key) => {
-			const data = await ctx.options.secondaryStorage?.get(key);
-			return data ? safeJSONParse(data) : null;
-		},
-		set: async (key, value, _update) => {
-			const ttl = rateLimitSettings?.window ?? ctx.options.rateLimit?.window ?? 10;
-			await ctx.options.secondaryStorage?.set?.(key, JSON.stringify(value), ttl);
-		}
-	};
-	else if (storage === "memory") return {
-		async get(key) {
-			const entry = memory.get(key);
-			if (!entry) return null;
-			if (Date.now() >= entry.expiresAt) {
-				memory.delete(key);
-				return null;
+	if (storage === "secondary-storage") {
+		const ttlFor = (window) => window ?? ctx.options.rateLimit?.window ?? 10;
+		return {
+			get: async (key) => {
+				const data = await ctx.options.secondaryStorage?.get(key);
+				return data ? safeJSONParse(data) : null;
+			},
+			set: async (key, value, _update) => {
+				await ctx.options.secondaryStorage?.set?.(key, JSON.stringify(value), ttlFor(rateLimitSettings.window));
+			},
+			consume: ctx.options.secondaryStorage?.increment ? async (key, rule) => {
+				if (await ctx.options.secondaryStorage.increment(key, ttlFor(rule.window)) <= rule.max) return {
+					allowed: true,
+					retryAfter: null
+				};
+				return {
+					allowed: false,
+					retryAfter: rule.window
+				};
+			} : void 0
+		};
+	} else if (storage === "memory") {
+		const ttlFor = (window) => window ?? ctx.options.rateLimit?.window ?? 10;
+		return {
+			async get(key) {
+				const entry = memory.get(key);
+				if (!entry) return null;
+				if (Date.now() >= entry.expiresAt) {
+					memory.delete(key);
+					return null;
+				}
+				return entry.data;
+			},
+			async set(key, value, _update) {
+				const expiresAt = Date.now() + ttlFor(rateLimitSettings.window) * 1e3;
+				memory.set(key, {
+					data: value,
+					expiresAt
+				});
+			},
+			async consume(key, rule) {
+				pruneMemoryStore();
+				const now = Date.now();
+				const entry = memory.get(key);
+				const decision = decideConsume(entry && now < entry.expiresAt ? entry.data : void 0, rule, now);
+				if (decision.allowed) memory.set(key, {
+					data: {
+						...decision.next,
+						key
+					},
+					expiresAt: now + ttlFor(rule.window) * 1e3
+				});
+				return {
+					allowed: decision.allowed,
+					retryAfter: decision.retryAfter
+				};
 			}
-			return entry.data;
-		},
-		async set(key, value, _update) {
-			const ttl = rateLimitSettings?.window ?? ctx.options.rateLimit?.window ?? 10;
-			const expiresAt = Date.now() + ttl * 1e3;
-			memory.set(key, {
-				data: value,
-				expiresAt
-			});
-		}
-	};
+		};
+	}
 	return createDatabaseStorageWrapper(ctx);
 }
 var ipWarningLogged = false;
+var NO_TRUSTED_IP_KEY = "no-trusted-ip";
 async function resolveRateLimitConfig(req, ctx) {
 	const basePath = new URL(ctx.baseURL).pathname;
 	const path = normalizePathname(req.url, basePath);
 	let currentWindow = ctx.rateLimit.window;
 	let currentMax = ctx.rateLimit.max;
 	const ip = getIp(req, ctx.options);
-	if (!ip) {
-		if (!ipWarningLogged) {
-			ctx.logger.warn("Rate limiting skipped: could not determine client IP address. If you're behind a reverse proxy, make sure to configure `trustedProxies` in your auth config.");
-			ipWarningLogged = true;
-		}
-		return null;
+	if (!ip && ctx.options.advanced?.ipAddress?.disableIpTracking) return null;
+	if (!ip && !ipWarningLogged) {
+		ctx.logger.warn("Rate limiting could not determine a client IP and is falling back to a single shared per-path bucket. Ensure your runtime forwards a trusted client IP header, then set `advanced.ipAddress.ipAddressHeaders` or `advanced.ipAddress.trustedProxies` so the address can be resolved.");
+		ipWarningLogged = true;
 	}
-	const key = createRateLimitKey(ip, path);
+	const key = createRateLimitKey(ip ?? NO_TRUSTED_IP_KEY, path);
 	const specialRule = getDefaultSpecialRules().find((rule) => rule.pathMatcher(path));
 	if (specialRule) {
 		currentWindow = specialRule.window;
@@ -28812,37 +28970,50 @@ async function resolveRateLimitConfig(req, ctx) {
 		currentMax
 	};
 }
+var legacyFallbackWarningLogged = false;
+/**
+* Decides the rate limit for the request in a single atomic step. The whole
+* check-and-increment happens here in the request phase; there is no separate
+* response-phase write-back, so concurrent requests cannot all pass a stale
+* read before any increment lands.
+*/
 async function onRequestRateLimit(req, ctx) {
 	if (!ctx.rateLimit.enabled) return;
 	const config = await resolveRateLimitConfig(req, ctx);
 	if (!config) return;
 	const { key, currentWindow, currentMax } = config;
-	const data = await getRateLimitStorage(ctx, { window: currentWindow }).get(key);
-	if (data && shouldRateLimit(currentMax, currentWindow, data)) return rateLimitResponse(getRetryAfter(data.lastRequest, currentWindow));
-}
-async function onResponseRateLimit(req, ctx) {
-	if (!ctx.rateLimit.enabled) return;
-	const config = await resolveRateLimitConfig(req, ctx);
-	if (!config) return;
-	const { key, currentWindow } = config;
 	const storage = getRateLimitStorage(ctx, { window: currentWindow });
-	const data = await storage.get(key);
-	const now = Date.now();
-	if (!data) await storage.set(key, {
-		key,
-		count: 1,
-		lastRequest: now
-	});
-	else if (now - data.lastRequest > currentWindow * 1e3) await storage.set(key, {
-		...data,
-		count: 1,
-		lastRequest: now
-	}, true);
-	else await storage.set(key, {
-		...data,
-		count: data.count + 1,
-		lastRequest: now
-	}, true);
+	const rule = {
+		window: currentWindow,
+		max: currentMax
+	};
+	if (storage.consume) {
+		const { allowed, retryAfter } = await storage.consume(key, rule);
+		if (!allowed) return rateLimitResponse(retryAfter ?? currentWindow);
+		return;
+	}
+	return legacyConsume(ctx, storage, key, rule);
+}
+/**
+* Non-atomic check-then-increment for storages that do not implement `consume`
+* (custom storages, or secondary storages without `increment`). Under
+* concurrency this is best-effort: simultaneous requests can each pass the
+* check before either write lands.
+*
+* FIXME(rate-limit-consume-required): remove on `next` once `consume` is the
+* sole required member of the storage contract.
+*/
+async function legacyConsume(ctx, storage, key, rule) {
+	if (!legacyFallbackWarningLogged) {
+		ctx.logger.warn("Rate limiting is best-effort: the configured storage has no atomic `consume`, so concurrent requests may bypass the limit. Provide a storage that implements `consume` for strict enforcement.");
+		legacyFallbackWarningLogged = true;
+	}
+	const decision = decideConsume(await storage.get(key), rule, Date.now());
+	if (!decision.allowed) return rateLimitResponse(decision.retryAfter ?? rule.window);
+	await storage.set(key, {
+		...decision.next,
+		key
+	}, decision.update);
 }
 function getDefaultSpecialRules() {
 	return [{
@@ -28860,7 +29031,7 @@ function getDefaultSpecialRules() {
 	}];
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/state/should-session-refresh.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/state/should-session-refresh.mjs
 /**
 * State for skipping session refresh
 *
@@ -28871,241 +29042,498 @@ function getDefaultSpecialRules() {
 */
 var { get: getShouldSkipSessionRefresh, set: setShouldSkipSessionRefresh } = defineRequestState(() => false);
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/_virtual/_rolldown/runtime.mjs
-var __defProp = Object.defineProperty;
-var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __hasOwnProp = Object.prototype.hasOwnProperty;
-var __exportAll = (all, no_symbols) => {
-	let target = {};
-	for (var name in all) __defProp(target, name, {
-		get: all[name],
-		enumerable: true
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/session.mjs
+var getSession = () => createAuthEndpoint("/get-session", {
+	method: ["GET", "POST"],
+	operationId: "getSession",
+	query: getSessionQuerySchema,
+	requireHeaders: true,
+	metadata: { openapi: {
+		operationId: "getSession",
+		description: "Get the current session",
+		responses: { "200": {
+			description: "Success",
+			content: { "application/json": { schema: {
+				type: ["object", "null"],
+				properties: {
+					session: { $ref: "#/components/schemas/Session" },
+					user: { $ref: "#/components/schemas/User" }
+				},
+				required: ["session", "user"]
+			} } }
+		} }
+	} }
+}, async (ctx) => {
+	ctx.setHeader("cache-control", "no-store");
+	ctx.setHeader("pragma", "no-cache");
+	const deferSessionRefresh = ctx.context.options.session?.deferSessionRefresh;
+	const isPostRequest = ctx.method === "POST";
+	if (isPostRequest && !deferSessionRefresh) throw APIError.from("METHOD_NOT_ALLOWED", BASE_ERROR_CODES.METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED);
+	try {
+		const sessionCookieToken = await ctx.getSignedCookie(ctx.context.authCookies.sessionToken.name, ctx.context.secret);
+		if (!sessionCookieToken) return null;
+		const sessionDataCookie = getChunkedCookie(ctx, ctx.context.authCookies.sessionData.name);
+		let sessionDataPayload = null;
+		if (sessionDataCookie) {
+			const strategy = ctx.context.options.session?.cookieCache?.strategy || "compact";
+			if (strategy === "jwe") {
+				const payload = await symmetricDecodeJWT(sessionDataCookie, ctx.context.secretConfig, "better-auth-session");
+				if (payload && payload.session && payload.user) sessionDataPayload = {
+					session: {
+						session: payload.session,
+						user: payload.user,
+						updatedAt: payload.updatedAt,
+						version: payload.version
+					},
+					expiresAt: payload.exp ? payload.exp * 1e3 : Date.now()
+				};
+				else expireCookie(ctx, ctx.context.authCookies.sessionData);
+			} else if (strategy === "jwt") {
+				const payload = await verifyJWT(sessionDataCookie, ctx.context.secret);
+				if (payload && payload.session && payload.user) sessionDataPayload = {
+					session: {
+						session: payload.session,
+						user: payload.user,
+						updatedAt: payload.updatedAt,
+						version: payload.version
+					},
+					expiresAt: payload.exp ? payload.exp * 1e3 : Date.now()
+				};
+				else expireCookie(ctx, ctx.context.authCookies.sessionData);
+			} else {
+				const parsed = safeJSONParse(binary.decode(base64Url.decode(sessionDataCookie)));
+				if (parsed) if (await createHMAC("SHA-256", "base64urlnopad").verify(ctx.context.secret, JSON.stringify({
+					...parsed.session,
+					expiresAt: parsed.expiresAt
+				}), parsed.signature)) sessionDataPayload = parsed;
+				else expireCookie(ctx, ctx.context.authCookies.sessionData);
+			}
+		}
+		const dontRememberMe = await ctx.getSignedCookie(ctx.context.authCookies.dontRememberToken.name, ctx.context.secret);
+		/**
+		* If session data is present in the cookie, check if it should be used or refreshed
+		*/
+		if (sessionDataPayload?.session && ctx.context.options.session?.cookieCache?.enabled && !ctx.query?.disableCookieCache) {
+			const session = sessionDataPayload.session;
+			const versionConfig = ctx.context.options.session?.cookieCache?.version;
+			let expectedVersion = "1";
+			if (versionConfig) {
+				if (typeof versionConfig === "string") expectedVersion = versionConfig;
+				else if (typeof versionConfig === "function") {
+					const result = versionConfig(session.session, session.user);
+					expectedVersion = result instanceof Promise ? await result : result;
+				}
+			}
+			if ((session.version || "1") !== expectedVersion) expireCookie(ctx, ctx.context.authCookies.sessionData);
+			else {
+				const cachedSessionExpiresAt = new Date(session.session.expiresAt);
+				if (sessionDataPayload.expiresAt < Date.now() || cachedSessionExpiresAt < /* @__PURE__ */ new Date()) expireCookie(ctx, ctx.context.authCookies.sessionData);
+				else {
+					const cookieRefreshCache = ctx.context.sessionConfig.cookieRefreshCache;
+					if (cookieRefreshCache === false) {
+						ctx.context.session = session;
+						const parsedSession = parseSessionOutput(ctx.context.options, {
+							...session.session,
+							expiresAt: new Date(session.session.expiresAt),
+							createdAt: new Date(session.session.createdAt),
+							updatedAt: new Date(session.session.updatedAt)
+						});
+						const parsedUser = parseUserOutput(ctx.context.options, {
+							...session.user,
+							createdAt: new Date(session.user.createdAt),
+							updatedAt: new Date(session.user.updatedAt)
+						});
+						return ctx.json({
+							session: parsedSession,
+							user: parsedUser
+						});
+					}
+					const timeUntilExpiry = sessionDataPayload.expiresAt - Date.now();
+					const updateAge = cookieRefreshCache.updateAge * 1e3;
+					const shouldSkipSessionRefresh = await getShouldSkipSessionRefresh();
+					if (timeUntilExpiry < updateAge && !shouldSkipSessionRefresh) {
+						const refreshedSession = {
+							session: { ...session.session },
+							user: session.user,
+							updatedAt: Date.now()
+						};
+						await setCookieCache(ctx, refreshedSession, false);
+						const sessionTokenOptions = ctx.context.authCookies.sessionToken.attributes;
+						const sessionTokenMaxAge = dontRememberMe ? void 0 : ctx.context.sessionConfig.expiresIn;
+						await ctx.setSignedCookie(ctx.context.authCookies.sessionToken.name, session.session.token, ctx.context.secret, {
+							...sessionTokenOptions,
+							maxAge: sessionTokenMaxAge
+						});
+						const parsedRefreshedSession = parseSessionOutput(ctx.context.options, {
+							...refreshedSession.session,
+							expiresAt: new Date(refreshedSession.session.expiresAt),
+							createdAt: new Date(refreshedSession.session.createdAt),
+							updatedAt: new Date(refreshedSession.session.updatedAt)
+						});
+						const parsedRefreshedUser = parseUserOutput(ctx.context.options, {
+							...refreshedSession.user,
+							createdAt: new Date(refreshedSession.user.createdAt),
+							updatedAt: new Date(refreshedSession.user.updatedAt)
+						});
+						ctx.context.session = {
+							session: parsedRefreshedSession,
+							user: parsedRefreshedUser
+						};
+						return ctx.json({
+							session: parsedRefreshedSession,
+							user: parsedRefreshedUser
+						});
+					}
+					const parsedSession = parseSessionOutput(ctx.context.options, {
+						...session.session,
+						expiresAt: new Date(session.session.expiresAt),
+						createdAt: new Date(session.session.createdAt),
+						updatedAt: new Date(session.session.updatedAt)
+					});
+					const parsedUser = parseUserOutput(ctx.context.options, {
+						...session.user,
+						createdAt: new Date(session.user.createdAt),
+						updatedAt: new Date(session.user.updatedAt)
+					});
+					ctx.context.session = {
+						session: parsedSession,
+						user: parsedUser
+					};
+					return ctx.json({
+						session: parsedSession,
+						user: parsedUser
+					});
+				}
+			}
+		}
+		const session = await ctx.context.internalAdapter.findSession(sessionCookieToken);
+		ctx.context.session = session;
+		if (!session || session.session.expiresAt < /* @__PURE__ */ new Date()) {
+			deleteSessionCookie(ctx);
+			if (session) {
+				/**
+				* if session expired clean up the session
+				* Only delete on POST when deferSessionRefresh is enabled
+				*/
+				if (!deferSessionRefresh || isPostRequest) await ctx.context.internalAdapter.deleteSession(session.session.token);
+			}
+			return ctx.json(null);
+		}
+		/**
+		* We don't need to update the session if the user doesn't want to be remembered
+		* or if the session refresh is disabled
+		*/
+		if (dontRememberMe || ctx.query?.disableRefresh) {
+			const parsedSession = parseSessionOutput(ctx.context.options, session.session);
+			const parsedUser = parseUserOutput(ctx.context.options, session.user);
+			return ctx.json({
+				session: parsedSession,
+				user: parsedUser
+			});
+		}
+		const expiresIn = ctx.context.sessionConfig.expiresIn;
+		const updateAge = ctx.context.sessionConfig.updateAge;
+		const shouldBeUpdated = session.session.expiresAt.valueOf() - expiresIn * 1e3 + updateAge * 1e3 <= Date.now();
+		const disableRefresh = ctx.query?.disableRefresh || ctx.context.options.session?.disableSessionRefresh;
+		const shouldSkipSessionRefresh = await getShouldSkipSessionRefresh();
+		const needsRefresh = shouldBeUpdated && !disableRefresh && !shouldSkipSessionRefresh;
+		/**
+		* When deferSessionRefresh is enabled and this is a GET request,
+		* return the session without performing writes, but include needsRefresh flag
+		*/
+		if (deferSessionRefresh && !isPostRequest) {
+			await setCookieCache(ctx, session, !!dontRememberMe);
+			const parsedSession = parseSessionOutput(ctx.context.options, session.session);
+			const parsedUser = parseUserOutput(ctx.context.options, session.user);
+			return ctx.json({
+				session: parsedSession,
+				user: parsedUser,
+				needsRefresh
+			});
+		}
+		if (needsRefresh) {
+			const updatedSession = await ctx.context.internalAdapter.updateSession(session.session.token, {
+				expiresAt: getDate(ctx.context.sessionConfig.expiresIn, "sec"),
+				updatedAt: /* @__PURE__ */ new Date()
+			});
+			if (!updatedSession) {
+				/**
+				* Handle case where session update fails (e.g., concurrent deletion)
+				*/
+				deleteSessionCookie(ctx);
+				throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.FAILED_TO_GET_SESSION);
+			}
+			const maxAge = ctx.context.sessionConfig.expiresIn;
+			await setSessionCookie(ctx, {
+				session: updatedSession,
+				user: session.user
+			}, false, { maxAge });
+			const parsedUpdatedSession = parseSessionOutput(ctx.context.options, updatedSession);
+			const parsedUser = parseUserOutput(ctx.context.options, session.user);
+			return ctx.json({
+				session: parsedUpdatedSession,
+				user: parsedUser
+			});
+		}
+		await setCookieCache(ctx, session, !!dontRememberMe);
+		const parsedSession = parseSessionOutput(ctx.context.options, session.session);
+		const parsedUser = parseUserOutput(ctx.context.options, session.user);
+		return ctx.json({
+			session: parsedSession,
+			user: parsedUser
+		});
+	} catch (error) {
+		if (isAPIError(error)) throw error;
+		ctx.context.logger.error("INTERNAL_SERVER_ERROR", error);
+		throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_GET_SESSION);
+	}
+});
+/**
+* Whether the deployment keeps sessions in a durable server-side store
+* (a database or secondary storage) rather than only in the signed cookie.
+*
+* Sensitive operations use this to decide whether the cookie cache is merely an
+* optimization that must be bypassed for an authoritative read (`true`), or the
+* only place the session lives and therefore the authority itself (`false`, for
+* stateless / DB-less deployments). Pass the result as `disableCookieCache` so a
+* revoked-but-cached session cannot authorize a sensitive action.
+*/
+var isStateful = (ctx) => hasServerSessionStore(ctx.context.options);
+var getSessionFromCtx = async (ctx, config) => {
+	if (ctx.context.session) return ctx.context.session;
+	const session = await getSession()({
+		...ctx,
+		method: "GET",
+		asResponse: false,
+		headers: ctx.headers,
+		returnHeaders: true,
+		returnStatus: false,
+		query: {
+			...config,
+			...ctx.query,
+			disableCookieCache: config?.disableCookieCache || ctx.query?.disableCookieCache,
+			disableRefresh: config?.disableRefresh || ctx.query?.disableRefresh
+		}
+	}).catch(() => {
+		return null;
 	});
-	if (!no_symbols) __defProp(target, Symbol.toStringTag, { value: "Module" });
-	return target;
+	if (!session) {
+		ctx.context.session = null;
+		return null;
+	}
+	if (session.headers) session.headers.forEach((value, key) => {
+		const lowerKey = key.toLowerCase();
+		if (lowerKey === "cache-control" || lowerKey === "pragma") return;
+		if (!ctx.context.responseHeaders) ctx.context.responseHeaders = new Headers({ [key]: value });
+		else if (lowerKey === "set-cookie") ctx.context.responseHeaders.append(key, value);
+		else ctx.context.responseHeaders.set(key, value);
+	});
+	ctx.context.session = session.response;
+	return session.response;
 };
-var __copyProps = (to, from, except, desc) => {
-	if (from && typeof from === "object" || typeof from === "function") for (var keys = __getOwnPropNames(from), i = 0, n = keys.length, key; i < n; i++) {
-		key = keys[i];
-		if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
-			get: ((k) => from[k]).bind(null, key),
-			enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
-		});
-	}
-	return to;
+/**
+* Reads the session from the source that can authorize sensitive work.
+*
+* Stateful deployments must re-read the server-side session store because an
+* earlier hook may have populated `ctx.context.session` from cookie cache.
+* Stateless deployments keep the signed cookie as the session record.
+*/
+var getAuthoritativeSessionFromCtx = async (ctx) => {
+	if (!isStateful(ctx)) return getSessionFromCtx(ctx);
+	ctx.context.session = null;
+	return getSessionFromCtx(ctx, { disableCookieCache: true });
 };
-var __reExport = (target, mod, secondTarget) => (__copyProps(target, mod, "default"), secondTarget && __copyProps(secondTarget, mod, "default"));
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/get-schema.mjs
-function getSchema(config) {
-	const tables = getAuthTables(config);
-	const schema = {};
-	for (const key in tables) {
-		const table = tables[key];
-		const fields = table.fields;
-		const actualFields = {};
-		Object.entries(fields).forEach(([key, field]) => {
-			actualFields[field.fieldName || key] = field;
-			if (field.references) {
-				const refTable = tables[field.references.model];
-				if (refTable) actualFields[field.fieldName || key].references = {
-					...field.references,
-					model: refTable.modelName,
-					field: field.references.field
-				};
-			}
+/**
+* The middleware forces the endpoint to require a valid session.
+*/
+var sessionMiddleware = createAuthMiddleware(async (ctx) => {
+	const session = await getSessionFromCtx(ctx);
+	if (!session?.session) throw APIError.from("UNAUTHORIZED", {
+		message: "Unauthorized",
+		code: "UNAUTHORIZED"
+	});
+	return { session };
+});
+/**
+* This middleware forces the endpoint to require a valid authoritative session.
+* This should be used for sensitive operations like password changes, account deletion, etc.
+*/
+var sensitiveSessionMiddleware = createAuthMiddleware(async (ctx) => {
+	const session = await getAuthoritativeSessionFromCtx(ctx);
+	if (!session?.session) throw APIError.from("UNAUTHORIZED", {
+		message: "Unauthorized",
+		code: "UNAUTHORIZED"
+	});
+	return { session };
+});
+createAuthMiddleware(async (ctx) => {
+	const session = await getSessionFromCtx(ctx);
+	if (!session?.session && (ctx.request || ctx.headers)) throw APIError.from("UNAUTHORIZED", {
+		message: "Unauthorized",
+		code: "UNAUTHORIZED"
+	});
+	return { session };
+});
+/**
+* This middleware forces the endpoint to require a valid session,
+* as well as making sure the session is fresh before proceeding.
+*
+* Session freshness check will be skipped if the session config's freshAge
+* is set to 0
+*/
+var freshSessionMiddleware = createAuthMiddleware(async (ctx) => {
+	const session = await getSessionFromCtx(ctx);
+	if (!session?.session) throw APIError.from("UNAUTHORIZED", {
+		message: "Unauthorized",
+		code: "UNAUTHORIZED"
+	});
+	if (ctx.context.sessionConfig.freshAge !== 0) {
+		const createdAt = new Date(session.session.createdAt).getTime();
+		const freshAge = ctx.context.sessionConfig.freshAge * 1e3;
+		if (Date.now() - createdAt >= freshAge) throw APIError.from("FORBIDDEN", BASE_ERROR_CODES.SESSION_NOT_FRESH);
+	}
+	return { session };
+});
+/**
+* user active sessions list
+*/
+var listSessions = () => createAuthEndpoint("/list-sessions", {
+	method: "GET",
+	operationId: "listUserSessions",
+	use: [freshSessionMiddleware],
+	requireHeaders: true,
+	metadata: { openapi: {
+		operationId: "listUserSessions",
+		description: "List all active sessions for the user",
+		responses: { "200": {
+			description: "Success",
+			content: { "application/json": { schema: {
+				type: "array",
+				items: { $ref: "#/components/schemas/Session" }
+			} } }
+		} }
+	} }
+}, async (ctx) => {
+	try {
+		const activeSessions = (await ctx.context.internalAdapter.listSessions(ctx.context.session.user.id, { onlyActiveSessions: true })).filter((session) => {
+			return session.expiresAt > /* @__PURE__ */ new Date();
 		});
-		if (schema[table.modelName]) {
-			schema[table.modelName].fields = {
-				...schema[table.modelName].fields,
-				...actualFields
-			};
-			continue;
-		}
-		schema[table.modelName] = {
-			fields: actualFields,
-			order: table.order || Infinity
-		};
+		return ctx.json(activeSessions.map((session) => parseSessionOutput(ctx.context.options, session)));
+	} catch (e) {
+		ctx.context.logger.error(e);
+		throw ctx.error("INTERNAL_SERVER_ERROR");
 	}
-	return schema;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/field-converter.mjs
-function convertToDB(fields, values) {
-	const result = values.id ? { id: values.id } : {};
-	for (const key in fields) {
-		const field = fields[key];
-		const value = values[key];
-		if (value === void 0) continue;
-		result[field.fieldName || key] = value;
-	}
-	return result;
-}
-function convertFromDB(fields, values) {
-	if (!values) return null;
-	const result = { id: values.id };
-	for (const [key, value] of Object.entries(fields)) result[key] = values[value.fieldName || key];
-	return result;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/with-hooks.mjs
-function getWithHooks(adapter, ctx) {
-	const hooks = ctx.hooks;
-	async function createWithHooks(data, model, customCreateFn) {
-		const context = await getCurrentAuthContext().catch(() => null);
-		let actualData = data;
-		for (const hook of hooks || []) {
-			const toRun = hook[model]?.create?.before;
-			if (toRun) {
-				const result = await toRun(actualData, context);
-				if (result === false) return null;
-				if (typeof result === "object" && "data" in result) actualData = {
-					...actualData,
-					...result.data
-				};
-			}
-		}
-		let created = null;
-		if (!customCreateFn || customCreateFn.executeMainFn) created = await (await getCurrentAdapter(adapter)).create({
-			model,
-			data: actualData,
-			forceAllowId: true
+});
+/**
+* revoke a single session
+*/
+var revokeSession = createAuthEndpoint("/revoke-session", {
+	method: "POST",
+	body: z$1.object({ token: z$1.string().meta({ description: "The token to revoke" }) }),
+	use: [sensitiveSessionMiddleware],
+	requireHeaders: true,
+	metadata: { openapi: {
+		description: "Revoke a single session",
+		requestBody: { content: { "application/json": { schema: {
+			type: "object",
+			properties: { token: {
+				type: "string",
+				description: "The token to revoke"
+			} },
+			required: ["token"]
+		} } } },
+		responses: { "200": {
+			description: "Success",
+			content: { "application/json": { schema: {
+				type: "object",
+				properties: { status: {
+					type: "boolean",
+					description: "Indicates if the session was revoked successfully"
+				} },
+				required: ["status"]
+			} } }
+		} }
+	} }
+}, async (ctx) => {
+	const token = ctx.body.token;
+	if ((await ctx.context.internalAdapter.findSession(token))?.session.userId === ctx.context.session.user.id) try {
+		await ctx.context.internalAdapter.deleteSession(token);
+	} catch (error) {
+		ctx.context.logger.error(error && typeof error === "object" && "name" in error ? error.name : "", error);
+		throw APIError.from("INTERNAL_SERVER_ERROR", {
+			message: "Internal Server Error",
+			code: "INTERNAL_SERVER_ERROR"
 		});
-		if (customCreateFn?.fn) created = await customCreateFn.fn(created ?? actualData);
-		for (const hook of hooks || []) {
-			const toRun = hook[model]?.create?.after;
-			if (toRun) await queueAfterTransactionHook(async () => {
-				await toRun(created, context);
-			});
-		}
-		return created;
 	}
-	async function updateWithHooks(data, where, model, customUpdateFn) {
-		const context = await getCurrentAuthContext().catch(() => null);
-		let actualData = data;
-		for (const hook of hooks || []) {
-			const toRun = hook[model]?.update?.before;
-			if (toRun) {
-				const result = await toRun(data, context);
-				if (result === false) return null;
-				if (typeof result === "object" && "data" in result) actualData = {
-					...actualData,
-					...result.data
-				};
-			}
-		}
-		const customUpdated = customUpdateFn ? await customUpdateFn.fn(actualData) : null;
-		const updated = !customUpdateFn || customUpdateFn.executeMainFn ? await (await getCurrentAdapter(adapter)).update({
-			model,
-			update: actualData,
-			where
-		}) : customUpdated;
-		for (const hook of hooks || []) {
-			const toRun = hook[model]?.update?.after;
-			if (toRun) await queueAfterTransactionHook(async () => {
-				await toRun(updated, context);
-			});
-		}
-		return updated;
+	return ctx.json({ status: true });
+});
+/**
+* revoke all user sessions
+*/
+var revokeSessions = createAuthEndpoint("/revoke-sessions", {
+	method: "POST",
+	use: [sensitiveSessionMiddleware],
+	requireHeaders: true,
+	metadata: { openapi: {
+		description: "Revoke all sessions for the user",
+		responses: { "200": {
+			description: "Success",
+			content: { "application/json": { schema: {
+				type: "object",
+				properties: { status: {
+					type: "boolean",
+					description: "Indicates if all sessions were revoked successfully"
+				} },
+				required: ["status"]
+			} } }
+		} }
+	} }
+}, async (ctx) => {
+	try {
+		await ctx.context.internalAdapter.deleteUserSessions(ctx.context.session.user.id);
+	} catch (error) {
+		ctx.context.logger.error(error && typeof error === "object" && "name" in error ? error.name : "", error);
+		throw APIError.from("INTERNAL_SERVER_ERROR", {
+			message: "Internal Server Error",
+			code: "INTERNAL_SERVER_ERROR"
+		});
 	}
-	async function updateManyWithHooks(data, where, model, customUpdateFn) {
-		const context = await getCurrentAuthContext().catch(() => null);
-		let actualData = data;
-		for (const hook of hooks || []) {
-			const toRun = hook[model]?.update?.before;
-			if (toRun) {
-				const result = await toRun(data, context);
-				if (result === false) return null;
-				if (typeof result === "object" && "data" in result) actualData = {
-					...actualData,
-					...result.data
-				};
-			}
-		}
-		const customUpdated = customUpdateFn ? await customUpdateFn.fn(actualData) : null;
-		const updated = !customUpdateFn || customUpdateFn.executeMainFn ? await (await getCurrentAdapter(adapter)).updateMany({
-			model,
-			update: actualData,
-			where
-		}) : customUpdated;
-		for (const hook of hooks || []) {
-			const toRun = hook[model]?.update?.after;
-			if (toRun) await queueAfterTransactionHook(async () => {
-				await toRun(updated, context);
-			});
-		}
-		return updated;
-	}
-	async function deleteWithHooks(where, model, customDeleteFn) {
-		const context = await getCurrentAuthContext().catch(() => null);
-		let entityToDelete = null;
-		try {
-			entityToDelete = (await (await getCurrentAdapter(adapter)).findMany({
-				model,
-				where,
-				limit: 1
-			}))[0] || null;
-		} catch {}
-		if (entityToDelete) for (const hook of hooks || []) {
-			const toRun = hook[model]?.delete?.before;
-			if (toRun) {
-				if (await toRun(entityToDelete, context) === false) return null;
-			}
-		}
-		const customDeleted = customDeleteFn ? await customDeleteFn.fn(where) : null;
-		const deleted = (!customDeleteFn || customDeleteFn.executeMainFn) && entityToDelete ? await (await getCurrentAdapter(adapter)).delete({
-			model,
-			where
-		}) : customDeleted;
-		if (entityToDelete) for (const hook of hooks || []) {
-			const toRun = hook[model]?.delete?.after;
-			if (toRun) await queueAfterTransactionHook(async () => {
-				await toRun(entityToDelete, context);
-			});
-		}
-		return deleted;
-	}
-	async function deleteManyWithHooks(where, model, customDeleteFn) {
-		const context = await getCurrentAuthContext().catch(() => null);
-		let entitiesToDelete = [];
-		try {
-			entitiesToDelete = await (await getCurrentAdapter(adapter)).findMany({
-				model,
-				where
-			});
-		} catch {}
-		for (const entity of entitiesToDelete) for (const hook of hooks || []) {
-			const toRun = hook[model]?.delete?.before;
-			if (toRun) {
-				if (await toRun(entity, context) === false) return null;
-			}
-		}
-		const customDeleted = customDeleteFn ? await customDeleteFn.fn(where) : null;
-		const deleted = !customDeleteFn || customDeleteFn.executeMainFn ? await (await getCurrentAdapter(adapter)).deleteMany({
-			model,
-			where
-		}) : customDeleted;
-		for (const entity of entitiesToDelete) for (const hook of hooks || []) {
-			const toRun = hook[model]?.delete?.after;
-			if (toRun) await queueAfterTransactionHook(async () => {
-				await toRun(entity, context);
-			});
-		}
-		return deleted;
-	}
-	return {
-		createWithHooks,
-		updateWithHooks,
-		updateManyWithHooks,
-		deleteWithHooks,
-		deleteManyWithHooks
-	};
-}
+	return ctx.json({ status: true });
+});
+var revokeOtherSessions = createAuthEndpoint("/revoke-other-sessions", {
+	method: "POST",
+	requireHeaders: true,
+	use: [sensitiveSessionMiddleware],
+	metadata: { openapi: {
+		description: "Revoke all other sessions for the user except the current one",
+		responses: { "200": {
+			description: "Success",
+			content: { "application/json": { schema: {
+				type: "object",
+				properties: { status: {
+					type: "boolean",
+					description: "Indicates if all other sessions were revoked successfully"
+				} },
+				required: ["status"]
+			} } }
+		} }
+	} }
+}, async (ctx) => {
+	const session = ctx.context.session;
+	if (!session.user) throw APIError.from("UNAUTHORIZED", {
+		message: "Unauthorized",
+		code: "UNAUTHORIZED"
+	});
+	const otherSessions = (await ctx.context.internalAdapter.listSessions(session.user.id)).filter((session) => {
+		return session.expiresAt > /* @__PURE__ */ new Date();
+	}).filter((session) => session.token !== ctx.context.session.session.token);
+	await Promise.all(otherSessions.map((session) => ctx.context.internalAdapter.deleteSession(session.token)));
+	return ctx.json({ status: true });
+});
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/verification-token-storage.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/db/verification-token-storage.mjs
 var defaultKeyHasher = async (identifier) => {
-	const hash = await createHash("SHA-256").digest(new TextEncoder().encode(identifier));
+	const hash = await createHash$1("SHA-256").digest(new TextEncoder().encode(identifier));
 	return base64Url.encode(new Uint8Array(hash), { padding: false });
 };
 async function processIdentifier(identifier, option) {
@@ -29125,7 +29553,266 @@ function getStorageOption(identifier, config) {
 	return config;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/internal-adapter.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/instrumentation/attributes.mjs
+/** Operation identifier (e.g. getSession, signUpWithEmailAndPassword). Uses endpoint operationId when set, otherwise the endpoint key. */
+var ATTR_OPERATION_ID = "better_auth.operation_id";
+/** Hook type (e.g. before, after, create.before). */
+var ATTR_HOOK_TYPE = "better_auth.hook.type";
+/** Execution context (e.g. user, plugin:id). */
+var ATTR_CONTEXT = "better_auth.context";
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/db/with-hooks.mjs
+function getWithHooks(adapter, ctx) {
+	const hooksEntries = ctx.hooks;
+	async function createWithHooks(data, model, customCreateFn) {
+		const context = await getCurrentAuthContext().catch(() => null);
+		let actualData = data;
+		for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.create?.before;
+			if (toRun) {
+				const result = await withSpan(`db create.before ${model}`, {
+					[ATTR_HOOK_TYPE]: "create.before",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(actualData, context));
+				if (result === false) return null;
+				if (typeof result === "object" && "data" in result) actualData = {
+					...actualData,
+					...result.data
+				};
+			}
+		}
+		let created = null;
+		if (!customCreateFn || customCreateFn.executeMainFn) created = await (await getCurrentAdapter(adapter)).create({
+			model,
+			data: actualData,
+			forceAllowId: true
+		});
+		if (customCreateFn?.fn) created = await customCreateFn.fn(created ?? actualData);
+		for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.create?.after;
+			if (toRun) await queueAfterTransactionHook(async () => {
+				await withSpan(`db create.after ${model}`, {
+					[ATTR_HOOK_TYPE]: "create.after",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(created, context));
+			});
+		}
+		return created;
+	}
+	async function updateWithHooks(data, where, model, customUpdateFn) {
+		const context = await getCurrentAuthContext().catch(() => null);
+		let actualData = data;
+		for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.update?.before;
+			if (toRun) {
+				const result = await withSpan(`db update.before ${model}`, {
+					[ATTR_HOOK_TYPE]: "update.before",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(data, context));
+				if (result === false) return null;
+				if (typeof result === "object" && "data" in result) actualData = {
+					...actualData,
+					...result.data
+				};
+			}
+		}
+		const customUpdated = customUpdateFn ? await customUpdateFn.fn(actualData) : null;
+		const updated = !customUpdateFn || customUpdateFn.executeMainFn ? await (await getCurrentAdapter(adapter)).update({
+			model,
+			update: actualData,
+			where
+		}) : customUpdated;
+		for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.update?.after;
+			if (toRun) await queueAfterTransactionHook(async () => {
+				await withSpan(`db update.after ${model}`, {
+					[ATTR_HOOK_TYPE]: "update.after",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(updated, context));
+			});
+		}
+		return updated;
+	}
+	async function updateManyWithHooks(data, where, model, customUpdateFn) {
+		const context = await getCurrentAuthContext().catch(() => null);
+		let actualData = data;
+		for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.update?.before;
+			if (toRun) {
+				const result = await withSpan(`db updateMany.before ${model}`, {
+					[ATTR_HOOK_TYPE]: "updateMany.before",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(data, context));
+				if (result === false) return null;
+				if (typeof result === "object" && "data" in result) actualData = {
+					...actualData,
+					...result.data
+				};
+			}
+		}
+		const customUpdated = customUpdateFn ? await customUpdateFn.fn(actualData) : null;
+		const updated = !customUpdateFn || customUpdateFn.executeMainFn ? await (await getCurrentAdapter(adapter)).updateMany({
+			model,
+			update: actualData,
+			where
+		}) : customUpdated;
+		for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.update?.after;
+			if (toRun) await queueAfterTransactionHook(async () => {
+				await withSpan(`db updateMany.after ${model}`, {
+					[ATTR_HOOK_TYPE]: "updateMany.after",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(updated, context));
+			});
+		}
+		return updated;
+	}
+	async function deleteWithHooks(where, model, customDeleteFn) {
+		const context = await getCurrentAuthContext().catch(() => null);
+		let entityToDelete = null;
+		try {
+			entityToDelete = (await (await getCurrentAdapter(adapter)).findMany({
+				model,
+				where,
+				limit: 1
+			}))[0] || null;
+		} catch {}
+		if (entityToDelete) for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.delete?.before;
+			if (toRun) {
+				if (await withSpan(`db delete.before ${model}`, {
+					["better_auth.hook.type"]: "delete.before",
+					["db.collection.name"]: model,
+					["better_auth.context"]: source
+				}, () => toRun(entityToDelete, context)) === false) return null;
+			}
+		}
+		const customDeleted = customDeleteFn ? await customDeleteFn.fn(where) : null;
+		const deleted = (!customDeleteFn || customDeleteFn.executeMainFn) && entityToDelete ? await (await getCurrentAdapter(adapter)).delete({
+			model,
+			where
+		}) : customDeleted;
+		if (entityToDelete) for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.delete?.after;
+			if (toRun) await queueAfterTransactionHook(async () => {
+				await withSpan(`db delete.after ${model}`, {
+					[ATTR_HOOK_TYPE]: "delete.after",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(entityToDelete, context));
+			});
+		}
+		return deleted;
+	}
+	async function deleteManyWithHooks(where, model, customDeleteFn) {
+		const context = await getCurrentAuthContext().catch(() => null);
+		let entitiesToDelete = [];
+		try {
+			entitiesToDelete = await (await getCurrentAdapter(adapter)).findMany({
+				model,
+				where
+			});
+		} catch {}
+		for (const entity of entitiesToDelete) for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.delete?.before;
+			if (toRun) {
+				if (await withSpan(`db delete.before ${model}`, {
+					["better_auth.hook.type"]: "delete.before",
+					["db.collection.name"]: model,
+					["better_auth.context"]: source
+				}, () => toRun(entity, context)) === false) return null;
+			}
+		}
+		const customDeleted = customDeleteFn ? await customDeleteFn.fn(where) : null;
+		const deleted = !customDeleteFn || customDeleteFn.executeMainFn ? await (await getCurrentAdapter(adapter)).deleteMany({
+			model,
+			where
+		}) : customDeleted;
+		for (const entity of entitiesToDelete) for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.delete?.after;
+			if (toRun) await queueAfterTransactionHook(async () => {
+				await withSpan(`db delete.after ${model}`, {
+					[ATTR_HOOK_TYPE]: "delete.after",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(entity, context));
+			});
+		}
+		return deleted;
+	}
+	/**
+	* Wraps an atomic consume operation in the plugin `delete.before` and
+	* `delete.after` hook lifecycle. The caller supplies a `consumeFn` that
+	* performs the actual single-row delete-and-return (typically the
+	* adapter's `consumeOne`). The first concurrent caller wins, subsequent
+	* racers resolve to `null` without firing `delete.after` hooks.
+	*
+	* `preSnapshot` lets the caller hand in a row it already fetched so
+	* `delete.before` hooks don't trigger a second read. Without it, the
+	* helper falls back to a best-effort `findMany` against `hookWhere`.
+	* The snapshot only feeds `delete.before`; the `consumeFn` return value
+	* is the race gate.
+	*
+	* Returning `false` from a `delete.before` hook aborts the consume and
+	* the helper resolves to `null` (no `consumeFn` call, no after hooks).
+	*/
+	async function consumeOneWithHooks(model, hookWhere, consumeFn, preSnapshot) {
+		const context = await getCurrentAuthContext().catch(() => null);
+		const beforeHooks = hooksEntries.flatMap(({ source, hooks }) => {
+			const fn = hooks[model]?.delete?.before;
+			return fn ? [{
+				source,
+				fn
+			}] : [];
+		});
+		let snapshot = preSnapshot ?? null;
+		if (beforeHooks.length) {
+			if (!snapshot) try {
+				snapshot = (await (await getCurrentAdapter(adapter)).findMany({
+					model,
+					where: hookWhere,
+					limit: 1
+				}))[0] || null;
+			} catch {}
+			if (snapshot) {
+				for (const { source, fn } of beforeHooks) if (await withSpan(`db delete.before ${model}`, {
+					["better_auth.hook.type"]: "delete.before",
+					["db.collection.name"]: model,
+					["better_auth.context"]: source
+				}, () => fn(snapshot, context)) === false) return null;
+			}
+		}
+		const consumed = await consumeFn();
+		if (!consumed) return null;
+		for (const { source, hooks } of hooksEntries) {
+			const toRun = hooks[model]?.delete?.after;
+			if (toRun) await queueAfterTransactionHook(async () => {
+				await withSpan(`db delete.after ${model}`, {
+					[ATTR_HOOK_TYPE]: "delete.after",
+					[ATTR_DB_COLLECTION_NAME]: model,
+					[ATTR_CONTEXT]: source
+				}, () => toRun(consumed, context));
+			});
+		}
+		return consumed;
+	}
+	return {
+		createWithHooks,
+		updateWithHooks,
+		updateManyWithHooks,
+		deleteWithHooks,
+		deleteManyWithHooks,
+		consumeOneWithHooks
+	};
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/db/internal-adapter.mjs
 function getTTLSeconds(expiresAt, now = Date.now()) {
 	const expiresMs = typeof expiresAt === "number" ? expiresAt : expiresAt.getTime();
 	return Math.max(Math.floor((expiresMs - now) / 1e3), 0);
@@ -29134,8 +29821,10 @@ var createInternalAdapter = (adapter, ctx) => {
 	const logger = ctx.logger;
 	const options = ctx.options;
 	const secondaryStorage = options.secondaryStorage;
+	const verificationConsumeLocks = /* @__PURE__ */ new Map();
+	let warnedNonAtomicConsume = false;
 	const sessionExpiration = options.session?.expiresIn || 3600 * 24 * 7;
-	const { createWithHooks, updateWithHooks, updateManyWithHooks, deleteWithHooks, deleteManyWithHooks } = getWithHooks(adapter, ctx);
+	const { createWithHooks, updateWithHooks, updateManyWithHooks, deleteWithHooks, deleteManyWithHooks, consumeOneWithHooks } = getWithHooks(adapter, ctx);
 	async function refreshUserSessions(user) {
 		if (!secondaryStorage) return;
 		const listRaw = await secondaryStorage.get(`active-sessions-${user.id}`);
@@ -29154,13 +29843,30 @@ var createInternalAdapter = (adapter, ctx) => {
 			}), Math.floor(sessionTTL));
 		}));
 	}
+	async function withVerificationConsumeLock(key, fn) {
+		const previous = verificationConsumeLocks.get(key) ?? Promise.resolve();
+		let release;
+		const current = new Promise((resolve) => {
+			release = resolve;
+		});
+		const next = previous.catch(() => {}).then(() => current);
+		verificationConsumeLocks.set(key, next);
+		await previous.catch(() => {});
+		try {
+			return await fn();
+		} finally {
+			release();
+			if (verificationConsumeLocks.get(key) === next) verificationConsumeLocks.delete(key);
+		}
+	}
 	return {
 		createOAuthUser: async (user, account) => {
 			return runWithTransaction(adapter, async () => {
 				const createdUser = await createWithHooks({
 					createdAt: /* @__PURE__ */ new Date(),
 					updatedAt: /* @__PURE__ */ new Date(),
-					...user
+					...user,
+					email: user.email?.toLowerCase()
 				}, "user", void 0);
 				return {
 					user: createdUser,
@@ -29264,11 +29970,22 @@ var createInternalAdapter = (adapter, ctx) => {
 			})();
 			const storeInDb = options.session?.storeSessionInDatabase;
 			const { id: _, ...rest } = override || {};
+			let sessionId;
+			if (secondaryStorage && !storeInDb) {
+				const generatedId = ctx.generateId({ model: "session" });
+				sessionId = generatedId !== false ? generatedId : generateId$1();
+			}
 			const defaultAdditionalFields = getSessionDefaultFields(options);
 			const data = {
+				...sessionId ? { id: sessionId } : {},
 				ipAddress: headers ? getIp(headers, options) || "" : "",
 				userAgent: headers?.get("user-agent") || "",
 				...rest,
+				/**
+				* If the user doesn't want to be remembered
+				* set the session to expire in 1 day.
+				* The cookie will be set to expire at the end of the session
+				*/
 				expiresAt: dontRememberMe ? getDate(3600 * 24, "sec") : getDate(sessionExpiration, "sec"),
 				userId,
 				token: generateId$1(32),
@@ -29316,7 +30033,7 @@ var createInternalAdapter = (adapter, ctx) => {
 		findSession: async (token) => {
 			if (secondaryStorage) {
 				const sessionStringified = await secondaryStorage.get(token);
-				if (!sessionStringified && !options.session?.storeSessionInDatabase) return null;
+				if (!sessionStringified && (!options.session?.storeSessionInDatabase || ctx.options.session?.preserveSessionInDatabase)) return null;
 				if (sessionStringified) {
 					const s = safeJSONParse(sessionStringified);
 					if (!s) return null;
@@ -29477,27 +30194,40 @@ var createInternalAdapter = (adapter, ctx) => {
 				value: userId
 			}], "account", void 0);
 		},
-		deleteAccount: async (accountId) => {
+		/**
+		* Delete an account by its primary key.
+		*
+		* @param id - The account row's primary key (the `id` column, not the `accountId` column).
+		*/
+		deleteAccount: async (id) => {
 			await deleteWithHooks([{
 				field: "id",
-				value: accountId
+				value: id
 			}], "account", void 0);
 		},
-		deleteSessions: async (userIdOrSessionTokens) => {
+		deleteUserSessions: async (userId) => {
 			if (secondaryStorage) {
-				if (typeof userIdOrSessionTokens === "string") {
-					const activeSession = await secondaryStorage.get(`active-sessions-${userIdOrSessionTokens}`);
-					const sessions = activeSession ? safeJSONParse(activeSession) : [];
-					if (!sessions) return;
-					for (const session of sessions) await secondaryStorage.delete(session.token);
-					await secondaryStorage.delete(`active-sessions-${userIdOrSessionTokens}`);
-				} else for (const sessionToken of userIdOrSessionTokens) if (await secondaryStorage.get(sessionToken)) await secondaryStorage.delete(sessionToken);
+				const activeSession = await secondaryStorage.get(`active-sessions-${userId}`);
+				const sessions = activeSession ? safeJSONParse(activeSession) : [];
+				if (!sessions) return;
+				for (const session of sessions) await secondaryStorage.delete(session.token);
+				await secondaryStorage.delete(`active-sessions-${userId}`);
 				if (!options.session?.storeSessionInDatabase || ctx.options.session?.preserveSessionInDatabase) return;
 			}
 			await deleteManyWithHooks([{
-				field: Array.isArray(userIdOrSessionTokens) ? "token" : "userId",
-				value: userIdOrSessionTokens,
-				operator: Array.isArray(userIdOrSessionTokens) ? "in" : void 0
+				field: "userId",
+				value: userId
+			}], "session", void 0);
+		},
+		deleteSessions: async (sessionTokens) => {
+			if (secondaryStorage) {
+				for (const sessionToken of sessionTokens) if (await secondaryStorage.get(sessionToken)) await secondaryStorage.delete(sessionToken);
+				if (!options.session?.storeSessionInDatabase || ctx.options.session?.preserveSessionInDatabase) return;
+			}
+			await deleteManyWithHooks([{
+				field: "token",
+				value: sessionTokens,
+				operator: "in"
 			}], "session", void 0);
 		},
 		findOAuthUser: async (email, accountId, providerId) => {
@@ -29588,7 +30318,10 @@ var createInternalAdapter = (adapter, ctx) => {
 			}, "account", void 0);
 		},
 		updateUser: async (userId, data) => {
-			const user = await updateWithHooks(data, [{
+			const user = await updateWithHooks({
+				...data,
+				...data.email ? { email: data.email.toLowerCase() } : {}
+			}, [{
 				field: "id",
 				value: userId
 			}], "user", void 0);
@@ -29596,7 +30329,10 @@ var createInternalAdapter = (adapter, ctx) => {
 			return user;
 		},
 		updateUserByEmail: async (email, data) => {
-			const user = await updateWithHooks(data, [{
+			const user = await updateWithHooks({
+				...data,
+				...data.email ? { email: data.email.toLowerCase() } : {}
+			}, [{
 				field: "email",
 				value: email.toLowerCase()
 			}], "user", void 0);
@@ -29618,15 +30354,6 @@ var createInternalAdapter = (adapter, ctx) => {
 				where: [{
 					field: "userId",
 					value: userId
-				}]
-			});
-		},
-		findAccount: async (accountId) => {
-			return await (await getCurrentAdapter(adapter)).findOne({
-				model: "account",
-				where: [{
-					field: "accountId",
-					value: accountId
 				}]
 			});
 		},
@@ -29724,6 +30451,187 @@ var createInternalAdapter = (adapter, ctx) => {
 				value: storedIdentifier
 			}], "verification", void 0);
 		},
+		/**
+		* Atomically consume a single-use verification row by `identifier` and
+		* return it. The first concurrent caller receives the latest row for the
+		* identifier; every other caller racing against it receives `null`.
+		*
+		* Race-safe replacement for the `findVerificationValue` then
+		* `deleteVerificationByIdentifier` pair. Callers MUST gate any state
+		* change (issue session, mint token, change password) on a non-null
+		* return value, because consuming one row invalidates the whole
+		* identifier and stale rows cannot be replayed.
+		*
+		* Rows past their `expiresAt` are treated as already invalid: the row
+		* is still deleted (so it cannot be replayed later) but `null` is
+		* returned. Callers do not need their own `expiresAt` gate.
+		*
+		* The secondary-storage-only path (`storeInDatabase: false`) is atomic
+		* only when the configured storage implements `getAndDelete`; otherwise
+		* it falls back to an in-process lock around `get` then `delete` and
+		* warns once, since that fallback cannot coordinate across processes.
+		*
+		* FIXME(consume-atomic): make `SecondaryStorage.getAndDelete` required
+		* in the next breaking release, or require database-backed verification
+		* storage for security-sensitive consume paths, so the non-atomic
+		* fallback can be removed entirely.
+		*/
+		consumeVerificationValue: async (identifier) => {
+			const storageOption = getStorageOption(identifier, options.verification?.storeIdentifier);
+			const storedIdentifier = await processIdentifier(identifier, storageOption);
+			const identifiersToTry = storageOption && storageOption !== "plain" ? [storedIdentifier, identifier] : [storedIdentifier];
+			const hydrateCachedVerification = (raw) => {
+				if (!raw) return null;
+				const candidate = typeof raw === "string" ? safeJSONParse(raw) : typeof raw === "object" ? raw : null;
+				if (!candidate) return null;
+				const expiresAt = new Date(candidate.expiresAt);
+				if (!Number.isFinite(expiresAt.getTime())) return null;
+				return {
+					...candidate,
+					expiresAt
+				};
+			};
+			let consumed = null;
+			if (secondaryStorage && !options.verification?.storeInDatabase) {
+				const consumeCacheKey = async (key) => {
+					if (secondaryStorage.getAndDelete) return hydrateCachedVerification(await secondaryStorage.getAndDelete(key));
+					if (!warnedNonAtomicConsume) {
+						warnedNonAtomicConsume = true;
+						logger.warn("Secondary storage does not implement `getAndDelete`, so single-use verification values cannot be consumed atomically across processes. Implement `getAndDelete` or use database-backed verification storage to guarantee single use.");
+					}
+					return withVerificationConsumeLock(key, async () => {
+						const raw = await secondaryStorage.get(key);
+						const parsed = hydrateCachedVerification(raw);
+						if (!parsed) return null;
+						await secondaryStorage.delete(key);
+						return parsed;
+					});
+				};
+				for (const stored of identifiersToTry) {
+					const cached = await consumeCacheKey(`verification:${stored}`);
+					if (!cached) continue;
+					await Promise.all(identifiersToTry.filter((candidate) => candidate !== stored).map((candidate) => secondaryStorage.delete(`verification:${candidate}`)));
+					consumed = cached;
+					break;
+				}
+			} else {
+				const consumeByIdentifier = async (id) => withVerificationConsumeLock(`verification:${id}`, () => runWithTransaction(adapter, async () => {
+					const txAdapter = await getCurrentAdapter(adapter);
+					const where = [{
+						field: "identifier",
+						value: id
+					}];
+					const latest = (await txAdapter.findMany({
+						model: "verification",
+						where,
+						sortBy: {
+							field: "createdAt",
+							direction: "desc"
+						},
+						limit: 1
+					}))[0] ?? null;
+					if (!latest) return null;
+					return consumeOneWithHooks("verification", [{
+						field: "id",
+						value: latest.id
+					}], async () => {
+						const row = await txAdapter.consumeOne({
+							model: "verification",
+							where: [{
+								field: "id",
+								value: latest.id
+							}]
+						});
+						if (!row) return null;
+						await txAdapter.deleteMany({
+							model: "verification",
+							where
+						});
+						return row;
+					}, latest);
+				}));
+				for (const stored of identifiersToTry) {
+					consumed = await consumeByIdentifier(stored);
+					if (consumed) break;
+				}
+				if (consumed && secondaryStorage) await Promise.all(identifiersToTry.map((stored) => secondaryStorage.delete(`verification:${stored}`)));
+			}
+			if (!consumed || consumed.expiresAt < /* @__PURE__ */ new Date()) return null;
+			return consumed;
+		},
+		/**
+		* First-writer-wins create keyed by a deterministic primary key derived
+		* from `identifier`. Returns `true` when this caller created the row and
+		* `false` when a row for the same identifier already existed.
+		*
+		* The dual of `consumeVerificationValue`: where consume races to delete a
+		* marker exactly once, reserve races to create a marker exactly once. Use
+		* it for replay tombstones (a SAML assertion id, a JWT `jti`) where the
+		* first caller wins and every later caller must observe that the marker is
+		* already taken.
+		*
+		* The `verification.identifier` column is non-unique, so uniqueness comes
+		* from a deterministic primary key (`SHA-256` of `reserve:<identifier>`).
+		* The database path is atomic: the primary key turns the INSERT into the
+		* first-writer-wins gate, and a duplicate is detected portably by
+		* re-reading the row rather than matching adapter-specific errors. The
+		* secondary-storage-only path has no primary key to enforce uniqueness, so
+		* it is best-effort under concurrency.
+		*
+		* The atomic guarantee requires the configured adapter to reject a
+		* duplicate primary key on insert, which every real database enforces. The
+		* in-memory adapter does not enforce primary-key uniqueness, so reservation
+		* is best-effort there (it is intended for development and tests).
+		*/
+		reserveVerificationValue: async (data) => {
+			const reservationId = base64Url.encode(new Uint8Array(await createHash$1("SHA-256").digest(new TextEncoder().encode("reserve:" + data.identifier))), { padding: false });
+			const storageOption = getStorageOption(data.identifier, options.verification?.storeIdentifier);
+			const storedIdentifier = await processIdentifier(data.identifier, storageOption);
+			if (secondaryStorage && !options.verification?.storeInDatabase) {
+				const cacheKey = `verification:${storedIdentifier}`;
+				if (await secondaryStorage.get(cacheKey)) return false;
+				await secondaryStorage.set(cacheKey, JSON.stringify({
+					id: reservationId,
+					identifier: storedIdentifier,
+					value: data.value,
+					expiresAt: data.expiresAt
+				}), getTTLSeconds(data.expiresAt));
+				return true;
+			}
+			try {
+				await adapter.create({
+					model: "verification",
+					data: {
+						id: reservationId,
+						identifier: storedIdentifier,
+						value: data.value,
+						expiresAt: data.expiresAt,
+						createdAt: /* @__PURE__ */ new Date(),
+						updatedAt: /* @__PURE__ */ new Date()
+					},
+					forceAllowId: true
+				});
+			} catch (error) {
+				if (await adapter.findOne({
+					model: "verification",
+					where: [{
+						field: "id",
+						value: reservationId
+					}]
+				})) return false;
+				throw error;
+			}
+			if (secondaryStorage) {
+				const ttl = getTTLSeconds(data.expiresAt);
+				if (ttl > 0) await secondaryStorage.set(`verification:${storedIdentifier}`, JSON.stringify({
+					id: reservationId,
+					identifier: storedIdentifier,
+					value: data.value,
+					expiresAt: data.expiresAt
+				}), ttl);
+			}
+			return true;
+		},
 		updateVerificationByIdentifier: async (identifier, data) => {
 			const storedIdentifier = await processIdentifier(identifier, getStorageOption(identifier, options.verification?.storeIdentifier));
 			if (secondaryStorage) {
@@ -29747,520 +30655,260 @@ var createInternalAdapter = (adapter, ctx) => {
 				value: storedIdentifier
 			}], "verification", void 0);
 			return data;
-		}
+		},
+		refreshUserSessions
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/to-zod.mjs
-function toZodSchema({ fields, isClientSide }) {
-	const zodFields = Object.keys(fields).reduce((acc, key) => {
-		const field = fields[key];
-		if (!field) return acc;
-		if (isClientSide && field.input === false) return acc;
-		let schema;
-		if (field.type === "json") schema = z$1.json ? z$1.json() : z$1.any();
-		else if (field.type === "string[]" || field.type === "number[]") schema = z$1.array(field.type === "string[]" ? z$1.string() : z$1.number());
-		else if (Array.isArray(field.type)) schema = z$1.any();
-		else schema = z$1[field.type]();
-		if (field?.required === false) schema = schema.optional();
-		if (!isClientSide && field?.returned === false) return acc;
-		return {
-			...acc,
-			[key]: schema
-		};
-	}, {});
-	return z$1.object(zodFields);
-}
-__reExport(/* @__PURE__ */ __exportAll({
-	convertFromDB: () => convertFromDB,
-	convertToDB: () => convertToDB,
-	createInternalAdapter: () => createInternalAdapter,
-	getSchema: () => getSchema,
-	getSessionDefaultFields: () => getSessionDefaultFields,
-	getWithHooks: () => getWithHooks,
-	mergeSchema: () => mergeSchema,
-	parseAccountInput: () => parseAccountInput,
-	parseAccountOutput: () => parseAccountOutput,
-	parseAdditionalUserInput: () => parseAdditionalUserInput,
-	parseInputData: () => parseInputData,
-	parseSessionInput: () => parseSessionInput,
-	parseSessionOutput: () => parseSessionOutput,
-	parseUserInput: () => parseUserInput,
-	parseUserOutput: () => parseUserOutput,
-	toZodSchema: () => toZodSchema
-}), db_exports$1);
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/session.mjs
-var getSession = () => createAuthEndpoint("/get-session", {
-	method: ["GET", "POST"],
-	operationId: "getSession",
-	query: getSessionQuerySchema,
-	requireHeaders: true,
-	metadata: { openapi: {
-		operationId: "getSession",
-		description: "Get the current session",
-		responses: { "200": {
-			description: "Success",
-			content: { "application/json": { schema: {
-				type: "object",
-				nullable: true,
-				properties: {
-					session: { $ref: "#/components/schemas/Session" },
-					user: { $ref: "#/components/schemas/User" }
-				},
-				required: ["session", "user"]
-			} } }
-		} }
-	} }
-}, async (ctx) => {
-	const deferSessionRefresh = ctx.context.options.session?.deferSessionRefresh;
-	const isPostRequest = ctx.method === "POST";
-	if (isPostRequest && !deferSessionRefresh) throw APIError.from("METHOD_NOT_ALLOWED", BASE_ERROR_CODES.METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED);
-	try {
-		const sessionCookieToken = await ctx.getSignedCookie(ctx.context.authCookies.sessionToken.name, ctx.context.secret);
-		if (!sessionCookieToken) return null;
-		const sessionDataCookie = getChunkedCookie(ctx, ctx.context.authCookies.sessionData.name);
-		let sessionDataPayload = null;
-		if (sessionDataCookie) {
-			const strategy = ctx.context.options.session?.cookieCache?.strategy || "compact";
-			if (strategy === "jwe") {
-				const payload = await symmetricDecodeJWT(sessionDataCookie, ctx.context.secretConfig, "better-auth-session");
-				if (payload && payload.session && payload.user) sessionDataPayload = {
-					session: {
-						session: payload.session,
-						user: payload.user,
-						updatedAt: payload.updatedAt,
-						version: payload.version
-					},
-					expiresAt: payload.exp ? payload.exp * 1e3 : Date.now()
-				};
-				else {
-					expireCookie(ctx, ctx.context.authCookies.sessionData);
-					return ctx.json(null);
-				}
-			} else if (strategy === "jwt") {
-				const payload = await verifyJWT(sessionDataCookie, ctx.context.secret);
-				if (payload && payload.session && payload.user) sessionDataPayload = {
-					session: {
-						session: payload.session,
-						user: payload.user,
-						updatedAt: payload.updatedAt,
-						version: payload.version
-					},
-					expiresAt: payload.exp ? payload.exp * 1e3 : Date.now()
-				};
-				else {
-					expireCookie(ctx, ctx.context.authCookies.sessionData);
-					return ctx.json(null);
-				}
-			} else {
-				const parsed = safeJSONParse(binary.decode(base64Url.decode(sessionDataCookie)));
-				if (parsed) if (await createHMAC("SHA-256", "base64urlnopad").verify(ctx.context.secret, JSON.stringify({
-					...parsed.session,
-					expiresAt: parsed.expiresAt
-				}), parsed.signature)) sessionDataPayload = parsed;
-				else {
-					expireCookie(ctx, ctx.context.authCookies.sessionData);
-					return ctx.json(null);
-				}
-			}
-		}
-		const dontRememberMe = await ctx.getSignedCookie(ctx.context.authCookies.dontRememberToken.name, ctx.context.secret);
-		/**
-		* If session data is present in the cookie, check if it should be used or refreshed
-		*/
-		if (sessionDataPayload?.session && ctx.context.options.session?.cookieCache?.enabled && !ctx.query?.disableCookieCache) {
-			const session = sessionDataPayload.session;
-			const versionConfig = ctx.context.options.session?.cookieCache?.version;
-			let expectedVersion = "1";
-			if (versionConfig) {
-				if (typeof versionConfig === "string") expectedVersion = versionConfig;
-				else if (typeof versionConfig === "function") {
-					const result = versionConfig(session.session, session.user);
-					expectedVersion = result instanceof Promise ? await result : result;
-				}
-			}
-			if ((session.version || "1") !== expectedVersion) expireCookie(ctx, ctx.context.authCookies.sessionData);
-			else {
-				const cachedSessionExpiresAt = new Date(session.session.expiresAt);
-				if (sessionDataPayload.expiresAt < Date.now() || cachedSessionExpiresAt < /* @__PURE__ */ new Date()) expireCookie(ctx, ctx.context.authCookies.sessionData);
-				else {
-					const cookieRefreshCache = ctx.context.sessionConfig.cookieRefreshCache;
-					if (cookieRefreshCache === false) {
-						ctx.context.session = session;
-						const parsedSession = parseSessionOutput(ctx.context.options, {
-							...session.session,
-							expiresAt: new Date(session.session.expiresAt),
-							createdAt: new Date(session.session.createdAt),
-							updatedAt: new Date(session.session.updatedAt)
-						});
-						const parsedUser = parseUserOutput(ctx.context.options, {
-							...session.user,
-							createdAt: new Date(session.user.createdAt),
-							updatedAt: new Date(session.user.updatedAt)
-						});
-						return ctx.json({
-							session: parsedSession,
-							user: parsedUser
-						});
-					}
-					const timeUntilExpiry = sessionDataPayload.expiresAt - Date.now();
-					const updateAge = cookieRefreshCache.updateAge * 1e3;
-					const shouldSkipSessionRefresh = await getShouldSkipSessionRefresh();
-					if (timeUntilExpiry < updateAge && !shouldSkipSessionRefresh) {
-						const newExpiresAt = getDate(ctx.context.options.session?.cookieCache?.maxAge || 300, "sec");
-						const refreshedSession = {
-							session: {
-								...session.session,
-								expiresAt: newExpiresAt
-							},
-							user: session.user,
-							updatedAt: Date.now()
-						};
-						await setCookieCache(ctx, refreshedSession, false);
-						const sessionTokenOptions = ctx.context.authCookies.sessionToken.attributes;
-						const sessionTokenMaxAge = dontRememberMe ? void 0 : ctx.context.sessionConfig.expiresIn;
-						await ctx.setSignedCookie(ctx.context.authCookies.sessionToken.name, session.session.token, ctx.context.secret, {
-							...sessionTokenOptions,
-							maxAge: sessionTokenMaxAge
-						});
-						const parsedRefreshedSession = parseSessionOutput(ctx.context.options, {
-							...refreshedSession.session,
-							expiresAt: new Date(refreshedSession.session.expiresAt),
-							createdAt: new Date(refreshedSession.session.createdAt),
-							updatedAt: new Date(refreshedSession.session.updatedAt)
-						});
-						const parsedRefreshedUser = parseUserOutput(ctx.context.options, {
-							...refreshedSession.user,
-							createdAt: new Date(refreshedSession.user.createdAt),
-							updatedAt: new Date(refreshedSession.user.updatedAt)
-						});
-						ctx.context.session = {
-							session: parsedRefreshedSession,
-							user: parsedRefreshedUser
-						};
-						return ctx.json({
-							session: parsedRefreshedSession,
-							user: parsedRefreshedUser
-						});
-					}
-					const parsedSession = parseSessionOutput(ctx.context.options, {
-						...session.session,
-						expiresAt: new Date(session.session.expiresAt),
-						createdAt: new Date(session.session.createdAt),
-						updatedAt: new Date(session.session.updatedAt)
-					});
-					const parsedUser = parseUserOutput(ctx.context.options, {
-						...session.user,
-						createdAt: new Date(session.user.createdAt),
-						updatedAt: new Date(session.user.updatedAt)
-					});
-					ctx.context.session = {
-						session: parsedSession,
-						user: parsedUser
-					};
-					return ctx.json({
-						session: parsedSession,
-						user: parsedUser
-					});
-				}
-			}
-		}
-		const session = await ctx.context.internalAdapter.findSession(sessionCookieToken);
-		ctx.context.session = session;
-		if (!session || session.session.expiresAt < /* @__PURE__ */ new Date()) {
-			deleteSessionCookie(ctx);
-			if (session) {
-				/**
-				* if session expired clean up the session
-				* Only delete on POST when deferSessionRefresh is enabled
-				*/
-				if (!deferSessionRefresh || isPostRequest) await ctx.context.internalAdapter.deleteSession(session.session.token);
-			}
-			return ctx.json(null);
-		}
-		/**
-		* We don't need to update the session if the user doesn't want to be remembered
-		* or if the session refresh is disabled
-		*/
-		if (dontRememberMe || ctx.query?.disableRefresh) {
-			const parsedSession = parseSessionOutput(ctx.context.options, session.session);
-			const parsedUser = parseUserOutput(ctx.context.options, session.user);
-			return ctx.json({
-				session: parsedSession,
-				user: parsedUser
-			});
-		}
-		const expiresIn = ctx.context.sessionConfig.expiresIn;
-		const updateAge = ctx.context.sessionConfig.updateAge;
-		const shouldBeUpdated = session.session.expiresAt.valueOf() - expiresIn * 1e3 + updateAge * 1e3 <= Date.now();
-		const disableRefresh = ctx.query?.disableRefresh || ctx.context.options.session?.disableSessionRefresh;
-		const shouldSkipSessionRefresh = await getShouldSkipSessionRefresh();
-		const needsRefresh = shouldBeUpdated && !disableRefresh && !shouldSkipSessionRefresh;
-		/**
-		* When deferSessionRefresh is enabled and this is a GET request,
-		* return the session without performing writes, but include needsRefresh flag
-		*/
-		if (deferSessionRefresh && !isPostRequest) {
-			await setCookieCache(ctx, session, !!dontRememberMe);
-			const parsedSession = parseSessionOutput(ctx.context.options, session.session);
-			const parsedUser = parseUserOutput(ctx.context.options, session.user);
-			return ctx.json({
-				session: parsedSession,
-				user: parsedUser,
-				needsRefresh
-			});
-		}
-		if (needsRefresh) {
-			const updatedSession = await ctx.context.internalAdapter.updateSession(session.session.token, {
-				expiresAt: getDate(ctx.context.sessionConfig.expiresIn, "sec"),
-				updatedAt: /* @__PURE__ */ new Date()
-			});
-			if (!updatedSession) {
-				/**
-				* Handle case where session update fails (e.g., concurrent deletion)
-				*/
-				deleteSessionCookie(ctx);
-				throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.FAILED_TO_GET_SESSION);
-			}
-			const maxAge = (updatedSession.expiresAt.valueOf() - Date.now()) / 1e3;
-			await setSessionCookie(ctx, {
-				session: updatedSession,
-				user: session.user
-			}, false, { maxAge });
-			const parsedUpdatedSession = parseSessionOutput(ctx.context.options, updatedSession);
-			const parsedUser = parseUserOutput(ctx.context.options, session.user);
-			return ctx.json({
-				session: parsedUpdatedSession,
-				user: parsedUser
-			});
-		}
-		await setCookieCache(ctx, session, !!dontRememberMe);
-		const parsedSession = parseSessionOutput(ctx.context.options, session.session);
-		const parsedUser = parseUserOutput(ctx.context.options, session.user);
-		return ctx.json({
-			session: parsedSession,
-			user: parsedUser
-		});
-	} catch (error) {
-		if (isAPIError(error)) throw error;
-		ctx.context.logger.error("INTERNAL_SERVER_ERROR", error);
-		throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_GET_SESSION);
-	}
-});
-var getSessionFromCtx = async (ctx, config) => {
-	if (ctx.context.session) return ctx.context.session;
-	const session = await getSession()({
-		...ctx,
-		method: "GET",
-		asResponse: false,
-		headers: ctx.headers,
-		returnHeaders: false,
-		returnStatus: false,
-		query: {
-			...config,
-			...ctx.query
-		}
-	}).catch((e) => {
-		return null;
-	});
-	ctx.context.session = session;
-	return session;
-};
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/utils/host.mjs
 /**
-* The middleware forces the endpoint to require a valid session.
-*/
-var sessionMiddleware = createAuthMiddleware(async (ctx) => {
-	const session = await getSessionFromCtx(ctx);
-	if (!session?.session) throw APIError.from("UNAUTHORIZED", {
-		message: "Unauthorized",
-		code: "UNAUTHORIZED"
-	});
-	return { session };
-});
-/**
-* This middleware forces the endpoint to require a valid session and ignores cookie cache.
-* This should be used for sensitive operations like password changes, account deletion, etc.
-* to ensure that revoked sessions cannot be used even if they're still cached in cookies.
-*/
-var sensitiveSessionMiddleware = createAuthMiddleware(async (ctx) => {
-	const session = await getSessionFromCtx(ctx, { disableCookieCache: true });
-	if (!session?.session) throw APIError.from("UNAUTHORIZED", {
-		message: "Unauthorized",
-		code: "UNAUTHORIZED"
-	});
-	return { session };
-});
-createAuthMiddleware(async (ctx) => {
-	const session = await getSessionFromCtx(ctx);
-	if (!session?.session && (ctx.request || ctx.headers)) throw APIError.from("UNAUTHORIZED", {
-		message: "Unauthorized",
-		code: "UNAUTHORIZED"
-	});
-	return { session };
-});
-/**
-* This middleware forces the endpoint to require a valid session,
-* as well as making sure the session is fresh before proceeding.
+* Cloud provider instance metadata service FQDNs. These resolve to link-local
+* IPs (usually `169.254.169.254`) inside their respective clouds and are
+* prime SSRF targets.
 *
-* Session freshness check will be skipped if the session config's freshAge
-* is set to 0
+* The IPs themselves are already caught by the `linkLocal` kind; this set
+* only exists for the FQDN form that a naive server-side fetch might resolve
+* via its own resolver.
 */
-var freshSessionMiddleware = createAuthMiddleware(async (ctx) => {
-	const session = await getSessionFromCtx(ctx);
-	if (!session?.session) throw APIError.from("UNAUTHORIZED", {
-		message: "Unauthorized",
-		code: "UNAUTHORIZED"
-	});
-	if (ctx.context.sessionConfig.freshAge === 0) return { session };
-	const freshAge = ctx.context.sessionConfig.freshAge;
-	const lastUpdated = new Date(session.session.updatedAt || session.session.createdAt).getTime();
-	if (!(Date.now() - lastUpdated < freshAge * 1e3)) throw APIError.from("FORBIDDEN", BASE_ERROR_CODES.SESSION_NOT_FRESH);
-	return { session };
-});
+var CLOUD_METADATA_HOSTS = /* @__PURE__ */ new Set([
+	"metadata.google.internal",
+	"metadata.goog",
+	"metadata",
+	"instance-data",
+	"instance-data.ec2.internal"
+]);
+/** Strip `[...]` if the entire input is bracketed (IPv6 literal form). */
+function stripBrackets(host) {
+	if (host.length >= 2 && host.startsWith("[") && host.endsWith("]")) return host.slice(1, -1);
+	return host;
+}
 /**
-* user active sessions list
+* Strip trailing `:port` from host-with-port strings.
+*
+* - Bracketed IPv6 with port: `[::1]:8080` → `[::1]`
+* - IPv4/FQDN with port: `127.0.0.1:3000` / `example.com:443` → base form
+* - Bare IPv6: `::1` / `fe80::1` → unchanged (multiple colons means no port)
 */
-var listSessions = () => createAuthEndpoint("/list-sessions", {
-	method: "GET",
-	operationId: "listUserSessions",
-	use: [sessionMiddleware],
-	requireHeaders: true,
-	metadata: { openapi: {
-		operationId: "listUserSessions",
-		description: "List all active sessions for the user",
-		responses: { "200": {
-			description: "Success",
-			content: { "application/json": { schema: {
-				type: "array",
-				items: { $ref: "#/components/schemas/Session" }
-			} } }
-		} }
-	} }
-}, async (ctx) => {
-	try {
-		const activeSessions = (await ctx.context.internalAdapter.listSessions(ctx.context.session.user.id, { onlyActiveSessions: true })).filter((session) => {
-			return session.expiresAt > /* @__PURE__ */ new Date();
-		});
-		return ctx.json(activeSessions.map((session) => parseSessionOutput(ctx.context.options, session)));
-	} catch (e) {
-		ctx.context.logger.error(e);
-		throw ctx.error("INTERNAL_SERVER_ERROR");
+function stripPort(host) {
+	if (host.startsWith("[")) {
+		const end = host.indexOf("]");
+		if (end === -1) return host;
+		return host.slice(0, end + 1);
 	}
-});
+	const firstColon = host.indexOf(":");
+	if (firstColon === -1) return host;
+	if (host.indexOf(":", firstColon + 1) !== -1) return host;
+	return host.slice(0, firstColon);
+}
+/** Strip IPv6 zone identifier: `fe80::1%eth0` → `fe80::1`. */
+function stripZoneId(host) {
+	const zone = host.indexOf("%");
+	if (zone === -1) return host;
+	return host.slice(0, zone);
+}
 /**
-* revoke a single session
+* Strip trailing dots (RFC 1034 absolute DNS form): `localhost.` → `localhost`.
+* Without this, `metadata.google.internal.` would fall through to `public` and
+* bypass the cloud-metadata / `.localhost` checks, since WHATWG URL parsing
+* preserves the trailing dot in `url.hostname`.
 */
-var revokeSession = createAuthEndpoint("/revoke-session", {
-	method: "POST",
-	body: z$1.object({ token: z$1.string().meta({ description: "The token to revoke" }) }),
-	use: [sensitiveSessionMiddleware],
-	requireHeaders: true,
-	metadata: { openapi: {
-		description: "Revoke a single session",
-		requestBody: { content: { "application/json": { schema: {
-			type: "object",
-			properties: { token: {
-				type: "string",
-				description: "The token to revoke"
-			} },
-			required: ["token"]
-		} } } },
-		responses: { "200": {
-			description: "Success",
-			content: { "application/json": { schema: {
-				type: "object",
-				properties: { status: {
-					type: "boolean",
-					description: "Indicates if the session was revoked successfully"
-				} },
-				required: ["status"]
-			} } }
-		} }
-	} }
-}, async (ctx) => {
-	const token = ctx.body.token;
-	if ((await ctx.context.internalAdapter.findSession(token))?.session.userId === ctx.context.session.user.id) try {
-		await ctx.context.internalAdapter.deleteSession(token);
-	} catch (error) {
-		ctx.context.logger.error(error && typeof error === "object" && "name" in error ? error.name : "", error);
-		throw APIError.from("INTERNAL_SERVER_ERROR", {
-			message: "Internal Server Error",
-			code: "INTERNAL_SERVER_ERROR"
-		});
-	}
-	return ctx.json({ status: true });
-});
+function stripTrailingDot(host) {
+	return host.replace(/\.+$/, "");
+}
+/** Fast dotted-decimal shape check. Does NOT validate octet bounds. */
+function looksLikeIPv4(host) {
+	return /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(host);
+}
+/** Pack a validated dotted-decimal IPv4 into a 32-bit unsigned integer. */
+function ipv4ToUint32(ip) {
+	const parts = ip.split(".");
+	return (Number(parts[0]) << 24 | Number(parts[1]) << 16 | Number(parts[2]) << 8 | Number(parts[3])) >>> 0;
+}
+/** Check whether a 32-bit value matches `prefix/length` (both unsigned). */
+function inIPv4Range(value, prefix, length) {
+	if (length === 0) return true;
+	const mask = length === 32 ? 4294967295 : -1 << 32 - length >>> 0;
+	return (value & mask) === (prefix & mask);
+}
+function classifyIPv4(ip) {
+	if (ip === "0.0.0.0") return "unspecified";
+	if (ip === "255.255.255.255") return "broadcast";
+	const n = ipv4ToUint32(ip);
+	if (inIPv4Range(n, ipv4ToUint32("127.0.0.0"), 8)) return "loopback";
+	if (inIPv4Range(n, ipv4ToUint32("10.0.0.0"), 8)) return "private";
+	if (inIPv4Range(n, ipv4ToUint32("172.16.0.0"), 12)) return "private";
+	if (inIPv4Range(n, ipv4ToUint32("192.168.0.0"), 16)) return "private";
+	if (inIPv4Range(n, ipv4ToUint32("169.254.0.0"), 16)) return "linkLocal";
+	if (inIPv4Range(n, ipv4ToUint32("100.64.0.0"), 10)) return "sharedAddressSpace";
+	if (inIPv4Range(n, ipv4ToUint32("192.0.2.0"), 24)) return "documentation";
+	if (inIPv4Range(n, ipv4ToUint32("198.51.100.0"), 24)) return "documentation";
+	if (inIPv4Range(n, ipv4ToUint32("203.0.113.0"), 24)) return "documentation";
+	if (inIPv4Range(n, ipv4ToUint32("198.18.0.0"), 15)) return "benchmarking";
+	if (inIPv4Range(n, ipv4ToUint32("224.0.0.0"), 4)) return "multicast";
+	if (inIPv4Range(n, ipv4ToUint32("0.0.0.0"), 8)) return "reserved";
+	if (inIPv4Range(n, ipv4ToUint32("192.0.0.0"), 24)) return "reserved";
+	if (inIPv4Range(n, ipv4ToUint32("240.0.0.0"), 4)) return "reserved";
+	return "public";
+}
 /**
-* revoke all user sessions
+* Extract an IPv4 address embedded in an expanded IPv6 literal.
+*
+* Used to recurse into tunnel/translation forms (6to4, NAT64, Teredo) so a
+* private destination cannot be smuggled behind a syntactically-public IPv6
+* literal. `startGroup` is the index of the first of two 16-bit groups in the
+* expanded form (`0000:0000:...`). With `xor: true`, the 32-bit value is XORed
+* with `0xffffffff` before decoding (Teredo obfuscates the client IPv4 this
+* way).
 */
-var revokeSessions = createAuthEndpoint("/revoke-sessions", {
-	method: "POST",
-	use: [sensitiveSessionMiddleware],
-	requireHeaders: true,
-	metadata: { openapi: {
-		description: "Revoke all sessions for the user",
-		responses: { "200": {
-			description: "Success",
-			content: { "application/json": { schema: {
-				type: "object",
-				properties: { status: {
-					type: "boolean",
-					description: "Indicates if all sessions were revoked successfully"
-				} },
-				required: ["status"]
-			} } }
-		} }
-	} }
-}, async (ctx) => {
-	try {
-		await ctx.context.internalAdapter.deleteSessions(ctx.context.session.user.id);
-	} catch (error) {
-		ctx.context.logger.error(error && typeof error === "object" && "name" in error ? error.name : "", error);
-		throw APIError.from("INTERNAL_SERVER_ERROR", {
-			message: "Internal Server Error",
-			code: "INTERNAL_SERVER_ERROR"
-		});
+function extractEmbeddedIPv4(expanded, startGroup, options = {}) {
+	const offset = startGroup * 5;
+	const g1 = Number.parseInt(expanded.slice(offset, offset + 4), 16);
+	const g2 = Number.parseInt(expanded.slice(offset + 5, offset + 9), 16);
+	if (!Number.isFinite(g1) || !Number.isFinite(g2)) return null;
+	let combined = (g1 << 16 | g2) >>> 0;
+	if (options.xor) combined = (combined ^ 4294967295) >>> 0;
+	return `${combined >>> 24 & 255}.${combined >>> 16 & 255}.${combined >>> 8 & 255}.${combined & 255}`;
+}
+/**
+* Classify an expanded, full-form, lowercase IPv6 address (no IPv4-mapped
+* input — those are unmapped to IPv4 before reaching here).
+*
+* 6to4 (`2002::/16`), NAT64 (`64:ff9b::/96`) and Teredo (`2001:0000::/32`)
+* embed an IPv4 that can route to private/loopback space. If the embedded
+* IPv4 classifies as non-`public`, return `reserved` — blocks SSRF without
+* advertising the address as a loopback literal for RFC 8252 §7.3 matching.
+*/
+function classifyIPv6(expanded) {
+	if (expanded === "0000:0000:0000:0000:0000:0000:0000:0000") return "unspecified";
+	if (expanded === "0000:0000:0000:0000:0000:0000:0000:0001") return "loopback";
+	const firstByte = Number.parseInt(expanded.slice(0, 2), 16);
+	const secondByte = Number.parseInt(expanded.slice(2, 4), 16);
+	if (firstByte === 255) return "multicast";
+	if (firstByte === 254 && (secondByte & 192) === 128) return "linkLocal";
+	if ((firstByte & 254) === 252) return "private";
+	if (expanded.startsWith("2001:0db8:")) return "documentation";
+	if (expanded.startsWith("2001:0002:0000:")) return "benchmarking";
+	if (expanded.startsWith("2002:")) {
+		const embedded = extractEmbeddedIPv4(expanded, 1);
+		if (embedded && classifyIPv4(embedded) !== "public") return "reserved";
+		return "public";
 	}
-	return ctx.json({ status: true });
-});
-var revokeOtherSessions = createAuthEndpoint("/revoke-other-sessions", {
-	method: "POST",
-	requireHeaders: true,
-	use: [sensitiveSessionMiddleware],
-	metadata: { openapi: {
-		description: "Revoke all other sessions for the user except the current one",
-		responses: { "200": {
-			description: "Success",
-			content: { "application/json": { schema: {
-				type: "object",
-				properties: { status: {
-					type: "boolean",
-					description: "Indicates if all other sessions were revoked successfully"
-				} },
-				required: ["status"]
-			} } }
-		} }
-	} }
-}, async (ctx) => {
-	const session = ctx.context.session;
-	if (!session.user) throw APIError.from("UNAUTHORIZED", {
-		message: "Unauthorized",
-		code: "UNAUTHORIZED"
-	});
-	const otherSessions = (await ctx.context.internalAdapter.listSessions(session.user.id)).filter((session) => {
-		return session.expiresAt > /* @__PURE__ */ new Date();
-	}).filter((session) => session.token !== ctx.context.session.session.token);
-	await Promise.all(otherSessions.map((session) => ctx.context.internalAdapter.deleteSession(session.token)));
-	return ctx.json({ status: true });
-});
+	if (expanded.startsWith("0064:ff9b:0000:0000:0000:0000:")) {
+		const embedded = extractEmbeddedIPv4(expanded, 6);
+		if (embedded && classifyIPv4(embedded) !== "public") return "reserved";
+		return "reserved";
+	}
+	if (expanded.startsWith("0064:ff9b:0001:")) return "reserved";
+	if (expanded.startsWith("2001:0000:")) {
+		const embedded = extractEmbeddedIPv4(expanded, 6, { xor: true });
+		if (embedded && classifyIPv4(embedded) !== "public") return "reserved";
+		return "reserved";
+	}
+	if (expanded.startsWith("0100:0000:0000:0000:")) return "reserved";
+	if (expanded.startsWith("3fff:0")) return "documentation";
+	if (expanded.startsWith("5f00:")) return "reserved";
+	return "public";
+}
+/**
+* Classify a host string according to RFC 6890 / RFC 6761.
+*
+* Accepts inputs in any of these shapes and normalizes before classifying:
+*
+*   - Bare IPv4: `127.0.0.1`
+*   - Bare IPv6: `::1`, `fe80::1%eth0`
+*   - Bracketed IPv6: `[::1]`
+*   - Host with port: `localhost:3000`, `127.0.0.1:443`, `[::1]:8080`
+*   - FQDN: `example.com`, `tenant.localhost`
+*   - IPv4-mapped IPv6: `::ffff:192.0.2.1` (reported as `literal: "ipv4"`)
+*
+* Invalid or non-resolvable FQDNs are returned as `{ kind: "public", literal: "fqdn" }`
+* — this function never throws. Callers that need structural validation must
+* combine this with a URL/hostname validator upstream.
+*
+* @example
+* classifyHost("127.0.0.1")
+* // { kind: "loopback", literal: "ipv4", canonical: "127.0.0.1" }
+*
+* @example
+* classifyHost("[::1]:8080")
+* // { kind: "loopback", literal: "ipv6", canonical: "0000:0000:...:0001" }
+*
+* @example
+* classifyHost("::ffff:192.0.2.1")
+* // { kind: "documentation", literal: "ipv4", canonical: "192.0.2.1" }
+*
+* @example
+* classifyHost("tenant-a.localhost")
+* // { kind: "localhost", literal: "fqdn", canonical: "tenant-a.localhost" }
+*/
+function classifyHost(host) {
+	const lowered = stripTrailingDot(stripZoneId(stripBrackets(stripPort(host.trim())))).toLowerCase();
+	if (lowered === "") return {
+		kind: "reserved",
+		literal: "fqdn",
+		canonical: ""
+	};
+	if (!isValidIP(lowered)) {
+		if (lowered === "localhost" || lowered.endsWith(".localhost")) return {
+			kind: "localhost",
+			literal: "fqdn",
+			canonical: lowered
+		};
+		if (CLOUD_METADATA_HOSTS.has(lowered)) return {
+			kind: "cloudMetadata",
+			literal: "fqdn",
+			canonical: lowered
+		};
+		return {
+			kind: "public",
+			literal: "fqdn",
+			canonical: lowered
+		};
+	}
+	if (looksLikeIPv4(lowered)) return {
+		kind: classifyIPv4(lowered),
+		literal: "ipv4",
+		canonical: lowered
+	};
+	const canonical = normalizeIP(lowered, { ipv6Subnet: 128 });
+	if (looksLikeIPv4(canonical)) return {
+		kind: classifyIPv4(canonical),
+		literal: "ipv4",
+		canonical
+	};
+	return {
+		kind: classifyIPv6(canonical),
+		literal: "ipv6",
+		canonical
+	};
+}
+/**
+* Permissive loopback check for developer-ergonomics code paths.
+*
+* Returns true for IPv4 `127.0.0.0/8`, IPv6 `::1`, the literal name `localhost`,
+* and any RFC 6761 `.localhost` subdomain (`tenant.localhost`, `app.localhost`).
+*
+* Use this for things like: allowing HTTP for dev servers, skipping Secure
+* cookie requirements, browser-trust heuristics. Do NOT use this for OAuth
+* redirect URI matching — use {@link isLoopbackIP} there.
+*
+* @example
+* isLoopbackHost("localhost")         // true
+* isLoopbackHost("tenant.localhost")  // true  (RFC 6761)
+* isLoopbackHost("127.0.0.1")         // true
+* isLoopbackHost("0.0.0.0")           // false (unspecified, NOT loopback)
+*/
+function isLoopbackHost(host) {
+	const kind = classifyHost(host).kind;
+	return kind === "loopback" || kind === "localhost";
+}
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/context/helpers.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/context/helpers.mjs
 async function runPluginInit(context) {
 	let options = context.options;
 	const plugins = options.plugins || [];
-	const dbHooks = [];
 	const pluginTrustedOrigins = [];
+	const dbHooks = [];
 	for (const plugin of plugins) if (plugin.init) {
 		const initPromise = plugin.init(context);
 		let result;
@@ -30269,7 +30917,10 @@ async function runPluginInit(context) {
 		if (typeof result === "object") {
 			if (result.options) {
 				const { databaseHooks, trustedOrigins, ...restOpts } = result.options;
-				if (databaseHooks) dbHooks.push(databaseHooks);
+				if (databaseHooks) dbHooks.push({
+					source: `plugin:${plugin.id}`,
+					hooks: databaseHooks
+				});
 				if (trustedOrigins) pluginTrustedOrigins.push(trustedOrigins);
 				options = defu(options, restOpts);
 			}
@@ -30286,11 +30937,14 @@ async function runPluginInit(context) {
 		};
 		else options.trustedOrigins = staticOrigins;
 	}
-	dbHooks.push(options.databaseHooks);
+	if (options.databaseHooks) dbHooks.push({
+		source: "user",
+		hooks: options.databaseHooks
+	});
 	context.internalAdapter = createInternalAdapter(context.adapter, {
 		options,
 		logger: context.logger,
-		hooks: dbHooks.filter((u) => u !== void 0),
+		hooks: dbHooks,
 		generateId: context.generateId
 	});
 	context.options = options;
@@ -30304,9 +30958,10 @@ async function getTrustedOrigins(options, request) {
 	const trustedOrigins = [];
 	if (isDynamicBaseURLConfig(options.baseURL)) {
 		const allowedHosts = options.baseURL.allowedHosts;
+		const proto = options.baseURL.protocol;
 		for (const host of allowedHosts) if (!host.includes("://")) {
-			trustedOrigins.push(`https://${host}`);
-			if (host.includes("localhost") || host.includes("127.0.0.1")) trustedOrigins.push(`http://${host}`);
+			if (!proto || proto === "https" || proto === "auto") trustedOrigins.push(`https://${host}`);
+			if (proto === "http" || proto === "auto" || isLoopbackHost(host)) trustedOrigins.push(`http://${host}`);
 		} else trustedOrigins.push(host);
 		if (options.baseURL.fallback) try {
 			trustedOrigins.push(new URL(options.baseURL.fallback).origin);
@@ -30326,6 +30981,62 @@ async function getTrustedOrigins(options, request) {
 	if (envTrustedOrigins) trustedOrigins.push(...envTrustedOrigins.split(","));
 	return trustedOrigins.filter((v) => Boolean(v));
 }
+/**
+* Picks a `Request`-like or `Headers` value from a direct `auth.api` call.
+* Headers are only accepted when they carry a host: without one, host
+* resolution would fall back to `null` and the caller should use `fallback`
+* or pass a `Request` instead.
+*/
+function pickSource(input) {
+	if (isRequestLike(input?.request)) return input.request;
+	if (!input?.headers) return void 0;
+	const headers = input.headers instanceof Headers ? input.headers : new Headers(input.headers);
+	if (!headers.has("host") && !headers.has("x-forwarded-host")) return;
+	return headers;
+}
+/**
+* Returns the effective `trustedProxyHeaders` value for dynamic `baseURL`
+* resolution. When the user hasn't set `advanced.trustedProxyHeaders`,
+* proxy headers (`x-forwarded-host` / `x-forwarded-proto`) are trusted by
+* default so deployments behind a reverse proxy work without extra config.
+*/
+function resolveDynamicTrustedProxyHeaders(options) {
+	return options.advanced?.trustedProxyHeaders ?? true;
+}
+/**
+* Per-request clone with `baseURL`, `trustedOrigins`, `trustedProviders`
+* and cookies rehydrated for the resolved host. Throws `BetterAuthError`
+* when the URL cannot be resolved; callers on the direct-API path convert
+* this to `APIError`.
+*/
+async function resolveRequestContext(ctx, source, trustedProxyHeaders) {
+	const dynamicBaseURLConfig = ctx.options.baseURL;
+	const baseURL = resolveBaseURL(dynamicBaseURLConfig, ctx.options.basePath || "/api/auth", source, void 0, trustedProxyHeaders);
+	if (!baseURL) throw new BetterAuthError("Could not resolve base URL from request. Check your allowedHosts config.");
+	const resolved = Object.create(Object.getPrototypeOf(ctx), Object.getOwnPropertyDescriptors(ctx));
+	resolved.baseURL = baseURL;
+	resolved.options = {
+		...ctx.options,
+		baseURL: getOrigin(baseURL) || void 0
+	};
+	const trustedOriginOptions = {
+		...resolved.options,
+		baseURL: dynamicBaseURLConfig
+	};
+	const needsRequest = typeof ctx.options.trustedOrigins === "function" || typeof ctx.options.account?.accountLinking?.trustedProviders === "function";
+	let callbackRequest;
+	if (needsRequest) if (isRequestLike(source)) callbackRequest = source;
+	else if (source) callbackRequest = new Request(baseURL, { headers: source });
+	else callbackRequest = void 0;
+	else callbackRequest = void 0;
+	resolved.trustedOrigins = await getTrustedOrigins(trustedOriginOptions, callbackRequest);
+	resolved.trustedProviders = await getTrustedProviders(resolved.options, callbackRequest);
+	if (ctx.options.advanced?.crossSubDomainCookies?.enabled) {
+		resolved.authCookies = getCookies(resolved.options);
+		resolved.createAuthCookie = createCookieGetter(resolved.options);
+	}
+	return resolved;
+}
 async function getAwaitableValue(arr, item) {
 	if (!arr) return void 0;
 	for (const val of arr) {
@@ -30340,7 +31051,7 @@ async function getTrustedProviders(options, request) {
 	return (await trustedProviders(request) ?? []).filter((v) => Boolean(v));
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/oauth2/utils.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/oauth2/utils.mjs
 /**
 * Check if a string looks like encrypted data
 */
@@ -30367,7 +31078,508 @@ function setTokenUtil(token, ctx) {
 	return token;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/oauth2/utils.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/utils/request.mjs
+function safeCloneRequest(request) {
+	if (!request) return;
+	try {
+		return request.clone();
+	} catch {
+		return new Request(request.url, {
+			cache: request.cache,
+			credentials: request.credentials,
+			headers: request.headers,
+			integrity: request.integrity,
+			keepalive: request.keepalive,
+			method: request.method,
+			mode: request.mode,
+			redirect: request.redirect,
+			referrer: request.referrer,
+			referrerPolicy: request.referrerPolicy,
+			signal: request.signal
+		});
+	}
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/email-verification.mjs
+async function createEmailVerificationToken(secret, email, updateTo, expiresIn = 3600, extraPayload) {
+	return await signJWT({
+		email: email.toLowerCase(),
+		updateTo: updateTo?.toLowerCase(),
+		...extraPayload
+	}, secret, expiresIn);
+}
+/**
+* A function to send a verification email to the user
+*/
+async function sendVerificationEmailFn(ctx, user) {
+	if (!ctx.context.options.emailVerification?.sendVerificationEmail) {
+		ctx.context.logger.error("Verification email isn't enabled.");
+		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.VERIFICATION_EMAIL_NOT_ENABLED);
+	}
+	const token = await createEmailVerificationToken(ctx.context.secret, user.email, void 0, ctx.context.options.emailVerification?.expiresIn);
+	const callbackURL = ctx.body.callbackURL ? encodeURIComponent(ctx.body.callbackURL) : encodeURIComponent("/");
+	const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${callbackURL}`;
+	await ctx.context.options.emailVerification.sendVerificationEmail({
+		user,
+		url,
+		token
+	}, ctx.request);
+}
+var sendVerificationEmail = createAuthEndpoint("/send-verification-email", {
+	method: "POST",
+	operationId: "sendVerificationEmail",
+	cloneRequest: true,
+	body: z$1.object({
+		email: z$1.email().meta({ description: "The email to send the verification email to" }),
+		callbackURL: z$1.string().meta({ description: "The URL to use for email verification callback" }).optional()
+	}),
+	metadata: { openapi: {
+		operationId: "sendVerificationEmail",
+		description: "Send a verification email to the user",
+		requestBody: { content: { "application/json": { schema: {
+			type: "object",
+			properties: {
+				email: {
+					type: "string",
+					description: "The email to send the verification email to",
+					example: "user@example.com"
+				},
+				callbackURL: {
+					type: "string",
+					description: "The URL to use for email verification callback",
+					example: "https://example.com/callback",
+					nullable: true
+				}
+			},
+			required: ["email"]
+		} } } },
+		responses: {
+			"200": {
+				description: "Success",
+				content: { "application/json": { schema: {
+					type: "object",
+					properties: { status: {
+						type: "boolean",
+						description: "Indicates if the email was sent successfully",
+						example: true
+					} }
+				} } }
+			},
+			"400": {
+				description: "Bad Request",
+				content: { "application/json": { schema: {
+					type: "object",
+					properties: { message: {
+						type: "string",
+						description: "Error message",
+						example: "Verification email isn't enabled"
+					} }
+				} } }
+			}
+		}
+	} }
+}, async (ctx) => {
+	if (!ctx.context.options.emailVerification?.sendVerificationEmail) {
+		ctx.context.logger.error("Verification email isn't enabled.");
+		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.VERIFICATION_EMAIL_NOT_ENABLED);
+	}
+	const { email } = ctx.body;
+	const session = await getSessionFromCtx(ctx);
+	if (!session) {
+		/**
+		* Enforce a constant-time floor so an attacker cannot distinguish
+		* "email not found / already verified" (fast local JWT sign) from
+		* "email found and unverified" (slow external email-send) by
+		* comparing response times.
+		*/
+		const MINIMUM_MS = 500;
+		const start = Date.now();
+		const user = await ctx.context.internalAdapter.findUserByEmail(email);
+		let error;
+		if (!user || user.user.emailVerified) await createEmailVerificationToken(ctx.context.secret, email, void 0, ctx.context.options.emailVerification?.expiresIn);
+		else try {
+			await sendVerificationEmailFn(ctx, user.user);
+		} catch (e) {
+			error = e;
+		}
+		const remaining = MINIMUM_MS - (Date.now() - start);
+		if (remaining > 0) await new Promise((resolve) => setTimeout(resolve, remaining));
+		if (error) throw error;
+		return ctx.json({ status: true });
+	}
+	if (session?.user.email.toLowerCase() !== email.toLowerCase()) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.EMAIL_MISMATCH);
+	if (session?.user.emailVerified) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.EMAIL_ALREADY_VERIFIED);
+	await sendVerificationEmailFn(ctx, session.user);
+	return ctx.json({ status: true });
+});
+var verifyEmail = createAuthEndpoint("/verify-email", {
+	method: "GET",
+	operationId: "verifyEmail",
+	query: z$1.object({
+		token: z$1.string().meta({ description: "The token to verify the email" }),
+		callbackURL: z$1.string().meta({ description: "The URL to redirect to after email verification" }).optional()
+	}),
+	use: [originCheck((ctx) => ctx.query.callbackURL)],
+	metadata: { openapi: {
+		description: "Verify the email of the user",
+		parameters: [{
+			name: "token",
+			in: "query",
+			description: "The token to verify the email",
+			required: true,
+			schema: { type: "string" }
+		}, {
+			name: "callbackURL",
+			in: "query",
+			description: "The URL to redirect to after email verification",
+			required: false,
+			schema: { type: "string" }
+		}],
+		responses: { "200": {
+			description: "Success",
+			content: { "application/json": { schema: {
+				type: "object",
+				properties: {
+					user: {
+						type: "object",
+						$ref: "#/components/schemas/User"
+					},
+					status: {
+						type: "boolean",
+						description: "Indicates if the email was verified successfully"
+					}
+				},
+				required: ["user", "status"]
+			} } }
+		} }
+	} }
+}, async (ctx) => {
+	function redirectOnError(error) {
+		if (ctx.query.callbackURL) {
+			if (ctx.query.callbackURL.includes("?")) throw ctx.redirect(`${ctx.query.callbackURL}&error=${error.code}`);
+			throw ctx.redirect(`${ctx.query.callbackURL}?error=${error.code}`);
+		}
+		throw APIError.from("UNAUTHORIZED", error);
+	}
+	const { token } = ctx.query;
+	let jwt;
+	try {
+		jwt = await jwtVerify(token, new TextEncoder().encode(ctx.context.secret), { algorithms: ["HS256"] });
+	} catch (e) {
+		if (e instanceof JWTExpired) return redirectOnError(BASE_ERROR_CODES.TOKEN_EXPIRED);
+		return redirectOnError(BASE_ERROR_CODES.INVALID_TOKEN);
+	}
+	const parsed = z$1.object({
+		email: z$1.email(),
+		updateTo: z$1.string().optional(),
+		requestType: z$1.string().optional()
+	}).parse(jwt.payload);
+	const user = await ctx.context.internalAdapter.findUserByEmail(parsed.email);
+	if (!user) return redirectOnError(BASE_ERROR_CODES.USER_NOT_FOUND);
+	if (parsed.updateTo) {
+		const session = await getSessionFromCtx(ctx);
+		if (session && session.user.email !== parsed.email) return redirectOnError(BASE_ERROR_CODES.INVALID_USER);
+		switch (parsed.requestType) {
+			/**
+			* User clicks confirmation -> sends verification to new email
+			*/
+			case "change-email-confirmation": {
+				const newToken = await createEmailVerificationToken(ctx.context.secret, parsed.email, parsed.updateTo, ctx.context.options.emailVerification?.expiresIn, { requestType: "change-email-verification" });
+				const updateCallbackURL = ctx.query.callbackURL ? encodeURIComponent(ctx.query.callbackURL) : encodeURIComponent("/");
+				const url = `${ctx.context.baseURL}/verify-email?token=${newToken}&callbackURL=${updateCallbackURL}`;
+				if (ctx.context.options.emailVerification?.sendVerificationEmail) await ctx.context.runInBackgroundOrAwait(ctx.context.options.emailVerification.sendVerificationEmail({
+					user: {
+						...user.user,
+						email: parsed.updateTo
+					},
+					url,
+					token: newToken
+				}, safeCloneRequest(ctx.request)));
+				if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
+				return ctx.json({ status: true });
+			}
+			/**
+			* User clicks verification -> updates email
+			*/
+			case "change-email-verification": {
+				let activeSession = session;
+				if (!activeSession) {
+					const newSession = await ctx.context.internalAdapter.createSession(user.user.id);
+					if (!newSession) throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION);
+					activeSession = {
+						session: newSession,
+						user: user.user
+					};
+				}
+				const updatedUser = await ctx.context.internalAdapter.updateUserByEmail(parsed.email, {
+					email: parsed.updateTo,
+					emailVerified: true
+				});
+				if (ctx.context.options.emailVerification?.afterEmailVerification) await ctx.context.options.emailVerification.afterEmailVerification(updatedUser, ctx.request);
+				await setSessionCookie(ctx, {
+					session: activeSession.session,
+					user: {
+						...activeSession.user,
+						email: parsed.updateTo,
+						emailVerified: true
+					}
+				});
+				if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
+				return ctx.json({
+					status: true,
+					user: parseUserOutput(ctx.context.options, updatedUser)
+				});
+			}
+			/**
+			* Legacy flow
+			*
+			* - skips two-step verification
+			* - updates email immediately
+			*/
+			default: {
+				let activeSession = session;
+				if (!activeSession) {
+					const newSession = await ctx.context.internalAdapter.createSession(user.user.id);
+					if (!newSession) throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION);
+					activeSession = {
+						session: newSession,
+						user: user.user
+					};
+				}
+				const updatedUser = await ctx.context.internalAdapter.updateUserByEmail(parsed.email, {
+					email: parsed.updateTo,
+					emailVerified: false
+				});
+				const newToken = await createEmailVerificationToken(ctx.context.secret, parsed.updateTo);
+				const updateCallbackURL = ctx.query.callbackURL ? encodeURIComponent(ctx.query.callbackURL) : encodeURIComponent("/");
+				if (ctx.context.options.emailVerification?.sendVerificationEmail) await ctx.context.runInBackgroundOrAwait(ctx.context.options.emailVerification.sendVerificationEmail({
+					user: updatedUser,
+					url: `${ctx.context.baseURL}/verify-email?token=${newToken}&callbackURL=${updateCallbackURL}`,
+					token: newToken
+				}, safeCloneRequest(ctx.request)));
+				await setSessionCookie(ctx, {
+					session: activeSession.session,
+					user: {
+						...activeSession.user,
+						email: parsed.updateTo,
+						emailVerified: false
+					}
+				});
+				if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
+				return ctx.json({
+					status: true,
+					user: parseUserOutput(ctx.context.options, updatedUser)
+				});
+			}
+		}
+	}
+	if (user.user.emailVerified) {
+		if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
+		return ctx.json({
+			status: true,
+			user: null
+		});
+	}
+	if (ctx.context.options.emailVerification?.beforeEmailVerification) await ctx.context.options.emailVerification.beforeEmailVerification(user.user, ctx.request);
+	const updatedUser = await ctx.context.internalAdapter.updateUserByEmail(parsed.email, { emailVerified: true });
+	if (ctx.context.options.emailVerification?.afterEmailVerification) await ctx.context.options.emailVerification.afterEmailVerification(updatedUser, ctx.request);
+	if (ctx.context.options.emailVerification?.autoSignInAfterVerification) {
+		const currentSession = await getSessionFromCtx(ctx);
+		if (!currentSession || currentSession.user.email !== parsed.email) {
+			const session = await ctx.context.internalAdapter.createSession(user.user.id);
+			if (!session) throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION);
+			await setSessionCookie(ctx, {
+				session,
+				user: {
+					...user.user,
+					emailVerified: true
+				}
+			});
+		} else await setSessionCookie(ctx, {
+			session: currentSession.session,
+			user: {
+				...currentSession.user,
+				emailVerified: true
+			}
+		});
+	}
+	if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
+	return ctx.json({
+		status: true,
+		user: null
+	});
+});
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/oauth2/link-account.mjs
+async function handleOAuthUserInfo(c, opts) {
+	const { userInfo, account, callbackURL, disableSignUp, overrideUserInfo } = opts;
+	const dbUser = await c.context.internalAdapter.findOAuthUser(userInfo.email.toLowerCase(), account.accountId, account.providerId).catch((e) => {
+		c.context.logger.error("Better auth was unable to query your database.\nError: ", e);
+		redirectOnError(c, c.context.options.onAPIError?.errorURL || `${c.context.baseURL}/error`, "internal_server_error");
+	});
+	let user = dbUser?.user;
+	const isRegister = !user;
+	if (dbUser) {
+		const linkedAccount = dbUser.linkedAccount ?? dbUser.accounts.find((acc) => acc.providerId === account.providerId && acc.accountId === account.accountId);
+		if (!linkedAccount) {
+			const accountLinking = c.context.options.account?.accountLinking;
+			const isTrustedProvider = opts.isTrustedProvider || opts.trustProviderByName !== false && c.context.trustedProviders.includes(account.providerId);
+			const requireLocalEmailVerified = accountLinking?.requireLocalEmailVerified ?? true;
+			if (!isTrustedProvider && !userInfo.emailVerified || requireLocalEmailVerified && !dbUser.user.emailVerified || accountLinking?.enabled === false || accountLinking?.disableImplicitLinking === true) {
+				if (isDevelopment()) c.context.logger.warn(`User already exist but account isn't linked to ${account.providerId}. To read more about how account linking works in Better Auth see https://www.better-auth.com/docs/concepts/users-accounts#account-linking.`);
+				return {
+					error: "account not linked",
+					data: null
+				};
+			}
+			try {
+				await c.context.internalAdapter.linkAccount({
+					providerId: account.providerId,
+					accountId: userInfo.id.toString(),
+					userId: dbUser.user.id,
+					accessToken: await setTokenUtil(account.accessToken, c.context),
+					refreshToken: await setTokenUtil(account.refreshToken, c.context),
+					idToken: account.idToken,
+					accessTokenExpiresAt: account.accessTokenExpiresAt,
+					refreshTokenExpiresAt: account.refreshTokenExpiresAt,
+					scope: account.scope
+				});
+			} catch (e) {
+				c.context.logger.error("Unable to link account", e);
+				return {
+					error: "unable to link account",
+					data: null
+				};
+			}
+			if (userInfo.emailVerified && !dbUser.user.emailVerified && userInfo.email.toLowerCase() === dbUser.user.email) await c.context.internalAdapter.updateUser(dbUser.user.id, { emailVerified: true });
+			user = await applyUpdateUserInfoOnLink(c, dbUser.user.id, userInfo) ?? user;
+		} else {
+			const freshTokens = c.context.options.account?.updateAccountOnSignIn !== false ? Object.fromEntries(Object.entries({
+				idToken: account.idToken,
+				accessToken: await setTokenUtil(account.accessToken, c.context),
+				refreshToken: await setTokenUtil(account.refreshToken, c.context),
+				accessTokenExpiresAt: account.accessTokenExpiresAt,
+				refreshTokenExpiresAt: account.refreshTokenExpiresAt,
+				scope: account.scope
+			}).filter(([_, value]) => value !== void 0)) : {};
+			if (c.context.options.account?.storeAccountCookie) await setAccountCookie(c, {
+				...linkedAccount,
+				...freshTokens
+			});
+			if (Object.keys(freshTokens).length > 0) await c.context.internalAdapter.updateAccount(linkedAccount.id, freshTokens);
+			if (userInfo.emailVerified && !dbUser.user.emailVerified && userInfo.email.toLowerCase() === dbUser.user.email) await c.context.internalAdapter.updateUser(dbUser.user.id, { emailVerified: true });
+		}
+		if (overrideUserInfo) {
+			const { id: _id, email: _email, emailVerified: _emailVerified, name, image, ...providerProfile } = userInfo;
+			const additionalUserFields = parseAdditionalUserInputFromProviderProfile(c.context.options, providerProfile, "update");
+			user = await c.context.internalAdapter.updateUser(dbUser.user.id, {
+				name,
+				image,
+				...additionalUserFields,
+				email: userInfo.email.toLowerCase(),
+				emailVerified: userInfo.email.toLowerCase() === dbUser.user.email ? dbUser.user.emailVerified || userInfo.emailVerified : userInfo.emailVerified
+			});
+		}
+	} else {
+		if (disableSignUp) return {
+			error: "signup disabled",
+			data: null,
+			isRegister: false
+		};
+		try {
+			const { id: _id, email: _email, emailVerified: _emailVerified, name, image, ...providerProfile } = userInfo;
+			const additionalUserFields = parseAdditionalUserInputFromProviderProfile(c.context.options, providerProfile, "create");
+			const accountData = {
+				accessToken: await setTokenUtil(account.accessToken, c.context),
+				refreshToken: await setTokenUtil(account.refreshToken, c.context),
+				idToken: account.idToken,
+				accessTokenExpiresAt: account.accessTokenExpiresAt,
+				refreshTokenExpiresAt: account.refreshTokenExpiresAt,
+				scope: account.scope,
+				providerId: account.providerId,
+				accountId: userInfo.id.toString()
+			};
+			const { user: createdUser, account: createdAccount } = await c.context.internalAdapter.createOAuthUser({
+				name,
+				image,
+				...additionalUserFields,
+				email: userInfo.email.toLowerCase(),
+				emailVerified: userInfo.emailVerified
+			}, accountData);
+			user = createdUser;
+			if (c.context.options.account?.storeAccountCookie) await setAccountCookie(c, createdAccount);
+			if (!userInfo.emailVerified && user && c.context.options.emailVerification?.sendOnSignUp && c.context.options.emailVerification?.sendVerificationEmail) {
+				const token = await createEmailVerificationToken(c.context.secret, user.email, void 0, c.context.options.emailVerification?.expiresIn);
+				const url = `${c.context.baseURL}/verify-email?token=${token}&callbackURL=${encodeURIComponent(callbackURL || "/")}`;
+				await c.context.runInBackgroundOrAwait(c.context.options.emailVerification.sendVerificationEmail({
+					user,
+					url,
+					token
+				}, c.request));
+			}
+		} catch (e) {
+			c.context.logger.error(e);
+			if (isAPIError(e)) return {
+				error: e.message,
+				data: null,
+				isRegister: false
+			};
+			return {
+				error: "unable to create user",
+				data: null,
+				isRegister: false
+			};
+		}
+	}
+	if (!user) return {
+		error: "unable to create user",
+		data: null,
+		isRegister: false
+	};
+	const session = await c.context.internalAdapter.createSession(user.id);
+	if (!session) return {
+		error: "unable to create session",
+		data: null,
+		isRegister: false
+	};
+	return {
+		data: {
+			session,
+			user
+		},
+		error: null,
+		isRegister
+	};
+}
+/**
+* Apply the `account.accountLinking.updateUserInfoOnLink` policy: when enabled,
+* copy the freshly linked provider's profile onto the local user, matching the
+* field set persisted on sign-up. The local `email` and `emailVerified` are
+* never changed, so a link can't rebind the account's identity, and
+* `updateUser` drops `undefined` fields, so a provider that omits one leaves
+* the existing column intact.
+*
+* Returns the updated user so a caller that issues a session can seed the
+* cookie cache with the fresh row. Returns `undefined` when the policy is
+* disabled or the update fails: a failed profile sync must not abort the link.
+*/
+async function applyUpdateUserInfoOnLink(c, userId, userInfo) {
+	if (c.context.options.account?.accountLinking?.updateUserInfoOnLink !== true) return;
+	try {
+		const { id: _id, email: _email, emailVerified: _emailVerified, name, image, ...providerProfile } = userInfo;
+		const additionalUserFields = parseAdditionalUserInputFromProviderProfile(c.context.options, providerProfile, "update");
+		return await c.context.internalAdapter.updateUser(userId, {
+			name,
+			image,
+			...additionalUserFields
+		});
+	} catch (e) {
+		c.context.logger.warn("Could not update user info on account link", e);
+		return;
+	}
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/oauth2/utils.mjs
 function getOAuth2Tokens(data) {
 	const getDate = (seconds) => {
 		return new Date((/* @__PURE__ */ new Date()).getTime() + seconds * 1e3);
@@ -30383,13 +31595,25 @@ function getOAuth2Tokens(data) {
 		raw: data
 	};
 }
+/**
+* Return the provider's primary Client ID: the single string, or the entry at
+* array index 0 for the cross-platform form used by ID token audience
+* verification. Index 0 is the designated primary and pairs with
+* `clientSecret` for the authorization code flow; later array entries are
+* only used as additional accepted audiences. Returns `undefined` when the
+* primary value is missing or an empty string.
+*/
+function getPrimaryClientId(clientId) {
+	const value = Array.isArray(clientId) ? clientId[0] : clientId;
+	return typeof value === "string" && value.length > 0 ? value : void 0;
+}
 async function generateCodeChallenge(codeVerifier) {
 	const data = new TextEncoder().encode(codeVerifier);
 	const hash = await crypto.subtle.digest("SHA-256", data);
 	return base64Url.encode(new Uint8Array(hash), { padding: false });
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/oauth2/create-authorization-url.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/oauth2/create-authorization-url.mjs
 async function createAuthorizationURL({ id, options, authorizationEndpoint, state, codeVerifier, scopes, claims, redirectURI, duration, prompt, accessType, responseType, display, loginHint, hd, responseMode, additionalParams, scopeJoiner }) {
 	options = typeof options === "function" ? await options() : options;
 	const url = new URL(options.authorizationEndpoint || authorizationEndpoint);
@@ -30428,7 +31652,56 @@ async function createAuthorizationURL({ id, options, authorizationEndpoint, stat
 	return url;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/oauth2/refresh-access-token.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/oauth2/reject-redirects.mjs
+var HTTP_REDIRECT_STATUSES = /* @__PURE__ */ new Set([
+	301,
+	302,
+	303,
+	307,
+	308
+]);
+/**
+* Whether a response from a `redirect: "manual"` fetch is a redirect.
+*
+* Node/undici exposes the real 3xx status. Spec-compliant runtimes (Cloudflare
+* Workers, Deno, browsers) return an opaque-redirect filtered response with
+* status 0 and type `"opaqueredirect"`, so the status alone is not enough.
+*/
+function isRedirectResponse(response) {
+	return response.type === "opaqueredirect" || HTTP_REDIRECT_STATUSES.has(response.status);
+}
+function redirectRefused(endpoint) {
+	return new BetterAuthError(`The OAuth endpoint "${endpoint}" returned an HTTP redirect. Server-side OAuth fetches refuse redirects to prevent SSRF; configure the final endpoint URL.`);
+}
+/**
+* Fetch option that refuses HTTP redirects portably.
+*
+* Cloudflare Workers (workerd) rejects `redirect: "error"`, so manual mode is
+* used and the resolved response is checked with {@link assertResponseNotRedirect}
+* (or, for betterFetch, with {@link fetchRefusingRedirects}).
+*/
+var NO_FOLLOW_REDIRECT = { redirect: "manual" };
+/**
+* betterFetch that refuses HTTP redirects on a server-side OAuth fetch.
+*
+* Returns the betterFetch result and throws if the endpoint redirected, on both
+* undici (real 3xx status) and spec-compliant runtimes (opaque redirect, where
+* the error status is 0). The redirect is never followed on any runtime.
+*/
+async function fetchRefusingRedirects(url, options) {
+	let redirected = false;
+	const result = await betterFetch(url, {
+		...options,
+		...NO_FOLLOW_REDIRECT,
+		onError(context) {
+			if (isRedirectResponse(context.response)) redirected = true;
+		}
+	});
+	if (redirected) throw redirectRefused(url);
+	return result;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/oauth2/refresh-access-token.mjs
 /**
 * @deprecated use async'd refreshAccessTokenRequest instead
 */
@@ -30464,7 +31737,7 @@ async function refreshAccessToken({ refreshToken, options, tokenEndpoint, authen
 		authentication,
 		extraParams
 	});
-	const { data, error } = await betterFetch(tokenEndpoint, {
+	const { data, error } = await fetchRefusingRedirects(tokenEndpoint, {
 		method: "POST",
 		body,
 		headers
@@ -30482,7 +31755,7 @@ async function refreshAccessToken({ refreshToken, options, tokenEndpoint, authen
 	return tokens;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/oauth2/validate-authorization-code.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/oauth2/validate-authorization-code.mjs
 async function authorizationCodeRequest({ code, codeVerifier, redirectURI, options, authentication, deviceId, headers, additionalParams = {}, resource }) {
 	options = typeof options === "function" ? await options() : options;
 	return createAuthorizationCodeRequest({
@@ -30541,7 +31814,7 @@ async function validateAuthorizationCode({ code, codeVerifier, redirectURI, opti
 		additionalParams,
 		resource
 	});
-	const { data, error } = await betterFetch(tokenEndpoint, {
+	const { data, error } = await fetchRefusingRedirects(tokenEndpoint, {
 		method: "POST",
 		body,
 		headers: requestHeaders
@@ -30550,13 +31823,27 @@ async function validateAuthorizationCode({ code, codeVerifier, redirectURI, opti
 	return getOAuth2Tokens(data);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/apple.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/apple.mjs
+async function sha256Hex(value) {
+	const data = new TextEncoder().encode(value);
+	const digest = await crypto.subtle.digest("SHA-256", data);
+	return Array.from(new Uint8Array(digest)).map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+async function nonceMatches(jwtNonce, nonce) {
+	if (typeof jwtNonce !== "string") return false;
+	if (jwtNonce === nonce) return true;
+	return jwtNonce === await sha256Hex(nonce);
+}
 var apple = (options) => {
 	const tokenEndpoint = "https://appleid.apple.com/auth/token";
 	return {
 		id: "apple",
 		name: "Apple",
-		async createAuthorizationURL({ state, scopes, redirectURI }) {
+		async createAuthorizationURL({ state, scopes, redirectURI, codeVerifier }) {
+			if (!getPrimaryClientId(options.clientId) || !options.clientSecret) {
+				logger.error("Client ID and client secret are required for Apple. Make sure to provide them in the options.");
+				throw new BetterAuthError("CLIENT_ID_AND_SECRET_REQUIRED");
+			}
 			const _scope = options.disableDefaultScope ? [] : ["email", "name"];
 			if (options.scope) _scope.push(...options.scope);
 			if (scopes) _scope.push(...scopes);
@@ -30567,6 +31854,7 @@ var apple = (options) => {
 				scopes: _scope,
 				state,
 				redirectURI,
+				codeVerifier,
 				responseMode: "form_post",
 				responseType: "code id_token"
 			});
@@ -30580,9 +31868,9 @@ var apple = (options) => {
 				tokenEndpoint
 			});
 		},
-		async verifyIdToken(token, nonce) {
+		async verifyIdToken(token, nonce, ctx) {
 			if (options.disableIdTokenSignIn) return false;
-			if (options.verifyIdToken) return options.verifyIdToken(token, nonce);
+			if (options.verifyIdToken) return options.verifyIdToken(token, nonce, ctx);
 			try {
 				const { kid, alg: jwtAlg } = decodeProtectedHeader(token);
 				if (!kid || !jwtAlg) return false;
@@ -30595,7 +31883,7 @@ var apple = (options) => {
 				["email_verified", "is_private_email"].forEach((field) => {
 					if (jwtClaims[field] !== void 0) jwtClaims[field] = Boolean(jwtClaims[field]);
 				});
-				if (nonce && jwtClaims.nonce !== nonce) return false;
+				if (nonce && !await nonceMatches(jwtClaims.nonce, nonce)) return false;
 				return !!jwtClaims;
 			} catch {
 				return false;
@@ -30605,7 +31893,7 @@ var apple = (options) => {
 			return refreshAccessToken({
 				refreshToken,
 				options,
-				tokenEndpoint: "https://appleid.apple.com/auth/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -30644,8 +31932,9 @@ var getApplePublicKey = async (kid) => {
 	return await importJWK(jwk, jwk.alg);
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/atlassian.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/atlassian.mjs
 var atlassian = (options) => {
+	const tokenEndpoint = "https://auth.atlassian.com/oauth/token";
 	return {
 		id: "atlassian",
 		name: "Atlassian",
@@ -30676,7 +31965,7 @@ var atlassian = (options) => {
 				codeVerifier,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://auth.atlassian.com/oauth/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -30686,7 +31975,7 @@ var atlassian = (options) => {
 					clientId: options.clientId,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://auth.atlassian.com/oauth/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -30716,7 +32005,7 @@ var atlassian = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/cognito.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/cognito.mjs
 var cognito = (options) => {
 	if (!options.domain || !options.region || !options.userPoolId) {
 		logger.error("Domain, region and userPoolId are required for Amazon Cognito. Make sure to provide them in the options.");
@@ -30730,7 +32019,7 @@ var cognito = (options) => {
 		id: "cognito",
 		name: "Cognito",
 		async createAuthorizationURL({ state, scopes, codeVerifier, redirectURI }) {
-			if (!options.clientId) {
+			if (!getPrimaryClientId(options.clientId)) {
 				logger.error("ClientId is required for Amazon Cognito. Make sure to provide them in the options.");
 				throw new BetterAuthError("CLIENT_ID_AND_SECRET_REQUIRED");
 			}
@@ -30785,9 +32074,9 @@ var cognito = (options) => {
 				tokenEndpoint
 			});
 		},
-		async verifyIdToken(token, nonce) {
+		async verifyIdToken(token, nonce, ctx) {
 			if (options.disableIdTokenSignIn) return false;
-			if (options.verifyIdToken) return options.verifyIdToken(token, nonce);
+			if (options.verifyIdToken) return options.verifyIdToken(token, nonce, ctx);
 			try {
 				const { kid, alg: jwtAlg } = decodeProtectedHeader(token);
 				if (!kid || !jwtAlg) return false;
@@ -30869,8 +32158,9 @@ var getCognitoPublicKey = async (kid, region, userPoolId) => {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/discord.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/discord.mjs
 var discord = (options) => {
+	const tokenEndpoint = "https://discord.com/api/oauth2/token";
 	return {
 		id: "discord",
 		name: "Discord",
@@ -30886,7 +32176,7 @@ var discord = (options) => {
 				code,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://discord.com/api/oauth2/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -30897,7 +32187,7 @@ var discord = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://discord.com/api/oauth2/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -30926,7 +32216,7 @@ var discord = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/dropbox.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/dropbox.mjs
 var dropbox = (options) => {
 	const tokenEndpoint = "https://api.dropboxapi.com/oauth2/token";
 	return {
@@ -30993,12 +32283,44 @@ var dropbox = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/facebook.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/facebook.mjs
+/**
+* Validate an opaque Facebook access token against the configured app.
+*
+* Facebook access tokens are not audience-bound at the Graph `/me` endpoint: a
+* token minted for any Facebook app returns that app's profile. Without this
+* check, a token issued to an unrelated app could be presented to this
+* app's direct sign-in path and accepted as proof of identity. We call the
+* `debug_token` endpoint and require the token to be valid, bound to one of the
+* configured client ids, and tied to a user.
+*
+* @see https://developers.facebook.com/docs/facebook-login/guides/access-tokens/debugging
+*
+* @returns the inspected token's `user_id` when the token is valid and bound to
+* the configured app, otherwise `null`.
+*/
+async function verifyFacebookAccessToken(accessToken, options) {
+	const primaryClientId = getPrimaryClientId(options.clientId);
+	if (!primaryClientId || !options.clientSecret) return null;
+	const clientIds = Array.isArray(options.clientId) ? options.clientId : [options.clientId];
+	const { data, error } = await betterFetch("https://graph.facebook.com/debug_token", { query: {
+		input_token: accessToken,
+		access_token: `${primaryClientId}|${options.clientSecret}`
+	} });
+	if (error || !data?.data) return null;
+	const { is_valid, app_id, user_id } = data.data;
+	if (is_valid !== true || !app_id || !clientIds.includes(app_id) || !user_id) return null;
+	return user_id;
+}
 var facebook = (options) => {
 	return {
 		id: "facebook",
 		name: "Facebook",
 		async createAuthorizationURL({ state, scopes, redirectURI, loginHint }) {
+			if (!getPrimaryClientId(options.clientId) || !options.clientSecret) {
+				logger.error("Client ID and client secret are required for Facebook. Make sure to provide them in the options.");
+				throw new BetterAuthError("CLIENT_ID_AND_SECRET_REQUIRED");
+			}
 			const _scopes = options.disableDefaultScope ? [] : ["email", "public_profile"];
 			if (options.scope) _scopes.push(...options.scope);
 			if (scopes) _scopes.push(...scopes);
@@ -31021,9 +32343,9 @@ var facebook = (options) => {
 				tokenEndpoint: "https://graph.facebook.com/v24.0/oauth/access_token"
 			});
 		},
-		async verifyIdToken(token, nonce) {
+		async verifyIdToken(token, nonce, ctx) {
 			if (options.disableIdTokenSignIn) return false;
-			if (options.verifyIdToken) return options.verifyIdToken(token, nonce);
+			if (options.verifyIdToken) return options.verifyIdToken(token, nonce, ctx);
 			if (token.split(".").length === 3) try {
 				const { payload: jwtClaims } = await jwtVerify(token, createRemoteJWKSet(new URL("https://limited.facebook.com/.well-known/oauth/openid/jwks/")), {
 					algorithms: ["RS256"],
@@ -31035,7 +32357,7 @@ var facebook = (options) => {
 			} catch {
 				return false;
 			}
-			return true;
+			return await verifyFacebookAccessToken(token, options) !== null;
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
 			return refreshAccessToken({
@@ -31076,6 +32398,10 @@ var facebook = (options) => {
 					data: profile
 				};
 			}
+			const accessToken = token.accessToken;
+			if (!accessToken) return null;
+			const tokenUserId = await verifyFacebookAccessToken(accessToken, options);
+			if (!tokenUserId) return null;
 			const { data: profile, error } = await betterFetch("https://graph.facebook.com/me?fields=" + [
 				"id",
 				"name",
@@ -31084,9 +32410,10 @@ var facebook = (options) => {
 				...options?.fields || []
 			].join(","), { auth: {
 				type: "Bearer",
-				token: token.accessToken
+				token: accessToken
 			} });
 			if (error) return null;
+			if (profile.id !== tokenUserId) return null;
 			const userMap = await options.mapProfileToUser?.(profile);
 			return {
 				user: {
@@ -31094,7 +32421,7 @@ var facebook = (options) => {
 					name: profile.name,
 					email: profile.email,
 					image: profile.picture.data.url,
-					emailVerified: profile.email_verified,
+					emailVerified: profile.email_verified ?? false,
 					...userMap
 				},
 				data: profile
@@ -31104,8 +32431,9 @@ var facebook = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/figma.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/figma.mjs
 var figma = (options) => {
+	const tokenEndpoint = "https://api.figma.com/v1/oauth/token";
 	return {
 		id: "figma",
 		name: "Figma",
@@ -31134,7 +32462,7 @@ var figma = (options) => {
 				codeVerifier,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://api.figma.com/v1/oauth/token",
+				tokenEndpoint,
 				authentication: "basic"
 			});
 		},
@@ -31146,7 +32474,7 @@ var figma = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://api.figma.com/v1/oauth/token",
+				tokenEndpoint,
 				authentication: "basic"
 			});
 		},
@@ -31179,7 +32507,7 @@ var figma = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/github.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/github.mjs
 var github = (options) => {
 	const tokenEndpoint = "https://github.com/login/oauth/access_token";
 	return {
@@ -31231,7 +32559,7 @@ var github = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://github.com/login/oauth/access_token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -31264,7 +32592,7 @@ var github = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/gitlab.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/gitlab.mjs
 var cleanDoubleSlashes = (input = "") => {
 	return input.split("://").map((str) => str.replace(/\/{2,}/g, "/")).join("://");
 };
@@ -31338,13 +32666,44 @@ var gitlab = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/google.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/google.mjs
+var GOOGLE_ID_TOKEN_MAX_AGE = "1h";
+/**
+* Verifies a Google ID token against Google's issuer, audience, signature,
+* expiry, and maximum token age.
+*/
+var verifyGoogleIdToken = async ({ token, audience, nonce }) => {
+	try {
+		const { kid, alg: jwtAlg } = decodeProtectedHeader(token);
+		if (!kid || !jwtAlg) return null;
+		const { payload: jwtClaims } = await jwtVerify(token, await getGooglePublicKey(kid), {
+			algorithms: [jwtAlg],
+			issuer: ["https://accounts.google.com", "accounts.google.com"],
+			audience,
+			maxTokenAge: GOOGLE_ID_TOKEN_MAX_AGE
+		});
+		if (nonce && jwtClaims.nonce !== nonce) return null;
+		return jwtClaims;
+	} catch {
+		return null;
+	}
+};
+/**
+* Checks whether Google's verified `hd` claim satisfies the configured hosted
+* domain restriction. `hd: "*"` accepts any Google Workspace hosted domain.
+*/
+var isGoogleHostedDomainAllowed = (configuredHostedDomain, tokenHostedDomain) => {
+	if (!configuredHostedDomain) return true;
+	if (typeof tokenHostedDomain !== "string" || !tokenHostedDomain) return false;
+	if (configuredHostedDomain === "*") return true;
+	return tokenHostedDomain === configuredHostedDomain;
+};
 var google = (options) => {
 	return {
 		id: "google",
 		name: "Google",
 		async createAuthorizationURL({ state, scopes, codeVerifier, redirectURI, loginHint, display }) {
-			if (!options.clientId || !options.clientSecret) {
+			if (!getPrimaryClientId(options.clientId) || !options.clientSecret) {
 				logger.error("Client Id and Client Secret is required for Google. Make sure to provide them in the options.");
 				throw new BetterAuthError("CLIENT_ID_AND_SECRET_REQUIRED");
 			}
@@ -31392,28 +32751,25 @@ var google = (options) => {
 				tokenEndpoint: "https://oauth2.googleapis.com/token"
 			});
 		},
-		async verifyIdToken(token, nonce) {
+		async verifyIdToken(token, nonce, ctx) {
 			if (options.disableIdTokenSignIn) return false;
-			if (options.verifyIdToken) return options.verifyIdToken(token, nonce);
-			try {
-				const { kid, alg: jwtAlg } = decodeProtectedHeader(token);
-				if (!kid || !jwtAlg) return false;
-				const { payload: jwtClaims } = await jwtVerify(token, await getGooglePublicKey(kid), {
-					algorithms: [jwtAlg],
-					issuer: ["https://accounts.google.com", "accounts.google.com"],
-					audience: options.clientId,
-					maxTokenAge: "1h"
-				});
-				if (nonce && jwtClaims.nonce !== nonce) return false;
-				return true;
-			} catch {
-				return false;
-			}
+			if (options.verifyIdToken) return options.verifyIdToken(token, nonce, ctx);
+			const jwtClaims = await verifyGoogleIdToken({
+				token,
+				audience: options.clientId,
+				nonce
+			});
+			if (!jwtClaims) return false;
+			return isGoogleHostedDomainAllowed(options.hd, jwtClaims.hd);
 		},
 		async getUserInfo(token) {
 			if (options.getUserInfo) return options.getUserInfo(token);
 			if (!token.idToken) return null;
 			const user = decodeJwt(token.idToken);
+			if (!isGoogleHostedDomainAllowed(options.hd, user.hd)) {
+				logger.error(`Google sign-in rejected: id token hosted domain (hd) "${user.hd ?? "<missing>"}" does not satisfy the configured "hd" option "${options.hd}".`);
+				return null;
+			}
 			const userMap = await options.mapProfileToUser?.(user);
 			return {
 				user: {
@@ -31438,8 +32794,9 @@ var getGooglePublicKey = async (kid) => {
 	return await importJWK(jwk, jwk.alg);
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/huggingface.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/huggingface.mjs
 var huggingface = (options) => {
+	const tokenEndpoint = "https://huggingface.co/oauth/token";
 	return {
 		id: "huggingface",
 		name: "Hugging Face",
@@ -31467,7 +32824,7 @@ var huggingface = (options) => {
 				codeVerifier,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://huggingface.co/oauth/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -31478,7 +32835,7 @@ var huggingface = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://huggingface.co/oauth/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -31505,8 +32862,9 @@ var huggingface = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/kakao.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/kakao.mjs
 var kakao = (options) => {
+	const tokenEndpoint = "https://kauth.kakao.com/oauth/token";
 	return {
 		id: "kakao",
 		name: "Kakao",
@@ -31532,7 +32890,7 @@ var kakao = (options) => {
 				code,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://kauth.kakao.com/oauth/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -31543,7 +32901,7 @@ var kakao = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://kauth.kakao.com/oauth/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -31569,7 +32927,7 @@ var kakao = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/kick.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/kick.mjs
 var kick = (options) => {
 	return {
 		id: "kick",
@@ -31632,7 +32990,7 @@ var kick = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/line.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/line.mjs
 /**
 * LINE Login v2.1
 * - Authorization endpoint: https://access.line.me/oauth2/v2.1/authorize
@@ -31688,9 +33046,9 @@ var line = (options) => {
 				tokenEndpoint
 			});
 		},
-		async verifyIdToken(token, nonce) {
+		async verifyIdToken(token, nonce, ctx) {
 			if (options.disableIdTokenSignIn) return false;
-			if (options.verifyIdToken) return options.verifyIdToken(token, nonce);
+			if (options.verifyIdToken) return options.verifyIdToken(token, nonce, ctx);
 			const body = new URLSearchParams();
 			body.set("id_token", token);
 			body.set("client_id", options.clientId);
@@ -31736,7 +33094,7 @@ var line = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/linear.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/linear.mjs
 var linear = (options) => {
 	const tokenEndpoint = "https://api.linear.app/oauth/token";
 	return {
@@ -31816,7 +33174,7 @@ var linear = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/linkedin.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/linkedin.mjs
 var linkedin = (options) => {
 	const authorizationEndpoint = "https://www.linkedin.com/oauth/v2/authorization";
 	const tokenEndpoint = "https://www.linkedin.com/oauth/v2/accessToken";
@@ -31873,7 +33231,7 @@ var linkedin = (options) => {
 					id: profile.sub,
 					name: profile.name,
 					email: profile.email,
-					emailVerified: profile.email_verified || false,
+					emailVerified: profile.email_verified ?? false,
 					image: profile.picture,
 					...userMap
 				},
@@ -31884,16 +33242,28 @@ var linkedin = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/microsoft-entra-id.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/microsoft-entra-id.mjs
+/**
+* Microsoft's fixed tenant id for personal (consumer) Microsoft accounts. Every
+* personal-account token carries it as the `tid` claim, so it distinguishes the
+* consumer account class from work/school tenants.
+* @see https://learn.microsoft.com/en-us/entra/identity-platform/id-token-claims-reference
+*/
+var MICROSOFT_CONSUMER_TENANT_ID = "9188040d-6c67-4c5b-b112-36a304b66dad";
 var microsoft = (options) => {
 	const tenant = options.tenantId || "common";
-	const authority = options.authority || "https://login.microsoftonline.com";
+	let authority = options.authority || "https://login.microsoftonline.com";
+	while (authority.endsWith("/")) authority = authority.slice(0, -1);
 	const authorizationEndpoint = `${authority}/${tenant}/oauth2/v2.0/authorize`;
 	const tokenEndpoint = `${authority}/${tenant}/oauth2/v2.0/token`;
 	return {
 		id: "microsoft",
 		name: "Microsoft EntraID",
 		createAuthorizationURL(data) {
+			if (!getPrimaryClientId(options.clientId)) {
+				logger.error("Client Id is required for Microsoft Entra ID. Make sure to provide it in the options.");
+				throw new BetterAuthError("CLIENT_ID_AND_SECRET_REQUIRED");
+			}
 			const scopes = options.disableDefaultScope ? [] : [
 				"openid",
 				"profile",
@@ -31924,9 +33294,9 @@ var microsoft = (options) => {
 				tokenEndpoint
 			});
 		},
-		async verifyIdToken(token, nonce) {
+		async verifyIdToken(token, nonce, ctx) {
 			if (options.disableIdTokenSignIn) return false;
-			if (options.verifyIdToken) return options.verifyIdToken(token, nonce);
+			if (options.verifyIdToken) return options.verifyIdToken(token, nonce, ctx);
 			try {
 				const { kid, alg: jwtAlg } = decodeProtectedHeader(token);
 				if (!kid || !jwtAlg) return false;
@@ -31943,6 +33313,10 @@ var microsoft = (options) => {
 				if (tenant !== "common" && tenant !== "organizations" && tenant !== "consumers") verifyOptions.issuer = `${authority}/${tenant}/v2.0`;
 				const { payload: jwtClaims } = await jwtVerify(token, publicKey, verifyOptions);
 				if (nonce && jwtClaims.nonce !== nonce) return false;
+				const tid = jwtClaims.tid;
+				if (typeof tid !== "string" || jwtClaims.iss !== `${authority}/${tid}/v2.0`) return false;
+				if (tenant === "organizations" && tid === MICROSOFT_CONSUMER_TENANT_ID) return false;
+				if (tenant === "consumers" && tid !== MICROSOFT_CONSUMER_TENANT_ID) return false;
 				return true;
 			} catch (error) {
 				logger.error("Failed to verify ID token:", error);
@@ -31960,7 +33334,8 @@ var microsoft = (options) => {
 					if (options.disableProfilePhoto || !context.response.ok) return;
 					try {
 						const pictureBuffer = await context.response.clone().arrayBuffer();
-						user.picture = `data:image/jpeg;base64, ${base64.encode(pictureBuffer)}`;
+						const pictureBase64 = base64.encode(pictureBuffer);
+						user.picture = `data:image/jpeg;base64, ${pictureBase64}`;
 					} catch (e) {
 						logger.error(e && typeof e === "object" && "name" in e ? e.name : "", e);
 					}
@@ -32010,8 +33385,9 @@ var getMicrosoftPublicKey = async (kid, tenant, authority) => {
 	return await importJWK(jwk, jwk.alg);
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/naver.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/naver.mjs
 var naver = (options) => {
+	const tokenEndpoint = "https://nid.naver.com/oauth2.0/token";
 	return {
 		id: "naver",
 		name: "Naver",
@@ -32033,7 +33409,7 @@ var naver = (options) => {
 				code,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://nid.naver.com/oauth2.0/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -32044,7 +33420,7 @@ var naver = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://nid.naver.com/oauth2.0/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -32069,7 +33445,7 @@ var naver = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/notion.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/notion.mjs
 var notion = (options) => {
 	const tokenEndpoint = "https://api.notion.com/v1/oauth/token";
 	return {
@@ -32136,7 +33512,7 @@ var notion = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/paybin.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/paybin.mjs
 var paybin = (options) => {
 	const issuer = options.issuer || "https://idp.paybin.io";
 	const authorizationEndpoint = `${issuer}/oauth2/authorize`;
@@ -32210,12 +33586,27 @@ var paybin = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/paypal.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/paypal.mjs
+/**
+* ID token signing algorithms advertised by PayPal's OpenID configuration.
+* Anything outside this allowlist is rejected so each token is only ever
+* verified with the algorithm it was issued for.
+*
+* @see https://www.paypal.com/.well-known/openid-configuration
+*/
+var PAYPAL_ID_TOKEN_ALGORITHMS = ["RS256", "HS256"];
 var paypal = (options) => {
 	const isSandbox = (options.environment || "sandbox") === "sandbox";
 	const authorizationEndpoint = isSandbox ? "https://www.sandbox.paypal.com/signin/authorize" : "https://www.paypal.com/signin/authorize";
 	const tokenEndpoint = isSandbox ? "https://api-m.sandbox.paypal.com/v1/oauth2/token" : "https://api-m.paypal.com/v1/oauth2/token";
 	const userInfoEndpoint = isSandbox ? "https://api-m.sandbox.paypal.com/v1/identity/oauth2/userinfo" : "https://api-m.paypal.com/v1/identity/oauth2/userinfo";
+	/**
+	* Issuer and JWKS endpoints used to cryptographically verify ID tokens.
+	*
+	* @see https://www.paypal.com/.well-known/openid-configuration
+	*/
+	const issuer = isSandbox ? "https://www.sandbox.paypal.com" : "https://www.paypal.com";
+	const jwksEndpoint = isSandbox ? "https://api.sandbox.paypal.com/v1/oauth2/certs" : "https://api.paypal.com/v1/oauth2/certs";
 	return {
 		id: "paypal",
 		name: "PayPal",
@@ -32296,11 +33687,23 @@ var paypal = (options) => {
 				throw new BetterAuthError("FAILED_TO_REFRESH_ACCESS_TOKEN");
 			}
 		},
-		async verifyIdToken(token, nonce) {
+		async verifyIdToken(token, nonce, ctx) {
 			if (options.disableIdTokenSignIn) return false;
-			if (options.verifyIdToken) return options.verifyIdToken(token, nonce);
+			if (options.verifyIdToken) return options.verifyIdToken(token, nonce, ctx);
 			try {
-				return !!decodeJwt(token).sub;
+				const { kid, alg: jwtAlg } = decodeProtectedHeader(token);
+				if (!jwtAlg) return false;
+				if (!PAYPAL_ID_TOKEN_ALGORITHMS.includes(jwtAlg)) return false;
+				const key = jwtAlg === "HS256" ? new TextEncoder().encode(options.clientSecret) : kid ? await getPayPalPublicKey(kid, jwksEndpoint) : void 0;
+				if (!key) return false;
+				const { payload: jwtClaims } = await jwtVerify(token, key, {
+					algorithms: [jwtAlg],
+					issuer,
+					audience: options.clientId,
+					maxTokenAge: "1h"
+				});
+				if (nonce && jwtClaims.nonce !== nonce) return false;
+				return true;
 			} catch (error) {
 				logger.error("Failed to verify PayPal ID token:", error);
 				return false;
@@ -32322,6 +33725,20 @@ var paypal = (options) => {
 					return null;
 				}
 				const userInfo = response.data;
+				if (token.idToken) {
+					let idTokenSubject;
+					try {
+						idTokenSubject = decodeJwt(token.idToken).sub;
+					} catch (error) {
+						logger.error("Failed to decode PayPal ID token:", error);
+						return null;
+					}
+					const userInfoSubject = userInfo.sub ?? userInfo.user_id;
+					if (!idTokenSubject || userInfoSubject !== idTokenSubject) {
+						logger.error("PayPal user info subject does not match ID token subject");
+						return null;
+					}
+				}
 				const userMap = await options.mapProfileToUser?.(userInfo);
 				return {
 					user: {
@@ -32342,9 +33759,17 @@ var paypal = (options) => {
 		options
 	};
 };
+var getPayPalPublicKey = async (kid, jwksUri) => {
+	const { data } = await betterFetch(jwksUri);
+	if (!data?.keys) throw new APIError("BAD_REQUEST", { message: "Keys not found" });
+	const jwk = data.keys.find((key) => key.kid === kid);
+	if (!jwk) throw new Error(`JWK with kid ${kid} not found`);
+	return await importJWK(jwk, jwk.alg);
+};
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/polar.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/polar.mjs
 var polar = (options) => {
+	const tokenEndpoint = "https://api.polar.sh/v1/oauth2/token";
 	return {
 		id: "polar",
 		name: "Polar",
@@ -32373,7 +33798,7 @@ var polar = (options) => {
 				codeVerifier,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://api.polar.sh/v1/oauth2/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -32384,7 +33809,7 @@ var polar = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://api.polar.sh/v1/oauth2/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -32408,7 +33833,7 @@ var polar = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/railway.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/railway.mjs
 var authorizationEndpoint = "https://backboard.railway.com/oauth/auth";
 var tokenEndpoint = "https://backboard.railway.com/oauth/token";
 var userinfoEndpoint = "https://backboard.railway.com/oauth/me";
@@ -32477,7 +33902,7 @@ var railway = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/reddit.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/reddit.mjs
 var reddit = (options) => {
 	return {
 		id: "reddit",
@@ -32535,14 +33960,15 @@ var reddit = (options) => {
 			} });
 			if (error) return null;
 			const userMap = await options.mapProfileToUser?.(profile);
+			const email = userMap?.email || `${profile.id}@reddit.invalid`;
 			return {
 				user: {
 					id: profile.id,
 					name: profile.name,
-					email: profile.oauth_client_id,
-					emailVerified: profile.has_verified_email,
 					image: profile.icon_img?.split("?")[0],
-					...userMap
+					...userMap,
+					email,
+					emailVerified: userMap?.emailVerified ?? false
 				},
 				data: profile
 			};
@@ -32551,8 +33977,9 @@ var reddit = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/roblox.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/roblox.mjs
 var roblox = (options) => {
+	const tokenEndpoint = "https://apis.roblox.com/oauth/v1/token";
 	return {
 		id: "roblox",
 		name: "Roblox",
@@ -32567,7 +33994,7 @@ var roblox = (options) => {
 				code,
 				redirectURI: options.redirectURI || redirectURI,
 				options,
-				tokenEndpoint: "https://apis.roblox.com/oauth/v1/token",
+				tokenEndpoint,
 				authentication: "post"
 			});
 		},
@@ -32579,7 +34006,7 @@ var roblox = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://apis.roblox.com/oauth/v1/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -32603,7 +34030,7 @@ var roblox = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/salesforce.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/salesforce.mjs
 var salesforce = (options) => {
 	const isSandbox = (options.environment ?? "production") === "sandbox";
 	const authorizationEndpoint = options.loginUrl ? `https://${options.loginUrl}/services/oauth2/authorize` : isSandbox ? "https://test.salesforce.com/services/oauth2/authorize" : "https://login.salesforce.com/services/oauth2/authorize";
@@ -32683,8 +34110,9 @@ var salesforce = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/slack.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/slack.mjs
 var slack = (options) => {
+	const tokenEndpoint = "https://slack.com/api/openid.connect.token";
 	return {
 		id: "slack",
 		name: "Slack",
@@ -32709,7 +34137,7 @@ var slack = (options) => {
 				code,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://slack.com/api/openid.connect.token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -32720,7 +34148,7 @@ var slack = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://slack.com/api/openid.connect.token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -32744,8 +34172,9 @@ var slack = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/spotify.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/spotify.mjs
 var spotify = (options) => {
+	const tokenEndpoint = "https://accounts.spotify.com/api/token";
 	return {
 		id: "spotify",
 		name: "Spotify",
@@ -32769,7 +34198,7 @@ var spotify = (options) => {
 				codeVerifier,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://accounts.spotify.com/api/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -32780,7 +34209,7 @@ var spotify = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://accounts.spotify.com/api/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -32807,8 +34236,9 @@ var spotify = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/tiktok.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/tiktok.mjs
 var tiktok = (options) => {
+	const tokenEndpoint = "https://open.tiktokapis.com/v2/oauth/token/";
 	return {
 		id: "tiktok",
 		name: "TikTok",
@@ -32826,14 +34256,14 @@ var tiktok = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://open.tiktokapis.com/v2/oauth/token/"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
 			return refreshAccessToken({
 				refreshToken,
 				options: { clientSecret: options.clientSecret },
-				tokenEndpoint: "https://open.tiktokapis.com/v2/oauth/token/",
+				tokenEndpoint,
 				authentication: "post",
 				extraParams: { client_key: options.clientKey }
 			});
@@ -32862,8 +34292,9 @@ var tiktok = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/twitch.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/twitch.mjs
 var twitch = (options) => {
+	const tokenEndpoint = "https://id.twitch.tv/oauth2/token";
 	return {
 		id: "twitch",
 		name: "Twitch",
@@ -32891,7 +34322,7 @@ var twitch = (options) => {
 				code,
 				redirectURI,
 				options,
-				tokenEndpoint: "https://id.twitch.tv/oauth2/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -32902,7 +34333,7 @@ var twitch = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://id.twitch.tv/oauth2/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -32930,8 +34361,9 @@ var twitch = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/twitter.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/twitter.mjs
 var twitter = (options) => {
+	const tokenEndpoint = "https://api.x.com/2/oauth2/token";
 	return {
 		id: "twitter",
 		name: "Twitter",
@@ -32961,7 +34393,7 @@ var twitter = (options) => {
 				authentication: "basic",
 				redirectURI,
 				options,
-				tokenEndpoint: "https://api.x.com/2/oauth2/token"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -32973,7 +34405,7 @@ var twitter = (options) => {
 					clientSecret: options.clientSecret
 				},
 				authentication: "basic",
-				tokenEndpoint: "https://api.x.com/2/oauth2/token"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(token) {
@@ -33009,7 +34441,7 @@ var twitter = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/vercel.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/vercel.mjs
 var vercel = (options) => {
 	return {
 		id: "vercel",
@@ -33062,8 +34494,9 @@ var vercel = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/vk.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/vk.mjs
 var vk = (options) => {
+	const tokenEndpoint = "https://id.vk.com/oauth2/auth";
 	return {
 		id: "vk",
 		name: "VK",
@@ -33088,7 +34521,7 @@ var vk = (options) => {
 				redirectURI: options.redirectURI || redirectURI,
 				options,
 				deviceId,
-				tokenEndpoint: "https://id.vk.com/oauth2/auth"
+				tokenEndpoint
 			});
 		},
 		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
@@ -33099,7 +34532,7 @@ var vk = (options) => {
 					clientKey: options.clientKey,
 					clientSecret: options.clientSecret
 				},
-				tokenEndpoint: "https://id.vk.com/oauth2/auth"
+				tokenEndpoint
 			});
 		},
 		async getUserInfo(data) {
@@ -33136,7 +34569,86 @@ var vk = (options) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/zoom.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/wechat.mjs
+var wechat = (options) => {
+	return {
+		id: "wechat",
+		name: "WeChat",
+		createAuthorizationURL({ state, scopes, redirectURI }) {
+			const _scopes = options.disableDefaultScope ? [] : ["snsapi_login"];
+			options.scope && _scopes.push(...options.scope);
+			scopes && _scopes.push(...scopes);
+			const url = new URL("https://open.weixin.qq.com/connect/qrconnect");
+			url.searchParams.set("scope", _scopes.join(","));
+			url.searchParams.set("response_type", "code");
+			url.searchParams.set("appid", options.clientId);
+			url.searchParams.set("redirect_uri", options.redirectURI || redirectURI);
+			url.searchParams.set("state", state);
+			url.searchParams.set("lang", options.lang || "cn");
+			url.hash = "wechat_redirect";
+			return url;
+		},
+		validateAuthorizationCode: async ({ code }) => {
+			const { data: tokenData, error } = await betterFetch("https://api.weixin.qq.com/sns/oauth2/access_token?" + new URLSearchParams({
+				appid: options.clientId,
+				secret: options.clientSecret,
+				code,
+				grant_type: "authorization_code"
+			}).toString(), { method: "GET" });
+			if (error || !tokenData || tokenData.errcode) throw new Error(`Failed to validate authorization code: ${tokenData?.errmsg || error?.message || "Unknown error"}`);
+			return {
+				tokenType: "Bearer",
+				accessToken: tokenData.access_token,
+				refreshToken: tokenData.refresh_token,
+				accessTokenExpiresAt: new Date(Date.now() + tokenData.expires_in * 1e3),
+				scopes: tokenData.scope.split(","),
+				openid: tokenData.openid,
+				unionid: tokenData.unionid
+			};
+		},
+		refreshAccessToken: options.refreshAccessToken ? options.refreshAccessToken : async (refreshToken) => {
+			const { data: tokenData, error } = await betterFetch("https://api.weixin.qq.com/sns/oauth2/refresh_token?" + new URLSearchParams({
+				appid: options.clientId,
+				grant_type: "refresh_token",
+				refresh_token: refreshToken
+			}).toString(), { method: "GET" });
+			if (error || !tokenData || tokenData.errcode) throw new Error(`Failed to refresh access token: ${tokenData?.errmsg || error?.message || "Unknown error"}`);
+			return {
+				tokenType: "Bearer",
+				accessToken: tokenData.access_token,
+				refreshToken: tokenData.refresh_token,
+				accessTokenExpiresAt: new Date(Date.now() + tokenData.expires_in * 1e3),
+				scopes: tokenData.scope.split(",")
+			};
+		},
+		async getUserInfo(token) {
+			if (options.getUserInfo) return options.getUserInfo(token);
+			const openid = token.openid;
+			if (!openid) return null;
+			const { data: profile, error } = await betterFetch("https://api.weixin.qq.com/sns/userinfo?" + new URLSearchParams({
+				access_token: token.accessToken || "",
+				openid,
+				lang: "zh_CN"
+			}).toString(), { method: "GET" });
+			if (error || !profile || profile.errcode) return null;
+			const userMap = await options.mapProfileToUser?.(profile);
+			return {
+				user: {
+					id: profile.unionid || profile.openid || openid,
+					name: profile.nickname,
+					email: profile.email || `${profile.unionid || profile.openid || openid}@wechat.invalid`,
+					image: profile.headimgurl,
+					emailVerified: false,
+					...userMap
+				},
+				data: profile
+			};
+		},
+		options
+	};
+};
+//#endregion
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/zoom.mjs
 var zoom = (userOptions) => {
 	const options = {
 		pkce: true,
@@ -33200,7 +34712,7 @@ var zoom = (userOptions) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/social-providers/index.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/social-providers/index.mjs
 var socialProviders = {
 	apple,
 	atlassian,
@@ -33235,12 +34747,13 @@ var socialProviders = {
 	paypal,
 	polar,
 	railway,
-	vercel
+	vercel,
+	wechat
 };
 var socialProviderList = Object.keys(socialProviders);
 var SocialProviderListEnum = z$1.enum(socialProviderList).or(z$1.string());
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/account.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/account.mjs
 var listUserAccounts = createAuthEndpoint("/list-accounts", {
 	method: "GET",
 	use: [sessionMiddleware],
@@ -33299,8 +34812,17 @@ var linkSocialAccount = createAuthEndpoint("/link-social", {
 	method: "POST",
 	requireHeaders: true,
 	body: z$1.object({
+		/**
+		* Callback URL to redirect to after the user has signed in.
+		*/
 		callbackURL: z$1.string().meta({ description: "The URL to redirect to after the user has signed in" }).optional(),
+		/**
+		* OAuth2 provider to use
+		*/
 		provider: SocialProviderListEnum,
+		/**
+		* ID Token for direct authentication without redirect
+		*/
 		idToken: z$1.object({
 			token: z$1.string(),
 			nonce: z$1.string().optional(),
@@ -33308,10 +34830,30 @@ var linkSocialAccount = createAuthEndpoint("/link-social", {
 			refreshToken: z$1.string().optional(),
 			scopes: z$1.array(z$1.string()).optional()
 		}).optional(),
+		/**
+		* Whether to allow sign up for new users
+		*/
 		requestSignUp: z$1.boolean().optional(),
+		/**
+		* Additional scopes to request when linking the account.
+		* This is useful for requesting additional permissions when
+		* linking a social account compared to the initial authentication.
+		*/
 		scopes: z$1.array(z$1.string()).meta({ description: "Additional scopes to request from the provider" }).optional(),
+		/**
+		* The URL to redirect to if there is an error during the link process.
+		*/
 		errorCallbackURL: z$1.string().meta({ description: "The URL to redirect to if there is an error during the link process" }).optional(),
+		/**
+		* Disable automatic redirection to the provider
+		*
+		* This is useful if you want to handle the redirection
+		* yourself like in a popup or a different tab.
+		*/
 		disableRedirect: z$1.boolean().meta({ description: "Disable automatic redirection to the provider. Useful for handling the redirection yourself" }).optional(),
+		/**
+		* Any additional data to pass through the oauth flow.
+		*/
 		additionalData: z$1.record(z$1.string(), z$1.any()).optional()
 	}),
 	use: [sessionMiddleware],
@@ -33350,8 +34892,8 @@ var linkSocialAccount = createAuthEndpoint("/link-social", {
 			throw APIError.from("NOT_FOUND", BASE_ERROR_CODES.ID_TOKEN_NOT_SUPPORTED);
 		}
 		const { token, nonce } = c.body.idToken;
-		if (!await provider.verifyIdToken(token, nonce)) {
-			c.context.logger.error("Invalid id token", { provider: c.body.provider });
+		if (!await provider.verifyIdToken(token, nonce, c)) {
+			c.context.logger.warn("Invalid id token", { provider: c.body.provider });
 			throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.INVALID_TOKEN);
 		}
 		const linkingUserInfo = await provider.getUserInfo({
@@ -33365,7 +34907,7 @@ var linkSocialAccount = createAuthEndpoint("/link-social", {
 		}
 		const linkingUserId = String(linkingUserInfo.user.id);
 		if (!linkingUserInfo.user.email) {
-			c.context.logger.error("User email not found", { provider: c.body.provider });
+			c.context.logger.error(missingEmailLogMessage(c.body.provider, { source: "id_token" }), { provider: c.body.provider });
 			throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.USER_EMAIL_NOT_FOUND);
 		}
 		if ((await c.context.internalAdapter.findAccounts(session.user.id)).find((a) => a.providerId === provider.id && a.accountId === linkingUserId)) return c.json({
@@ -33397,14 +34939,7 @@ var linkSocialAccount = createAuthEndpoint("/link-social", {
 				code: "LINKING_FAILED"
 			});
 		}
-		if (c.context.options.account?.accountLinking?.updateUserInfoOnLink === true) try {
-			await c.context.internalAdapter.updateUser(session.user.id, {
-				name: linkingUserInfo.user?.name,
-				image: linkingUserInfo.user?.image
-			});
-		} catch (e) {
-			console.warn("Could not update user - " + e.toString());
-		}
+		await applyUpdateUserInfoOnLink(c, session.user.id, linkingUserInfo.user);
 		return c.json({
 			url: "",
 			status: true,
@@ -33453,50 +34988,57 @@ var unlinkAccount = createAuthEndpoint("/unlink-account", {
 	await ctx.context.internalAdapter.deleteAccount(accountExist.id);
 	return ctx.json({ status: true });
 });
-var getAccessToken = createAuthEndpoint("/get-access-token", {
-	method: "POST",
-	body: z$1.object({
-		providerId: z$1.string().meta({ description: "The provider ID for the OAuth provider" }),
-		accountId: z$1.string().meta({ description: "The account ID associated with the refresh token" }).optional(),
-		userId: z$1.string().meta({ description: "The user ID associated with the account" }).optional()
-	}),
-	metadata: { openapi: {
-		description: "Get a valid access token, doing a refresh if needed",
-		responses: {
-			200: {
-				description: "A Valid access token",
-				content: { "application/json": { schema: {
-					type: "object",
-					properties: {
-						tokenType: { type: "string" },
-						idToken: { type: "string" },
-						accessToken: { type: "string" },
-						accessTokenExpiresAt: {
-							type: "string",
-							format: "date-time"
-						}
-					}
-				} } }
-			},
-			400: { description: "Invalid refresh token or provider configuration" }
-		}
-	} }
-}, async (ctx) => {
-	const { providerId, accountId, userId } = ctx.body || {};
-	const req = ctx.request;
-	const session = await getSessionFromCtx(ctx);
-	if (req && !session) throw ctx.error("UNAUTHORIZED");
+/**
+* Resolves the user id an account-token operation should act on.
+*
+* A caller reaching the server over HTTP (a request or session headers are
+* present) must have a valid session, and that session's user always wins.
+* A trusted server-side `auth.api` caller with no session may instead name a
+* `userId` directly. Throws `UNAUTHORIZED` when an HTTP caller is
+* unauthenticated, and `USER_ID_OR_SESSION_REQUIRED` when neither a session
+* nor a `userId` is available.
+*
+* When a durable store is authoritative, bypasses the cookie cache: these
+* routes mint or refresh provider access tokens, so a server-side session
+* revocation must take effect immediately rather than waiting for the cached
+* cookie to expire. DB-less deployments keep the session in the cookie itself,
+* so the cache is left in place for them.
+*/
+async function resolveUserId(ctx, userId) {
+	const session = await getSessionFromCtx(ctx, { disableCookieCache: isStateful(ctx) });
+	if (!session && (ctx.request || ctx.headers)) throw ctx.error("UNAUTHORIZED");
 	const resolvedUserId = session?.user?.id || userId;
-	if (!resolvedUserId) throw ctx.error("UNAUTHORIZED");
+	if (!resolvedUserId) throw APIError.from("BAD_REQUEST", {
+		message: "Either userId or session is required",
+		code: "USER_ID_OR_SESSION_REQUIRED"
+	});
+	return resolvedUserId;
+}
+function matchesAccountSelection(ctx, account, { resolvedUserId, providerId, accountId }) {
+	return (!shouldBindAccountCookieToSessionUser(ctx.context.options) || account.userId === resolvedUserId) && (!providerId || providerId === account.providerId) && (!accountId || account.accountId === accountId);
+}
+/**
+* Fetches a currently-valid access token for a user's provider account,
+* refreshing and persisting it when it is within five seconds of expiry.
+* Shared by the `/get-access-token` endpoint and `/account-info` so both
+* resolve and refresh tokens through one path.
+*/
+async function getValidAccessToken(ctx, { resolvedUserId, providerId, accountId, account: resolvedAccount }) {
 	const provider = await getAwaitableValue(ctx.context.socialProviders, { value: providerId });
 	if (!provider) throw APIError.from("BAD_REQUEST", {
 		message: `Provider ${providerId} is not supported.`,
 		code: "PROVIDER_NOT_SUPPORTED"
 	});
-	const accountData = await getAccountCookie(ctx);
-	let account = void 0;
-	if (accountData && providerId === accountData.providerId && (!accountId || accountData.id === accountId)) account = accountData;
-	else account = (await ctx.context.internalAdapter.findAccounts(resolvedUserId)).find((acc) => accountId ? acc.accountId === accountId && acc.providerId === providerId : acc.providerId === providerId);
+	let account = resolvedAccount;
+	if (!account) {
+		const accountData = await getAccountCookie(ctx);
+		if (accountData && matchesAccountSelection(ctx, accountData, {
+			resolvedUserId,
+			providerId,
+			accountId
+		})) account = accountData;
+		else account = (await ctx.context.internalAdapter.findAccounts(resolvedUserId)).find((acc) => accountId ? acc.accountId === accountId && acc.providerId === providerId : acc.providerId === providerId);
+	}
 	if (!account) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.ACCOUNT_NOT_FOUND);
 	try {
 		let newTokens = null;
@@ -33528,19 +35070,55 @@ var getAccessToken = createAuthEndpoint("/get-access-token", {
 				return account.accessTokenExpiresAt;
 			}
 		})();
-		const tokens = {
+		return {
 			accessToken: newTokens?.accessToken ?? await decryptOAuthToken(account.accessToken ?? "", ctx.context),
 			accessTokenExpiresAt,
 			scopes: account.scope?.split(",") ?? [],
 			idToken: newTokens?.idToken ?? account.idToken ?? void 0
 		};
-		return ctx.json(tokens);
 	} catch (_error) {
 		throw APIError.from("BAD_REQUEST", {
 			message: "Failed to get a valid access token",
 			code: "FAILED_TO_GET_ACCESS_TOKEN"
 		});
 	}
+}
+var getAccessToken = createAuthEndpoint("/get-access-token", {
+	method: "POST",
+	body: z$1.object({
+		providerId: z$1.string().meta({ description: "The provider ID for the OAuth provider" }),
+		accountId: z$1.string().meta({ description: "The account ID associated with the refresh token" }).optional(),
+		userId: z$1.string().meta({ description: "The user ID associated with the account" }).optional()
+	}),
+	metadata: { openapi: {
+		description: "Get a valid access token, doing a refresh if needed",
+		responses: {
+			200: {
+				description: "A Valid access token",
+				content: { "application/json": { schema: {
+					type: "object",
+					properties: {
+						tokenType: { type: "string" },
+						idToken: { type: "string" },
+						accessToken: { type: "string" },
+						accessTokenExpiresAt: {
+							type: "string",
+							format: "date-time"
+						}
+					}
+				} } }
+			},
+			400: { description: "Invalid refresh token or provider configuration" }
+		}
+	} }
+}, async (ctx) => {
+	const { providerId, accountId, userId } = ctx.body || {};
+	const tokens = await getValidAccessToken(ctx, {
+		resolvedUserId: await resolveUserId(ctx, userId),
+		providerId,
+		accountId
+	});
+	return ctx.json(tokens);
 });
 var refreshToken = createAuthEndpoint("/refresh-token", {
 	method: "POST",
@@ -33577,14 +35155,7 @@ var refreshToken = createAuthEndpoint("/refresh-token", {
 	} }
 }, async (ctx) => {
 	const { providerId, accountId, userId } = ctx.body;
-	const req = ctx.request;
-	const session = await getSessionFromCtx(ctx);
-	if (req && !session) throw ctx.error("UNAUTHORIZED");
-	const resolvedUserId = session?.user?.id || userId;
-	if (!resolvedUserId) throw APIError.from("BAD_REQUEST", {
-		message: `Either userId or session is required`,
-		code: "USER_ID_OR_SESSION_REQUIRED"
-	});
+	const resolvedUserId = await resolveUserId(ctx, userId);
 	const provider = await getAwaitableValue(ctx.context.socialProviders, { value: providerId });
 	if (!provider) throw APIError.from("BAD_REQUEST", {
 		message: `Provider ${providerId} is not supported.`,
@@ -33596,12 +35167,15 @@ var refreshToken = createAuthEndpoint("/refresh-token", {
 	});
 	let account = void 0;
 	const accountData = await getAccountCookie(ctx);
-	if (accountData && (!providerId || providerId === accountData?.providerId)) account = accountData;
+	const usedAccountCookie = !!accountData && matchesAccountSelection(ctx, accountData, {
+		resolvedUserId,
+		providerId,
+		accountId
+	});
+	if (usedAccountCookie) account = accountData;
 	else account = (await ctx.context.internalAdapter.findAccounts(resolvedUserId)).find((acc) => accountId ? acc.accountId === accountId && acc.providerId === providerId : acc.providerId === providerId);
 	if (!account) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.ACCOUNT_NOT_FOUND);
-	let refreshToken = void 0;
-	if (accountData && providerId === accountData.providerId) refreshToken = accountData.refreshToken ?? void 0;
-	else refreshToken = account.refreshToken ?? void 0;
+	const refreshToken = account.refreshToken ?? void 0;
 	if (!refreshToken) throw APIError.from("BAD_REQUEST", {
 		message: "Refresh token not found",
 		code: "REFRESH_TOKEN_NOT_FOUND"
@@ -33623,7 +35197,7 @@ var refreshToken = createAuthEndpoint("/refresh-token", {
 			};
 			await ctx.context.internalAdapter.updateAccount(account.id, updateData);
 		}
-		if (accountData && providerId === accountData.providerId && ctx.context.options.account?.storeAccountCookie) await setAccountCookie(ctx, {
+		if (usedAccountCookie && ctx.context.options.account?.storeAccountCookie) await setAccountCookie(ctx, {
 			...accountData,
 			accessToken: await setTokenUtil(tokens.accessToken, ctx.context),
 			refreshToken: resolvedRefreshToken,
@@ -33649,10 +35223,8 @@ var refreshToken = createAuthEndpoint("/refresh-token", {
 		});
 	}
 });
-var accountInfoQuerySchema = z$1.optional(z$1.object({ accountId: z$1.string().meta({ description: "The provider given account id for which to get the account info" }).optional() }));
 var accountInfo = createAuthEndpoint("/account-info", {
 	method: "GET",
-	use: [sessionMiddleware],
 	metadata: { openapi: {
 		description: "Get the account info provided by the provider",
 		responses: { "200": {
@@ -33682,34 +35254,42 @@ var accountInfo = createAuthEndpoint("/account-info", {
 			} } }
 		} }
 	} },
-	query: accountInfoQuerySchema
+	query: z$1.optional(z$1.object({
+		accountId: z$1.string().meta({ description: "The provider given account id for which to get the account info" }).optional(),
+		providerId: z$1.string().meta({ description: "The provider ID to disambiguate provider-issued account IDs" }).optional(),
+		userId: z$1.string().meta({ description: "The user ID associated with the account" }).optional()
+	}))
 }, async (ctx) => {
-	const providedAccountId = ctx.query?.accountId;
+	const { accountId: providedAccountId, providerId: providedProviderId, userId } = ctx.query || {};
+	const resolvedUserId = await resolveUserId(ctx, userId);
 	let account = void 0;
 	if (!providedAccountId) {
 		if (ctx.context.options.account?.storeAccountCookie) {
 			const accountData = await getAccountCookie(ctx);
-			if (accountData) account = accountData;
+			if (accountData && matchesAccountSelection(ctx, accountData, {
+				resolvedUserId,
+				providerId: providedProviderId
+			})) account = accountData;
 		}
 	} else {
-		const accountData = await ctx.context.internalAdapter.findAccount(providedAccountId);
-		if (accountData) account = accountData;
+		const matchingAccounts = (await ctx.context.internalAdapter.findAccounts(resolvedUserId)).filter((acc) => acc.accountId === providedAccountId && (!providedProviderId || acc.providerId === providedProviderId));
+		if (matchingAccounts.length > 1) throw APIError.from("BAD_REQUEST", {
+			message: "Multiple accounts share this account ID. Pass a providerId to disambiguate.",
+			code: "AMBIGUOUS_ACCOUNT"
+		});
+		account = matchingAccounts[0];
 	}
-	if (!account || account.userId !== ctx.context.session.user.id) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.ACCOUNT_NOT_FOUND);
+	if (!account || !matchesAccountSelection(ctx, account, { resolvedUserId })) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.ACCOUNT_NOT_FOUND);
 	const provider = await getAwaitableValue(ctx.context.socialProviders, { value: account.providerId });
-	if (!provider) throw APIError.from("INTERNAL_SERVER_ERROR", {
-		message: `Provider account provider is ${account.providerId} but it is not configured`,
+	if (!provider) throw APIError.from("BAD_REQUEST", {
+		message: "Account is not associated with a configured social provider.",
 		code: "PROVIDER_NOT_CONFIGURED"
 	});
-	const tokens = await getAccessToken({
-		...ctx,
-		method: "POST",
-		body: {
-			accountId: account.accountId,
-			providerId: account.providerId
-		},
-		returnHeaders: false,
-		returnStatus: false
+	const tokens = await getValidAccessToken(ctx, {
+		resolvedUserId,
+		providerId: account.providerId,
+		accountId: account.accountId,
+		account
 	});
 	if (!tokens.accessToken) throw APIError.from("BAD_REQUEST", {
 		message: "Access token not found",
@@ -33722,424 +35302,7 @@ var accountInfo = createAuthEndpoint("/account-info", {
 	return ctx.json(info);
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/email-verification.mjs
-async function createEmailVerificationToken(secret, email, updateTo, expiresIn = 3600, extraPayload) {
-	return await signJWT({
-		email: email.toLowerCase(),
-		updateTo,
-		...extraPayload
-	}, secret, expiresIn);
-}
-/**
-* A function to send a verification email to the user
-*/
-async function sendVerificationEmailFn(ctx, user) {
-	if (!ctx.context.options.emailVerification?.sendVerificationEmail) {
-		ctx.context.logger.error("Verification email isn't enabled.");
-		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.VERIFICATION_EMAIL_NOT_ENABLED);
-	}
-	const token = await createEmailVerificationToken(ctx.context.secret, user.email, void 0, ctx.context.options.emailVerification?.expiresIn);
-	const callbackURL = ctx.body.callbackURL ? encodeURIComponent(ctx.body.callbackURL) : encodeURIComponent("/");
-	const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${callbackURL}`;
-	await ctx.context.runInBackgroundOrAwait(ctx.context.options.emailVerification.sendVerificationEmail({
-		user,
-		url,
-		token
-	}, ctx.request));
-}
-var sendVerificationEmail = createAuthEndpoint("/send-verification-email", {
-	method: "POST",
-	operationId: "sendVerificationEmail",
-	body: z$1.object({
-		email: z$1.email().meta({ description: "The email to send the verification email to" }),
-		callbackURL: z$1.string().meta({ description: "The URL to use for email verification callback" }).optional()
-	}),
-	metadata: { openapi: {
-		operationId: "sendVerificationEmail",
-		description: "Send a verification email to the user",
-		requestBody: { content: { "application/json": { schema: {
-			type: "object",
-			properties: {
-				email: {
-					type: "string",
-					description: "The email to send the verification email to",
-					example: "user@example.com"
-				},
-				callbackURL: {
-					type: "string",
-					description: "The URL to use for email verification callback",
-					example: "https://example.com/callback",
-					nullable: true
-				}
-			},
-			required: ["email"]
-		} } } },
-		responses: {
-			"200": {
-				description: "Success",
-				content: { "application/json": { schema: {
-					type: "object",
-					properties: { status: {
-						type: "boolean",
-						description: "Indicates if the email was sent successfully",
-						example: true
-					} }
-				} } }
-			},
-			"400": {
-				description: "Bad Request",
-				content: { "application/json": { schema: {
-					type: "object",
-					properties: { message: {
-						type: "string",
-						description: "Error message",
-						example: "Verification email isn't enabled"
-					} }
-				} } }
-			}
-		}
-	} }
-}, async (ctx) => {
-	if (!ctx.context.options.emailVerification?.sendVerificationEmail) {
-		ctx.context.logger.error("Verification email isn't enabled.");
-		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.VERIFICATION_EMAIL_NOT_ENABLED);
-	}
-	const { email } = ctx.body;
-	const session = await getSessionFromCtx(ctx);
-	if (!session) {
-		const user = await ctx.context.internalAdapter.findUserByEmail(email);
-		if (!user || user.user.emailVerified) {
-			await createEmailVerificationToken(ctx.context.secret, email, void 0, ctx.context.options.emailVerification?.expiresIn);
-			return ctx.json({ status: true });
-		}
-		await sendVerificationEmailFn(ctx, user.user);
-		return ctx.json({ status: true });
-	}
-	if (session?.user.email !== email) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.EMAIL_MISMATCH);
-	if (session?.user.emailVerified) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.EMAIL_ALREADY_VERIFIED);
-	await sendVerificationEmailFn(ctx, session.user);
-	return ctx.json({ status: true });
-});
-var verifyEmail = createAuthEndpoint("/verify-email", {
-	method: "GET",
-	operationId: "verifyEmail",
-	query: z$1.object({
-		token: z$1.string().meta({ description: "The token to verify the email" }),
-		callbackURL: z$1.string().meta({ description: "The URL to redirect to after email verification" }).optional()
-	}),
-	use: [originCheck((ctx) => ctx.query.callbackURL)],
-	metadata: { openapi: {
-		description: "Verify the email of the user",
-		parameters: [{
-			name: "token",
-			in: "query",
-			description: "The token to verify the email",
-			required: true,
-			schema: { type: "string" }
-		}, {
-			name: "callbackURL",
-			in: "query",
-			description: "The URL to redirect to after email verification",
-			required: false,
-			schema: { type: "string" }
-		}],
-		responses: { "200": {
-			description: "Success",
-			content: { "application/json": { schema: {
-				type: "object",
-				properties: {
-					user: {
-						type: "object",
-						$ref: "#/components/schemas/User"
-					},
-					status: {
-						type: "boolean",
-						description: "Indicates if the email was verified successfully"
-					}
-				},
-				required: ["user", "status"]
-			} } }
-		} }
-	} }
-}, async (ctx) => {
-	function redirectOnError(error) {
-		if (ctx.query.callbackURL) {
-			if (ctx.query.callbackURL.includes("?")) throw ctx.redirect(`${ctx.query.callbackURL}&error=${error.code}`);
-			throw ctx.redirect(`${ctx.query.callbackURL}?error=${error.code}`);
-		}
-		throw APIError.from("UNAUTHORIZED", error);
-	}
-	const { token } = ctx.query;
-	let jwt;
-	try {
-		jwt = await jwtVerify(token, new TextEncoder().encode(ctx.context.secret), { algorithms: ["HS256"] });
-	} catch (e) {
-		if (e instanceof JWTExpired) return redirectOnError(BASE_ERROR_CODES.TOKEN_EXPIRED);
-		return redirectOnError(BASE_ERROR_CODES.INVALID_TOKEN);
-	}
-	const parsed = z$1.object({
-		email: z$1.email(),
-		updateTo: z$1.string().optional(),
-		requestType: z$1.string().optional()
-	}).parse(jwt.payload);
-	const user = await ctx.context.internalAdapter.findUserByEmail(parsed.email);
-	if (!user) return redirectOnError(BASE_ERROR_CODES.USER_NOT_FOUND);
-	if (parsed.updateTo) {
-		const session = await getSessionFromCtx(ctx);
-		if (session && session.user.email !== parsed.email) return redirectOnError(BASE_ERROR_CODES.INVALID_USER);
-		switch (parsed.requestType) {
-			case "change-email-confirmation": {
-				const newToken = await createEmailVerificationToken(ctx.context.secret, parsed.email, parsed.updateTo, ctx.context.options.emailVerification?.expiresIn, { requestType: "change-email-verification" });
-				const updateCallbackURL = ctx.query.callbackURL ? encodeURIComponent(ctx.query.callbackURL) : encodeURIComponent("/");
-				const url = `${ctx.context.baseURL}/verify-email?token=${newToken}&callbackURL=${updateCallbackURL}`;
-				if (ctx.context.options.emailVerification?.sendVerificationEmail) await ctx.context.runInBackgroundOrAwait(ctx.context.options.emailVerification.sendVerificationEmail({
-					user: {
-						...user.user,
-						email: parsed.updateTo
-					},
-					url,
-					token: newToken
-				}, ctx.request));
-				if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
-				return ctx.json({ status: true });
-			}
-			case "change-email-verification": {
-				let activeSession = session;
-				if (!activeSession) {
-					const newSession = await ctx.context.internalAdapter.createSession(user.user.id);
-					if (!newSession) throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION);
-					activeSession = {
-						session: newSession,
-						user: user.user
-					};
-				}
-				const updatedUser = await ctx.context.internalAdapter.updateUserByEmail(parsed.email, {
-					email: parsed.updateTo,
-					emailVerified: true
-				});
-				if (ctx.context.options.emailVerification?.afterEmailVerification) await ctx.context.options.emailVerification.afterEmailVerification(updatedUser, ctx.request);
-				await setSessionCookie(ctx, {
-					session: activeSession.session,
-					user: {
-						...activeSession.user,
-						email: parsed.updateTo,
-						emailVerified: true
-					}
-				});
-				if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
-				return ctx.json({
-					status: true,
-					user: parseUserOutput(ctx.context.options, updatedUser)
-				});
-			}
-			default: {
-				let activeSession = session;
-				if (!activeSession) {
-					const newSession = await ctx.context.internalAdapter.createSession(user.user.id);
-					if (!newSession) throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION);
-					activeSession = {
-						session: newSession,
-						user: user.user
-					};
-				}
-				const updatedUser = await ctx.context.internalAdapter.updateUserByEmail(parsed.email, {
-					email: parsed.updateTo,
-					emailVerified: false
-				});
-				const newToken = await createEmailVerificationToken(ctx.context.secret, parsed.updateTo);
-				const updateCallbackURL = ctx.query.callbackURL ? encodeURIComponent(ctx.query.callbackURL) : encodeURIComponent("/");
-				if (ctx.context.options.emailVerification?.sendVerificationEmail) await ctx.context.runInBackgroundOrAwait(ctx.context.options.emailVerification.sendVerificationEmail({
-					user: updatedUser,
-					url: `${ctx.context.baseURL}/verify-email?token=${newToken}&callbackURL=${updateCallbackURL}`,
-					token: newToken
-				}, ctx.request));
-				await setSessionCookie(ctx, {
-					session: activeSession.session,
-					user: {
-						...activeSession.user,
-						email: parsed.updateTo,
-						emailVerified: false
-					}
-				});
-				if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
-				return ctx.json({
-					status: true,
-					user: parseUserOutput(ctx.context.options, updatedUser)
-				});
-			}
-		}
-	}
-	if (user.user.emailVerified) {
-		if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
-		return ctx.json({
-			status: true,
-			user: null
-		});
-	}
-	if (ctx.context.options.emailVerification?.beforeEmailVerification) await ctx.context.options.emailVerification.beforeEmailVerification(user.user, ctx.request);
-	const updatedUser = await ctx.context.internalAdapter.updateUserByEmail(parsed.email, { emailVerified: true });
-	if (ctx.context.options.emailVerification?.afterEmailVerification) await ctx.context.options.emailVerification.afterEmailVerification(updatedUser, ctx.request);
-	if (ctx.context.options.emailVerification?.autoSignInAfterVerification) {
-		const currentSession = await getSessionFromCtx(ctx);
-		if (!currentSession || currentSession.user.email !== parsed.email) {
-			const session = await ctx.context.internalAdapter.createSession(user.user.id);
-			if (!session) throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_CREATE_SESSION);
-			await setSessionCookie(ctx, {
-				session,
-				user: {
-					...user.user,
-					emailVerified: true
-				}
-			});
-		} else await setSessionCookie(ctx, {
-			session: currentSession.session,
-			user: {
-				...currentSession.user,
-				emailVerified: true
-			}
-		});
-	}
-	if (ctx.query.callbackURL) throw ctx.redirect(ctx.query.callbackURL);
-	return ctx.json({
-		status: true,
-		user: null
-	});
-});
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/oauth2/link-account.mjs
-async function handleOAuthUserInfo(c, opts) {
-	const { userInfo, account, callbackURL, disableSignUp, overrideUserInfo } = opts;
-	const dbUser = await c.context.internalAdapter.findOAuthUser(userInfo.email.toLowerCase(), account.accountId, account.providerId).catch((e) => {
-		logger.error("Better auth was unable to query your database.\nError: ", e);
-		const errorURL = c.context.options.onAPIError?.errorURL || `${c.context.baseURL}/error`;
-		throw c.redirect(`${errorURL}?error=internal_server_error`);
-	});
-	let user = dbUser?.user;
-	const isRegister = !user;
-	if (dbUser) {
-		const linkedAccount = dbUser.linkedAccount ?? dbUser.accounts.find((acc) => acc.providerId === account.providerId && acc.accountId === account.accountId);
-		if (!linkedAccount) {
-			const accountLinking = c.context.options.account?.accountLinking;
-			if (!(opts.isTrustedProvider || c.context.trustedProviders.includes(account.providerId)) && !userInfo.emailVerified || accountLinking?.enabled === false || accountLinking?.disableImplicitLinking === true) {
-				if (isDevelopment()) logger.warn(`User already exist but account isn't linked to ${account.providerId}. To read more about how account linking works in Better Auth see https://www.better-auth.com/docs/concepts/users-accounts#account-linking.`);
-				return {
-					error: "account not linked",
-					data: null
-				};
-			}
-			try {
-				await c.context.internalAdapter.linkAccount({
-					providerId: account.providerId,
-					accountId: userInfo.id.toString(),
-					userId: dbUser.user.id,
-					accessToken: await setTokenUtil(account.accessToken, c.context),
-					refreshToken: await setTokenUtil(account.refreshToken, c.context),
-					idToken: account.idToken,
-					accessTokenExpiresAt: account.accessTokenExpiresAt,
-					refreshTokenExpiresAt: account.refreshTokenExpiresAt,
-					scope: account.scope
-				});
-			} catch (e) {
-				logger.error("Unable to link account", e);
-				return {
-					error: "unable to link account",
-					data: null
-				};
-			}
-			if (userInfo.emailVerified && !dbUser.user.emailVerified && userInfo.email.toLowerCase() === dbUser.user.email) await c.context.internalAdapter.updateUser(dbUser.user.id, { emailVerified: true });
-		} else {
-			const freshTokens = c.context.options.account?.updateAccountOnSignIn !== false ? Object.fromEntries(Object.entries({
-				idToken: account.idToken,
-				accessToken: await setTokenUtil(account.accessToken, c.context),
-				refreshToken: await setTokenUtil(account.refreshToken, c.context),
-				accessTokenExpiresAt: account.accessTokenExpiresAt,
-				refreshTokenExpiresAt: account.refreshTokenExpiresAt,
-				scope: account.scope
-			}).filter(([_, value]) => value !== void 0)) : {};
-			if (c.context.options.account?.storeAccountCookie) await setAccountCookie(c, {
-				...linkedAccount,
-				...freshTokens
-			});
-			if (Object.keys(freshTokens).length > 0) await c.context.internalAdapter.updateAccount(linkedAccount.id, freshTokens);
-			if (userInfo.emailVerified && !dbUser.user.emailVerified && userInfo.email.toLowerCase() === dbUser.user.email) await c.context.internalAdapter.updateUser(dbUser.user.id, { emailVerified: true });
-		}
-		if (overrideUserInfo) {
-			const { id: _, ...restUserInfo } = userInfo;
-			user = await c.context.internalAdapter.updateUser(dbUser.user.id, {
-				...restUserInfo,
-				email: userInfo.email.toLowerCase(),
-				emailVerified: userInfo.email.toLowerCase() === dbUser.user.email ? dbUser.user.emailVerified || userInfo.emailVerified : userInfo.emailVerified
-			});
-		}
-	} else {
-		if (disableSignUp) return {
-			error: "signup disabled",
-			data: null,
-			isRegister: false
-		};
-		try {
-			const { id: _, ...restUserInfo } = userInfo;
-			const accountData = {
-				accessToken: await setTokenUtil(account.accessToken, c.context),
-				refreshToken: await setTokenUtil(account.refreshToken, c.context),
-				idToken: account.idToken,
-				accessTokenExpiresAt: account.accessTokenExpiresAt,
-				refreshTokenExpiresAt: account.refreshTokenExpiresAt,
-				scope: account.scope,
-				providerId: account.providerId,
-				accountId: userInfo.id.toString()
-			};
-			const { user: createdUser, account: createdAccount } = await c.context.internalAdapter.createOAuthUser({
-				...restUserInfo,
-				email: userInfo.email.toLowerCase()
-			}, accountData);
-			user = createdUser;
-			if (c.context.options.account?.storeAccountCookie) await setAccountCookie(c, createdAccount);
-			if (!userInfo.emailVerified && user && c.context.options.emailVerification?.sendOnSignUp && c.context.options.emailVerification?.sendVerificationEmail) {
-				const token = await createEmailVerificationToken(c.context.secret, user.email, void 0, c.context.options.emailVerification?.expiresIn);
-				const url = `${c.context.baseURL}/verify-email?token=${token}&callbackURL=${callbackURL}`;
-				await c.context.runInBackgroundOrAwait(c.context.options.emailVerification.sendVerificationEmail({
-					user,
-					url,
-					token
-				}, c.request));
-			}
-		} catch (e) {
-			logger.error(e);
-			if (isAPIError(e)) return {
-				error: e.message,
-				data: null,
-				isRegister: false
-			};
-			return {
-				error: "unable to create user",
-				data: null,
-				isRegister: false
-			};
-		}
-	}
-	if (!user) return {
-		error: "unable to create user",
-		data: null,
-		isRegister: false
-	};
-	const session = await c.context.internalAdapter.createSession(user.id);
-	if (!session) return {
-		error: "unable to create session",
-		data: null,
-		isRegister: false
-	};
-	return {
-		data: {
-			session,
-			user
-		},
-		error: null,
-		isRegister
-	};
-}
-//#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/callback.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/callback.mjs
 var schema = z$1.object({
 	code: z$1.string().optional(),
 	error: z$1.string().optional(),
@@ -34178,31 +35341,20 @@ var callbackOAuth = createAuthEndpoint("/callback/:id", {
 		else throw new Error("Unsupported method");
 	} catch (e) {
 		c.context.logger.error("INVALID_CALLBACK_REQUEST", e);
-		throw c.redirect(`${defaultErrorURL}?error=invalid_callback_request`);
+		redirectOnError(c, defaultErrorURL, "invalid_callback_request");
 	}
-	const { code, error, state, error_description, device_id, user: userData } = queryOrBody;
-	if (!state) {
-		c.context.logger.error("State not found", error);
-		const url = `${defaultErrorURL}${defaultErrorURL.includes("?") ? "&" : "?"}state=state_not_found`;
-		throw c.redirect(url);
-	}
+	const { code, error, error_description, device_id, user: userData } = queryOrBody;
 	const { codeVerifier, callbackURL, link, errorURL, newUserURL, requestSignUp } = await parseState(c);
-	function redirectOnError(error, description) {
-		const baseURL = errorURL ?? defaultErrorURL;
-		const params = new URLSearchParams({ error });
-		if (description) params.set("error_description", description);
-		const url = `${baseURL}${baseURL.includes("?") ? "&" : "?"}${params.toString()}`;
-		throw c.redirect(url);
-	}
-	if (error) redirectOnError(error, error_description);
+	const resolvedErrorURL = errorURL ?? defaultErrorURL;
+	if (error) redirectOnError(c, resolvedErrorURL, error, error_description);
 	if (!code) {
-		c.context.logger.error("Code not found");
-		throw redirectOnError("no_code");
+		c.context.logger.warn("Code not found");
+		redirectOnError(c, resolvedErrorURL, "no_code");
 	}
 	const provider = await getAwaitableValue(c.context.socialProviders, { value: c.params.id });
 	if (!provider) {
-		c.context.logger.error("Oauth provider with id", c.params.id, "not found");
-		throw redirectOnError("oauth_provider_not_found");
+		c.context.logger.warn("OAuth provider not found", { providerId: c.params.id });
+		redirectOnError(c, resolvedErrorURL, "oauth_provider_not_found");
 	}
 	let tokens;
 	try {
@@ -34214,31 +35366,36 @@ var callbackOAuth = createAuthEndpoint("/callback/:id", {
 		});
 	} catch (e) {
 		c.context.logger.error("", e);
-		throw redirectOnError("invalid_code");
+		redirectOnError(c, resolvedErrorURL, "invalid_code");
 	}
-	if (!tokens) throw redirectOnError("invalid_code");
+	if (!tokens) redirectOnError(c, resolvedErrorURL, "invalid_code");
 	const parsedUserData = userData ? safeJSONParse(userData) : null;
 	const userInfo = await provider.getUserInfo({
 		...tokens,
+		/**
+		* The user object from the provider
+		* This is only available for some providers like Apple
+		*/
 		user: parsedUserData ?? void 0
 	}).then((res) => res?.user);
-	if (!userInfo) {
+	if (!userInfo || userInfo.id === void 0 || userInfo.id === null || userInfo.id === "") {
 		c.context.logger.error("Unable to get user info");
-		return redirectOnError("unable_to_get_user_info");
+		redirectOnError(c, resolvedErrorURL, "unable_to_get_user_info");
 	}
+	const providerAccountId = String(userInfo.id);
 	if (!callbackURL) {
 		c.context.logger.error("No callback URL found");
-		throw redirectOnError("no_callback_url");
+		redirectOnError(c, resolvedErrorURL, "no_callback_url");
 	}
 	if (link) {
 		if (!c.context.trustedProviders.includes(provider.id) && !userInfo.emailVerified || c.context.options.account?.accountLinking?.enabled === false) {
 			c.context.logger.error("Unable to link account - untrusted provider");
-			return redirectOnError("unable_to_link_account");
+			redirectOnError(c, resolvedErrorURL, "unable_to_link_account");
 		}
-		if (userInfo.email?.toLowerCase() !== link.email.toLowerCase() && c.context.options.account?.accountLinking?.allowDifferentEmails !== true) return redirectOnError("email_doesn't_match");
-		const existingAccount = await c.context.internalAdapter.findAccount(String(userInfo.id));
+		if (userInfo.email?.toLowerCase() !== link.email.toLowerCase() && c.context.options.account?.accountLinking?.allowDifferentEmails !== true) redirectOnError(c, resolvedErrorURL, "email_doesn't_match");
+		const existingAccount = await c.context.internalAdapter.findAccountByProviderId(providerAccountId, provider.id);
 		if (existingAccount) {
-			if (existingAccount.userId.toString() !== link.userId.toString()) return redirectOnError("account_already_linked_to_different_user");
+			if (existingAccount.userId.toString() !== link.userId.toString()) redirectOnError(c, resolvedErrorURL, "account_already_linked_to_different_user");
 			const updateData = Object.fromEntries(Object.entries({
 				accessToken: await setTokenUtil(tokens.accessToken, c.context),
 				refreshToken: await setTokenUtil(tokens.refreshToken, c.context),
@@ -34251,12 +35408,13 @@ var callbackOAuth = createAuthEndpoint("/callback/:id", {
 		} else if (!await c.context.internalAdapter.createAccount({
 			userId: link.userId,
 			providerId: provider.id,
-			accountId: String(userInfo.id),
+			accountId: providerAccountId,
 			...tokens,
 			accessToken: await setTokenUtil(tokens.accessToken, c.context),
 			refreshToken: await setTokenUtil(tokens.refreshToken, c.context),
 			scope: tokens.scopes?.join(",")
-		})) return redirectOnError("unable_to_link_account");
+		})) redirectOnError(c, resolvedErrorURL, "unable_to_link_account");
+		await applyUpdateUserInfoOnLink(c, link.userId, userInfo);
 		let toRedirectTo;
 		try {
 			toRedirectTo = callbackURL.toString();
@@ -34266,30 +35424,36 @@ var callbackOAuth = createAuthEndpoint("/callback/:id", {
 		throw c.redirect(toRedirectTo);
 	}
 	if (!userInfo.email) {
-		c.context.logger.error("Provider did not return email. This could be due to misconfiguration in the provider settings.");
-		return redirectOnError("email_not_found");
+		c.context.logger.error(missingEmailLogMessage(provider.id));
+		redirectOnError(c, resolvedErrorURL, "email_not_found");
 	}
 	const accountData = {
 		providerId: provider.id,
-		accountId: String(userInfo.id),
+		accountId: providerAccountId,
 		...tokens,
 		scope: tokens.scopes?.join(",")
 	};
-	const result = await handleOAuthUserInfo(c, {
-		userInfo: {
-			...userInfo,
-			id: String(userInfo.id),
-			email: userInfo.email,
-			name: userInfo.name || ""
-		},
-		account: accountData,
-		callbackURL,
-		disableSignUp: provider.disableImplicitSignUp && !requestSignUp || provider.options?.disableSignUp,
-		overrideUserInfo: provider.options?.overrideUserInfoOnSignIn
-	});
+	let result;
+	try {
+		result = await handleOAuthUserInfo(c, {
+			userInfo: {
+				...userInfo,
+				id: providerAccountId,
+				email: userInfo.email,
+				name: userInfo.name || ""
+			},
+			account: accountData,
+			callbackURL,
+			disableSignUp: provider.disableImplicitSignUp && !requestSignUp || provider.options?.disableSignUp,
+			overrideUserInfo: provider.options?.overrideUserInfoOnSignIn
+		});
+	} catch (e) {
+		if (isAPIError(e) && e.body?.code) redirectOnError(c, resolvedErrorURL, e.body.code, e.body.message);
+		throw e;
+	}
 	if (result.error) {
 		c.context.logger.error(result.error.split(" ").join("_"));
-		return redirectOnError(result.error.split(" ").join("_"));
+		redirectOnError(c, resolvedErrorURL, result.error.split(" ").join("_"));
 	}
 	const { session, user } = result.data;
 	await setSessionCookie(c, {
@@ -34305,7 +35469,7 @@ var callbackOAuth = createAuthEndpoint("/callback/:id", {
 	throw c.redirect(toRedirectTo);
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/error.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/error.mjs
 function sanitize(input) {
 	return input.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;").replace(/&(?!amp;|lt;|gt;|quot;|#39;|#x[0-9a-fA-F]+;|#[0-9]+;)/g, "&amp;");
 }
@@ -34586,7 +35750,7 @@ ${custom?.disableBackgroundGrid ? "" : `
               text-wrap: pretty;
             "
           >
-            ${!description ? `We encountered an unexpected error. Please try again or return to the home page. If you're a developer, you can find more information about the error <a href='https://better-auth.com/docs/reference/errors/${encodeURIComponent(code)}' target='_blank' rel="noopener noreferrer" style='color: var(--foreground); text-decoration: underline;'>here</a>.` : description}
+            ${!description ? `We encountered an unexpected error. Please try again or return to the home page. If you're a developer, you can find <a href='https://better-auth.com/docs/reference/errors/${encodeURIComponent(code)}' target='_blank' rel="noopener noreferrer" style='color: var(--foreground); text-decoration: underline;'>more information about the error</a>.` : description}
           </p>
         </div>
 
@@ -34684,7 +35848,7 @@ var error = createAuthEndpoint("/error", {
 	return new Response(html(c.context.options, safeCode, safeDescription), { headers: { "Content-Type": "text/html" } });
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/ok.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/ok.mjs
 var ok = createAuthEndpoint("/ok", {
 	method: "GET",
 	metadata: {
@@ -34708,7 +35872,7 @@ var ok = createAuthEndpoint("/ok", {
 	return ctx.json({ ok: true });
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/utils/password.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/utils/password.mjs
 async function validatePassword(ctx, data) {
 	const credentialAccount = (await ctx.context.internalAdapter.findAccounts(data.userId))?.find((account) => account.providerId === "credential");
 	const currentPassword = credentialAccount?.password;
@@ -34721,15 +35885,19 @@ async function validatePassword(ctx, data) {
 async function checkPassword(userId, c) {
 	const credentialAccount = (await c.context.internalAdapter.findAccounts(userId))?.find((account) => account.providerId === "credential");
 	const currentPassword = credentialAccount?.password;
-	if (!credentialAccount || !currentPassword || !c.body.password) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.CREDENTIAL_ACCOUNT_NOT_FOUND);
+	const password = c.body.password;
+	if (!credentialAccount || !currentPassword || !password) {
+		if (password) await c.context.password.hash(password);
+		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.INVALID_PASSWORD);
+	}
 	if (!await c.context.password.verify({
 		hash: currentPassword,
-		password: c.body.password
+		password
 	})) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.INVALID_PASSWORD);
 	return true;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/password.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/password.mjs
 function redirectError(ctx, callbackURL, query) {
 	const url = callbackURL ? new URL(callbackURL, ctx.baseURL) : new URL(`${ctx.baseURL}/error`);
 	if (query) Object.entries(query).forEach(([k, v]) => url.searchParams.set(k, v));
@@ -34743,7 +35911,16 @@ function redirectCallback(ctx, callbackURL, query) {
 var requestPasswordReset = createAuthEndpoint("/request-password-reset", {
 	method: "POST",
 	body: z$1.object({
+		/**
+		* The email address of the user to send a password reset email to.
+		*/
 		email: z$1.email().meta({ description: "The email address of the user to send a password reset email to" }),
+		/**
+		* The URL to redirect the user to reset their password.
+		* If the token isn't valid or expired, it'll be redirected with a query parameter `?
+		* error=INVALID_TOKEN`. If the token is valid, it'll be redirected with a query parameter `?
+		* token=VALID_TOKEN
+		*/
 		redirectTo: z$1.string().meta({ description: "The URL to redirect the user to reset their password. If the token isn't valid or expired, it'll be redirected with a query parameter `?error=INVALID_TOKEN`. If the token is valid, it'll be redirected with a query parameter `?token=VALID_TOKEN" }).optional()
 	}),
 	metadata: { openapi: {
@@ -34759,7 +35936,8 @@ var requestPasswordReset = createAuthEndpoint("/request-password-reset", {
 				}
 			} } }
 		} }
-	} }
+	} },
+	use: [originCheck((ctx) => ctx.body.redirectTo)]
 }, async (ctx) => {
 	if (!ctx.context.options.emailAndPassword?.sendResetPassword) {
 		ctx.context.logger.error("Reset password isn't enabled.Please pass an emailAndPassword.sendResetPassword function in your auth config!");
@@ -34777,7 +35955,7 @@ var requestPasswordReset = createAuthEndpoint("/request-password-reset", {
 		*/
 		generateId$1(24);
 		await ctx.context.internalAdapter.findVerificationValue("dummy-verification-token");
-		ctx.context.logger.error("Reset Password: User not found", { email });
+		ctx.context.logger.warn("Reset Password: User not found");
 		return ctx.json({
 			status: true,
 			message: "If this email exists in our system, check your email for the reset link"
@@ -34804,7 +35982,7 @@ var requestPasswordReset = createAuthEndpoint("/request-password-reset", {
 });
 var requestPasswordResetCallback = createAuthEndpoint("/reset-password/:token", {
 	method: "GET",
-	operationId: "forgetPasswordCallback",
+	operationId: "resetPasswordCallback",
 	query: z$1.object({ callbackURL: z$1.string().meta({ description: "The URL to redirect the user to reset their password" }) }),
 	use: [originCheck((ctx) => ctx.query.callbackURL)],
 	metadata: { openapi: {
@@ -34867,8 +36045,8 @@ var resetPassword = createAuthEndpoint("/reset-password", {
 	if (newPassword.length < minLength) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.PASSWORD_TOO_SHORT);
 	if (newPassword.length > maxLength) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.PASSWORD_TOO_LONG);
 	const id = `reset-password:${token}`;
-	const verification = await ctx.context.internalAdapter.findVerificationValue(id);
-	if (!verification || verification.expiresAt < /* @__PURE__ */ new Date()) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.INVALID_TOKEN);
+	const verification = await ctx.context.internalAdapter.consumeVerificationValue(id);
+	if (!verification) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.INVALID_TOKEN);
 	const userId = verification.value;
 	const hashedPassword = await ctx.context.password.hash(newPassword);
 	if (!(await ctx.context.internalAdapter.findAccounts(userId)).find((ac) => ac.providerId === "credential")) await ctx.context.internalAdapter.createAccount({
@@ -34878,17 +36056,20 @@ var resetPassword = createAuthEndpoint("/reset-password", {
 		accountId: userId
 	});
 	else await ctx.context.internalAdapter.updatePassword(userId, hashedPassword);
-	await ctx.context.internalAdapter.deleteVerificationByIdentifier(id);
 	if (ctx.context.options.emailAndPassword?.onPasswordReset) {
 		const user = await ctx.context.internalAdapter.findUserById(userId);
 		if (user) await ctx.context.options.emailAndPassword.onPasswordReset({ user }, ctx.request);
 	}
-	if (ctx.context.options.emailAndPassword?.revokeSessionsOnPasswordReset) await ctx.context.internalAdapter.deleteSessions(userId);
+	if (ctx.context.options.emailAndPassword?.revokeSessionsOnPasswordReset) await ctx.context.internalAdapter.deleteUserSessions(userId);
 	return ctx.json({ status: true });
 });
 var verifyPassword = createAuthEndpoint("/verify-password", {
 	method: "POST",
-	body: z$1.object({ password: z$1.string().meta({ description: "The password to verify" }) }),
+	body: z$1.object({ 
+	/**
+	* The password to verify
+	*/
+password: z$1.string().meta({ description: "The password to verify" }) }),
 	metadata: {
 		scope: "server",
 		openapi: {
@@ -34914,23 +36095,97 @@ var verifyPassword = createAuthEndpoint("/verify-password", {
 	return ctx.json({ status: true });
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/sign-in.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/sign-in.mjs
 var socialSignInBodySchema = z$1.object({
+	/**
+	* Callback URL to redirect to after the user
+	* has signed in.
+	*/
 	callbackURL: z$1.string().meta({ description: "Callback URL to redirect to after the user has signed in" }).optional(),
+	/**
+	* callback url to redirect if the user is newly registered.
+	*
+	* useful if you have different routes for existing users and new users
+	*/
 	newUserCallbackURL: z$1.string().optional(),
+	/**
+	* Callback url to redirect to if an error happens
+	*
+	* If it's initiated from the client sdk this defaults to
+	* the current url.
+	*/
 	errorCallbackURL: z$1.string().meta({ description: "Callback URL to redirect to if an error happens" }).optional(),
+	/**
+	* OAuth2 provider to use`
+	*/
 	provider: SocialProviderListEnum,
+	/**
+	* Disable automatic redirection to the provider
+	*
+	* This is useful if you want to handle the redirection
+	* yourself like in a popup or a different tab.
+	*/
 	disableRedirect: z$1.boolean().meta({ description: "Disable automatic redirection to the provider. Useful for handling the redirection yourself" }).optional(),
+	/**
+	* ID token from the provider
+	*
+	* This is used to sign in the user
+	* if the user is already signed in with the
+	* provider in the frontend.
+	*
+	* Only applicable if the provider supports
+	* it. Currently only `apple` and `google` is
+	* supported out of the box.
+	*/
 	idToken: z$1.optional(z$1.object({
+		/**
+		* ID token from the provider
+		*/
 		token: z$1.string().meta({ description: "ID token from the provider" }),
+		/**
+		* The nonce used to generate the token
+		*/
 		nonce: z$1.string().meta({ description: "Nonce used to generate the token" }).optional(),
+		/**
+		* Access token from the provider
+		*/
 		accessToken: z$1.string().meta({ description: "Access token from the provider" }).optional(),
+		/**
+		* Refresh token from the provider
+		*/
 		refreshToken: z$1.string().meta({ description: "Refresh token from the provider" }).optional(),
-		expiresAt: z$1.number().meta({ description: "Expiry date of the token" }).optional()
+		/**
+		* Expiry date of the token
+		*/
+		expiresAt: z$1.number().meta({ description: "Expiry date of the token" }).optional(),
+		/**
+		* The user object from the provider.
+		* This is only available for some providers like Apple.
+		*/
+		user: z$1.object({
+			name: z$1.object({
+				firstName: z$1.string().optional(),
+				lastName: z$1.string().optional()
+			}).optional(),
+			email: z$1.string().optional()
+		}).meta({ description: "The user object from the provider. Only available for some providers like Apple." }).optional()
 	})),
 	scopes: z$1.array(z$1.string()).meta({ description: "Array of scopes to request from the provider. This will override the default scopes passed." }).optional(),
+	/**
+	* Explicitly request sign-up
+	*
+	* Should be used to allow sign up when
+	* disableImplicitSignUp for this provider is
+	* true
+	*/
 	requestSignUp: z$1.boolean().meta({ description: "Explicitly request sign-up. Useful when disableImplicitSignUp is true for this provider" }).optional(),
+	/**
+	* The login hint to use for the authorization code request
+	*/
 	loginHint: z$1.string().meta({ description: "The login hint to use for the authorization code request" }).optional(),
+	/**
+	* Additional data to be passed through the OAuth flow
+	*/
 	additionalData: z$1.record(z$1.string(), z$1.any()).optional().meta({ description: "Additional data to be passed through the OAuth flow" })
 });
 var signInSocial = () => createAuthEndpoint("/sign-in/social", {
@@ -34946,10 +36201,10 @@ var signInSocial = () => createAuthEndpoint("/sign-in/social", {
 			description: "Sign in with a social provider",
 			operationId: "socialSignIn",
 			responses: { "200": {
-				description: "Success - Returns either session details or redirect URL",
+				description: "Success - Returns session details (idToken branch) or an authorize URL (redirect branch)",
 				content: { "application/json": { schema: {
 					type: "object",
-					description: "Session response when idToken is provided",
+					description: "Returns session details when idToken is provided, or an authorize URL otherwise",
 					properties: {
 						token: { type: "string" },
 						user: {
@@ -34957,16 +36212,9 @@ var signInSocial = () => createAuthEndpoint("/sign-in/social", {
 							$ref: "#/components/schemas/User"
 						},
 						url: { type: "string" },
-						redirect: {
-							type: "boolean",
-							enum: [false]
-						}
+						redirect: { type: "boolean" }
 					},
-					required: [
-						"redirect",
-						"token",
-						"user"
-					]
+					required: ["redirect"]
 				} } }
 			} }
 		}
@@ -34983,21 +36231,22 @@ var signInSocial = () => createAuthEndpoint("/sign-in/social", {
 			throw APIError.from("NOT_FOUND", BASE_ERROR_CODES.ID_TOKEN_NOT_SUPPORTED);
 		}
 		const { token, nonce } = c.body.idToken;
-		if (!await provider.verifyIdToken(token, nonce)) {
-			c.context.logger.error("Invalid id token", { provider: c.body.provider });
+		if (!await provider.verifyIdToken(token, nonce, c)) {
+			c.context.logger.warn("Invalid id token", { provider: c.body.provider });
 			throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.INVALID_TOKEN);
 		}
 		const userInfo = await provider.getUserInfo({
 			idToken: token,
 			accessToken: c.body.idToken.accessToken,
-			refreshToken: c.body.idToken.refreshToken
+			refreshToken: c.body.idToken.refreshToken,
+			user: c.body.idToken.user
 		});
 		if (!userInfo || !userInfo?.user) {
 			c.context.logger.error("Failed to get user info", { provider: c.body.provider });
 			throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.FAILED_TO_GET_USER_INFO);
 		}
 		if (!userInfo.user.email) {
-			c.context.logger.error("User email not found", { provider: c.body.provider });
+			c.context.logger.error(missingEmailLogMessage(c.body.provider, { source: "id_token" }), { provider: c.body.provider });
 			throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.USER_EMAIL_NOT_FOUND);
 		}
 		const data = await handleOAuthUserInfo(c, {
@@ -35047,10 +36296,25 @@ var signInEmail = () => createAuthEndpoint("/sign-in/email", {
 	method: "POST",
 	operationId: "signInEmail",
 	use: [formCsrfMiddleware],
+	cloneRequest: true,
 	body: z$1.object({
+		/**
+		* Email of the user
+		*/
 		email: z$1.string().meta({ description: "Email of the user" }),
+		/**
+		* Password of the user
+		*/
 		password: z$1.string().meta({ description: "Password of the user" }),
+		/**
+		* Callback URL to use as a redirect for email
+		* verification and for possible redirects
+		*/
 		callbackURL: z$1.string().meta({ description: "Callback URL to use as a redirect for email verification" }).optional(),
+		/**
+		* If this is false, the session will not be remembered
+		* @default true
+		*/
 		rememberMe: z$1.boolean().meta({ description: "If this is false, the session will not be remembered. Default is `true`." }).default(true).optional()
 	}),
 	metadata: {
@@ -35107,26 +36371,26 @@ var signInEmail = () => createAuthEndpoint("/sign-in/email", {
 	const user = await ctx.context.internalAdapter.findUserByEmail(email, { includeAccounts: true });
 	if (!user) {
 		await ctx.context.password.hash(password);
-		ctx.context.logger.error("User not found", { email });
+		ctx.context.logger.warn("User not found");
 		throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.INVALID_EMAIL_OR_PASSWORD);
 	}
 	const credentialAccount = user.accounts.find((a) => a.providerId === "credential");
 	if (!credentialAccount) {
 		await ctx.context.password.hash(password);
-		ctx.context.logger.error("Credential account not found", { email });
+		ctx.context.logger.warn("Credential account not found");
 		throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.INVALID_EMAIL_OR_PASSWORD);
 	}
 	const currentPassword = credentialAccount?.password;
 	if (!currentPassword) {
 		await ctx.context.password.hash(password);
-		ctx.context.logger.error("Password not found", { email });
+		ctx.context.logger.warn("Password not found");
 		throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.INVALID_EMAIL_OR_PASSWORD);
 	}
 	if (!await ctx.context.password.verify({
 		hash: currentPassword,
 		password
 	})) {
-		ctx.context.logger.error("Invalid password");
+		ctx.context.logger.warn("Invalid password");
 		throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.INVALID_EMAIL_OR_PASSWORD);
 	}
 	if (ctx.context.options?.emailAndPassword?.requireEmailVerification && !user.user.emailVerified) {
@@ -35139,7 +36403,7 @@ var signInEmail = () => createAuthEndpoint("/sign-in/email", {
 				user: user.user,
 				url,
 				token
-			}, ctx.request));
+			}, safeCloneRequest(ctx.request)));
 		}
 		throw APIError.from("FORBIDDEN", BASE_ERROR_CODES.EMAIL_NOT_VERIFIED);
 	}
@@ -35161,7 +36425,7 @@ var signInEmail = () => createAuthEndpoint("/sign-in/email", {
 	});
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/sign-out.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/sign-out.mjs
 var signOut = createAuthEndpoint("/sign-out", {
 	method: "POST",
 	operationId: "signOut",
@@ -35188,7 +36452,7 @@ var signOut = createAuthEndpoint("/sign-out", {
 	return ctx.json({ success: true });
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/sign-up.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/sign-up.mjs
 var signUpEmailBodySchema = z$1.object({
 	name: z$1.string(),
 	email: z$1.email(),
@@ -35202,6 +36466,7 @@ var signUpEmail = () => createAuthEndpoint("/sign-up/email", {
 	operationId: "signUpWithEmailAndPassword",
 	use: [formCsrfMiddleware],
 	body: signUpEmailBodySchema,
+	cloneRequest: true,
 	metadata: {
 		allowedMediaTypes: ["application/x-www-form-urlencoded", "application/json"],
 		$Infer: {
@@ -35328,15 +36593,16 @@ var signUpEmail = () => createAuthEndpoint("/sign-up/email", {
 		if (!password || typeof password !== "string") throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.INVALID_PASSWORD);
 		const minPasswordLength = ctx.context.password.config.minPasswordLength;
 		if (password.length < minPasswordLength) {
-			ctx.context.logger.error("Password is too short");
+			ctx.context.logger.warn("Password is too short");
 			throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.PASSWORD_TOO_SHORT);
 		}
 		const maxPasswordLength = ctx.context.password.config.maxPasswordLength;
 		if (password.length > maxPasswordLength) {
-			ctx.context.logger.error("Password is too long");
+			ctx.context.logger.warn("Password is too long");
 			throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.PASSWORD_TOO_LONG);
 		}
-		const shouldReturnGenericDuplicateResponse = ctx.context.options.emailAndPassword.autoSignIn === false || ctx.context.options.emailAndPassword.requireEmailVerification;
+		const shouldReturnGenericDuplicateResponse = ctx.context.options.emailAndPassword.requireEmailVerification || ctx.context.options.emailAndPassword.autoSignIn === false;
+		const shouldSkipAutoSignIn = ctx.context.options.emailAndPassword.autoSignIn === false || shouldReturnGenericDuplicateResponse;
 		const additionalUserFields = parseUserInput(ctx.context.options, rest, "create");
 		const normalizedEmail = email.toLowerCase();
 		const dbUser = await ctx.context.internalAdapter.findUserByEmail(normalizedEmail);
@@ -35348,14 +36614,14 @@ var signUpEmail = () => createAuthEndpoint("/sign-up/email", {
 				* between existing and non-existing emails.
 				*/
 				await ctx.context.password.hash(password);
-				if (ctx.context.options.emailAndPassword?.onExistingUserSignUp) await ctx.context.runInBackgroundOrAwait(ctx.context.options.emailAndPassword.onExistingUserSignUp({ user: dbUser.user }, ctx.request));
+				if (ctx.context.options.emailAndPassword?.onExistingUserSignUp) await ctx.context.runInBackgroundOrAwait(ctx.context.options.emailAndPassword.onExistingUserSignUp({ user: dbUser.user }, safeCloneRequest(ctx.request)));
 				const now = /* @__PURE__ */ new Date();
 				const generatedId = ctx.context.generateId({ model: "user" }) || generateId$1();
 				const coreFields = {
 					name,
 					email: normalizedEmail,
 					emailVerified: false,
-					image: image || null,
+					image: image ?? null,
 					createdAt: now,
 					updatedAt: now
 				};
@@ -35365,16 +36631,17 @@ var signUpEmail = () => createAuthEndpoint("/sign-up/email", {
 					const additionalFieldKeys = Object.keys(ctx.context.options.user?.additionalFields ?? {});
 					const additionalFields = {};
 					for (const key of additionalFieldKeys) if (key in additionalUserFields) additionalFields[key] = additionalUserFields[key];
-					syntheticUser = customSyntheticUser({
+					const customResult = customSyntheticUser({
 						coreFields,
 						additionalFields,
 						id: generatedId
 					});
-				} else syntheticUser = {
+					syntheticUser = buildSyntheticUserOutput(ctx.context.options, customResult);
+				} else syntheticUser = buildSyntheticUserOutput(ctx.context.options, {
 					...coreFields,
 					...additionalUserFields,
 					id: generatedId
-				};
+				});
 				return ctx.json({
 					token: null,
 					user: parseUserOutput(ctx.context.options, syntheticUser)
@@ -35422,9 +36689,9 @@ var signUpEmail = () => createAuthEndpoint("/sign-up/email", {
 				user: createdUser,
 				url,
 				token
-			}, ctx.request));
+			}, safeCloneRequest(ctx.request)));
 		}
-		if (shouldReturnGenericDuplicateResponse) return ctx.json({
+		if (shouldSkipAutoSignIn) return ctx.json({
 			token: null,
 			user: parseUserOutput(ctx.context.options, createdUser)
 		});
@@ -35441,7 +36708,7 @@ var signUpEmail = () => createAuthEndpoint("/sign-up/email", {
 	});
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/update-session.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/update-session.mjs
 var updateSessionBodySchema = z$1.record(z$1.string().meta({ description: "Field name must be a string" }), z$1.any());
 var updateSession = () => createAuthEndpoint("/update-session", {
 	method: "POST",
@@ -35471,10 +36738,15 @@ var updateSession = () => createAuthEndpoint("/update-session", {
 	const session = ctx.context.session;
 	const additionalFields = parseSessionInput(ctx.context.options, body, "update");
 	if (Object.keys(additionalFields).length === 0) throw APIError.fromStatus("BAD_REQUEST", { message: "No fields to update" });
-	const newSession = await ctx.context.internalAdapter.updateSession(session.session.token, {
+	const updatedSession = await ctx.context.internalAdapter.updateSession(session.session.token, {
 		...additionalFields,
 		updatedAt: /* @__PURE__ */ new Date()
-	}) ?? {
+	});
+	if (!updatedSession && isStateful(ctx)) {
+		deleteSessionCookie(ctx);
+		throw APIError.from("UNAUTHORIZED", BASE_ERROR_CODES.FAILED_TO_GET_SESSION);
+	}
+	const newSession = updatedSession ?? {
 		...session.session,
 		...additionalFields,
 		updatedAt: /* @__PURE__ */ new Date()
@@ -35486,7 +36758,7 @@ var updateSession = () => createAuthEndpoint("/update-session", {
 	return ctx.json({ session: parseSessionOutput(ctx.context.options, newSession) });
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/routes/update-user.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/routes/update-user.mjs
 var updateUserBodySchema = z$1.record(z$1.string().meta({ description: "Field name must be a string" }), z$1.any());
 var updateUser = () => createAuthEndpoint("/update-user", {
 	method: "POST",
@@ -35555,8 +36827,18 @@ var changePassword = createAuthEndpoint("/change-password", {
 	method: "POST",
 	operationId: "changePassword",
 	body: z$1.object({
+		/**
+		* The new password to set
+		*/
 		newPassword: z$1.string().meta({ description: "The new password to set" }),
+		/**
+		* The current password of the user
+		*/
 		currentPassword: z$1.string().meta({ description: "The current password is required" }),
+		/**
+		* revoke all sessions that are not the
+		* current one logged in by the user
+		*/
 		revokeOtherSessions: z$1.boolean().meta({ description: "Must be a boolean value" }).optional()
 	}),
 	use: [sensitiveSessionMiddleware],
@@ -35629,12 +36911,12 @@ var changePassword = createAuthEndpoint("/change-password", {
 	const session = ctx.context.session;
 	const minPasswordLength = ctx.context.password.config.minPasswordLength;
 	if (newPassword.length < minPasswordLength) {
-		ctx.context.logger.error("Password is too short");
+		ctx.context.logger.warn("Password is too short");
 		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.PASSWORD_TOO_SHORT);
 	}
 	const maxPasswordLength = ctx.context.password.config.maxPasswordLength;
 	if (newPassword.length > maxPasswordLength) {
-		ctx.context.logger.error("Password is too long");
+		ctx.context.logger.warn("Password is too long");
 		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.PASSWORD_TOO_LONG);
 	}
 	const account = (await ctx.context.internalAdapter.findAccounts(session.user.id)).find((account) => account.providerId === "credential" && account.password);
@@ -35647,7 +36929,7 @@ var changePassword = createAuthEndpoint("/change-password", {
 	await ctx.context.internalAdapter.updateAccount(account.id, { password: passwordHash });
 	let token = null;
 	if (revokeOtherSessions) {
-		await ctx.context.internalAdapter.deleteSessions(session.user.id);
+		await ctx.context.internalAdapter.deleteUserSessions(session.user.id);
 		const newSession = await ctx.context.internalAdapter.createSession(session.user.id);
 		if (!newSession) throw APIError.from("INTERNAL_SERVER_ERROR", BASE_ERROR_CODES.FAILED_TO_GET_SESSION);
 		await setSessionCookie(ctx, {
@@ -35661,21 +36943,25 @@ var changePassword = createAuthEndpoint("/change-password", {
 		user: parseUserOutput(ctx.context.options, session.user)
 	});
 });
-var setPassword = createAuthEndpoint({
+var setPassword = createAuthEndpoint.serverOnly({
 	method: "POST",
-	body: z$1.object({ newPassword: z$1.string().meta({ description: "The new password to set is required" }) }),
+	body: z$1.object({ 
+	/**
+	* The new password to set
+	*/
+newPassword: z$1.string().meta({ description: "The new password to set is required" }) }),
 	use: [sensitiveSessionMiddleware]
 }, async (ctx) => {
 	const { newPassword } = ctx.body;
 	const session = ctx.context.session;
 	const minPasswordLength = ctx.context.password.config.minPasswordLength;
 	if (newPassword.length < minPasswordLength) {
-		ctx.context.logger.error("Password is too short");
+		ctx.context.logger.warn("Password is too short");
 		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.PASSWORD_TOO_SHORT);
 	}
 	const maxPasswordLength = ctx.context.password.config.maxPasswordLength;
 	if (newPassword.length > maxPasswordLength) {
-		ctx.context.logger.error("Password is too long");
+		ctx.context.logger.warn("Password is too long");
 		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.PASSWORD_TOO_LONG);
 	}
 	const account = (await ctx.context.internalAdapter.findAccounts(session.user.id)).find((account) => account.providerId === "credential" && account.password);
@@ -35695,8 +36981,19 @@ var deleteUser = createAuthEndpoint("/delete-user", {
 	method: "POST",
 	use: [sensitiveSessionMiddleware],
 	body: z$1.object({
+		/**
+		* The callback URL to redirect to after the user is deleted
+		* this is only used on delete user callback
+		*/
 		callbackURL: z$1.string().meta({ description: "The callback URL to redirect to after the user is deleted" }).optional(),
+		/**
+		* The password of the user. If the password isn't provided, session freshness
+		* will be checked.
+		*/
 		password: z$1.string().meta({ description: "The password of the user is required to delete the user" }).optional(),
+		/**
+		* The token to delete the user. If the token is provided, the user will be deleted
+		*/
 		token: z$1.string().meta({ description: "The token to delete the user is required" }).optional()
 	}),
 	metadata: { openapi: {
@@ -35781,14 +37078,14 @@ var deleteUser = createAuthEndpoint("/delete-user", {
 		});
 	}
 	if (!ctx.body.password && ctx.context.sessionConfig.freshAge !== 0) {
-		const currentAge = new Date(session.session.createdAt).getTime();
+		const createdAt = new Date(session.session.createdAt).getTime();
 		const freshAge = ctx.context.sessionConfig.freshAge * 1e3;
-		if (Date.now() - currentAge > freshAge) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.SESSION_EXPIRED);
+		if (Date.now() - createdAt >= freshAge) throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.SESSION_EXPIRED);
 	}
 	const beforeDelete = ctx.context.options.user.deleteUser?.beforeDelete;
 	if (beforeDelete) await beforeDelete(session.user, ctx.request);
 	await ctx.context.internalAdapter.deleteUser(session.user.id);
-	await ctx.context.internalAdapter.deleteSessions(session.user.id);
+	await ctx.context.internalAdapter.deleteUserSessions(session.user.id);
 	deleteSessionCookie(ctx);
 	const afterDelete = ctx.context.options.user.deleteUser?.afterDelete;
 	if (afterDelete) await afterDelete(session.user, ctx.request);
@@ -35833,17 +37130,15 @@ var deleteUserCallback = createAuthEndpoint("/delete-user/callback", {
 			code: "NOT_FOUND"
 		});
 	}
-	const session = await getSessionFromCtx(ctx);
+	const session = await getSessionFromCtx(ctx, { disableCookieCache: isStateful(ctx) });
 	if (!session) throw APIError.from("NOT_FOUND", BASE_ERROR_CODES.FAILED_TO_GET_USER_INFO);
-	const token = await ctx.context.internalAdapter.findVerificationValue(`delete-account-${ctx.query.token}`);
-	if (!token || token.expiresAt < /* @__PURE__ */ new Date()) throw APIError.from("NOT_FOUND", BASE_ERROR_CODES.INVALID_TOKEN);
-	if (token.value !== session.user.id) throw APIError.from("NOT_FOUND", BASE_ERROR_CODES.INVALID_TOKEN);
+	const token = await ctx.context.internalAdapter.consumeVerificationValue(`delete-account-${ctx.query.token}`);
+	if (!token || token.value !== session.user.id) throw APIError.from("NOT_FOUND", BASE_ERROR_CODES.INVALID_TOKEN);
 	const beforeDelete = ctx.context.options.user.deleteUser?.beforeDelete;
 	if (beforeDelete) await beforeDelete(session.user, ctx.request);
 	await ctx.context.internalAdapter.deleteUser(session.user.id);
-	await ctx.context.internalAdapter.deleteSessions(session.user.id);
+	await ctx.context.internalAdapter.deleteUserSessions(session.user.id);
 	await ctx.context.internalAdapter.deleteAccounts(session.user.id);
-	await ctx.context.internalAdapter.deleteVerificationByIdentifier(`delete-account-${ctx.query.token}`);
 	deleteSessionCookie(ctx);
 	const afterDelete = ctx.context.options.user.deleteUser?.afterDelete;
 	if (afterDelete) await afterDelete(session.user, ctx.request);
@@ -35889,11 +37184,11 @@ var changeEmail = createAuthEndpoint("/change-email", {
 }, async (ctx) => {
 	if (!ctx.context.options.user?.changeEmail?.enabled) {
 		ctx.context.logger.error("Change email is disabled.");
-		throw APIError.fromStatus("BAD_REQUEST", { message: "Change email is disabled" });
+		throw APIError.from("BAD_REQUEST", BASE_ERROR_CODES.CHANGE_EMAIL_DISABLED);
 	}
 	const newEmail = ctx.body.newEmail.toLowerCase();
 	if (newEmail === ctx.context.session.user.email) {
-		ctx.context.logger.error("Email is the same");
+		ctx.context.logger.warn("Email is the same");
 		throw APIError.fromStatus("BAD_REQUEST", { message: "Email is the same" });
 	}
 	/**
@@ -35903,8 +37198,8 @@ var changeEmail = createAuthEndpoint("/change-email", {
 	* email would later throw 400, leaking email existence.
 	*/
 	const canUpdateWithoutVerification = ctx.context.session.user.emailVerified !== true && ctx.context.options.user.changeEmail.updateEmailWithoutVerification;
-	const canSendConfirmation = ctx.context.session.user.emailVerified && ctx.context.options.user.changeEmail.sendChangeEmailConfirmation;
 	const canSendVerification = ctx.context.options.emailVerification?.sendVerificationEmail;
+	const canSendConfirmation = canSendVerification && ctx.context.session.user.emailVerified && ctx.context.options.user.changeEmail.sendChangeEmailConfirmation;
 	if (!canUpdateWithoutVerification && !canSendConfirmation && !canSendVerification) {
 		ctx.context.logger.error("Verification email isn't enabled.");
 		throw APIError.fromStatus("BAD_REQUEST", { message: "Verification email isn't enabled" });
@@ -35928,7 +37223,7 @@ var changeEmail = createAuthEndpoint("/change-email", {
 		});
 		if (canSendVerification) {
 			const token = await createEmailVerificationToken(ctx.context.secret, newEmail, void 0, ctx.context.options.emailVerification?.expiresIn);
-			const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${ctx.body.callbackURL || "/"}`;
+			const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${encodeURIComponent(ctx.body.callbackURL || "/")}`;
 			await ctx.context.runInBackgroundOrAwait(canSendVerification({
 				user: {
 					...ctx.context.session.user,
@@ -35945,7 +37240,7 @@ var changeEmail = createAuthEndpoint("/change-email", {
 	*/
 	if (canSendConfirmation) {
 		const token = await createEmailVerificationToken(ctx.context.secret, ctx.context.session.user.email, newEmail, ctx.context.options.emailVerification?.expiresIn, { requestType: "change-email-confirmation" });
-		const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${ctx.body.callbackURL || "/"}`;
+		const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${encodeURIComponent(ctx.body.callbackURL || "/")}`;
 		await ctx.context.runInBackgroundOrAwait(canSendConfirmation({
 			user: ctx.context.session.user,
 			newEmail,
@@ -35959,7 +37254,7 @@ var changeEmail = createAuthEndpoint("/change-email", {
 		throw APIError.fromStatus("BAD_REQUEST", { message: "Verification email isn't enabled" });
 	}
 	const token = await createEmailVerificationToken(ctx.context.secret, ctx.context.session.user.email, newEmail, ctx.context.options.emailVerification?.expiresIn, { requestType: "change-email-verification" });
-	const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${ctx.body.callbackURL || "/"}`;
+	const url = `${ctx.context.baseURL}/verify-email?token=${token}&callbackURL=${encodeURIComponent(ctx.body.callbackURL || "/")}`;
 	await ctx.context.runInBackgroundOrAwait(canSendVerification({
 		user: {
 			...ctx.context.session.user,
@@ -35971,7 +37266,7 @@ var changeEmail = createAuthEndpoint("/change-email", {
 	return ctx.json({ status: true });
 });
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/to-auth-endpoints.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/dispatch.mjs
 var defuReplaceArrays = createDefu((obj, key, value) => {
 	if (Array.isArray(obj[key]) && Array.isArray(value)) {
 		obj[key] = value;
@@ -35979,93 +37274,54 @@ var defuReplaceArrays = createDefu((obj, key, value) => {
 	}
 });
 var hooksSourceWeakMap = /* @__PURE__ */ new WeakMap();
-function toAuthEndpoints(endpoints, ctx) {
-	const api = {};
-	for (const [key, endpoint] of Object.entries(endpoints)) {
-		api[key] = async (context) => {
-			const run = async () => {
-				const authContext = await ctx;
-				let internalContext = {
-					...context,
-					context: {
-						...authContext,
-						returned: void 0,
-						responseHeaders: void 0,
-						session: null
-					},
-					path: endpoint.path,
-					headers: context?.headers ? new Headers(context?.headers) : void 0
-				};
-				return runWithEndpointContext(internalContext, async () => {
-					const { beforeHooks, afterHooks } = getHooks(authContext);
-					const before = await runBeforeHooks(internalContext, beforeHooks);
-					/**
-					* If `before.context` is returned, it should
-					* get merged with the original context
-					*/
-					if ("context" in before && before.context && typeof before.context === "object") {
-						const { headers, ...rest } = before.context;
-						/**
-						* Headers should be merged differently
-						* so the hook doesn't override the whole
-						* header
-						*/
-						if (headers) headers.forEach((value, key) => {
-							internalContext.headers.set(key, value);
-						});
-						internalContext = defuReplaceArrays(rest, internalContext);
-					} else if (before) return context?.asResponse ? toResponse(before, { headers: context?.headers }) : context?.returnHeaders ? {
-						headers: context?.headers,
-						response: before
-					} : before;
-					internalContext.asResponse = false;
-					internalContext.returnHeaders = true;
-					internalContext.returnStatus = true;
-					const result = await runWithEndpointContext(internalContext, () => endpoint(internalContext)).catch((e) => {
-						if (isAPIError(e))
- /**
-						* API Errors from response are caught
-						* and returned to hooks
-						*/
-						return {
-							response: e,
-							status: e.statusCode,
-							headers: e.headers ? new Headers(e.headers) : null
-						};
-						throw e;
-					});
-					if (result && result instanceof Response) return result;
-					internalContext.context.returned = result.response;
-					internalContext.context.responseHeaders = result.headers;
-					const after = await runAfterHooks(internalContext, afterHooks);
-					if (after.response) result.response = after.response;
-					if (isAPIError(result.response) && shouldPublishLog(authContext.logger.level, "debug")) result.response.stack = result.response.errorStack;
-					if (isAPIError(result.response) && !context?.asResponse) throw result.response;
-					return context?.asResponse ? toResponse(result.response, {
-						headers: result.headers,
-						status: result.status
-					}) : context?.returnHeaders ? context?.returnStatus ? {
-						headers: result.headers,
-						response: result.response,
-						status: result.status
-					} : {
-						headers: result.headers,
-						response: result.response
-					} : context?.returnStatus ? {
-						response: result.response,
-						status: result.status
-					} : result.response;
-				});
-			};
-			if (await hasRequestState()) return run();
-			else return runWithRequestState(/* @__PURE__ */ new WeakMap(), run);
-		};
-		api[key].path = endpoint.path;
-		api[key].options = endpoint.options;
-	}
-	return api;
+/**
+* Resolves the operation id used for spans, preferring an explicit
+* `operationId`, then the OpenAPI one, then the caller's `fallback` (the
+* `auth.api.*` map key), and finally the route path.
+*/
+function getOperationId(endpoint, fallback) {
+	const opts = endpoint.options;
+	return opts?.operationId ?? opts?.metadata?.openapi?.operationId ?? fallback ?? endpoint.path ?? "/:virtual";
 }
-async function runBeforeHooks(context, hooks) {
+/**
+* Merge a set of response headers onto the dispatch's accumulator, appending
+* `set-cookie` (multiple cookies are legal) and replacing everything else.
+*/
+function mergeResponseHeaders(context, headers) {
+	if (!headers) return;
+	headers.forEach((value, key) => {
+		if (!context.responseHeaders) context.responseHeaders = new Headers({ [key]: value });
+		else if (key.toLowerCase() === "set-cookie") context.responseHeaders.append(key, value);
+		else context.responseHeaders.set(key, value);
+	});
+}
+/**
+* Combine the two header sources an `APIError` can carry into one set:
+* - `kAPIErrorHeaderSymbol`: `ctx.responseHeaders` accumulated via
+*   `c.setCookie` / `c.setHeader` before the throw.
+* - `e.headers`: explicit headers on the error (e.g. `location` from
+*   `c.redirect`).
+*
+* `c.redirect()` reuses `ctx.responseHeaders` as `e.headers`, so when both
+* point at the same object iterating each would duplicate every `set-cookie`;
+* the identity check skips that copy. Explicit error headers override
+* accumulated ones, while cookies from both accumulate.
+*/
+function mergeAPIErrorHeaders(error) {
+	const ctxHeaders = error[kAPIErrorHeaderSymbol];
+	const errHeaders = error.headers && error.headers !== ctxHeaders ? new Headers(error.headers) : null;
+	if (!ctxHeaders && !errHeaders) return null;
+	const headers = new Headers();
+	ctxHeaders?.forEach((value, key) => {
+		headers.append(key, value);
+	});
+	errHeaders?.forEach((value, key) => {
+		if (key.toLowerCase() === "set-cookie") headers.append(key, value);
+		else headers.set(key, value);
+	});
+	return headers;
+}
+async function runBeforeHooks(context, hooks, endpoint, operationId) {
 	let modifiedContext = {};
 	for (const hook of hooks) {
 		let matched = false;
@@ -36074,51 +37330,62 @@ async function runBeforeHooks(context, hooks) {
 		} catch (error) {
 			const hookSource = hooksSourceWeakMap.get(hook.handler) ?? "unknown";
 			context.context.logger.error(`An error occurred during ${hookSource} hook matcher execution:`, error);
-			throw new APIError("INTERNAL_SERVER_ERROR", { message: `An error occurred during hook matcher execution. Check the logs for more details.` });
+			throw new APIError("INTERNAL_SERVER_ERROR", { message: "An error occurred during hook matcher execution. Check the logs for more details." });
 		}
-		if (matched) {
-			const result = await hook.handler({
-				...context,
-				returnHeaders: false
-			}).catch((e) => {
-				if (isAPIError(e) && shouldPublishLog(context.context.logger.level, "debug")) e.stack = e.errorStack;
-				throw e;
-			});
-			if (result && typeof result === "object") {
-				if ("context" in result && typeof result.context === "object") {
-					const { headers, ...rest } = result.context;
-					if (headers instanceof Headers) if (modifiedContext.headers) headers.forEach((value, key) => {
-						modifiedContext.headers?.set(key, value);
-					});
-					else modifiedContext.headers = headers;
-					modifiedContext = defuReplaceArrays(rest, modifiedContext);
-					continue;
-				}
-				return result;
+		if (!matched) continue;
+		const hookSource = hooksSourceWeakMap.get(hook.handler) ?? "unknown";
+		const route = endpoint.path ?? "/:virtual";
+		const result = await withSpan(`hook before ${route} ${hookSource}`, {
+			[ATTR_HOOK_TYPE]: "before",
+			[ATTR_HTTP_ROUTE]: route,
+			[ATTR_CONTEXT]: hookSource,
+			[ATTR_OPERATION_ID]: operationId
+		}, () => hook.handler({
+			...context,
+			returnHeaders: true
+		})).catch((e) => {
+			if (isAPIError(e) && shouldPublishLog(context.context.logger.level, "debug")) e.stack = e.errorStack;
+			throw e;
+		});
+		mergeResponseHeaders(context.context, result?.headers);
+		const hookReturn = result?.response;
+		if (hookReturn && typeof hookReturn === "object") {
+			if ("context" in hookReturn && typeof hookReturn.context === "object") {
+				const { headers, ...rest } = hookReturn.context;
+				if (headers instanceof Headers) if (modifiedContext.headers) headers.forEach((value, key) => {
+					modifiedContext.headers?.set(key, value);
+				});
+				else modifiedContext.headers = headers;
+				modifiedContext = defuReplaceArrays(rest, modifiedContext);
+				continue;
 			}
+			return hookReturn;
 		}
 	}
 	return { context: modifiedContext };
 }
-async function runAfterHooks(context, hooks) {
-	for (const hook of hooks) if (hook.matcher(context)) {
-		const result = await hook.handler(context).catch((e) => {
+async function runAfterHooks(context, hooks, endpoint, operationId) {
+	for (const hook of hooks) {
+		if (!hook.matcher(context)) continue;
+		const hookSource = hooksSourceWeakMap.get(hook.handler) ?? "unknown";
+		const route = endpoint.path ?? "/:virtual";
+		const result = await withSpan(`hook after ${route} ${hookSource}`, {
+			[ATTR_HOOK_TYPE]: "after",
+			[ATTR_HTTP_ROUTE]: route,
+			[ATTR_CONTEXT]: hookSource,
+			[ATTR_OPERATION_ID]: operationId
+		}, () => hook.handler(context)).catch((e) => {
 			if (isAPIError(e)) {
-				const headers = e[kAPIErrorHeaderSymbol];
 				if (shouldPublishLog(context.context.logger.level, "debug")) e.stack = e.errorStack;
 				return {
 					response: e,
-					headers: headers ? headers : e.headers ? new Headers(e.headers) : null
+					headers: mergeAPIErrorHeaders(e)
 				};
 			}
 			throw e;
 		});
-		if (result.headers) result.headers.forEach((value, key) => {
-			if (!context.context.responseHeaders) context.context.responseHeaders = new Headers({ [key]: value });
-			else if (key.toLowerCase() === "set-cookie") context.context.responseHeaders.append(key, value);
-			else context.context.responseHeaders.set(key, value);
-		});
-		if (result.response) context.context.returned = result.response;
+		mergeResponseHeaders(context.context, result.headers);
+		if (result.response !== void 0) context.context.returned = result.response;
 	}
 	return {
 		response: context.context.returned,
@@ -36145,11 +37412,14 @@ function getHooks(authContext) {
 			handler: afterHookHandler
 		});
 	}
-	const pluginBeforeHooks = plugins.filter((plugin) => plugin.hooks?.before).map((plugin) => plugin.hooks?.before).flat();
-	const pluginAfterHooks = plugins.filter((plugin) => plugin.hooks?.after).map((plugin) => plugin.hooks?.after).flat();
-	/**
-	* Add plugin added hooks at last
-	*/
+	const pluginBeforeHooks = plugins.flatMap((plugin) => (plugin.hooks?.before ?? []).map((h) => {
+		hooksSourceWeakMap.set(h.handler, `plugin:${plugin.id}`);
+		return h;
+	}));
+	const pluginAfterHooks = plugins.flatMap((plugin) => (plugin.hooks?.after ?? []).map((h) => {
+		hooksSourceWeakMap.set(h.handler, `plugin:${plugin.id}`);
+		return h;
+	}));
 	if (pluginBeforeHooks.length) beforeHooks.push(...pluginBeforeHooks);
 	if (pluginAfterHooks.length) afterHooks.push(...pluginAfterHooks);
 	return {
@@ -36157,8 +37427,161 @@ function getHooks(authContext) {
 		afterHooks
 	};
 }
+/**
+* Run a single endpoint through the configured `hooks.before` / `hooks.after`
+* pipeline, normalizing the response, headers, and `APIError`s the same way a
+* router or `auth.api.*` dispatch does.
+*
+* This is the canonical hook runner. The HTTP router and `auth.api.*` reach it
+* through {@link toAuthEndpoints}. Plugins call it directly when they need to
+* re-enter the pipeline on purpose, such as resuming `/oauth2/authorize` after
+* a fresh sign-in. Calling an endpoint as a plain function deliberately skips
+* hooks; `dispatchAuthEndpoint` is the supported way to opt back in.
+*
+* @param endpoint The endpoint to dispatch.
+* @param input Input context whose `context` is an already-resolved `AuthContext`.
+*/
+async function dispatchAuthEndpoint(endpoint, input) {
+	const operationId = input.operationId ?? getOperationId(endpoint);
+	const route = endpoint.path ?? "/:virtual";
+	const endpointMethod = endpoint.options?.method;
+	const defaultMethod = Array.isArray(endpointMethod) ? endpointMethod[0] : endpointMethod;
+	const methodName = input.method ?? input.request?.method ?? defaultMethod ?? "?";
+	const shouldReturnResponse = input.asResponse ?? isRequestLike(input.request);
+	let internalContext = {
+		...input,
+		context: {
+			...input.context,
+			returned: void 0,
+			responseHeaders: void 0,
+			session: input.context.session ?? null
+		},
+		path: endpoint.path,
+		headers: input.headers ? new Headers(input.headers) : void 0
+	};
+	return withSpan(`${methodName} ${route}`, {
+		[ATTR_HTTP_ROUTE]: route,
+		[ATTR_OPERATION_ID]: operationId
+	}, async () => runWithEndpointContext(internalContext, async () => {
+		const { beforeHooks, afterHooks } = getHooks(internalContext.context);
+		const before = await runBeforeHooks(internalContext, beforeHooks, endpoint, operationId);
+		if ("context" in before && before.context && typeof before.context === "object") {
+			const { headers, ...rest } = before.context;
+			if (headers) {
+				if (!internalContext.headers) internalContext.headers = new Headers();
+				const requestHeaders = internalContext.headers;
+				headers.forEach((value, key) => {
+					requestHeaders.set(key, value);
+				});
+			}
+			internalContext = defuReplaceArrays(rest, internalContext);
+		} else if (before) {
+			const responseHeaders = internalContext.context.responseHeaders;
+			return shouldReturnResponse ? toResponse(before, { headers: responseHeaders }) : input.returnHeaders ? {
+				headers: responseHeaders,
+				response: before
+			} : before;
+		}
+		internalContext.asResponse = false;
+		internalContext.returnHeaders = true;
+		internalContext.returnStatus = true;
+		const result = await runWithEndpointContext(internalContext, () => withSpan(`handler ${route}`, {
+			[ATTR_HTTP_ROUTE]: route,
+			[ATTR_OPERATION_ID]: operationId
+		}, () => endpoint(internalContext))).catch((e) => {
+			if (isAPIError(e)) return {
+				response: e,
+				status: e.statusCode,
+				headers: mergeAPIErrorHeaders(e)
+			};
+			throw e;
+		});
+		if (result instanceof Response) return result;
+		internalContext.context.returned = result.response;
+		internalContext.context.responseHeaders = result.headers ?? void 0;
+		const after = await runAfterHooks(internalContext, afterHooks, endpoint, operationId);
+		if (after.response !== void 0) result.response = after.response;
+		result.headers = after.headers ?? result.headers;
+		if (isAPIError(result.response) && shouldPublishLog(internalContext.context.logger.level, "debug")) result.response.stack = result.response.errorStack;
+		if (isAPIError(result.response) && !shouldReturnResponse) {
+			if (result.headers) Object.defineProperty(result.response, kAPIErrorHeaderSymbol, {
+				enumerable: false,
+				configurable: true,
+				writable: false,
+				value: result.headers
+			});
+			throw result.response;
+		}
+		return shouldReturnResponse ? toResponse(result.response, {
+			headers: result.headers ?? void 0,
+			status: result.status
+		}) : input.returnHeaders ? input.returnStatus ? {
+			headers: result.headers,
+			response: result.response,
+			status: result.status
+		} : {
+			headers: result.headers,
+			response: result.response
+		} : input.returnStatus ? {
+			response: result.response,
+			status: result.status
+		} : result.response;
+	}));
+}
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/api/index.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/to-auth-endpoints.mjs
+/**
+* Resolves the per-call `AuthContext` for endpoints with a dynamic `baseURL`.
+*
+* - `rawCtx.baseURL` already set: HTTP handler rehydrated upstream; return as-is.
+* - Direct `auth.api` call with a source or a configured `fallback`: resolve here.
+* - Neither: throw `APIError` with a helpful message. Leaving `baseURL = ""`
+*   would let plugins build `new URL("")` and crash cryptically downstream.
+*/
+async function resolveDynamicContext(rawCtx, input) {
+	if (rawCtx.baseURL) return rawCtx;
+	const source = pickSource(input);
+	const config = rawCtx.options.baseURL;
+	const hasFallback = isDynamicBaseURLConfig(config) && Boolean(config.fallback);
+	if (source === void 0 && !hasFallback) throw new APIError("INTERNAL_SERVER_ERROR", { message: "Dynamic baseURL could not be resolved for this direct auth.api call. Pass `headers: request.headers` (or `request`) to the call, or add `fallback` to your baseURL config." });
+	try {
+		return await resolveRequestContext(rawCtx, source, resolveDynamicTrustedProxyHeaders(rawCtx.options));
+	} catch (err) {
+		if (err instanceof BetterAuthError) throw new APIError("INTERNAL_SERVER_ERROR", { message: err.message });
+		throw err;
+	}
+}
+/**
+* Wraps each raw endpoint so a router or `auth.api.*` call runs it through the
+* configured hook pipeline. Per-call work that is specific to this entry point
+* (dynamic `baseURL` resolution, request-state initialization) happens here;
+* the hook pipeline itself lives in {@link dispatchAuthEndpoint}.
+*/
+function toAuthEndpoints(endpoints, ctx) {
+	const api = {};
+	for (const [key, endpoint] of Object.entries(endpoints)) {
+		api[key] = async (context) => {
+			const operationId = getOperationId(endpoint, key);
+			const run = async () => {
+				const rawContext = await ctx;
+				const authContext = isDynamicBaseURLConfig(rawContext.options.baseURL) ? await resolveDynamicContext(rawContext, context) : rawContext;
+				return dispatchAuthEndpoint(endpoint, {
+					...context,
+					context: authContext,
+					operationId,
+					asResponse: context?.asResponse ?? isRequestLike(context?.request)
+				});
+			};
+			if (await hasRequestState()) return run();
+			return runWithRequestState(/* @__PURE__ */ new WeakMap(), run);
+		};
+		api[key].path = endpoint.path;
+		api[key].options = endpoint.options;
+	}
+	return api;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/api/index.mjs
 function checkEndpointConflicts(options, logger) {
 	const endpointRegistry = /* @__PURE__ */ new Map();
 	options.plugins?.forEach((plugin) => {
@@ -36224,13 +37647,17 @@ function getEndpoints(ctx, options) {
 	const middlewares = options.plugins?.map((plugin) => plugin.middlewares?.map((m) => {
 		const middleware = (async (context) => {
 			const authContext = await ctx;
-			return m.middleware({
+			return withSpan(`middleware ${m.path} ${plugin.id}`, {
+				["better_auth.hook.type"]: "middleware",
+				["http.route"]: m.path,
+				["better_auth.context"]: `plugin:${plugin.id}`
+			}, () => m.middleware({
 				...context,
 				context: {
 					...authContext,
 					...context.context
 				}
-			});
+			}));
 		});
 		middleware.options = m.middleware.options;
 		return {
@@ -36294,19 +37721,25 @@ var router = (ctx, options) => {
 			const normalizedPath = normalizePathname(req.url, basePath);
 			if (disabledPaths.includes(normalizedPath)) return new Response("Not Found", { status: 404 });
 			let currentRequest = req;
+			const rateLimitResponse = await onRequestRateLimit(currentRequest, ctx);
+			if (rateLimitResponse) return rateLimitResponse;
 			for (const plugin of ctx.options.plugins || []) if (plugin.onRequest) {
-				const response = await plugin.onRequest(currentRequest, ctx);
+				const response = await withSpan(`onRequest ${plugin.id}`, {
+					[ATTR_HOOK_TYPE]: "onRequest",
+					[ATTR_CONTEXT]: `plugin:${plugin.id}`
+				}, () => plugin.onRequest(currentRequest, ctx));
 				if (response && "response" in response) return response.response;
 				if (response && "request" in response) currentRequest = response.request;
 			}
-			const rateLimitResponse = await onRequestRateLimit(currentRequest, ctx);
-			if (rateLimitResponse) return rateLimitResponse;
 			return currentRequest;
 		},
 		async onResponse(res, req) {
-			await onResponseRateLimit(req, ctx);
 			for (const plugin of ctx.options.plugins || []) if (plugin.onResponse) {
-				const response = await plugin.onResponse(res, ctx);
+				const response = await withSpan(`onResponse ${plugin.id}`, {
+					[ATTR_HOOK_TYPE]: "onResponse",
+					[ATTR_CONTEXT]: `plugin:${plugin.id}`,
+					[ATTR_HTTP_RESPONSE_STATUS_CODE]: res.status
+				}, () => plugin.onResponse(res, ctx));
 				if (response) return response.response;
 			}
 			return res;
@@ -36336,7 +37769,7 @@ var router = (ctx, options) => {
 	});
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/adapter-base.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/db/adapter-base.mjs
 async function getBaseAdapter(options, handleDirectDatabase) {
 	let adapter;
 	if (!options.database) {
@@ -36358,7 +37791,7 @@ async function getBaseAdapter(options, handleDirectDatabase) {
 	return adapter;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/adapter-kysely.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/db/adapter-kysely.mjs
 async function getAdapter(options) {
 	return getBaseAdapter(options, async (opts) => {
 		const { createKyselyAdapter } = await import("./kysely-adapter.js");
@@ -36373,7 +37806,43 @@ async function getAdapter(options) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/db/get-migration.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/db/get-schema.mjs
+function getSchema(config) {
+	const tables = getAuthTables(config);
+	const schema = {};
+	for (const key in tables) {
+		const table = tables[key];
+		const fields = table.fields;
+		const actualFields = {};
+		Object.entries(fields).forEach(([key, field]) => {
+			actualFields[field.fieldName || key] = field;
+			if (field.references) {
+				const refTable = tables[field.references.model];
+				if (refTable) actualFields[field.fieldName || key].references = {
+					...field.references,
+					model: refTable.modelName,
+					field: field.references.field
+				};
+			}
+		});
+		if (schema[table.modelName]) {
+			schema[table.modelName].fields = {
+				...schema[table.modelName].fields,
+				...actualFields
+			};
+			if (table.disableMigrations) schema[table.modelName].disableMigrations = true;
+			continue;
+		}
+		schema[table.modelName] = {
+			fields: actualFields,
+			order: table.order || Infinity,
+			disableMigrations: table.disableMigrations
+		};
+	}
+	return schema;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/db/get-migration.mjs
 var map = {
 	postgres: {
 		string: [
@@ -36424,7 +37893,11 @@ var map = {
 	},
 	sqlite: {
 		string: ["TEXT"],
-		number: ["INTEGER", "REAL"],
+		number: [
+			"INTEGER",
+			"REAL",
+			"BIGINT"
+		],
 		boolean: ["INTEGER", "BOOLEAN"],
 		date: ["DATE", "INTEGER"],
 		json: ["TEXT"]
@@ -36517,6 +37990,7 @@ async function getMigrations(config) {
 	const toBeCreated = [];
 	const toBeAdded = [];
 	for (const [key, value] of Object.entries(betterAuthSchema)) {
+		if (value.disableMigrations) continue;
 		const table = tableMetadata.find((t) => t.name === key);
 		if (!table) {
 			const tIndex = toBeCreated.findIndex((t) => t.table === key);
@@ -36638,12 +38112,14 @@ async function getMigrations(config) {
 			return `${model}.${field}`;
 		}
 	}
+	const deferredIndexes = [];
 	if (toBeAdded.length) for (const table of toBeAdded) for (const [fieldName, field] of Object.entries(table.fields)) {
 		const type = getType(field, fieldName);
 		const builder = db.schema.alterTable(table.table);
 		if (field.index) {
-			const index = db.schema.alterTable(table.table).addIndex(`${table.table}_${fieldName}_idx`);
-			migrations.push(index);
+			const indexName = `${table.table}_${fieldName}_${field.unique ? "uidx" : "idx"}`;
+			const indexBuilder = db.schema.createIndex(indexName).on(table.table).columns([fieldName]);
+			deferredIndexes.push(field.unique ? indexBuilder.unique() : indexBuilder);
 		}
 		const built = builder.addColumn(fieldName, type, (col) => {
 			col = field.required !== false ? col.notNull() : col;
@@ -36655,7 +38131,6 @@ async function getMigrations(config) {
 		});
 		migrations.push(built);
 	}
-	const toBeIndexed = [];
 	if (toBeCreated.length) for (const table of toBeCreated) {
 		const idType = getType({ type: useNumberId ? "number" : "string" }, "id");
 		let dbT = db.schema.createTable(table.table).addColumn("id", idType, (col) => {
@@ -36681,14 +38156,14 @@ async function getMigrations(config) {
 				else col = col.defaultTo(sql`CURRENT_TIMESTAMP`);
 				return col;
 			});
-			if (field.index) {
-				const builder = db.schema.createIndex(`${table.table}_${fieldName}_${field.unique ? "uidx" : "idx"}`).on(table.table).columns([fieldName]);
-				toBeIndexed.push(field.unique ? builder.unique() : builder);
+			if (field.index && !field.unique) {
+				const builder = db.schema.createIndex(`${table.table}_${fieldName}_idx`).on(table.table).columns([fieldName]);
+				deferredIndexes.push(builder);
 			}
 		}
 		migrations.push(dbT);
 	}
-	if (toBeIndexed.length) for (const index of toBeIndexed) migrations.push(index);
+	for (const index of deferredIndexes) migrations.push(index);
 	async function runMigrations() {
 		for (const migration of migrations) await migration.execute();
 	}
@@ -36703,10 +38178,10 @@ async function getMigrations(config) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/utils/constants.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/utils/constants.mjs
 var DEFAULT_SECRET = "better-auth-secret-12345678901234567890";
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/context/secret-utils.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/context/secret-utils.mjs
 /**
 * Estimates the entropy of a string in bits.
 * This is a simple approximation that helps detect low-entropy secrets.
@@ -36756,7 +38231,7 @@ function buildSecretConfig(secrets, legacySecret) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+telemetry@1.5.3_@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-f_85d7a30735b6836d58c6942a09275a03/node_modules/@better-auth/telemetry/dist/index.mjs
+//#region ../../node_modules/.pnpm/@better-auth+telemetry@1.6.25_@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better_1a58d385ca701bc29bf66167d453290c/node_modules/@better-auth/telemetry/dist/node.mjs
 async function getTelemetryAuthConfig(options, context) {
 	return {
 		database: context?.database,
@@ -36943,86 +38418,6 @@ async function getTelemetryAuthConfig(options, context) {
 		}
 	};
 }
-var packageJSONCache;
-async function readRootPackageJson() {
-	if (packageJSONCache) return packageJSONCache;
-	try {
-		const cwd = typeof process !== "undefined" && typeof process.cwd === "function" ? process.cwd() : "";
-		if (!cwd) return void 0;
-		const importRuntime = (m) => Function("mm", "return import(mm)")(m);
-		const [{ default: fs }, { default: path }] = await Promise.all([importRuntime("fs/promises"), importRuntime("path")]);
-		const raw = await fs.readFile(path.join(cwd, "package.json"), "utf-8");
-		packageJSONCache = JSON.parse(raw);
-		return packageJSONCache;
-	} catch {}
-}
-async function getPackageVersion(pkg) {
-	if (packageJSONCache) return packageJSONCache.dependencies?.[pkg] || packageJSONCache.devDependencies?.[pkg] || packageJSONCache.peerDependencies?.[pkg];
-	try {
-		const cwd = typeof process !== "undefined" && typeof process.cwd === "function" ? process.cwd() : "";
-		if (!cwd) throw new Error("no-cwd");
-		const importRuntime = (m) => Function("mm", "return import(mm)")(m);
-		const [{ default: fs }, { default: path }] = await Promise.all([importRuntime("fs/promises"), importRuntime("path")]);
-		const pkgJsonPath = path.join(cwd, "node_modules", pkg, "package.json");
-		const raw = await fs.readFile(pkgJsonPath, "utf-8");
-		return JSON.parse(raw).version || await getVersionFromLocalPackageJson(pkg) || void 0;
-	} catch {}
-	return await getVersionFromLocalPackageJson(pkg);
-}
-async function getVersionFromLocalPackageJson(pkg) {
-	const json = await readRootPackageJson();
-	if (!json) return void 0;
-	return {
-		...json.dependencies,
-		...json.devDependencies,
-		...json.peerDependencies
-	}[pkg];
-}
-async function getNameFromLocalPackageJson() {
-	return (await readRootPackageJson())?.name;
-}
-var DATABASES = {
-	pg: "postgresql",
-	mysql: "mysql",
-	mariadb: "mariadb",
-	sqlite3: "sqlite",
-	"better-sqlite3": "sqlite",
-	"@prisma/client": "prisma",
-	mongoose: "mongodb",
-	mongodb: "mongodb",
-	"drizzle-orm": "drizzle"
-};
-async function detectDatabase() {
-	for (const [pkg, name] of Object.entries(DATABASES)) {
-		const version = await getPackageVersion(pkg);
-		if (version) return {
-			name,
-			version
-		};
-	}
-}
-var FRAMEWORKS = {
-	next: "next",
-	nuxt: "nuxt",
-	"react-router": "react-router",
-	astro: "astro",
-	"@sveltejs/kit": "sveltekit",
-	"solid-start": "solid-start",
-	"tanstack-start": "tanstack-start",
-	hono: "hono",
-	express: "express",
-	elysia: "elysia",
-	expo: "expo"
-};
-async function detectFramework() {
-	for (const [pkg, name] of Object.entries(FRAMEWORKS)) {
-		const version = await getPackageVersion(pkg);
-		if (version) return {
-			name,
-			version
-		};
-	}
-}
 function detectPackageManager() {
 	const userAgent = env.npm_config_user_agent;
 	if (!userAgent) return;
@@ -37033,110 +38428,6 @@ function detectPackageManager() {
 		name: name === "npminstall" ? "cnpm" : name,
 		version: pmSpec.substring(separatorPos + 1)
 	};
-}
-var importRuntime = (m) => {
-	return Function("mm", "return import(mm)")(m);
-};
-function getVendor() {
-	const hasAny = (...keys) => keys.some((k) => Boolean(env[k]));
-	if (hasAny("CF_PAGES", "CF_PAGES_URL", "CF_ACCOUNT_ID") || typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers") return "cloudflare";
-	if (hasAny("VERCEL", "VERCEL_URL", "VERCEL_ENV")) return "vercel";
-	if (hasAny("NETLIFY", "NETLIFY_URL")) return "netlify";
-	if (hasAny("RENDER", "RENDER_URL", "RENDER_INTERNAL_HOSTNAME", "RENDER_SERVICE_ID")) return "render";
-	if (hasAny("AWS_LAMBDA_FUNCTION_NAME", "AWS_EXECUTION_ENV", "LAMBDA_TASK_ROOT")) return "aws";
-	if (hasAny("GOOGLE_CLOUD_FUNCTION_NAME", "GOOGLE_CLOUD_PROJECT", "GCP_PROJECT", "K_SERVICE")) return "gcp";
-	if (hasAny("AZURE_FUNCTION_NAME", "FUNCTIONS_WORKER_RUNTIME", "WEBSITE_INSTANCE_ID", "WEBSITE_SITE_NAME")) return "azure";
-	if (hasAny("DENO_DEPLOYMENT_ID", "DENO_REGION")) return "deno-deploy";
-	if (hasAny("FLY_APP_NAME", "FLY_REGION", "FLY_ALLOC_ID")) return "fly-io";
-	if (hasAny("RAILWAY_STATIC_URL", "RAILWAY_ENVIRONMENT_NAME")) return "railway";
-	if (hasAny("DYNO", "HEROKU_APP_NAME")) return "heroku";
-	if (hasAny("DO_DEPLOYMENT_ID", "DO_APP_NAME", "DIGITALOCEAN")) return "digitalocean";
-	if (hasAny("KOYEB", "KOYEB_DEPLOYMENT_ID", "KOYEB_APP_NAME")) return "koyeb";
-	return null;
-}
-async function detectSystemInfo() {
-	try {
-		if (getVendor() === "cloudflare") return "cloudflare";
-		const os = await importRuntime("os");
-		const cpus = os.cpus();
-		return {
-			deploymentVendor: getVendor(),
-			systemPlatform: os.platform(),
-			systemRelease: os.release(),
-			systemArchitecture: os.arch(),
-			cpuCount: cpus.length,
-			cpuModel: cpus.length ? cpus[0].model : null,
-			cpuSpeed: cpus.length ? cpus[0].speed : null,
-			memory: os.totalmem(),
-			isWSL: await isWsl(),
-			isDocker: await isDocker(),
-			isTTY: typeof process !== "undefined" && process.stdout ? process.stdout.isTTY : null
-		};
-	} catch {
-		return {
-			systemPlatform: null,
-			systemRelease: null,
-			systemArchitecture: null,
-			cpuCount: null,
-			cpuModel: null,
-			cpuSpeed: null,
-			memory: null,
-			isWSL: null,
-			isDocker: null,
-			isTTY: null
-		};
-	}
-}
-var isDockerCached;
-async function hasDockerEnv() {
-	if (getVendor() === "cloudflare") return false;
-	try {
-		(await importRuntime("fs")).statSync("/.dockerenv");
-		return true;
-	} catch {
-		return false;
-	}
-}
-async function hasDockerCGroup() {
-	if (getVendor() === "cloudflare") return false;
-	try {
-		return (await importRuntime("fs")).readFileSync("/proc/self/cgroup", "utf8").includes("docker");
-	} catch {
-		return false;
-	}
-}
-async function isDocker() {
-	if (getVendor() === "cloudflare") return false;
-	if (isDockerCached === void 0) isDockerCached = await hasDockerEnv() || await hasDockerCGroup();
-	return isDockerCached;
-}
-async function isWsl() {
-	try {
-		if (getVendor() === "cloudflare") return false;
-		if (typeof process === "undefined" || process?.platform !== "linux") return false;
-		const fs = await importRuntime("fs");
-		if ((await importRuntime("os")).release().toLowerCase().includes("microsoft")) {
-			if (await isInsideContainer()) return false;
-			return true;
-		}
-		return fs.readFileSync("/proc/version", "utf8").toLowerCase().includes("microsoft") ? !await isInsideContainer() : false;
-	} catch {
-		return false;
-	}
-}
-var isInsideContainerCached;
-var hasContainerEnv = async () => {
-	if (getVendor() === "cloudflare") return false;
-	try {
-		(await importRuntime("fs")).statSync("/run/.containerenv");
-		return true;
-	} catch {
-		return false;
-	}
-};
-async function isInsideContainer() {
-	if (isInsideContainerCached === void 0) isInsideContainerCached = await hasContainerEnv() || await isDocker();
-	return isInsideContainerCached;
 }
 function isCI() {
 	return env.CI !== "false" && ("BUILD_ID" in env || "BUILD_NUMBER" in env || "CI" in env || "CI_APP_ID" in env || "CI_BUILD_ID" in env || "CI_BUILD_NUMBER" in env || "CI_NAME" in env || "CONTINUOUS_INTEGRATION" in env || "RUN_ID" in env);
@@ -37163,12 +38454,140 @@ function detectEnvironment() {
 	return getEnvVar("NODE_ENV") === "production" ? "production" : isCI() ? "ci" : isTest() ? "test" : "development";
 }
 async function hashToBase64(data) {
-	const buffer = await createHash("SHA-256").digest(data);
+	const buffer = await createHash$1("SHA-256").digest(data);
 	return base64.encode(buffer);
 }
 var generateId = (size) => {
 	return createRandomStringGenerator("a-z", "A-Z", "0-9")(size || 32);
 };
+var packageJSONCache;
+async function readRootPackageJson() {
+	if (packageJSONCache) return packageJSONCache;
+	try {
+		const cwd = process.cwd();
+		if (!cwd) return void 0;
+		const raw = await fsPromises.readFile(path.join(cwd, "package.json"), "utf-8");
+		packageJSONCache = JSON.parse(raw);
+		return packageJSONCache;
+	} catch {}
+}
+async function getPackageVersion(pkg) {
+	if (packageJSONCache) return packageJSONCache.dependencies?.[pkg] || packageJSONCache.devDependencies?.[pkg] || packageJSONCache.peerDependencies?.[pkg];
+	try {
+		const cwd = process.cwd();
+		if (!cwd) throw new Error("no-cwd");
+		const pkgJsonPath = path.join(cwd, "node_modules", pkg, "package.json");
+		const raw = await fsPromises.readFile(pkgJsonPath, "utf-8");
+		return JSON.parse(raw).version || await getVersionFromLocalPackageJson(pkg) || void 0;
+	} catch {}
+	return getVersionFromLocalPackageJson(pkg);
+}
+async function getVersionFromLocalPackageJson(pkg) {
+	const json = await readRootPackageJson();
+	if (!json) return void 0;
+	return {
+		...json.dependencies,
+		...json.devDependencies,
+		...json.peerDependencies
+	}[pkg];
+}
+async function getNameFromLocalPackageJson() {
+	return (await readRootPackageJson())?.name;
+}
+async function detectSystemInfo() {
+	try {
+		const cpus = os.cpus();
+		return {
+			deploymentVendor: getVendor(),
+			systemPlatform: os.platform(),
+			systemRelease: os.release(),
+			systemArchitecture: os.arch(),
+			cpuCount: cpus.length,
+			cpuModel: cpus.length ? cpus[0].model : null,
+			cpuSpeed: cpus.length ? cpus[0].speed : null,
+			memory: os.totalmem(),
+			isWSL: await isWsl(),
+			isDocker: await isDocker(),
+			isTTY: process.stdout ? process.stdout.isTTY : null
+		};
+	} catch {
+		return {
+			systemPlatform: null,
+			systemRelease: null,
+			systemArchitecture: null,
+			cpuCount: null,
+			cpuModel: null,
+			cpuSpeed: null,
+			memory: null,
+			isWSL: null,
+			isDocker: null,
+			isTTY: null
+		};
+	}
+}
+function getVendor() {
+	const env = process.env;
+	const hasAny = (...keys) => keys.some((k) => Boolean(env[k]));
+	if (hasAny("CF_PAGES", "CF_PAGES_URL", "CF_ACCOUNT_ID") || typeof navigator !== "undefined" && navigator.userAgent === "Cloudflare-Workers") return "cloudflare";
+	if (hasAny("VERCEL", "VERCEL_URL", "VERCEL_ENV")) return "vercel";
+	if (hasAny("NETLIFY", "NETLIFY_URL")) return "netlify";
+	if (hasAny("RENDER", "RENDER_URL", "RENDER_INTERNAL_HOSTNAME", "RENDER_SERVICE_ID")) return "render";
+	if (hasAny("AWS_LAMBDA_FUNCTION_NAME", "AWS_EXECUTION_ENV", "LAMBDA_TASK_ROOT")) return "aws";
+	if (hasAny("GOOGLE_CLOUD_FUNCTION_NAME", "GOOGLE_CLOUD_PROJECT", "GCP_PROJECT", "K_SERVICE")) return "gcp";
+	if (hasAny("AZURE_FUNCTION_NAME", "FUNCTIONS_WORKER_RUNTIME", "WEBSITE_INSTANCE_ID", "WEBSITE_SITE_NAME")) return "azure";
+	if (hasAny("DENO_DEPLOYMENT_ID", "DENO_REGION")) return "deno-deploy";
+	if (hasAny("FLY_APP_NAME", "FLY_REGION", "FLY_ALLOC_ID")) return "fly-io";
+	if (hasAny("RAILWAY_STATIC_URL", "RAILWAY_ENVIRONMENT_NAME")) return "railway";
+	if (hasAny("DYNO", "HEROKU_APP_NAME")) return "heroku";
+	if (hasAny("DO_DEPLOYMENT_ID", "DO_APP_NAME", "DIGITALOCEAN")) return "digitalocean";
+	if (hasAny("KOYEB", "KOYEB_DEPLOYMENT_ID", "KOYEB_APP_NAME")) return "koyeb";
+	return null;
+}
+var isDockerCached;
+async function hasDockerEnv() {
+	try {
+		fs.statSync("/.dockerenv");
+		return true;
+	} catch {
+		return false;
+	}
+}
+async function hasDockerCGroup() {
+	try {
+		return fs.readFileSync("/proc/self/cgroup", "utf8").includes("docker");
+	} catch {
+		return false;
+	}
+}
+async function isDocker() {
+	if (isDockerCached === void 0) isDockerCached = await hasDockerEnv() || await hasDockerCGroup();
+	return isDockerCached;
+}
+var isInsideContainerCached;
+var hasContainerEnv = async () => {
+	try {
+		fs.statSync("/run/.containerenv");
+		return true;
+	} catch {
+		return false;
+	}
+};
+async function isInsideContainer() {
+	if (isInsideContainerCached === void 0) isInsideContainerCached = await hasContainerEnv() || await isDocker();
+	return isInsideContainerCached;
+}
+async function isWsl() {
+	try {
+		if (process.platform !== "linux") return false;
+		if (os.release().toLowerCase().includes("microsoft")) {
+			if (await isInsideContainer()) return false;
+			return true;
+		}
+		return fs.readFileSync("/proc/version", "utf8").toLowerCase().includes("microsoft") ? !await isInsideContainer() : false;
+	} catch {
+		return false;
+	}
+}
 var projectIdCached = null;
 async function getProjectId(baseUrl) {
 	if (projectIdCached) return projectIdCached;
@@ -37183,6 +38602,46 @@ async function getProjectId(baseUrl) {
 	}
 	projectIdCached = generateId(32);
 	return projectIdCached;
+}
+async function detectDatabaseNode() {
+	for (const [pkg, name] of Object.entries({
+		pg: "postgresql",
+		mysql: "mysql",
+		mariadb: "mariadb",
+		sqlite3: "sqlite",
+		"better-sqlite3": "sqlite",
+		"@prisma/client": "prisma",
+		mongoose: "mongodb",
+		mongodb: "mongodb",
+		"drizzle-orm": "drizzle"
+	})) {
+		const version = await getPackageVersion(pkg);
+		if (version) return {
+			name,
+			version
+		};
+	}
+}
+async function detectFrameworkNode() {
+	for (const [pkg, name] of Object.entries({
+		next: "next",
+		nuxt: "nuxt",
+		"react-router": "react-router",
+		astro: "astro",
+		"@sveltejs/kit": "sveltekit",
+		"solid-start": "solid-start",
+		"tanstack-start": "tanstack-start",
+		hono: "hono",
+		express: "express",
+		elysia: "elysia",
+		expo: "expo"
+	})) {
+		const version = await getPackageVersion(pkg);
+		if (version) return {
+			name,
+			version
+		};
+	}
 }
 var noop = async function noop() {};
 async function createTelemetry(options, context) {
@@ -37210,8 +38669,8 @@ async function createTelemetry(options, context) {
 			payload: {
 				config: await getTelemetryAuthConfig(options, context),
 				runtime: detectRuntime(),
-				database: await detectDatabase(),
-				framework: await detectFramework(),
+				database: await detectDatabaseNode(),
+				framework: await detectFrameworkNode(),
 				environment: detectEnvironment(),
 				systemInfo: await detectSystemInfo(),
 				packageManager: detectPackageManager()
@@ -37230,7 +38689,7 @@ async function createTelemetry(options, context) {
 	} };
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/context/create-context.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/context/create-context.mjs
 /**
 * Estimates the entropy of a string in bits.
 * This is a simple approximation that helps detect low-entropy secrets.
@@ -37255,17 +38714,14 @@ function validateSecret(secret, logger) {
 	if (estimateEntropy(secret) < 120) logger.warn("[better-auth] Warning: your BETTER_AUTH_SECRET appears low-entropy. Use a randomly generated secret for production.");
 }
 async function createAuthContext(adapter, options, getDatabaseType) {
-	if (!options.database) options = defu(options, {
-		session: { cookieCache: {
-			enabled: true,
-			strategy: "jwe",
-			refreshCache: true
-		} },
-		account: {
-			storeStateStrategy: "cookie",
-			storeAccountCookie: true
-		}
-	});
+	const isStateful = hasServerSessionStore(options);
+	if (!isStateful) options = defu(options, { session: { cookieCache: {
+		enabled: true,
+		strategy: "jwe",
+		refreshCache: true,
+		maxAge: options.session?.expiresIn || 3600 * 24 * 7
+	} } });
+	if (!options.database) options = defu(options, { account: { storeAccountCookie: true } });
 	const plugins = options.plugins || [];
 	const internalPlugins = getInternalPlugins(options);
 	const logger = createLogger(options.logger);
@@ -37275,7 +38731,7 @@ async function createAuthContext(adapter, options, getDatabaseType) {
 		if (!allowedHosts || allowedHosts.length === 0) throw new BetterAuthError("baseURL.allowedHosts cannot be empty. Provide at least one allowed host pattern (e.g., [\"myapp.com\", \"*.vercel.app\"]).");
 	}
 	const baseURL = isDynamicConfig ? void 0 : getBaseURL(typeof options.baseURL === "string" ? options.baseURL : void 0, options.basePath);
-	if (!baseURL && !isDynamicConfig) logger.warn(`[better-auth] Base URL could not be determined. Please set a valid base URL using the baseURL config option or the BETTER_AUTH_URL environment variable. Without this, callbacks and redirects may not work correctly.`);
+	if (!baseURL && !isDynamicConfig) logger.warn(`[better-auth] Base URL is not set. Set the baseURL option or BETTER_AUTH_URL env, or use a dynamic baseURL with allowedHosts for multi-host setups. Without it the origin is derived from the incoming request, and callbacks and redirects may not work correctly.`);
 	if (adapter.id === "memory" && options.advanced?.database?.generateId === false) logger.error(`[better-auth] Misconfiguration detected.
 You are using the memory DB with generateId: false.
 This will cause no id to be generated for any model.
@@ -37301,6 +38757,11 @@ Most of the features of Better Auth will not work correctly.`);
 		plugins: plugins.concat(internalPlugins)
 	};
 	checkEndpointConflicts(options, logger);
+	const trustedProxies = options.advanced?.ipAddress?.trustedProxies;
+	if (trustedProxies && trustedProxies.length > 0) {
+		const invalid = findInvalidTrustedProxies(trustedProxies);
+		if (invalid.length > 0) logger.warn(`Ignoring invalid \`advanced.ipAddress.trustedProxies\` entries: ${invalid.join(", ")}. Each entry must be an IP address or CIDR range.`);
+	}
 	const cookies = getCookies(options);
 	const tables = getAuthTables(options);
 	const providers = (await Promise.all(Object.entries(options.socialProviders || {}).map(async ([key, originalConfig]) => {
@@ -37342,7 +38803,7 @@ Most of the features of Better Auth will not work correctly.`);
 		socialProviders: providers,
 		options,
 		oauthConfig: {
-			storeStateStrategy: options.account?.storeStateStrategy || (options.database ? "database" : "cookie"),
+			storeStateStrategy: options.account?.storeStateStrategy || (isStateful ? "database" : "cookie"),
 			skipStateCookieCheck: !!options.account?.skipStateCookieCheck
 		},
 		tables,
@@ -37358,7 +38819,7 @@ Most of the features of Better Auth will not work correctly.`);
 			cookieRefreshCache: (() => {
 				const refreshCache = options.session?.cookieCache?.refreshCache;
 				const maxAge = options.session?.cookieCache?.maxAge || 300;
-				if ((!!options.database || !!options.secondaryStorage) && refreshCache) {
+				if (isStateful && refreshCache) {
 					logger.warn("[better-auth] `session.cookieCache.refreshCache` is enabled while `database` or `secondaryStorage` is configured. `refreshCache` is meant for stateless (DB-less) setups. Disabling `refreshCache` — remove it from your config to silence this warning.");
 					return false;
 				}
@@ -37388,7 +38849,7 @@ Most of the features of Better Auth will not work correctly.`);
 		session: null,
 		secondaryStorage: options.secondaryStorage,
 		password: {
-			hash: options.emailAndPassword?.password?.hash || hashPassword,
+			hash: options.emailAndPassword?.password?.hash || hashPassword$1,
 			verify: options.emailAndPassword?.password?.verify || verifyPassword$1,
 			config: {
 				minPasswordLength: options.emailAndPassword?.minPasswordLength || 8,
@@ -37404,7 +38865,10 @@ Most of the features of Better Auth will not work correctly.`);
 		internalAdapter: createInternalAdapter(adapter, {
 			options,
 			logger,
-			hooks: options.databaseHooks ? [options.databaseHooks] : [],
+			hooks: options.databaseHooks ? [{
+				source: "user",
+				hooks: options.databaseHooks
+			}] : [],
 			generateId: generateIdFunc
 		}),
 		createAuthCookie: createCookieGetter(options),
@@ -37436,7 +38900,7 @@ Most of the features of Better Auth will not work correctly.`);
 	return ctx;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/context/init.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/context/init.mjs
 var init = async (options) => {
 	const adapter = await getAdapter(options);
 	const getDatabaseType = (database) => getKyselyDatabaseType(database) || "unknown";
@@ -37449,7 +38913,7 @@ var init = async (options) => {
 	return ctx;
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/auth/base.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/auth/base.mjs
 var createBetterAuth = (options, initFn) => {
 	const authContext = initFn(options);
 	const { api } = getEndpoints(authContext, options);
@@ -37458,37 +38922,23 @@ var createBetterAuth = (options, initFn) => {
 			const ctx = await authContext;
 			const basePath = ctx.options.basePath || "/api/auth";
 			let handlerCtx;
-			if (isDynamicBaseURLConfig(options.baseURL)) {
+			if (isDynamicBaseURLConfig(options.baseURL)) handlerCtx = await resolveRequestContext(ctx, request, resolveDynamicTrustedProxyHeaders(ctx.options));
+			else {
 				handlerCtx = Object.create(Object.getPrototypeOf(ctx), Object.getOwnPropertyDescriptors(ctx));
-				const baseURL = resolveBaseURL(options.baseURL, basePath, request);
-				if (baseURL) {
+				let trustOptions = ctx.options;
+				if (!ctx.options.baseURL) {
+					const baseURL = getBaseURL(void 0, basePath, request, void 0, ctx.options.advanced?.trustedProxyHeaders);
+					if (!baseURL) throw new BetterAuthError("Could not get base URL from request. Please provide a valid base URL.");
 					handlerCtx.baseURL = baseURL;
 					handlerCtx.options = {
 						...ctx.options,
 						baseURL: getOrigin(baseURL) || void 0
 					};
-				} else throw new BetterAuthError("Could not resolve base URL from request. Check your allowedHosts config.");
-				const trustedOriginOptions = {
-					...handlerCtx.options,
-					baseURL: options.baseURL
-				};
-				handlerCtx.trustedOrigins = await getTrustedOrigins(trustedOriginOptions, request);
-				if (options.advanced?.crossSubDomainCookies?.enabled) {
-					handlerCtx.authCookies = getCookies(handlerCtx.options);
-					handlerCtx.createAuthCookie = createCookieGetter(handlerCtx.options);
+					trustOptions = handlerCtx.options;
 				}
-			} else {
-				handlerCtx = ctx;
-				if (!ctx.options.baseURL) {
-					const baseURL = getBaseURL(void 0, basePath, request, void 0, ctx.options.advanced?.trustedProxyHeaders);
-					if (baseURL) {
-						ctx.baseURL = baseURL;
-						ctx.options.baseURL = getOrigin(ctx.baseURL) || void 0;
-					} else throw new BetterAuthError("Could not get base URL from request. Please provide a valid base URL.");
-				}
-				handlerCtx.trustedOrigins = await getTrustedOrigins(ctx.options, request);
+				handlerCtx.trustedOrigins = await getTrustedOrigins(trustOptions, request);
+				handlerCtx.trustedProviders = await getTrustedProviders(trustOptions, request);
 			}
-			handlerCtx.trustedProviders = await getTrustedProviders(handlerCtx.options, request);
 			const { handler } = router(handlerCtx, options);
 			return runWithAdapter(handlerCtx.adapter, () => handler(request));
 		},
@@ -37508,7 +38958,7 @@ var createBetterAuth = (options, initFn) => {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/auth/full.mjs
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/auth/full.mjs
 /**
 * Better Auth initializer for full mode (with Kysely)
 *
@@ -37534,12 +38984,12 @@ var betterAuth = (options) => {
 	return createBetterAuth(options, init);
 };
 //#endregion
-//#region ../../node_modules/.pnpm/better-auth@1.5.3_c60f13aa9391f2a547aabca80bea1d1e/node_modules/better-auth/dist/adapters/drizzle-adapter/index.mjs
-var drizzle_adapter_exports = /* @__PURE__ */ __exportAll$1({});
+//#region ../../node_modules/.pnpm/better-auth@1.6.25_@opentelemetry+api@1.9.0_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9_c15da60c156c14277b69caa5d3a63f80/node_modules/better-auth/dist/adapters/drizzle-adapter/index.mjs
+var drizzle_adapter_exports = /* @__PURE__ */ __exportAll({});
 import * as import__better_auth_drizzle_adapter from "@better-auth/drizzle-adapter";
-__reExport$1(drizzle_adapter_exports, import__better_auth_drizzle_adapter);
+__reExport(drizzle_adapter_exports, import__better_auth_drizzle_adapter);
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/cache/adapters/in-memory-cache-adapter.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/cache/adapters/in-memory-cache-adapter.js
 var InMemoryCacheAdapter = class {
 	name = "in-memory";
 	store = /* @__PURE__ */ new Map();
@@ -37726,6 +39176,38 @@ function createAuthInstance(db, drizzleDb, emailAdapter, provider = "pg", option
 var auth = createAuthInstance(db, drizzleDb, email, dbDialect, authOptions);
 //#endregion
 //#region src/lib/server/auth/service.ts
+/**
+* Capabilities that make a key a *writing* key. Used to decide whether the
+* coarse `write` scope survives the clamp against the owner's actual role.
+*/
+var WRITE_CAPABILITIES = [
+	"document.create",
+	"document.update",
+	"document.delete",
+	"document.publish",
+	"document.unpublish",
+	"asset.upload",
+	"asset.delete"
+];
+function isApiKeyPermission(value) {
+	return value === "read" || value === "write";
+}
+/**
+* Capabilities a role actually confers in a given organization.
+*
+* Mirrors `RolesService.resolveFromDb`, including its built-in seed fallback:
+* without it, an organization whose built-in role rows were never seeded would
+* resolve to an empty set and silently strip every capability from otherwise
+* valid API keys.
+*/
+async function resolveGrantableCapabilities(db, organizationId, roleName) {
+	const row = await db.findRoleByName(organizationId, roleName);
+	if (row) return row.capabilities;
+	const builtin = BUILTIN_ROLE_SEED[roleName];
+	if (builtin) return builtin.capabilities;
+	cmsLogger.warn("[AuthService]", `Unknown role "${roleName}" in org=${organizationId} — API key granted no capabilities`);
+	return [];
+}
 var authService = {
 	async getSession(request, db) {
 		try {
@@ -37841,27 +39323,36 @@ var authService = {
 		if (session.type === "partial_session") throw new AuthError("pending_invitations", "User has pending invitations to review");
 		return session;
 	},
-	async validateApiKey(request) {
+	async validateApiKey(request, db) {
 		try {
 			const apiKeyHeader = request.headers.get("x-api-key");
 			if (!apiKeyHeader) return null;
 			const result = await auth.api.verifyApiKey({ body: { key: apiKeyHeader } });
 			if (!result.valid || !result.key) return null;
 			const metadata = result.key.metadata || {};
-			const permissions = metadata.permissions || ["read", "write"];
-			const capabilities = Array.isArray(metadata.capabilities) ? metadata.capabilities : void 0;
-			const organizationId = metadata.organizationId;
-			if (!organizationId) {
+			const claimedOrganizationId = metadata.organizationId;
+			if (!claimedOrganizationId) {
 				cmsLogger.error("[AuthService]", `API key ${result.key.id} missing organizationId in metadata`);
 				return null;
 			}
+			const ownerId = result.key.referenceId;
+			const membership = ownerId ? await db.findUserMembership(ownerId, claimedOrganizationId) : null;
+			if (!membership) {
+				cmsLogger.warn("[AuthService]", `API key ${result.key.id} rejected — owner is not a member of ${claimedOrganizationId}`);
+				return null;
+			}
+			const grantable = new Set(await resolveGrantableCapabilities(db, claimedOrganizationId, membership.role));
+			const capabilities = (Array.isArray(metadata.capabilities) ? metadata.capabilities : void 0)?.filter((capability) => grantable.has(capability));
+			const requestedPermissions = Array.isArray(metadata.permissions) ? metadata.permissions : ["read"];
+			const canWrite = WRITE_CAPABILITIES.some((capability) => grantable.has(capability));
+			const permissions = requestedPermissions.filter(isApiKeyPermission).filter((permission) => permission !== "write" || canWrite);
 			return {
 				type: "api_key",
 				keyId: result.key.id,
 				name: result.key.name || "Unnamed Key",
 				permissions,
 				capabilities,
-				organizationId,
+				organizationId: claimedOrganizationId,
 				lastUsedAt: result.key.lastRequest || void 0
 			};
 		} catch (error) {
@@ -37870,7 +39361,7 @@ var authService = {
 		}
 	},
 	async requireApiKey(request, db, permission) {
-		const apiKeyAuth = await this.validateApiKey(request);
+		const apiKeyAuth = await this.validateApiKey(request, db);
 		if (!apiKeyAuth) throw new Error("Unauthorized: Valid API key required");
 		if (permission && !apiKeyAuth.permissions.includes(permission)) throw new Error(`Forbidden: API key missing ${permission} permission`);
 		return apiKeyAuth;

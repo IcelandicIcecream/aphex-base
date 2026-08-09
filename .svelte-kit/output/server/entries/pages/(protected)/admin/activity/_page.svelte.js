@@ -1,4 +1,4 @@
-import { l as head } from "../../../../../chunks/dev.js";
+import { c as head } from "../../../../../chunks/server2.js";
 import { t as ActivityView } from "../../../../../chunks/ui.js";
 //#region src/routes/(protected)/admin/activity/+page.svelte
 function _page($$renderer) {

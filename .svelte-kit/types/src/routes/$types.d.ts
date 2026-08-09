@@ -13,7 +13,7 @@ export type Snapshot<T = any> = Kit.Snapshot<T>;
 type PageServerParentData = EnsureDefined<LayoutServerData>;
 type PageParentData = EnsureDefined<LayoutData>;
 type LayoutRouteId = RouteId | "/" | "/(protected)/admin" | "/(protected)/admin/activity" | "/(protected)/admin/organizations" | "/(protected)/admin/settings" | "/(protected)/admin/settings/account" | "/(protected)/admin/settings/api-keys" | "/(protected)/admin/settings/members" | "/(protected)/admin/settings/plugins" | "/(protected)/admin/settings/roles" | "/god-mode" | "/god-mode/organizations" | "/invitations" | "/invite/[token]" | "/login" | "/reset-password/[token]" | "/verify-email" | null
-type LayoutParams = RouteParams & { token?: string }
+type LayoutParams = RouteParams & { token?: string | undefined }
 type LayoutParentData = EnsureDefined<{}>;
 
 export type PageServerLoad<OutputData extends OutputDataShape<PageServerParentData> = OutputDataShape<PageServerParentData>> = Kit.ServerLoad<RouteParams, PageServerParentData, OutputData, RouteId>;

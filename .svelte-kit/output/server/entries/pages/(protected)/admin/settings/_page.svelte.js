@@ -1,5 +1,5 @@
-import { Q as attr, et as escape_html, f as spread_props, l as head, n as attr_class, o as derived, p as stringify } from "../../../../../chunks/dev.js";
-import { C as Copy, L as Icon, k as toast } from "../../../../../chunks/stega.js";
+import { D as attr, a as derived, c as head, d as spread_props, f as stringify, k as escape_html, t as attr_class } from "../../../../../chunks/server2.js";
+import { C as Copy, R as Icon, k as toast } from "../../../../../chunks/stega.js";
 import { s as organizations } from "../../../../../chunks/api.js";
 import { n as invalidateAll } from "../../../../../chunks/client.js";
 import "../../../../../chunks/navigation.js";

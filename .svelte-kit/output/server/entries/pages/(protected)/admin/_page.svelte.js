@@ -1,10 +1,10 @@
-import "../../../../chunks/index-server.js";
-import { $ as clsx, Q as attr, a as bind_props, c as ensure_array_like, et as escape_html, f as spread_props, i as attributes, l as head, n as attr_class, o as derived, p as stringify, pt as run, r as attr_style, u as props_id, vt as setContext } from "../../../../chunks/dev.js";
+import { D as attr, O as clsx, a as derived, c as head, d as spread_props, f as stringify, i as bind_props, k as escape_html, l as props_id, n as attr_style, r as attributes, s as ensure_array_like, t as attr_class, wt as run, x as setContext } from "../../../../chunks/server2.js";
+import "../../../../chunks/internal.js";
+import { t as createPartResolver } from "../../../../chunks/resolver.js";
 import "../../../../chunks/validator.js";
 import { t as cmsLogger } from "../../../../chunks/logger.js";
 import "../../../../chunks/schema-utils.js";
-import { t as createPartResolver } from "../../../../chunks/resolver.js";
-import { $ as isValidIndex, A as Circle_check, At as resolvePreviewTitle, Ct as setBlockPreviews, Dt as setFieldComponents, E as Chevron_down, Et as setAdminNav, G as Floating_layer_anchor, H as SafePolygon, I as X, K as Floating_layer, L as Icon, O as Calendar_clock, Ot as useAdminSlots, Q as chunk, R as Separator, St as useSidebar, T as Chevron_right, Tt as usePermissions, U as Popper_layer_force_mount, W as Popper_layer, Z as useId, _ as Refresh_cw, _t as DOMContext, at as noop$1, b as Image, bt as Context, ct as isBrowser, d as notifyDocumentChanged, dt as isTouch, et as isTabbable, ft as ARROW_DOWN, g as Search, gt as ENTER, ht as ARROW_UP, k as toast, kt as setSchemaContext, lt as isElement, mt as ARROW_RIGHT, n as confirmDialog, nt as resolveLocaleProp, ot as PresenceManager, p as Trash_2, pt as ARROW_LEFT, q as getFloatingContentCSSVars, st as RovingFocusGroup, t as ConfirmDialogHost, tt as Portal, ut as isHTMLElement, vt as afterTick, w as Circle_alert, wt as setPermissionsContext, x as File_text, xt as srOnlyStylesString, yt as watch } from "../../../../chunks/stega.js";
+import { $ as chunk, At as setSchemaContext, Ct as useSidebar, Dt as setAdminNav, E as Chevron_down, Et as usePermissions, G as Popper_layer, J as getFloatingContentCSSVars, K as Floating_layer_anchor, L as X, O as Calendar_clock, Ot as setFieldComponents, Q as useId, R as Icon, St as srOnlyStylesString, T as Chevron_right, Tt as setPermissionsContext, U as SafePolygon, W as Popper_layer_force_mount, _ as Refresh_cw, _t as ENTER, b as Image, bt as watch, ct as RovingFocusGroup, d as notifyDocumentChanged, dt as isHTMLElement, et as isValidIndex, ft as isTouch, g as Search, gt as ARROW_UP, ht as ARROW_RIGHT, j as Circle_check, jt as resolvePreviewTitle, k as toast, kt as useAdminSlots, lt as isBrowser, mt as ARROW_LEFT, n as confirmDialog, nt as Portal, ot as noop$1, p as Trash_2, pt as ARROW_DOWN, q as Floating_layer, rt as resolveLocaleProp, st as PresenceManager, t as ConfirmDialogHost, tt as isTabbable, ut as isElement, vt as DOMContext, w as Circle_alert, wt as setBlockPreviews, x as File_text, xt as Context, yt as afterTick, z as Separator } from "../../../../chunks/stega.js";
 import "../../../../chunks/utils2.js";
 import { a as assets, c as documents, l as ApiError } from "../../../../chunks/api.js";
 import { t as collectReferenceIds } from "../../../../chunks/reference-walk.js";
@@ -27,7 +27,7 @@ import { t as activeTabState } from "../../../../chunks/activeTab.svelte.js";
 import { t as schemaTypes } from "../../../../chunks/schemaTypes.js";
 import { n as Alert_description, r as Alert, t as Alert_title } from "../../../../chunks/alert.js";
 import { CalendarDate, CalendarDateTime, DateFormatter, ZonedDateTime, endOfMonth, getDayOfWeek, getLocalTimeZone, isEqualMonth, isSameDay, isSameMonth, isToday, parseDate, parseDateTime, parseZonedDateTime, startOfMonth, toCalendar, today } from "@internationalized/date";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
 /**
 * Content hashing utilities for document version tracking
 * Includes timestamp for proper change detection and UX
@@ -80,7 +80,7 @@ function hasUnpublishedChanges(draftData, publishedHash) {
 	return createPublishedHash(draftData) !== publishedHash;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/internal/date-time/announcer.js
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/date-time/announcer.js
 /**
 * Creates or gets an announcer element which is used to announce messages to screen readers.
 * Within the date components, we use this to announce when the values of the individual segments
@@ -144,7 +144,7 @@ function getAnnouncer(doc) {
 	return { announce };
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/internal/date-time/utils.js
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/date-time/utils.js
 var defaultDateDefaults = {
 	defaultValue: void 0,
 	granularity: "day"
@@ -276,7 +276,7 @@ function getNextLastDayOfWeek(date, firstDayOfWeek, locale) {
 	return date.add({ days: lastDayOfWeek - day });
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/internal/date-time/formatter.js
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/date-time/formatter.js
 var defaultPartOptions = {
 	year: "numeric",
 	month: "numeric",
@@ -364,7 +364,7 @@ function createFormatter(opts) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/internal/date-time/calendar-helpers.svelte.js
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/date-time/calendar-helpers.svelte.js
 function isCalendarDayNode(node) {
 	if (!isHTMLElement(node)) return false;
 	if (!node.hasAttribute("data-bits-day")) return false;
@@ -745,7 +745,7 @@ function getDefaultYears(opts) {
 	return Array.from({ length: totalYears }, (_, i) => minYear + i);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/calendar.svelte.js
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/calendar.svelte.js
 var CalendarRootContext = new Context("Calendar.Root | RangeCalender.Root");
 var CalendarRootState = class CalendarRootState {
 	static create(opts) {
@@ -1737,7 +1737,7 @@ var CalendarYearSelectState = class CalendarYearSelectState {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar.svelte
 function Calendar$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { child, children, id = useId(), ref = null, value = void 0, onValueChange = noop$1, placeholder = void 0, onPlaceholderChange = noop$1, weekdayFormat = "narrow", weekStartsOn, pagedNavigation = false, isDateDisabled = () => false, isDateUnavailable = () => false, fixedWeeks = false, numberOfMonths = 1, locale, calendarLabel = "Event", disabled = false, readonly = false, minValue = void 0, maxValue = void 0, preventDeselect = false, type, disableDaysOutsideMonth = true, initialFocus = false, maxDays, monthFormat = "long", yearFormat = "numeric", $$slots, $$events, ...restProps } = $$props;
@@ -1818,7 +1818,7 @@ function Calendar$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-day.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-day.svelte
 function Calendar_day$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -1853,7 +1853,7 @@ function Calendar_day$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-grid.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-grid.svelte
 function Calendar_grid$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -1878,7 +1878,7 @@ function Calendar_grid$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-grid-body.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-grid-body.svelte
 function Calendar_grid_body$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -1903,7 +1903,7 @@ function Calendar_grid_body$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-cell.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-cell.svelte
 function Calendar_cell$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -1933,7 +1933,7 @@ function Calendar_cell$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-grid-head.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-grid-head.svelte
 function Calendar_grid_head$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -1958,7 +1958,7 @@ function Calendar_grid_head$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-head-cell.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-head-cell.svelte
 function Calendar_head_cell$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -1983,7 +1983,7 @@ function Calendar_head_cell$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-grid-row.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-grid-row.svelte
 function Calendar_grid_row$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2008,7 +2008,7 @@ function Calendar_grid_row$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-header.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-header.svelte
 function Calendar_header$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2033,7 +2033,7 @@ function Calendar_header$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-month-select.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-month-select.svelte
 function Calendar_month_select$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2096,7 +2096,7 @@ function Calendar_month_select$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-next-button.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-next-button.svelte
 function Calendar_next_button$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2121,7 +2121,7 @@ function Calendar_next_button$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-prev-button.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-prev-button.svelte
 function Calendar_prev_button$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2146,7 +2146,7 @@ function Calendar_prev_button$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/calendar/components/calendar-year-select.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/calendar/components/calendar-year-select.svelte
 function Calendar_year_select$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2196,7 +2196,7 @@ function Calendar_year_select$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/command/command.svelte.js
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/command/command.svelte.js
 var commandAttrs = createBitsAttrs({
 	component: "command",
 	parts: [
@@ -2223,7 +2223,7 @@ new Context("Command.Root");
 new Context("Command.List");
 new Context("Command.Group");
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/popover/popover.svelte.js
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/popover/popover.svelte.js
 var popoverAttrs = createBitsAttrs({
 	component: "popover",
 	parts: [
@@ -2527,7 +2527,7 @@ var PopoverContentState = class PopoverContentState {
 	};
 };
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/popover/components/popover-content.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/popover/components/popover-content.svelte
 function Popover_content$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2633,7 +2633,7 @@ function Popover_content$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/popover/components/popover-trigger.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/popover/components/popover-trigger.svelte
 function Popover_trigger$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2669,7 +2669,7 @@ function Popover_trigger$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/popover/components/popover.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/popover/components/popover.svelte
 function Popover($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { open = false, onOpenChange = noop$1, onOpenChangeComplete = noop$1, children } = $$props;
@@ -2691,7 +2691,7 @@ function Popover($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/tabs/tabs.svelte.js
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/tabs/tabs.svelte.js
 var tabsAttrs = createBitsAttrs({
 	component: "tabs",
 	parts: [
@@ -2792,7 +2792,7 @@ function getTabDataState(condition) {
 	return condition ? "active" : "inactive";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/tabs/components/tabs.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/tabs/components/tabs.svelte
 function Tabs$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -2828,7 +2828,7 @@ function Tabs$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@opentelemetry+api@1_2f1fbc9e1bceb9eb223fb0fd0b0b58ef/node_modules/bits-ui/dist/bits/tabs/components/tabs-content.svelte
+//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/tabs/components/tabs-content.svelte
 function Tabs_content$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
@@ -4344,7 +4344,7 @@ function Zoom_out($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs.svelte
 function Tabs($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, value = "", class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4395,7 +4395,7 @@ function Tabs($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs-content.svelte
 function Tabs_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4436,7 +4436,7 @@ function Tabs_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar.svelte
 function Calendar_1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, value = void 0, placeholder = void 0, class: className, weekdayFormat = "short", buttonVariant = "ghost", captionLayout = "label", locale = "en-US", months: monthsProp, years, monthFormat: monthFormatProp, yearFormat = "numeric", day, disableDaysOutsideMonth = false, $$slots, $$events, ...restProps } = $$props;
@@ -4733,7 +4733,7 @@ function Calendar_1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-cell.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-cell.svelte
 function Calendar_cell($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4771,7 +4771,7 @@ function Calendar_cell($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-day.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-day.svelte
 function Calendar_day($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4809,7 +4809,7 @@ function Calendar_day($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid.svelte
 function Calendar_grid($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4847,7 +4847,7 @@ function Calendar_grid($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-header.svelte
 function Calendar_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4885,7 +4885,7 @@ function Calendar_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-months.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-months.svelte
 function Calendar_months($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -4899,7 +4899,7 @@ function Calendar_months($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-row.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-row.svelte
 function Calendar_grid_row($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4937,7 +4937,7 @@ function Calendar_grid_row($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-body.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-body.svelte
 function Calendar_grid_body($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4975,7 +4975,7 @@ function Calendar_grid_body($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-head.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-head.svelte
 function Calendar_grid_head($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5013,7 +5013,7 @@ function Calendar_grid_head($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-head-cell.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-head-cell.svelte
 function Calendar_head_cell($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5051,7 +5051,7 @@ function Calendar_head_cell($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-next-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-next-button.svelte
 function Fallback$1($$renderer) {
 	Chevron_right($$renderer, { class: "size-4" });
 }
@@ -5095,7 +5095,7 @@ function Calendar_next_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-prev-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-prev-button.svelte
 function Fallback($$renderer) {
 	Chevron_left($$renderer, { class: "size-4" });
 }
@@ -5139,7 +5139,7 @@ function Calendar_prev_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month-select.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month-select.svelte
 function Calendar_month_select($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, value, onchange, $$slots, $$events, ...restProps } = $$props;
@@ -5206,7 +5206,7 @@ function Calendar_month_select($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-year-select.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-year-select.svelte
 function Calendar_year_select($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, value, $$slots, $$events, ...restProps } = $$props;
@@ -5272,7 +5272,7 @@ function Calendar_year_select($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month.svelte
 function Calendar_month($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -5286,7 +5286,7 @@ function Calendar_month($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-nav.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-nav.svelte
 function Calendar_nav($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -5300,7 +5300,7 @@ function Calendar_nav($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-caption.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-caption.svelte
 function Calendar_caption($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { captionLayout, months, monthFormat, years, yearFormat, month, locale, placeholder = void 0, monthIndex = 0 } = $$props;
@@ -5366,7 +5366,7 @@ function Calendar_caption($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-content.svelte
 function Popover_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, sideOffset = 4, align = "center", portalProps, $$slots, $$events, ...restProps } = $$props;
@@ -5421,7 +5421,7 @@ function Popover_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-trigger.svelte
 function Popover_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5462,10 +5462,10 @@ function Popover_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.4_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.59.1_@_6bb28235cb0c6ffe12a3b73e7541e820/node_modules/@aphexcms/ui/dist/components/ui/popover/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/popover/index.js
 var Root = Popover;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
 /**
 * Copy a URL to the clipboard, showing a toast on success/failure.
 */
@@ -5492,7 +5492,7 @@ function downloadFile(url, filename) {
 	document.body.removeChild(a);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
 function MediaBrowser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/** When true, shows a "Select" button for picking an asset */
@@ -6372,7 +6372,7 @@ function MediaBrowser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
 /**
 * Simple English pluralization.
 * Handles common patterns: y→ies, s/sh/ch/x/z→es, otherwise appends s.
@@ -6384,13 +6384,13 @@ function pluralize(word) {
 	return word + "s";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
 var SAVE_STATE_KEY = Symbol("aphex-save-state");
 function setSaveStateContext(state) {
 	setContext(SAVE_STATE_KEY, state);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
 function AdminSlot($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { name, id, order = 0, children } = $$props;
@@ -6398,7 +6398,7 @@ function AdminSlot($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/ScheduleDialog.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/ScheduleDialog.svelte
 function ScheduleDialog($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -6651,7 +6651,7 @@ function ScheduleDialog($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
 var KEY = Symbol("aphex:richtext-editors");
 function setRichtextEditorRegistry() {
 	const registry = /* @__PURE__ */ new Map();
@@ -6659,7 +6659,7 @@ function setRichtextEditorRegistry() {
 	return registry;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
 function parsedValue($$renderer, key, val, depth) {
 	if (val && typeof val === "object") {
 		$$renderer.push("<!--[0-->");
@@ -7650,7 +7650,7 @@ function DocumentEditor($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
 function DocumentVersionPanel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { documentId, onClose, onPreviewVersion } = $$props;
@@ -7753,7 +7753,7 @@ function DocumentVersionPanel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
 function AdminApp($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -8088,7 +8088,7 @@ function AdminApp($$renderer, $$props) {
 		let $$settled = true;
 		let $$inner_renderer;
 		function $$render_inner($$renderer) {
-			head("rgukve", $$renderer, ($$renderer) => {
+			head("1hxxig8", $$renderer, ($$renderer) => {
 				$$renderer.title(($$renderer) => {
 					$$renderer.push(`<title>${escape_html(activeTab.value === "structure" ? "Content" : activeTab.value === "media" ? "Media" : "Vision")} - ${escape_html(title)}</title>`);
 				});

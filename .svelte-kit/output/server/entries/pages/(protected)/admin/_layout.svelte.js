@@ -1,6 +1,6 @@
-import "../../../../chunks/index-server.js";
-import { Q as attr, f as spread_props, l as head, o as derived } from "../../../../chunks/dev.js";
-import { L as Icon, S as Database, t as ConfirmDialogHost, u as Sidebar, wt as setPermissionsContext } from "../../../../chunks/stega.js";
+import { D as attr, a as derived, c as head, d as spread_props } from "../../../../chunks/server2.js";
+import "../../../../chunks/internal.js";
+import { R as Icon, S as Database, Tt as setPermissionsContext, t as ConfirmDialogHost, u as Sidebar } from "../../../../chunks/stega.js";
 import { s as resolve, t as goto } from "../../../../chunks/client.js";
 import "../../../../chunks/navigation.js";
 import { t as page } from "../../../../chunks/state.js";

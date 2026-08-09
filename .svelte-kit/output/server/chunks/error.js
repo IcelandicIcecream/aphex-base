@@ -1,4 +1,4 @@
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/env/env-impl.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/env/env-impl.mjs
 var _envShim = Object.create(null);
 var _getEnv = (useShim) => globalThis.process?.env || globalThis.Deno?.env.toObject() || globalThis.__env__ || (useShim ? _envShim : globalThis);
 var env = new Proxy(_envShim, {
@@ -27,7 +27,7 @@ var env = new Proxy(_envShim, {
 function toBoolean(val) {
 	return val ? val !== "false" : false;
 }
-var nodeENV = typeof process !== "undefined" && process.env && process.env.NODE_ENV || "";
+var nodeENV = env.NODE_ENV ?? "";
 /** Detect if `NODE_ENV` environment variable is `production` */
 var isProduction = nodeENV === "production";
 /** Detect if `NODE_ENV` environment variable is `dev` or `development` */
@@ -78,229 +78,7 @@ var ENV = Object.freeze({
 	}
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/env/color-depth.mjs
-var COLORS_2 = 1;
-var COLORS_16 = 4;
-var COLORS_256 = 8;
-var COLORS_16m = 24;
-var TERM_ENVS = {
-	eterm: COLORS_16,
-	cons25: COLORS_16,
-	console: COLORS_16,
-	cygwin: COLORS_16,
-	dtterm: COLORS_16,
-	gnome: COLORS_16,
-	hurd: COLORS_16,
-	jfbterm: COLORS_16,
-	konsole: COLORS_16,
-	kterm: COLORS_16,
-	mlterm: COLORS_16,
-	mosh: COLORS_16m,
-	putty: COLORS_16,
-	st: COLORS_16,
-	"rxvt-unicode-24bit": COLORS_16m,
-	terminator: COLORS_16m,
-	"xterm-kitty": COLORS_16m
-};
-var CI_ENVS_MAP = new Map(Object.entries({
-	APPVEYOR: COLORS_256,
-	BUILDKITE: COLORS_256,
-	CIRCLECI: COLORS_16m,
-	DRONE: COLORS_256,
-	GITEA_ACTIONS: COLORS_16m,
-	GITHUB_ACTIONS: COLORS_16m,
-	GITLAB_CI: COLORS_256,
-	TRAVIS: COLORS_256
-}));
-var TERM_ENVS_REG_EXP = [
-	/ansi/,
-	/color/,
-	/linux/,
-	/direct/,
-	/^con[0-9]*x[0-9]/,
-	/^rxvt/,
-	/^screen/,
-	/^xterm/,
-	/^vt100/,
-	/^vt220/
-];
-function getColorDepth() {
-	if (getEnvVar("FORCE_COLOR") !== void 0) switch (getEnvVar("FORCE_COLOR")) {
-		case "":
-		case "1":
-		case "true": return COLORS_16;
-		case "2": return COLORS_256;
-		case "3": return COLORS_16m;
-		default: return COLORS_2;
-	}
-	if (getEnvVar("NODE_DISABLE_COLORS") !== void 0 && getEnvVar("NODE_DISABLE_COLORS") !== "" || getEnvVar("NO_COLOR") !== void 0 && getEnvVar("NO_COLOR") !== "" || getEnvVar("TERM") === "dumb") return COLORS_2;
-	if (getEnvVar("TMUX")) return COLORS_16m;
-	if ("TF_BUILD" in env && "AGENT_NAME" in env) return COLORS_16;
-	if ("CI" in env) {
-		for (const { 0: envName, 1: colors } of CI_ENVS_MAP) if (envName in env) return colors;
-		if (getEnvVar("CI_NAME") === "codeship") return COLORS_256;
-		return COLORS_2;
-	}
-	if ("TEAMCITY_VERSION" in env) return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.exec(getEnvVar("TEAMCITY_VERSION")) !== null ? COLORS_16 : COLORS_2;
-	switch (getEnvVar("TERM_PROGRAM")) {
-		case "iTerm.app":
-			if (!getEnvVar("TERM_PROGRAM_VERSION") || /^[0-2]\./.exec(getEnvVar("TERM_PROGRAM_VERSION")) !== null) return COLORS_256;
-			return COLORS_16m;
-		case "HyperTerm":
-		case "MacTerm": return COLORS_16m;
-		case "Apple_Terminal": return COLORS_256;
-	}
-	if (getEnvVar("COLORTERM") === "truecolor" || getEnvVar("COLORTERM") === "24bit") return COLORS_16m;
-	if (getEnvVar("TERM")) {
-		if (/truecolor/.exec(getEnvVar("TERM")) !== null) return COLORS_16m;
-		if (/^xterm-256/.exec(getEnvVar("TERM")) !== null) return COLORS_256;
-		const termEnv = getEnvVar("TERM").toLowerCase();
-		if (TERM_ENVS[termEnv]) return TERM_ENVS[termEnv];
-		if (TERM_ENVS_REG_EXP.some((term) => term.exec(termEnv) !== null)) return COLORS_16;
-	}
-	if (getEnvVar("COLORTERM")) return COLORS_16;
-	return COLORS_2;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/env/logger.mjs
-var TTY_COLORS = {
-	reset: "\x1B[0m",
-	bright: "\x1B[1m",
-	dim: "\x1B[2m",
-	undim: "\x1B[22m",
-	underscore: "\x1B[4m",
-	blink: "\x1B[5m",
-	reverse: "\x1B[7m",
-	hidden: "\x1B[8m",
-	fg: {
-		black: "\x1B[30m",
-		red: "\x1B[31m",
-		green: "\x1B[32m",
-		yellow: "\x1B[33m",
-		blue: "\x1B[34m",
-		magenta: "\x1B[35m",
-		cyan: "\x1B[36m",
-		white: "\x1B[37m"
-	},
-	bg: {
-		black: "\x1B[40m",
-		red: "\x1B[41m",
-		green: "\x1B[42m",
-		yellow: "\x1B[43m",
-		blue: "\x1B[44m",
-		magenta: "\x1B[45m",
-		cyan: "\x1B[46m",
-		white: "\x1B[47m"
-	}
-};
-var levels = [
-	"debug",
-	"info",
-	"success",
-	"warn",
-	"error"
-];
-function shouldPublishLog(currentLogLevel, logLevel) {
-	return levels.indexOf(logLevel) >= levels.indexOf(currentLogLevel);
-}
-var levelColors = {
-	info: TTY_COLORS.fg.blue,
-	success: TTY_COLORS.fg.green,
-	warn: TTY_COLORS.fg.yellow,
-	error: TTY_COLORS.fg.red,
-	debug: TTY_COLORS.fg.magenta
-};
-var formatMessage = (level, message, colorsEnabled) => {
-	const timestamp = (/* @__PURE__ */ new Date()).toISOString();
-	if (colorsEnabled) return `${TTY_COLORS.dim}${timestamp}${TTY_COLORS.reset} ${levelColors[level]}${level.toUpperCase()}${TTY_COLORS.reset} ${TTY_COLORS.bright}[Better Auth]:${TTY_COLORS.reset} ${message}`;
-	return `${timestamp} ${level.toUpperCase()} [Better Auth]: ${message}`;
-};
-var createLogger = (options) => {
-	const enabled = options?.disabled !== true;
-	const logLevel = options?.level ?? "warn";
-	const colorsEnabled = options?.disableColors !== void 0 ? !options.disableColors : getColorDepth() !== 1;
-	const LogFunc = (level, message, args = []) => {
-		if (!enabled || !shouldPublishLog(logLevel, level)) return;
-		const formattedMessage = formatMessage(level, message, colorsEnabled);
-		if (!options || typeof options.log !== "function") {
-			if (level === "error") console.error(formattedMessage, ...args);
-			else if (level === "warn") console.warn(formattedMessage, ...args);
-			else console.log(formattedMessage, ...args);
-			return;
-		}
-		options.log(level === "success" ? "info" : level, message, ...args);
-	};
-	return {
-		...Object.fromEntries(levels.map((level) => [level, (...[message, ...args]) => LogFunc(level, message, args)])),
-		get level() {
-			return logLevel;
-		}
-	};
-};
-var logger = createLogger();
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/utils/error-codes.mjs
-function defineErrorCodes(codes) {
-	return Object.fromEntries(Object.entries(codes).map(([key, value]) => [key, {
-		code: key,
-		message: value,
-		toString: () => key
-	}]));
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/error/codes.mjs
-var BASE_ERROR_CODES = defineErrorCodes({
-	USER_NOT_FOUND: "User not found",
-	FAILED_TO_CREATE_USER: "Failed to create user",
-	FAILED_TO_CREATE_SESSION: "Failed to create session",
-	FAILED_TO_UPDATE_USER: "Failed to update user",
-	FAILED_TO_GET_SESSION: "Failed to get session",
-	INVALID_PASSWORD: "Invalid password",
-	INVALID_EMAIL: "Invalid email",
-	INVALID_EMAIL_OR_PASSWORD: "Invalid email or password",
-	INVALID_USER: "Invalid user",
-	SOCIAL_ACCOUNT_ALREADY_LINKED: "Social account already linked",
-	PROVIDER_NOT_FOUND: "Provider not found",
-	INVALID_TOKEN: "Invalid token",
-	TOKEN_EXPIRED: "Token expired",
-	ID_TOKEN_NOT_SUPPORTED: "id_token not supported",
-	FAILED_TO_GET_USER_INFO: "Failed to get user info",
-	USER_EMAIL_NOT_FOUND: "User email not found",
-	EMAIL_NOT_VERIFIED: "Email not verified",
-	PASSWORD_TOO_SHORT: "Password too short",
-	PASSWORD_TOO_LONG: "Password too long",
-	USER_ALREADY_EXISTS: "User already exists.",
-	USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "User already exists. Use another email.",
-	EMAIL_CAN_NOT_BE_UPDATED: "Email can not be updated",
-	CREDENTIAL_ACCOUNT_NOT_FOUND: "Credential account not found",
-	SESSION_EXPIRED: "Session expired. Re-authenticate to perform this action.",
-	FAILED_TO_UNLINK_LAST_ACCOUNT: "You can't unlink your last account",
-	ACCOUNT_NOT_FOUND: "Account not found",
-	USER_ALREADY_HAS_PASSWORD: "User already has a password. Provide that to delete the account.",
-	CROSS_SITE_NAVIGATION_LOGIN_BLOCKED: "Cross-site navigation login blocked. This request appears to be a CSRF attack.",
-	VERIFICATION_EMAIL_NOT_ENABLED: "Verification email isn't enabled",
-	EMAIL_ALREADY_VERIFIED: "Email is already verified",
-	EMAIL_MISMATCH: "Email mismatch",
-	SESSION_NOT_FRESH: "Session is not fresh",
-	LINKED_ACCOUNT_ALREADY_EXISTS: "Linked account already exists",
-	INVALID_ORIGIN: "Invalid origin",
-	INVALID_CALLBACK_URL: "Invalid callbackURL",
-	INVALID_REDIRECT_URL: "Invalid redirectURL",
-	INVALID_ERROR_CALLBACK_URL: "Invalid errorCallbackURL",
-	INVALID_NEW_USER_CALLBACK_URL: "Invalid newUserCallbackURL",
-	MISSING_OR_NULL_ORIGIN: "Missing or null Origin",
-	CALLBACK_URL_REQUIRED: "callbackURL is required",
-	FAILED_TO_CREATE_VERIFICATION: "Unable to create verification",
-	FIELD_NOT_ALLOWED: "Field not allowed to be set",
-	ASYNC_VALIDATION_NOT_SUPPORTED: "Async validation is not supported",
-	VALIDATION_ERROR: "Validation Error",
-	MISSING_FIELD: "Field is required",
-	METHOD_NOT_ALLOWED_DEFER_SESSION_REQUIRED: "POST method requires deferSessionRefresh to be enabled in session config",
-	BODY_MUST_BE_AN_OBJECT: "Body must be an object",
-	PASSWORD_ALREADY_SET: "User already has a password set"
-});
-//#endregion
-//#region ../../node_modules/.pnpm/better-call@1.3.2_zod@4.4.3/node_modules/better-call/dist/error.mjs
+//#region ../../node_modules/.pnpm/better-call@1.3.7_zod@4.4.3/node_modules/better-call/dist/error.mjs
 function isErrorStackTraceLimitWritable() {
 	const desc = Object.getOwnPropertyDescriptor(Error, "stackTraceLimit");
 	if (desc === void 0) return Object.isExtensible(Error);
@@ -430,7 +208,7 @@ var BetterCallError = class extends Error {
 var kAPIErrorHeaderSymbol = Symbol.for("better-call:api-error-headers");
 var APIError$1 = makeErrorForHideStackFrame(InternalAPIError, Error);
 //#endregion
-//#region ../../node_modules/.pnpm/@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@better-fetch+fetch@1.1.21_better-call_c435991dfa63cc4b6adc0265479fb5c6/node_modules/@better-auth/core/dist/error/index.mjs
+//#region ../../node_modules/.pnpm/@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@better-fetch+fetch@1.3.1_@openteleme_f2788d83a7ed857c01505eafe322ebe8/node_modules/@better-auth/core/dist/error/index.mjs
 var BetterAuthError = class extends Error {
 	constructor(message, options) {
 		super(message, options);
@@ -454,4 +232,4 @@ var APIError = class APIError extends APIError$1 {
 	}
 };
 //#endregion
-export { isDevelopment as _, ValidationError as a, TTY_COLORS as c, shouldPublishLog as d, getColorDepth as f, getEnvVar as g, getBooleanEnvVar as h, BetterCallError as i, createLogger as l, env as m, BetterAuthError as n, kAPIErrorHeaderSymbol as o, ENV as p, APIError$1 as r, BASE_ERROR_CODES as s, APIError as t, logger as u, isProduction as v, isTest as y };
+export { ValidationError as a, env as c, isDevelopment as d, isProduction as f, BetterCallError as i, getBooleanEnvVar as l, BetterAuthError as n, kAPIErrorHeaderSymbol as o, isTest as p, APIError$1 as r, ENV as s, APIError as t, getEnvVar as u };

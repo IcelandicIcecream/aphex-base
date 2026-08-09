@@ -3,7 +3,7 @@ import { t as authService } from "./service.js";
 var authProvider = {
 	getSession: (request, db) => authService.getSession(request, db),
 	requireSession: (request, db) => authService.requireSession(request, db),
-	validateApiKey: (request) => authService.validateApiKey(request),
+	validateApiKey: (request, db) => authService.validateApiKey(request, db),
 	requireApiKey: (request, db, permission) => authService.requireApiKey(request, db, permission),
 	getUserById: (userId) => authService.getUserById(userId),
 	getUserByEmail: (email) => authService.getUserByEmail(email),

@@ -1,6 +1,5 @@
-import "./index-server.js";
-import { Q as attr, l as head, m as html, o as derived, pt as run } from "./dev.js";
-import { a as on } from "./internal.js";
+import { D as attr, a as derived, c as head, m as html, wt as run } from "./server2.js";
+import { u as on } from "./internal.js";
 import "clsx";
 globalThis.Date;
 var SvelteSet = globalThis.Set;

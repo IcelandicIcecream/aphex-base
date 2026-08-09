@@ -663,7 +663,7 @@ var customParseFormat_default = (function(o, C, d) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
 dayjs.extend(customParseFormat_default);
 var ISO_8601_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/;
 function isIso8601DateTime(value) {
@@ -1116,7 +1116,7 @@ var utc_default = (function(option, Dayjs, dayjs) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
 dayjs.extend(customParseFormat_default);
 dayjs.extend(utc_default);
 /**
@@ -1229,7 +1229,7 @@ function normalizeDateFields(data, schema) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
 /**
 * Check if a field is required based on its validation rules
 */
@@ -1282,6 +1282,12 @@ function validateValueShape(field, value) {
 			return isPlainObject(value.asset) && typeof value.asset._ref === "string" ? null : `${field.type} asset must be { _type: 'reference', _ref: '<assetId>' }`;
 		case "array": return Array.isArray(value) ? null : `expected an array, got ${describeValue(value)}`;
 		case "object": return isPlainObject(value) ? null : `expected an object, got ${describeValue(value)}`;
+		case "number":
+			if (value === "") return null;
+			return typeof value === "number" && Number.isFinite(value) ? null : `expected a number, got ${describeValue(value)}`;
+		case "boolean":
+			if (value === "") return null;
+			return typeof value === "boolean" ? null : `expected a boolean, got ${describeValue(value)}`;
 		default: return null;
 	}
 }
@@ -1383,18 +1389,23 @@ async function validateArrayItems(field, items, context) {
 			const declared = of.map((t) => t.name ?? t.type).join(", ") || "(none declared)";
 			results.push({
 				field: itemPath,
-				errors: [`has type "${gotType}", which is not one of the declared array item types: ${declared}`]
+				errors: [`has type "${gotType}", which is not one of the declared array item types: ${declared}`],
+				kind: "structural"
 			});
 			continue;
 		}
 		if (typeRef.type === "block") {
-			results.push(...validatePortableTextBlock(item, itemPath));
+			for (const err of validatePortableTextBlock(item, itemPath)) results.push({
+				...err,
+				kind: "structural"
+			});
 			continue;
 		}
 		if (typeRef.type === "reference") {
 			if (!isPlainObject(item) || typeof item._ref !== "string") results.push({
 				field: itemPath,
-				errors: [`expected a reference object { _type: 'reference', _ref: '<documentId>' }, got ${describeValue(item)}`]
+				errors: [`expected a reference object { _type: 'reference', _ref: '<documentId>' }, got ${describeValue(item)}`],
+				kind: "structural"
 			});
 			continue;
 		}
@@ -1402,7 +1413,8 @@ async function validateArrayItems(field, items, context) {
 			if (!isPlainObject(item)) {
 				results.push({
 					field: itemPath,
-					errors: [`expected an object, got ${describeValue(item)}`]
+					errors: [`expected an object, got ${describeValue(item)}`],
+					kind: "structural"
 				});
 				continue;
 			}
@@ -1411,7 +1423,8 @@ async function validateArrayItems(field, items, context) {
 				const { path, reason } = splitFieldMessage(rawMessage);
 				results.push({
 					field: `${itemPath}.${path ?? err.field}`,
-					errors: [reason]
+					errors: [reason],
+					kind: err.kind
 				});
 			}
 		}
@@ -1433,14 +1446,24 @@ async function validateField(field, value, context = {}) {
 		isValid: false,
 		errors: [{
 			level: "error",
-			message: `Field "${field.name}" ${shapeError}`
+			message: `Field "${field.name}" ${shapeError}`,
+			kind: "structural"
 		}]
 	};
+	if (field.type === "object" && isPlainObject(value) && Array.isArray(field.fields)) {
+		const nested = await validateFieldSet(field.fields, value, context);
+		for (const err of nested) allErrors.push({
+			level: "error",
+			message: `Field "${field.name}.${err.field}" ${err.errors.join("; ")}`,
+			kind: err.kind
+		});
+	}
 	if (field.type === "array" && Array.isArray(value)) {
 		const itemErrors = await validateArrayItems(field, value, context);
 		for (const err of itemErrors) allErrors.push({
 			level: "error",
-			message: `Field "${err.field}" ${err.errors.join("; ")}`
+			message: `Field "${err.field}" ${err.errors.join("; ")}`,
+			kind: err.kind
 		});
 	}
 	if (field.type === "date") {
@@ -1529,6 +1552,16 @@ async function validateField(field, value, context = {}) {
 */
 async function validateFieldSet(fields, data, context) {
 	const validationErrors = [];
+	const declared = new Set(fields.map((field) => field.name));
+	for (const key of Object.keys(data ?? {})) {
+		if (key.startsWith("_")) continue;
+		if (declared.has(key)) continue;
+		validationErrors.push({
+			field: key,
+			errors: [`Unknown field "${key}" — not declared in the schema`],
+			kind: "structural"
+		});
+	}
 	for (const field of fields) {
 		const value = data[field.name];
 		const result = await validateField(field, value, {
@@ -1536,10 +1569,12 @@ async function validateFieldSet(fields, data, context) {
 			document: context.document !== void 0 ? context.document : data
 		});
 		if (!result.isValid) {
-			const errorMessages = result.errors.filter((e) => e.level === "error").map((e) => e.message);
+			const errorEntries = result.errors.filter((e) => e.level === "error");
+			const errorMessages = errorEntries.map((e) => e.message);
 			if (errorMessages.length > 0) validationErrors.push({
 				field: field.name,
-				errors: errorMessages
+				errors: errorMessages,
+				kind: errorEntries.some((e) => e.kind === "structural") ? "structural" : "content"
 			});
 		}
 	}
@@ -1576,11 +1611,12 @@ async function validateDocumentData(schema, data, context = {}) {
 	return {
 		isValid: validationErrors.length === 0,
 		errors: validationErrors,
+		structuralErrors: validationErrors.filter((e) => e.kind === "structural"),
 		normalizedData
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
 var RESERVED_FIELD_NAMES = [
 	"id",
 	"type",

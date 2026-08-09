@@ -1,7 +1,5 @@
-import { o as hydratable } from "./index-server.js";
-import { At as stringify_key, Dt as get_type, Et as enumerable_symbols, Mt as valid_array_indices, Ot as is_plain_object$1, Tt as DevalueError, jt as stringify_string, kt as is_primitive } from "./dev.js";
 import { HttpError, SvelteKitError } from "@sveltejs/kit/internal";
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/utils/functions.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/utils/functions.js
 function noop() {}
 /**
 * @template T
@@ -18,7 +16,135 @@ function once(fn) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/devalue@5.8.0/node_modules/devalue/src/base64.js
+//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/constants.js
+var MAX_ARRAY_LEN = 2 ** 32 - 1;
+var MAX_ARRAY_INDEX = MAX_ARRAY_LEN - 1;
+//#endregion
+//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/utils.js
+/** @type {Record<string, string>} */
+var escaped = {
+	"<": "\\u003C",
+	"\\": "\\\\",
+	"\b": "\\b",
+	"\f": "\\f",
+	"\n": "\\n",
+	"\r": "\\r",
+	"	": "\\t",
+	"\u2028": "\\u2028",
+	"\u2029": "\\u2029"
+};
+var DevalueError = class extends Error {
+	/**
+	* @param {string} message
+	* @param {string[]} keys
+	* @param {any} [value] - The value that failed to be serialized
+	* @param {any} [root] - The root value being serialized
+	*/
+	constructor(message, keys, value, root) {
+		super(message);
+		this.name = "DevalueError";
+		this.path = keys.join("");
+		this.value = value;
+		this.root = root;
+	}
+};
+/** @param {any} thing */
+function is_primitive(thing) {
+	return thing === null || typeof thing !== "object" && typeof thing !== "function";
+}
+var object_proto_names$1 = /* @__PURE__ */ Object.getOwnPropertyNames(Object.prototype).sort().join("\0");
+/** @param {any} thing */
+function is_plain_object$1(thing) {
+	const proto = Object.getPrototypeOf(thing);
+	return proto === Object.prototype || proto === null || Object.getPrototypeOf(proto) === null || Object.getOwnPropertyNames(proto).sort().join("\0") === object_proto_names$1;
+}
+/** @param {any} thing */
+function get_type(thing) {
+	return Object.prototype.toString.call(thing).slice(8, -1);
+}
+/** @param {string} char */
+function get_escaped_char(char) {
+	switch (char) {
+		case "\"": return "\\\"";
+		case "<": return "\\u003C";
+		case "\\": return "\\\\";
+		case "\n": return "\\n";
+		case "\r": return "\\r";
+		case "	": return "\\t";
+		case "\b": return "\\b";
+		case "\f": return "\\f";
+		case "\u2028": return "\\u2028";
+		case "\u2029": return "\\u2029";
+		default: return char < " " ? `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}` : "";
+	}
+}
+/** @param {string} str */
+function stringify_string(str) {
+	let result = "";
+	let last_pos = 0;
+	const len = str.length;
+	for (let i = 0; i < len; i += 1) {
+		const char = str[i];
+		const replacement = get_escaped_char(char);
+		if (replacement) {
+			result += str.slice(last_pos, i) + replacement;
+			last_pos = i + 1;
+		}
+	}
+	return `"${last_pos === 0 ? str : result + str.slice(last_pos)}"`;
+}
+/** @param {Record<string | symbol, any>} object */
+function enumerable_symbols(object) {
+	return Object.getOwnPropertySymbols(object).filter((symbol) => Object.getOwnPropertyDescriptor(object, symbol).enumerable);
+}
+var is_identifier = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
+/** @param {string} key */
+function stringify_key(key) {
+	return is_identifier.test(key) ? "." + key : "[" + JSON.stringify(key) + "]";
+}
+/** @param {number} n */
+function is_valid_array_index(n) {
+	if (!Number.isInteger(n)) return false;
+	if (n < 0) return false;
+	if (n > MAX_ARRAY_INDEX) return false;
+	return true;
+}
+/** @param {number} n */
+function is_valid_array_len(n) {
+	if (!Number.isInteger(n)) return false;
+	if (n < 0) return false;
+	if (n > MAX_ARRAY_LEN) return false;
+	return true;
+}
+/** @param {string} s */
+function is_valid_array_index_string(s) {
+	if (s.length === 0) return false;
+	if (s.length > 1 && s.charCodeAt(0) === 48) return false;
+	for (let i = 0; i < s.length; i++) {
+		const c = s.charCodeAt(i);
+		if (c < 48 || c > 57) return false;
+	}
+	return is_valid_array_index(+s);
+}
+/**
+* Returns the length of the leading run of valid array indices in `keys`.
+* @param {readonly string[]} keys
+*/
+function array_index_cut(keys) {
+	for (var i = keys.length - 1; i >= 0; i--) if (is_valid_array_index_string(keys[i])) break;
+	return i + 1;
+}
+/**
+* Finds the populated indices of an array.
+* @param {unknown[]} array
+*/
+function valid_array_indices(array) {
+	const keys = Object.keys(array);
+	keys.length = array_index_cut(keys);
+	return keys;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/base64.js
 /**	@type {(array_buffer: ArrayBuffer) => string} */
 function encode_native(array_buffer) {
 	return new Uint8Array(array_buffer).toBase64();
@@ -59,21 +185,123 @@ var buffer = typeof process === "object" && process.versions?.node !== void 0;
 var encode64 = native ? encode_native : buffer ? encode_buffer : encode_legacy;
 var decode64 = native ? decode_native : buffer ? decode_buffer : decode_legacy;
 //#endregion
-//#region ../../node_modules/.pnpm/devalue@5.8.0/node_modules/devalue/src/parse.js
+//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/operations.js
+/**
+* Merges caller-provided operation overrides over the defaults. Iterating the
+* default keys (rather than the override's own keys) means nullish members
+* fall back to the default, and inherited members — e.g. from a class
+* instance — are picked up.
+*
+* @template {Record<string, any>} T
+* @param {T} defaults
+* @param {Partial<T> | undefined} overrides
+* @returns {T}
+*/
+function merge_operations(defaults, overrides) {
+	if (!overrides) return defaults;
+	const merged = {};
+	for (const key of Object.keys(defaults)) merged[key] = overrides[key] ?? defaults[key];
+	return merged;
+}
+/** @type {{ kind: 'not-plain' }} */
+var NOT_PLAIN = Object.freeze({ kind: "not-plain" });
+/** @type {{ kind: 'symbol-keys' }} */
+var SYMBOL_KEYS = Object.freeze({ kind: "symbol-keys" });
+var default_stringify_operations = Object.freeze({
+	identify: (value) => value,
+	typeOf: (value) => value === null ? "null" : typeof value,
+	toPrimitive: (value) => value,
+	tagOf: (value) => get_type(value),
+	isThenable: (value) => typeof value.then === "function",
+	toPromise: (thenable) => Promise.resolve(thenable),
+	unbox: (boxed) => boxed.valueOf(),
+	toISOString: (date) => isNaN(date.getDate()) ? "" : date.toISOString(),
+	toStringValue: (value) => value.toString(),
+	regExpInfo: (regexp) => ({
+		source: regexp.source,
+		flags: regexp.flags
+	}),
+	valuesOf: (set) => set,
+	entriesOf: (map) => map,
+	viewInfo: (view) => ({
+		buffer: view.buffer,
+		byteOffset: view.byteOffset,
+		byteLength: view.byteLength,
+		length: view.length,
+		bufferByteLength: view.buffer.byteLength
+	}),
+	toArrayBuffer: (buffer) => buffer,
+	lengthOf: (array) => array.length,
+	hasOwn: (value, key) => Object.hasOwn(value, key),
+	indicesOf: (array) => valid_array_indices(array),
+	shapeOf: (value) => {
+		if (!is_plain_object$1(value)) return NOT_PLAIN;
+		if (enumerable_symbols(value).length > 0) return SYMBOL_KEYS;
+		return {
+			kind: Object.getPrototypeOf(value) === null ? "null-proto" : "plain",
+			keys: Object.keys(value)
+		};
+	},
+	get: (value, key) => value[key]
+});
+var default_parse_operations = Object.freeze({
+	fromPrimitive: (primitive) => primitive,
+	fromISOString: (iso) => new Date(iso),
+	fromStringValue: (tag, text) => {
+		if (tag === "URL") return new URL(text);
+		if (tag === "URLSearchParams") return new URLSearchParams(text);
+		return Temporal[tag.slice(9)].from(text);
+	},
+	fromArrayBuffer: (buffer) => buffer,
+	fromRegExpInfo: (source, flags) => new RegExp(source, flags),
+	fromViewInfo: (tag, buffer, byteOffset, length) => {
+		const Constructor = globalThis[tag];
+		return byteOffset !== void 0 ? new Constructor(buffer, byteOffset, length) : new Constructor(buffer);
+	},
+	box: (value) => Object(value),
+	createArray: (length) => new Array(length),
+	createSparseArray: (length) => {
+		/** @type {any[]} */
+		const array = [];
+		array[MAX_ARRAY_INDEX] = void 0;
+		delete array[MAX_ARRAY_INDEX];
+		array.length = length;
+		return array;
+	},
+	createObject: () => ({}),
+	createNullPrototypeObject: () => Object.create(null),
+	createSet: () => /* @__PURE__ */ new Set(),
+	createMap: () => /* @__PURE__ */ new Map(),
+	set: (target, key, value) => {
+		target[key] = value;
+	},
+	addValue: (set, value) => {
+		set.add(value);
+	},
+	addEntry: (map, key, value) => {
+		map.set(key, value);
+	}
+});
+//#endregion
+//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/parse.js
 /**
 * Revive a value serialized with `devalue.stringify`
 * @param {string} serialized
 * @param {Record<string, (value: any) => any>} [revivers]
+* @param {import('./types.js').ParseOptions} [options]
 */
-function parse(serialized, revivers) {
-	return unflatten(JSON.parse(serialized), revivers);
+function parse(serialized, revivers, options) {
+	return unflatten(JSON.parse(serialized), revivers, options);
 }
 /**
 * Revive a value flattened with `devalue.stringify`
 * @param {number | any[]} parsed
 * @param {Record<string, (value: any) => any>} [revivers]
+* @param {import('./types.js').ParseOptions} [options]
 */
-function unflatten(parsed, revivers) {
+function unflatten(parsed, revivers, options) {
+	/** @type {import('./types.js').ParseOperations} */
+	const ops = merge_operations(default_parse_operations, options?.operations);
 	if (typeof parsed === "number") return hydrate(parsed, true);
 	if (!Array.isArray(parsed) || parsed.length === 0) throw new Error("Invalid input");
 	const values = parsed;
@@ -89,21 +317,22 @@ function unflatten(parsed, revivers) {
 	* @returns {any}
 	*/
 	function hydrate(index, standalone = false) {
-		if (index === -1) return void 0;
-		if (index === -3) return NaN;
-		if (index === -4) return Infinity;
-		if (index === -5) return -Infinity;
-		if (index === -6) return -0;
+		if (index === -1) return ops.fromPrimitive(void 0);
+		if (index === -3) return ops.fromPrimitive(NaN);
+		if (index === -4) return ops.fromPrimitive(Infinity);
+		if (index === -5) return ops.fromPrimitive(-Infinity);
+		if (index === -6) return ops.fromPrimitive(-0);
 		if (standalone || typeof index !== "number") throw new Error(`Invalid input`);
 		if (index in hydrated) return hydrated[index];
 		const value = values[index];
-		if (!value || typeof value !== "object") hydrated[index] = value;
+		if (!value || typeof value !== "object") hydrated[index] = ops.fromPrimitive(value);
 		else if (Array.isArray(value)) if (typeof value[0] === "string") {
 			const type = value[0];
 			const reviver = revivers && Object.hasOwn(revivers, type) ? revivers[type] : void 0;
 			if (reviver) {
 				let i = value[1];
 				if (typeof i !== "number") i = values.push(value[1]) - 1;
+				if (Object.hasOwn(hydrated, i)) return hydrated[index] = reviver(hydrated[i]);
 				hydrating ??= /* @__PURE__ */ new Set();
 				if (hydrating.has(i)) throw new Error("Invalid circular reference");
 				hydrating.add(i);
@@ -113,36 +342,36 @@ function unflatten(parsed, revivers) {
 			}
 			switch (type) {
 				case "Date":
-					hydrated[index] = new Date(value[1]);
+					hydrated[index] = ops.fromISOString(value[1]);
 					break;
 				case "Set":
-					const set = /* @__PURE__ */ new Set();
+					const set = ops.createSet();
 					hydrated[index] = set;
-					for (let i = 1; i < value.length; i += 1) set.add(hydrate(value[i]));
+					for (let i = 1; i < value.length; i += 1) ops.addValue(set, hydrate(value[i]));
 					break;
 				case "Map":
-					const map = /* @__PURE__ */ new Map();
+					const map = ops.createMap();
 					hydrated[index] = map;
-					for (let i = 1; i < value.length; i += 2) map.set(hydrate(value[i]), hydrate(value[i + 1]));
+					for (let i = 1; i < value.length; i += 2) ops.addEntry(map, hydrate(value[i]), hydrate(value[i + 1]));
 					break;
 				case "RegExp":
-					hydrated[index] = new RegExp(value[1], value[2]);
+					hydrated[index] = ops.fromRegExpInfo(value[1], value[2]);
 					break;
 				case "Object": {
 					const wrapped_index = value[1];
 					if (typeof values[wrapped_index] === "object" && values[wrapped_index][0] !== "BigInt") throw new Error("Invalid input");
-					hydrated[index] = Object(hydrate(wrapped_index));
+					hydrated[index] = ops.box(hydrate(wrapped_index));
 					break;
 				}
 				case "BigInt":
-					hydrated[index] = BigInt(value[1]);
+					hydrated[index] = ops.fromPrimitive(BigInt(value[1]));
 					break;
 				case "null":
-					const obj = Object.create(null);
+					const obj = ops.createNullPrototypeObject();
 					hydrated[index] = obj;
 					for (let i = 1; i < value.length; i += 2) {
 						if (value[i] === "__proto__") throw new Error("Cannot parse an object with a `__proto__` property");
-						obj[value[i]] = hydrate(value[i + 1]);
+						ops.set(obj, value[i], hydrate(value[i + 1]));
 					}
 					break;
 				case "Int8Array":
@@ -159,18 +388,18 @@ function unflatten(parsed, revivers) {
 				case "BigUint64Array":
 				case "DataView": {
 					if (values[value[1]][0] !== "ArrayBuffer") throw new Error("Invalid data");
-					const TypedArrayConstructor = globalThis[type];
 					const buffer = hydrate(value[1]);
-					hydrated[index] = value[2] !== void 0 ? new TypedArrayConstructor(buffer, value[2], value[3]) : new TypedArrayConstructor(buffer);
+					hydrated[index] = ops.fromViewInfo(type, buffer, value[2], value[3]);
 					break;
 				}
 				case "ArrayBuffer": {
 					const base64 = value[1];
 					if (typeof base64 !== "string") throw new Error("Invalid ArrayBuffer encoding");
-					const arraybuffer = decode64(base64);
-					hydrated[index] = arraybuffer;
+					hydrated[index] = ops.fromArrayBuffer(decode64(base64));
 					break;
 				}
+				case "URL":
+				case "URLSearchParams":
 				case "Temporal.Duration":
 				case "Temporal.Instant":
 				case "Temporal.PlainDate":
@@ -178,50 +407,36 @@ function unflatten(parsed, revivers) {
 				case "Temporal.PlainDateTime":
 				case "Temporal.PlainMonthDay":
 				case "Temporal.PlainYearMonth":
-				case "Temporal.ZonedDateTime": {
-					const temporalName = type.slice(9);
-					hydrated[index] = Temporal[temporalName].from(value[1]);
+				case "Temporal.ZonedDateTime":
+					hydrated[index] = ops.fromStringValue(type, value[1]);
 					break;
-				}
-				case "URL": {
-					const url = new URL(value[1]);
-					hydrated[index] = url;
-					break;
-				}
-				case "URLSearchParams": {
-					const url = new URLSearchParams(value[1]);
-					hydrated[index] = url;
-					break;
-				}
 				default: throw new Error(`Unknown type ${type}`);
 			}
 		} else if (value[0] === -7) {
 			const len = value[1];
-			if (!Number.isInteger(len) || len < 0) throw new Error("Invalid input");
-			const array = new Array(len);
+			if (!is_valid_array_len(len)) throw new Error("Invalid input");
+			const array = ops.createSparseArray(len);
 			hydrated[index] = array;
 			for (let i = 2; i < value.length; i += 2) {
 				const idx = value[i];
-				if (!Number.isInteger(idx) || idx < 0 || idx >= len) throw new Error("Invalid input");
-				array[idx] = hydrate(value[i + 1]);
+				if (!is_valid_array_index(idx) || idx >= len) throw new Error("Invalid input");
+				ops.set(array, idx, hydrate(value[i + 1]));
 			}
 		} else {
-			const array = new Array(value.length);
+			const array = ops.createArray(value.length);
 			hydrated[index] = array;
 			for (let i = 0; i < value.length; i += 1) {
 				const n = value[i];
 				if (n === -2) continue;
-				array[i] = hydrate(n);
+				ops.set(array, i, hydrate(n));
 			}
 		}
 		else {
-			/** @type {Record<string, any>} */
-			const object = {};
+			const object = ops.createObject();
 			hydrated[index] = object;
 			for (const key of Object.keys(value)) {
 				if (key === "__proto__") throw new Error("Cannot parse an object with a `__proto__` property");
-				const n = value[key];
-				object[key] = hydrate(n);
+				ops.set(object, key, hydrate(value[key]));
 			}
 		}
 		return hydrated[index];
@@ -229,22 +444,25 @@ function unflatten(parsed, revivers) {
 	return hydrate(0);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/devalue@5.8.0/node_modules/devalue/src/stringify.js
+//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/stringify.js
 /**
 * Turn a value into a JSON string that can be parsed with `devalue.parse`
 * @param {any} value
 * @param {Record<string, (value: any) => any>} [reducers]
+* @param {import('./types.js').StringifyOptions} [options]
 */
-function stringify$1(value, reducers) {
-	const stringified = run(false, value, reducers);
+function stringify$1(value, reducers, options) {
+	const stringified = run(false, value, reducers, options);
 	return typeof stringified === "string" ? stringified : `[${stringified.join(",")}]`;
 }
 /**
 * @param {boolean} async
 * @param {any} value
 * @param {Record<string, (value: any) => any>} [reducers]
+* @param {import('./types.js').StringifyOptions} [options]
 */
-function run(async, value, reducers) {
+function run(async, value, reducers, options) {
+	const ops = merge_operations(default_stringify_operations, options?.operations);
 	/** @type {any[]} */
 	const stringified = [];
 	/** @type {Map<any, number>} */
@@ -263,14 +481,21 @@ function run(async, value, reducers) {
 	* @param {number} [index]
 	*/
 	function flatten(thing, index) {
-		if (thing === void 0) return -1;
-		if (Number.isNaN(thing)) return -3;
-		if (thing === Infinity) return -4;
-		if (thing === -Infinity) return -5;
-		if (thing === 0 && 1 / thing < 0) return -6;
-		if (indexes.has(thing)) return indexes.get(thing);
+		const type = ops.typeOf(thing);
+		if (type === "undefined") return -1;
+		/** @type {number | undefined} */
+		let number;
+		if (type === "number") {
+			number = ops.toPrimitive(thing);
+			if (Number.isNaN(number)) return -3;
+			if (number === Infinity) return -4;
+			if (number === -Infinity) return -5;
+			if (number === 0 && 1 / number < 0) return -6;
+		}
+		const id = ops.identify(thing);
+		if (indexes.has(id)) return indexes.get(id);
 		index ??= p++;
-		indexes.set(thing, index);
+		indexes.set(id, index);
 		for (const { key, fn } of custom) {
 			const value = fn(thing);
 			if (value) {
@@ -278,59 +503,60 @@ function run(async, value, reducers) {
 				return index;
 			}
 		}
-		if (typeof thing === "function") throw new DevalueError(`Cannot stringify a function`, keys, thing, value);
-		else if (typeof thing === "symbol") throw new DevalueError(`Cannot stringify a Symbol primitive`, keys, thing, value);
+		if (type === "function") throw new DevalueError(`Cannot stringify a function`, keys, thing, value);
+		else if (type === "symbol") throw new DevalueError(`Cannot stringify a Symbol primitive`, keys, thing, value);
 		/** @type {string | Promise<any>} */
 		let str = "";
-		if (is_primitive(thing)) str = stringify_primitive(thing);
-		else if (typeof thing.then === "function") {
+		if (type !== "object") str = stringify_primitive(type === "number" ? number : ops.toPrimitive(thing));
+		else if (ops.isThenable(thing)) {
 			if (!async) throw new DevalueError(`Cannot stringify a Promise or thenable — use stringifyAsync instead`, keys, thing, value);
-			str = Promise.resolve(thing).then((value) => {
+			str = ops.toPromise(thing).then((value) => {
 				const i = flatten(value, index);
 				if (i < 0) stringified[index] = i;
 			});
 		} else {
-			const type = get_type(thing);
-			switch (type) {
+			const tag = ops.tagOf(thing);
+			switch (tag) {
 				case "Number":
 				case "String":
 				case "Boolean":
 				case "BigInt":
-					str = `["Object",${flatten(thing.valueOf())}]`;
+					str = `["Object",${flatten(ops.unbox(thing))}]`;
 					break;
 				case "Date":
-					str = `["Date","${!isNaN(thing.getDate()) ? thing.toISOString() : ""}"]`;
+					str = `["Date","${ops.toISOString(thing)}"]`;
 					break;
 				case "URL":
-					str = `["URL",${stringify_string(thing.toString())}]`;
+					str = `["URL",${stringify_string(ops.toStringValue(thing))}]`;
 					break;
 				case "URLSearchParams":
-					str = `["URLSearchParams",${stringify_string(thing.toString())}]`;
+					str = `["URLSearchParams",${stringify_string(ops.toStringValue(thing))}]`;
 					break;
 				case "RegExp":
-					const { source, flags } = thing;
+					const { source, flags } = ops.regExpInfo(thing);
 					str = flags ? `["RegExp",${stringify_string(source)},"${flags}"]` : `["RegExp",${stringify_string(source)}]`;
 					break;
 				case "Array": {
 					let mostly_dense = false;
+					const length = ops.lengthOf(thing);
 					str = "[";
-					for (let i = 0; i < thing.length; i += 1) {
+					for (let i = 0; i < length; i += 1) {
 						if (i > 0) str += ",";
-						if (Object.hasOwn(thing, i)) {
+						if (ops.hasOwn(thing, i)) {
 							keys.push(`[${i}]`);
-							str += flatten(thing[i]);
+							str += flatten(ops.get(thing, i));
 							keys.pop();
 						} else if (mostly_dense) str += -2;
 						else {
-							const populated_keys = valid_array_indices(thing);
+							const populated_keys = ops.indicesOf(thing);
 							const population = populated_keys.length;
-							const d = String(thing.length).length;
-							if ((thing.length - population) * 3 > 4 + d + population * (d + 1)) {
-								str = "[-7," + thing.length;
+							const d = String(length).length;
+							if ((length - population) * 3 > 4 + d + population * (d + 1)) {
+								str = "[-7," + length;
 								for (let j = 0; j < populated_keys.length; j++) {
 									const key = populated_keys[j];
 									keys.push(`[${key}]`);
-									str += "," + key + "," + flatten(thing[key]);
+									str += "," + key + "," + flatten(ops.get(thing, key));
 									keys.pop();
 								}
 								break;
@@ -345,13 +571,15 @@ function run(async, value, reducers) {
 				}
 				case "Set":
 					str = "[\"Set\"";
-					for (const value of thing) str += `,${flatten(value)}`;
+					for (const value of ops.valuesOf(thing)) str += `,${flatten(value)}`;
 					str += "]";
 					break;
 				case "Map":
 					str = "[\"Map\"";
-					for (const [key, value] of thing) {
-						keys.push(`.get(${is_primitive(key) ? stringify_primitive(key) : "..."})`);
+					for (const [key, value] of ops.entriesOf(thing)) {
+						const key_type = ops.typeOf(key);
+						const key_is_primitive = key_type !== "object" && key_type !== "function" && key_type !== "symbol";
+						keys.push(`.get(${key_is_primitive ? stringify_primitive(ops.toPrimitive(key)) : "..."})`);
 						str += `,${flatten(key)},${flatten(value)}`;
 						keys.pop();
 					}
@@ -368,17 +596,22 @@ function run(async, value, reducers) {
 				case "Float32Array":
 				case "Float64Array":
 				case "BigInt64Array":
-				case "BigUint64Array":
+				case "BigUint64Array": {
+					const info = ops.viewInfo(thing);
+					str = "[\"" + tag + "\"," + flatten(info.buffer);
+					if (info.byteLength !== info.bufferByteLength) str += `,${info.byteOffset},${info.length}`;
+					str += "]";
+					break;
+				}
 				case "DataView": {
-					/** @type {import("./types.js").TypedArray} */
-					const typedArray = thing;
-					str = "[\"" + type + "\"," + flatten(typedArray.buffer);
-					if (typedArray.byteLength !== typedArray.buffer.byteLength) str += `,${typedArray.byteOffset},${typedArray.length}`;
+					const info = ops.viewInfo(thing);
+					str = "[\"" + tag + "\"," + flatten(info.buffer);
+					if (info.byteLength !== info.bufferByteLength) str += `,${info.byteOffset},${info.byteLength}`;
 					str += "]";
 					break;
 				}
 				case "ArrayBuffer":
-					str = `["ArrayBuffer","${encode64(thing)}"]`;
+					str = `["ArrayBuffer","${encode64(ops.toArrayBuffer(thing))}"]`;
 					break;
 				case "Temporal.Duration":
 				case "Temporal.Instant":
@@ -388,33 +621,35 @@ function run(async, value, reducers) {
 				case "Temporal.PlainMonthDay":
 				case "Temporal.PlainYearMonth":
 				case "Temporal.ZonedDateTime":
-					str = `["${type}",${stringify_string(thing.toString())}]`;
+					str = `["${tag}",${stringify_string(ops.toStringValue(thing))}]`;
 					break;
-				default:
-					if (!is_plain_object$1(thing)) throw new DevalueError(`Cannot stringify arbitrary non-POJOs`, keys, thing, value);
-					if (enumerable_symbols(thing).length > 0) throw new DevalueError(`Cannot stringify POJOs with symbolic keys`, keys, thing, value);
-					if (Object.getPrototypeOf(thing) === null) {
+				default: {
+					const shape = ops.shapeOf(thing);
+					if (shape.kind === "not-plain") throw new DevalueError(`Cannot stringify arbitrary non-POJOs`, keys, thing, value);
+					if (shape.kind === "symbol-keys") throw new DevalueError(`Cannot stringify POJOs with symbolic keys`, keys, thing, value);
+					if (shape.kind === "null-proto") {
 						str = "[\"null\"";
-						for (const key of Object.keys(thing)) {
+						for (const key of shape.keys) {
 							if (key === "__proto__") throw new DevalueError(`Cannot stringify objects with __proto__ keys`, keys, thing, value);
 							keys.push(stringify_key(key));
-							str += `,${stringify_string(key)},${flatten(thing[key])}`;
+							str += `,${stringify_string(key)},${flatten(ops.get(thing, key))}`;
 							keys.pop();
 						}
 						str += "]";
 					} else {
 						str = "{";
 						let started = false;
-						for (const key of Object.keys(thing)) {
+						for (const key of shape.keys) {
 							if (key === "__proto__") throw new DevalueError(`Cannot stringify objects with __proto__ keys`, keys, thing, value);
 							if (started) str += ",";
 							started = true;
 							keys.push(stringify_key(key));
-							str += `${stringify_string(key)}:${flatten(thing[key])}`;
+							str += `${stringify_string(key)}:${flatten(ops.get(thing, key))}`;
 							keys.pop();
 						}
 						str += "}";
 					}
+				}
 			}
 		}
 		stringified[index] = str;
@@ -437,7 +672,7 @@ function stringify_primitive(thing) {
 	return String(thing);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/runtime/utils.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/runtime/utils.js
 var text_encoder = new TextEncoder();
 /**
 * Like node's path.relative, but without using node
@@ -481,7 +716,7 @@ function base64_decode(encoded) {
 	return bytes;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/utils/error.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/utils/error.js
 /**
 * @param {unknown} err
 * @return {Error}
@@ -511,7 +746,7 @@ function get_message(error) {
 	return error instanceof SvelteKitError ? error.text : "Internal Error";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/runtime/shared.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/runtime/shared.js
 /** @import { Transport } from '@sveltejs/kit' */
 /**
 * @param {string} route_id
@@ -570,6 +805,7 @@ function to_sorted(value, clones) {
 var remote_object = "__skrao";
 var remote_map = "__skram";
 var remote_set = "__skras";
+var remote_file = "__skraf";
 var remote_regex_guard = "__skrag";
 var remote_arg_marker = Symbol(remote_object);
 /**
@@ -579,7 +815,9 @@ var remote_arg_marker = Symbol(remote_object);
 */
 function create_remote_arg_reducers(transport, sort, remote_arg_clones) {
 	/** @type {Record<string, (value: unknown) => unknown>} */
-	const remote_fns_reducers = { [remote_regex_guard]: (value) => {
+	const remote_fns_reducers = { 
+	/** @param {unknown} value */
+[remote_regex_guard]: (value) => {
 		if (value instanceof RegExp) throw new Error("Regular expressions are not valid remote function arguments");
 	} };
 	if (sort) {
@@ -647,6 +885,12 @@ function create_remote_arg_revivers(transport) {
 				set.add(parse$1(item));
 			}
 			return set;
+		},
+		/** @type {(value: any) => File} */
+		[remote_file]: (value) => {
+			if (!value || typeof value !== "object" || typeof value.name !== "string" || typeof value.type !== "string" || typeof value.size !== "number" || typeof value.lastModified !== "number" || !(value.data instanceof ArrayBuffer)) throw new Error("Invalid data for File reviver");
+			const { data, name, ...meta } = value;
+			return new File([data], name, meta);
 		}
 	};
 	const all_revivers = {
@@ -662,12 +906,18 @@ function create_remote_arg_revivers(transport) {
 * it is both a valid URL and a valid file name (necessary for prerendering).
 * @param {any} value
 * @param {Transport} transport
-* @param {boolean} [sort]
 */
-function stringify_remote_arg(value, transport, sort = true) {
+function stringify_remote_arg(value, transport) {
 	if (value === void 0) return "";
-	const json_string = stringify$1(value, create_remote_arg_reducers(transport, sort, /* @__PURE__ */ new Map()));
-	return base64_encode(text_encoder.encode(json_string)).replaceAll("=", "").replaceAll("+", "-").replaceAll("/", "_");
+	return url_friendly_base64_encode(stringify$1(value, create_remote_arg_reducers(transport, true, /* @__PURE__ */ new Map())));
+}
+/**
+* Base64-encodes `string` in such a way that the result is safe to use
+* as both a URI component and a filename
+* @param {string} string
+*/
+function url_friendly_base64_encode(string) {
+	return base64_encode(text_encoder.encode(string)).replaceAll("=", "").replaceAll("+", "-").replaceAll("/", "_");
 }
 /**
 * Parses the argument (if any) for a remote function
@@ -697,16 +947,5 @@ function split_remote_key(key) {
 		payload: key.slice(i + 1)
 	};
 }
-/**
-* @template T
-* @param {string} key
-* @param {() => T} fn
-* @returns {T}
-* @deprecated TODO remove in SvelteKit 3.0
-*/
-function unfriendly_hydratable(key, fn) {
-	if (!hydratable) throw new Error("Remote functions require Svelte 5.44.0 or later");
-	return hydratable(key, fn);
-}
 //#endregion
-export { once as C, noop as S, get_relative_path as _, split_remote_key as a, parse as b, unfriendly_hydratable as c, coalesce_to_error as d, get_message as f, base64_encode as g, base64_decode as h, parse_remote_arg as i, validate_depends as l, normalize_error as m, TRAILING_SLASH_PARAM as n, stringify as o, get_status as p, create_remote_key as r, stringify_remote_arg as s, INVALIDATED_PARAM as t, validate_load_response as u, text_encoder as v, unflatten as x, stringify$1 as y };
+export { noop as A, escaped as C, stringify_key as D, is_primitive as E, stringify_string as O, enumerable_symbols as S, is_plain_object$1 as T, text_encoder as _, split_remote_key as a, unflatten as b, validate_depends as c, get_message as d, get_status as f, get_relative_path as g, base64_encode as h, parse_remote_arg as i, once as j, valid_array_indices as k, validate_load_response as l, base64_decode as m, TRAILING_SLASH_PARAM as n, stringify as o, normalize_error as p, create_remote_key as r, stringify_remote_arg as s, INVALIDATED_PARAM as t, coalesce_to_error as u, stringify$1 as v, get_type as w, DevalueError as x, parse as y };

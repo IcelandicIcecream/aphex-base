@@ -1,5 +1,5 @@
 import { i as apikey, r as drizzleDb } from "../../../../../../chunks/db.js";
-import { o as hasCapability } from "../../../../../../chunks/capabilities.js";
+import { s as hasCapability } from "../../../../../../chunks/resolver.js";
 import "../../../../../../chunks/dist.js";
 import { error } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";

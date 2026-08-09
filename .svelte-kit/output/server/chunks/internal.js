@@ -1,5 +1,6 @@
-import "./index-server.js";
-import { A as init_operations, B as push, D as create_text, G as set_hydrate_node, H as hydrate_next, K as set_hydrating, L as queue_micro_task, M as set, N as boundary, O as get_first_child, P as flushSync, R as component_context, T as clear_text_content, U as hydrate_node, W as hydrating, X as hydration_failed, _ as active_reaction, b as set_active_reaction, d as render, g as active_effect, h as is_passive_event, it as async_mode_flag, j as mutable_source, k as get_next_sibling, lt as array_from, nt as HYDRATION_ERROR, o as derived, ot as LEGACY_PROPS, q as hydration_mismatch, ut as define_property, v as get, vt as setContext, w as without_reactive_context, x as component_root, y as set_active_effect, z as pop } from "./dev.js";
+import { r as __exportAll } from "./rolldown-runtime.js";
+import "./server.js";
+import { $ as component_context, A as is_passive_event, E as getAbortSignal, F as get, G as get_first_child, H as clear_text_content, I as set_active_effect, J as mutable_source, K as get_next_sibling, L as set_active_reaction, N as active_effect, P as active_reaction, Q as queue_micro_task, R as component_root, S as ssr_context, St as noop, T as lifecycle_function_unavailable, V as without_reactive_context, W as create_text, X as boundary, Y as set, Z as flushSync, _ as createContext, _t as LEGACY_PROPS, a as derived, at as hydrate_node, b as hasContext, bt as array_from, ct as set_hydrating, et as pop, g as get_render_context, gt as experimental_async_required, h as uneval, it as hydrate_next, lt as hydration_mismatch, mt as hydration_failed, ot as hydrating, pt as HYDRATION_ERROR, q as init_operations, rt as async_mode_flag, st as set_hydrate_node, tt as push, u as render, v as getAllContexts, w as hydratable_serialization_failed, wt as run, x as setContext, xt as define_property, y as getContext } from "./server2.js";
 //#region \0virtual:__sveltekit/server
 var read_implementation = null;
 function set_read_implementation(fn) {
@@ -171,7 +172,7 @@ function append(anchor, dom) {
 * @param {MountOptions<Props>} options
 * @returns {Exports}
 */
-function mount(component, options) {
+function mount$1(component, options) {
 	return _mount(component, options);
 }
 /**
@@ -199,7 +200,7 @@ function mount(component, options) {
 * 	}} options
 * @returns {Exports}
 */
-function hydrate(component, options) {
+function hydrate$1(component, options) {
 	init_operations();
 	options.intro = options.intro ?? false;
 	const target = options.target;
@@ -224,7 +225,7 @@ function hydrate(component, options) {
 		init_operations();
 		clear_text_content(target);
 		set_hydrating(false);
-		return mount(component, options);
+		return mount$1(component, options);
 	} finally {
 		set_hydrating(was_hydrating);
 		set_hydrate_node(previous_hydrate_node);
@@ -328,7 +329,7 @@ var mounted_components = /* @__PURE__ */ new WeakMap();
 * @param {{ outro?: boolean }} [options]
 * @returns {Promise<void>}
 */
-function unmount(component, options) {
+function unmount$1(component, options) {
 	const fn = mounted_components.get(component);
 	if (fn) {
 		mounted_components.delete(component);
@@ -423,7 +424,7 @@ var Svelte4Component = class {
 				return Reflect.set(target, prop, value);
 			}
 		});
-		this.#instance = (options.hydrate ? hydrate : mount)(options.component, {
+		this.#instance = (options.hydrate ? hydrate$1 : mount$1)(options.component, {
 			target: options.target,
 			anchor: options.anchor,
 			props,
@@ -451,7 +452,7 @@ var Svelte4Component = class {
 			Object.assign(props, next);
 		};
 		this.#instance.$destroy = () => {
-			unmount(this.#instance);
+			unmount$1(this.#instance);
 		};
 	}
 	/** @param {Record<string, any>} props */
@@ -547,6 +548,136 @@ value: (onfulfilled, onrejected) => {
 	component_constructor.render = _render;
 	return component_constructor;
 }
+//#endregion
+//#region ../../node_modules/.pnpm/svelte@5.55.5_@typescript-eslint+types@8.57.2/node_modules/svelte/src/internal/server/hydratable.js
+/** @import { HydratableLookupEntry } from '#server' */
+/**
+* @template T
+* @param {string} key
+* @param {() => T} fn
+* @returns {T}
+*/
+function hydratable(key, fn) {
+	if (!async_mode_flag) experimental_async_required("hydratable");
+	const { hydratable } = get_render_context();
+	let entry = hydratable.lookup.get(key);
+	if (entry !== void 0) return entry.value;
+	const value = fn();
+	entry = encode(key, value, hydratable.unresolved_promises);
+	hydratable.lookup.set(key, entry);
+	return value;
+}
+/**
+* @param {string} key
+* @param {any} value
+* @param {Map<Promise<any>, string>} [unresolved]
+*/
+function encode(key, value, unresolved) {
+	/** @type {HydratableLookupEntry} */
+	const entry = {
+		value,
+		serialized: ""
+	};
+	let uid = 1;
+	entry.serialized = uneval(entry.value, (value, uneval) => {
+		if (is_promise(value)) {
+			const placeholder = `"${uid++}"`;
+			const p = value.then((v) => {
+				entry.serialized = entry.serialized.replace(placeholder, `r(${uneval(v)})`);
+			}).catch((devalue_error) => hydratable_serialization_failed(key, serialization_stack(entry.stack, devalue_error?.stack)));
+			unresolved?.set(p, key);
+			p.catch(() => {}).finally(() => unresolved?.delete(p));
+			(entry.promises ??= []).push(p);
+			return placeholder;
+		}
+	});
+	return entry;
+}
+/**
+* @param {any} value
+* @returns {value is Promise<any>}
+*/
+function is_promise(value) {
+	return Object.prototype.toString.call(value) === "[object Promise]";
+}
+/**
+* @param {string | undefined} root_stack
+* @param {string | undefined} uneval_stack
+*/
+function serialization_stack(root_stack, uneval_stack) {
+	let out = "";
+	if (root_stack) out += root_stack + "\n";
+	if (uneval_stack) out += "Caused by:\n" + uneval_stack + "\n";
+	return out || "<missing stack trace>";
+}
+//#endregion
+//#region ../../node_modules/.pnpm/svelte@5.55.5_@typescript-eslint+types@8.57.2/node_modules/svelte/src/internal/server/blocks/snippet.js
+/** @import { Snippet } from 'svelte' */
+/** @import { Renderer } from '../renderer' */
+/** @import { Getters } from '#shared' */
+/**
+* Create a snippet programmatically
+* @template {unknown[]} Params
+* @param {(...params: Getters<Params>) => {
+*   render: () => string
+*   setup?: (element: Element) => void | (() => void)
+* }} fn
+* @returns {Snippet<Params>}
+*/
+function createRawSnippet(fn) {
+	return (renderer, ...args) => {
+		var getters = args.map((value) => () => value);
+		renderer.push(fn(...getters).render().trim());
+	};
+}
+//#endregion
+//#region ../../node_modules/.pnpm/svelte@5.55.5_@typescript-eslint+types@8.57.2/node_modules/svelte/src/index-server.js
+/** @import { SSRContext } from '#server' */
+/** @import { Renderer } from './internal/server/renderer.js' */
+var index_server_exports = /* @__PURE__ */ __exportAll({
+	afterUpdate: () => noop,
+	beforeUpdate: () => noop,
+	createContext: () => createContext,
+	createEventDispatcher: () => createEventDispatcher,
+	createRawSnippet: () => createRawSnippet,
+	flushSync: () => noop,
+	fork: () => fork,
+	getAbortSignal: () => getAbortSignal,
+	getAllContexts: () => getAllContexts,
+	getContext: () => getContext,
+	hasContext: () => hasContext,
+	hydratable: () => hydratable,
+	hydrate: () => hydrate,
+	mount: () => mount,
+	onDestroy: () => onDestroy,
+	onMount: () => noop,
+	setContext: () => setContext,
+	settled: () => settled,
+	tick: () => tick,
+	unmount: () => unmount,
+	untrack: () => run
+});
+/** @param {() => void} fn */
+function onDestroy(fn) {
+	/** @type {Renderer} */ ssr_context.r.on_destroy(fn);
+}
+function createEventDispatcher() {
+	return noop;
+}
+function mount() {
+	lifecycle_function_unavailable("mount");
+}
+function hydrate() {
+	lifecycle_function_unavailable("hydrate");
+}
+function unmount() {
+	lifecycle_function_unavailable("unmount");
+}
+function fork() {
+	lifecycle_function_unavailable("fork");
+}
+async function tick() {}
+async function settled() {}
 //#endregion
 //#region .svelte-kit/generated/root.svelte
 function Root($$renderer, $$props) {
@@ -677,6 +808,12 @@ function Root($$renderer, $$props) {
 	});
 }
 //#endregion
+//#region .svelte-kit/generated/root.js
+var root_default = asClassComponent(Root);
+//#endregion
+//#region .svelte-kit/generated/shared/error-template.js
+var error_template_default = ({ status, message }) => "<!doctype html>\n<html lang=\"en\">\n	<head>\n		<meta charset=\"utf-8\" />\n		<title>" + message + "</title>\n\n		<style>\n			body {\n				--bg: white;\n				--fg: #222;\n				--divider: #ccc;\n				background: var(--bg);\n				color: var(--fg);\n				font-family:\n					system-ui,\n					-apple-system,\n					BlinkMacSystemFont,\n					'Segoe UI',\n					Roboto,\n					Oxygen,\n					Ubuntu,\n					Cantarell,\n					'Open Sans',\n					'Helvetica Neue',\n					sans-serif;\n				display: flex;\n				align-items: center;\n				justify-content: center;\n				height: 100vh;\n				margin: 0;\n			}\n\n			.error {\n				display: flex;\n				align-items: center;\n				max-width: 32rem;\n				margin: 0 1rem;\n			}\n\n			.status {\n				font-weight: 200;\n				font-size: 3rem;\n				line-height: 1;\n				position: relative;\n				top: -0.05rem;\n			}\n\n			.message {\n				border-left: 1px solid var(--divider);\n				padding: 0 0 0 1rem;\n				margin: 0 0 0 1rem;\n				min-height: 2.5rem;\n				display: flex;\n				align-items: center;\n			}\n\n			.message h1 {\n				font-weight: 400;\n				font-size: 1em;\n				margin: 0;\n			}\n\n			@media (prefers-color-scheme: dark) {\n				body {\n					--bg: #222;\n					--fg: #ddd;\n					--divider: #666;\n				}\n			}\n		</style>\n	</head>\n	<body>\n		<div class=\"error\">\n			<span class=\"status\">" + status + "</span>\n			<div class=\"message\">\n				<h1>" + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n";
+//#endregion
 //#region .svelte-kit/generated/server/internal.js
 var options = {
 	app_template_contains_nonce: false,
@@ -700,15 +837,15 @@ var options = {
 	hash_routing: false,
 	hooks: null,
 	preload_strategy: "modulepreload",
-	root: asClassComponent(Root),
+	root: root_default,
 	service_worker: false,
 	service_worker_options: void 0,
 	server_error_boundaries: false,
 	templates: {
 		app: ({ head, body, assets, nonce, env }) => "<!doctype html>\n<html lang=\"en\">\n	<head>\n		<meta charset=\"utf-8\" />\n		<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n		<link rel=\"icon\" href=\"" + assets + "/favicon.svg\" type=\"image/svg+xml\" />\n		" + head + "\n	</head>\n	<body data-sveltekit-preload-data=\"hover\">\n		<div style=\"display: contents\">" + body + "</div>\n	</body>\n</html>\n",
-		error: ({ status, message }) => "<!doctype html>\n<html lang=\"en\">\n	<head>\n		<meta charset=\"utf-8\" />\n		<title>" + message + "</title>\n\n		<style>\n			body {\n				--bg: white;\n				--fg: #222;\n				--divider: #ccc;\n				background: var(--bg);\n				color: var(--fg);\n				font-family:\n					system-ui,\n					-apple-system,\n					BlinkMacSystemFont,\n					'Segoe UI',\n					Roboto,\n					Oxygen,\n					Ubuntu,\n					Cantarell,\n					'Open Sans',\n					'Helvetica Neue',\n					sans-serif;\n				display: flex;\n				align-items: center;\n				justify-content: center;\n				height: 100vh;\n				margin: 0;\n			}\n\n			.error {\n				display: flex;\n				align-items: center;\n				max-width: 32rem;\n				margin: 0 1rem;\n			}\n\n			.status {\n				font-weight: 200;\n				font-size: 3rem;\n				line-height: 1;\n				position: relative;\n				top: -0.05rem;\n			}\n\n			.message {\n				border-left: 1px solid var(--divider);\n				padding: 0 0 0 1rem;\n				margin: 0 0 0 1rem;\n				min-height: 2.5rem;\n				display: flex;\n				align-items: center;\n			}\n\n			.message h1 {\n				font-weight: 400;\n				font-size: 1em;\n				margin: 0;\n			}\n\n			@media (prefers-color-scheme: dark) {\n				body {\n					--bg: #222;\n					--fg: #ddd;\n					--divider: #666;\n				}\n			}\n		</style>\n	</head>\n	<body>\n		<div class=\"error\">\n			<span class=\"status\">" + status + "</span>\n			<div class=\"message\">\n				<h1>" + message + "</h1>\n			</div>\n		</div>\n	</body>\n</html>\n"
+		error: error_template_default
 	},
-	version_hash: "gwjbb3"
+	version_hash: "6z43ch"
 };
 async function get_hooks() {
 	let handle;
@@ -730,4 +867,4 @@ async function get_hooks() {
 	};
 }
 //#endregion
-export { on as a, set_read_implementation as c, append as i, options as n, read_implementation as o, createClassComponent as r, set_manifest as s, get_hooks as t };
+export { settled as a, createClassComponent as c, read_implementation as d, set_manifest as f, mount as i, append as l, options as n, tick as o, set_read_implementation as p, index_server_exports as r, unmount as s, get_hooks as t, on as u };

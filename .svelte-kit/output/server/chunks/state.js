@@ -1,36 +1,14 @@
-import "./index-server.js";
-import { gt as getContext } from "./dev.js";
-import { i as navigating$1, r as stores } from "./client.js";
-Object.defineProperty({
-	get from() {
-		return navigating$1.current ? navigating$1.current.from : null;
-	},
-	get to() {
-		return navigating$1.current ? navigating$1.current.to : null;
-	},
-	get type() {
-		return navigating$1.current ? navigating$1.current.type : null;
-	},
-	get willUnload() {
-		return navigating$1.current ? navigating$1.current.willUnload : null;
-	},
-	get delta() {
-		return navigating$1.current ? navigating$1.current.delta : null;
-	},
-	get complete() {
-		return navigating$1.current ? navigating$1.current.complete : null;
-	}
-}, "current", { get() {
-	throw new Error("Replace navigating.current.<prop> with navigating.<prop>");
-} });
+import { y as getContext } from "./server2.js";
+import "./internal.js";
+import { r as stores } from "./client.js";
 stores.updated.check;
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/runtime/app/state/server.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/runtime/app/state/server.js
 function context() {
 	return getContext("__request__");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@sveltejs+kit@2.59.1_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_b04ba523657186a84b6a74c1243122db/node_modules/@sveltejs/kit/src/runtime/app/state/index.js
+//#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/runtime/app/state/index.js
 /**
 * A read-only reactive object with information about the current page, serving several use cases:
 * - retrieving the combined `data` of all pages/layouts anywhere in your component tree (also see [loading data](https://svelte.dev/docs/kit/load))

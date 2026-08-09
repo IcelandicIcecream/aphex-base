@@ -2,7 +2,7 @@ import { t as cmsLogger } from "./logger.js";
 import { t as authToContext } from "./auth-helpers.js";
 import { n as toPascalCase, t as toCamelCase } from "./string-case.js";
 import { GraphQLError, Kind } from "graphql";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/graphql/schema.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/graphql/schema.js
 function generateGraphQLField(field, schemaTypes, parentName = "") {
 	const nullability = isFieldRequired(field) ? "!" : "";
 	const fieldType = getGraphQLType(field, schemaTypes, parentName);
@@ -306,7 +306,7 @@ ${inlineTypeDefs}
 `.trim();
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/utils/field-defaults.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/field-defaults.js
 /**
 * Get the default value for a field type
 * @param fieldType - The field type
@@ -322,7 +322,7 @@ function getDefaultValueForFieldType(fieldType) {
 	}
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/graphql/resolvers.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/graphql/resolvers.js
 function normalizeDocumentFields(data, schemaType, allSchemaTypes) {
 	if (!data) return data;
 	const normalized = { ...data };
@@ -784,7 +784,7 @@ function createResolvers(cms, schemaTypes, defaultPerspective = "published") {
 	return resolvers;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/graphql/depth-limit.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/graphql/depth-limit.js
 function depthLimit(maxDepth, options = {}) {
 	return (validationContext) => {
 		const { definitions } = validationContext.getDocument();
@@ -836,7 +836,7 @@ function seeIfIgnored(fieldName, ignore) {
 	return false;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/graphql/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/graphql/index.js
 var MAX_QUERY_DEPTH = 10;
 /**
 * Creates a GraphQL handler for the CMS.

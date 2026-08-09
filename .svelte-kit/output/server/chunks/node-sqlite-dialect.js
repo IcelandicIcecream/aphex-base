@@ -1,10 +1,14 @@
-import { CompiledQuery, DEFAULT_MIGRATION_LOCK_TABLE, DEFAULT_MIGRATION_TABLE, DefaultQueryCompiler, sql } from "kysely";
-//#region ../../node_modules/.pnpm/@better-auth+kysely-adapter@1.5.3_@better-auth+core@1.5.3_@better-auth+utils@0.3.1_@bet_5186b0592e9bdae316885c332b83d7e0/node_modules/@better-auth/kysely-adapter/dist/node-sqlite-dialect.mjs
+import { n as DEFAULT_MIGRATION_TABLE, t as DEFAULT_MIGRATION_LOCK_TABLE } from "./kysely-migration-tables-B2-rTeXm.js";
+import { CompiledQuery, DefaultQueryCompiler, sql } from "kysely";
+//#region ../../node_modules/.pnpm/@better-auth+kysely-adapter@1.6.25_@better-auth+core@1.6.25_@better-auth+utils@0.4.2_@b_88eec0ea5b2cc80ce9897437ef60bea4/node_modules/@better-auth/kysely-adapter/dist/node-sqlite-dialect.mjs
 var NodeSqliteAdapter = class {
 	get supportsCreateIfNotExists() {
 		return true;
 	}
 	get supportsTransactionalDdl() {
+		return false;
+	}
+	get supportsMultipleConnections() {
 		return false;
 	}
 	get supportsReturning() {
@@ -56,8 +60,15 @@ var NodeSqliteConnection = class {
 	}
 	executeQuery(compiledQuery) {
 		const { sql, parameters } = compiledQuery;
-		const rows = this.#db.prepare(sql).all(...parameters);
-		return Promise.resolve({ rows });
+		const stmt = this.#db.prepare(sql);
+		const params = parameters;
+		if (stmt.columns().length > 0) return Promise.resolve({ rows: stmt.all(...params) });
+		const { changes, lastInsertRowid } = stmt.run(...params);
+		return Promise.resolve({
+			rows: [],
+			numAffectedRows: BigInt(changes),
+			insertId: typeof lastInsertRowid === "bigint" ? lastInsertRowid : BigInt(lastInsertRowid)
+		});
 	}
 	async *streamQuery() {
 		throw new Error("Streaming query is not supported by SQLite driver.");
@@ -93,9 +104,6 @@ var NodeSqliteIntrospector = class {
 		const tables = await query.execute();
 		return Promise.all(tables.map(({ name }) => this.#getTableMetadata(name)));
 	}
-	async getMetadata(options) {
-		return { tables: await this.getTables(options) };
-	}
 	async #getTableMetadata(table) {
 		const db = this.#db;
 		const autoIncrementCol = (await db.selectFrom("sqlite_master").where("name", "=", table).select("sql").$castTo().execute())[0]?.sql?.split(/[\(\),]/)?.find((it) => it.toLowerCase().includes("autoincrement"))?.split(/\s+/)?.[0]?.replace(/["`]/g, "");
@@ -113,7 +121,8 @@ var NodeSqliteIntrospector = class {
 				isAutoIncrementing: col.name === autoIncrementCol,
 				hasDefaultValue: col.dflt_value != null
 			})),
-			isView: true
+			isView: false,
+			isForeign: false
 		};
 	}
 };

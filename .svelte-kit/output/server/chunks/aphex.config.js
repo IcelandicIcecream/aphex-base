@@ -1,31 +1,11 @@
-import { n as private_env } from "./shared-server.js";
+import { t as private_env } from "./shared-server.js";
 import { t as db } from "./db.js";
-import { t as createPartResolver } from "./resolver.js";
+import { a as createCMSConfig, i as createStorageAdapter } from "./server3.js";
 import { a as emailConfig, i as email, r as cacheAdapter } from "./service.js";
-import { i as createStorageAdapter } from "./server.js";
 import { t as authProvider } from "./auth.js";
 import { t as plugins } from "./plugins.js";
 import { t as schemaTypes } from "./schemaTypes.js";
 import { s3Storage } from "@aphexcms/storage-s3";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/config.js
-function createCMSConfig(config) {
-	const resolver = createPartResolver(config.plugins ?? []);
-	const pluginSchemas = resolver.schemaTypes();
-	const mergedSchemas = resolver.applySchemaTransforms([...config.schemaTypes, ...pluginSchemas]);
-	return {
-		...config,
-		schemaTypes: mergedSchemas,
-		storage: config.storage ?? null,
-		customization: {
-			branding: {
-				title: "Aphex CMS",
-				...config.customization?.branding
-			},
-			...config.customization
-		}
-	};
-}
-//#endregion
 //#region src/lib/server/email/invitation-hook.ts
 /**
 * Wrap the built-in `/api/organizations/invitations` POST so a successful

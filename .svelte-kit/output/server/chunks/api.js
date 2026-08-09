@@ -1,4 +1,4 @@
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/client.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/client.js
 var DEFAULT_BASE_URL = "/api";
 var DEFAULT_TIMEOUT = 1e4;
 var ApiError = class extends Error {
@@ -102,7 +102,7 @@ var ApiClient = class {
 };
 var apiClient = new ApiClient();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/documents.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/documents.js
 var DocumentsApi = class {
 	/**
 	* List documents with optional filtering
@@ -257,7 +257,7 @@ var documents = {
 	restoreVersion: DocumentsApi.restoreVersion.bind(DocumentsApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/organizations.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/organizations.js
 var OrganizationsApi = class {
 	/**
 	* List user's organizations
@@ -331,7 +331,8 @@ var OrganizationsApi = class {
 		return apiClient.delete("/organizations/invitations", data);
 	}
 	/**
-	* Delete an organization (super_admin only)
+	* Delete an organization, its media, and every membership in it. Owners only —
+	* enforced by the route, not here.
 	*/
 	static async remove(id) {
 		return apiClient.delete(`/organizations/${id}`);
@@ -352,7 +353,7 @@ var organizations = {
 	cancelInvitation: OrganizationsApi.cancelInvitation.bind(OrganizationsApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/roles.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/roles.js
 var RolesApi = class {
 	/** List all roles (built-in + custom) for the active organization. */
 	static async list() {
@@ -378,7 +379,7 @@ var roles = {
 	remove: RolesApi.remove.bind(RolesApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/assets.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/assets.js
 var AssetsApi = class {
 	/**
 	* List assets with optional filters
@@ -441,7 +442,7 @@ var assets = {
 	getReferenceCounts: AssetsApi.getReferenceCounts.bind(AssetsApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/user.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/user.js
 var UserApi = class {
 	/**
 	* Update user profile
@@ -461,7 +462,7 @@ var user = {
 	updatePreferences: UserApi.updatePreferences.bind(UserApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/api-keys.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/api-keys.js
 var ApiKeysApi = class {
 	/**
 	* Create a new API key
@@ -481,7 +482,7 @@ var apiKeys = {
 	remove: ApiKeysApi.remove.bind(ApiKeysApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/invitations.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/invitations.js
 var InvitationsApi = class {
 	/**
 	* List all pending invitations for the authenticated user
@@ -508,7 +509,7 @@ var invitations = {
 	reject: InvitationsApi.reject.bind(InvitationsApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.8.1_5f1480b54aa9be386878aaf454b05f6d/node_modules/@aphexcms/cms-core/dist/api/instance.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/instance.js
 var InstanceApi = class {
 	/**
 	* Get instance settings
