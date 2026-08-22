@@ -33,7 +33,7 @@
 		"test:date": "tsx scripts/test-date-localapi.ts"
 	},
 	"dependencies": {
-		"@aphexcms/cms-core": "^9.9.0",
+		"@aphexcms/cms-core": "^9.10.0",
 		"@aphexcms/nodemailer-adapter": "^15.0.1",
 		"@aphexcms/postgresql-adapter": "^14.5.0",
 		"@aphexcms/resend-adapter": "^14.0.2",

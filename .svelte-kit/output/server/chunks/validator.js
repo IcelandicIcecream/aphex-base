@@ -663,7 +663,7 @@ var customParseFormat_default = (function(o, C, d) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
 dayjs.extend(customParseFormat_default);
 var ISO_8601_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/;
 function isIso8601DateTime(value) {
@@ -1116,7 +1116,7 @@ var utc_default = (function(option, Dayjs, dayjs) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
 dayjs.extend(customParseFormat_default);
 dayjs.extend(utc_default);
 /**
@@ -1229,7 +1229,7 @@ function normalizeDateFields(data, schema) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
 /**
 * Check if a field is required based on its validation rules
 */
@@ -1616,7 +1616,7 @@ async function validateDocumentData(schema, data, context = {}) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
 var RESERVED_FIELD_NAMES = [
 	"id",
 	"type",

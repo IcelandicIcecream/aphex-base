@@ -1,7 +1,8 @@
-import { c as head, d as spread_props, k as escape_html } from "../../../../chunks/server2.js";
-import { i as Switch } from "../../../../chunks/stega.js";
+import { c as head, d as spread_props, k as escape_html, wt as run } from "../../../../chunks/server2.js";
+import "../../../../chunks/internal.js";
 import { t as instance } from "../../../../chunks/api.js";
 import "../../../../chunks/navigation.js";
+import { i as Switch } from "../../../../chunks/stega.js";
 import { O as Input, t as Label } from "../../../../chunks/label.js";
 import { a as Dialog_header, i as Dialog_content, n as Dialog_trigger, o as Dialog_footer, r as Dialog_description, s as Dialog_title, t as Root } from "../../../../chunks/dialog.js";
 import { t as Button } from "../../../../chunks/button.js";
@@ -227,7 +228,7 @@ function CreateOrganization($$renderer, $$props) {
 function _page($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { data } = $$props;
-		let allowUserOrgCreation = data.instanceSettings?.allowUserOrgCreation ?? false;
+		let allowUserOrgCreation = run(() => data.instanceSettings?.allowUserOrgCreation ?? false);
 		let saving = false;
 		async function toggleOrgCreation(checked) {
 			saving = true;

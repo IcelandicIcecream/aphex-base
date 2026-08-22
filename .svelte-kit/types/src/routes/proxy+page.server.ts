@@ -17,9 +17,15 @@ export const load = async ({ locals }: Parameters<PageServerLoad>[0]) => {
 
 	const context = { ...systemContext(org.id), perspective: 'published' as const };
 
+	// `public: true` strips organizationId/createdBy/updatedBy/publishedHash
+	// from each document's `_meta` before it leaves this call. Whatever this
+	// load() returns gets serialized straight into the page's hydration
+	// payload for every visitor (and crawler) to read in page source — set
+	// this on any read used to render a public-facing page.
 	const { docs } = await locals.aphexCMS.localAPI.collections.page.find(context, {
 		limit: 20,
-		sort: ['-updatedAt']
+		sort: ['-updatedAt'],
+		public: true
 	});
 
 	return { pages: docs };

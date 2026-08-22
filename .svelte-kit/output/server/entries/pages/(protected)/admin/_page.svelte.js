@@ -3,14 +3,15 @@ import "../../../../chunks/internal.js";
 import { t as createPartResolver } from "../../../../chunks/resolver.js";
 import "../../../../chunks/validator.js";
 import { t as cmsLogger } from "../../../../chunks/logger.js";
+import { n as resolvePreviewTitle } from "../../../../chunks/preview.js";
 import "../../../../chunks/schema-utils.js";
-import { $ as chunk, At as setSchemaContext, Ct as useSidebar, Dt as setAdminNav, E as Chevron_down, Et as usePermissions, G as Popper_layer, J as getFloatingContentCSSVars, K as Floating_layer_anchor, L as X, O as Calendar_clock, Ot as setFieldComponents, Q as useId, R as Icon, St as srOnlyStylesString, T as Chevron_right, Tt as setPermissionsContext, U as SafePolygon, W as Popper_layer_force_mount, _ as Refresh_cw, _t as ENTER, b as Image, bt as watch, ct as RovingFocusGroup, d as notifyDocumentChanged, dt as isHTMLElement, et as isValidIndex, ft as isTouch, g as Search, gt as ARROW_UP, ht as ARROW_RIGHT, j as Circle_check, jt as resolvePreviewTitle, k as toast, kt as useAdminSlots, lt as isBrowser, mt as ARROW_LEFT, n as confirmDialog, nt as Portal, ot as noop$1, p as Trash_2, pt as ARROW_DOWN, q as Floating_layer, rt as resolveLocaleProp, st as PresenceManager, t as ConfirmDialogHost, tt as isTabbable, ut as isElement, vt as DOMContext, w as Circle_alert, wt as setBlockPreviews, x as File_text, xt as Context, yt as afterTick, z as Separator } from "../../../../chunks/stega.js";
 import "../../../../chunks/utils2.js";
 import { a as assets, c as documents, l as ApiError } from "../../../../chunks/api.js";
 import { t as collectReferenceIds } from "../../../../chunks/reference-walk.js";
 import { t as goto } from "../../../../chunks/client.js";
 import "../../../../chunks/navigation.js";
 import { t as page } from "../../../../chunks/state.js";
+import { $ as chunk, At as setSchemaContext, Ct as useSidebar, Dt as setAdminNav, E as Chevron_down, Et as usePermissions, G as Popper_layer, J as getFloatingContentCSSVars, K as Floating_layer_anchor, L as X, O as Calendar_clock, Ot as setFieldComponents, Q as useId, R as Icon, St as srOnlyStylesString, T as Chevron_right, Tt as setPermissionsContext, U as SafePolygon, W as Popper_layer_force_mount, _ as Refresh_cw, _t as ENTER, b as Image, bt as watch, ct as RovingFocusGroup, d as notifyDocumentChanged, dt as isHTMLElement, et as isValidIndex, ft as isTouch, g as Search, gt as ARROW_UP, ht as ARROW_RIGHT, j as Circle_check, k as toast, kt as useAdminSlots, lt as isBrowser, mt as ARROW_LEFT, n as confirmDialog, nt as Portal, ot as noop$1, p as Trash_2, pt as ARROW_DOWN, q as Floating_layer, rt as resolveLocaleProp, st as PresenceManager, t as ConfirmDialogHost, tt as isTabbable, ut as isElement, vt as DOMContext, w as Circle_alert, wt as setBlockPreviews, x as File_text, xt as Context, yt as afterTick, z as Separator } from "../../../../chunks/stega.js";
 import { a as SvelteMap, o as SvelteSet, s as SvelteURLSearchParams } from "../../../../chunks/dist5.js";
 import { t as cn } from "../../../../chunks/utils3.js";
 import { O as Input, d as getDataTransitionAttrs, f as attachRef, i as boolToStr, n as createId, o as boolToTrueOrUndef, p as mergeProps, r as boolToEmptyStrOrUndef, s as createBitsAttrs, t as Label, u as getDataOpenClosed, x as boxWith } from "../../../../chunks/label.js";
@@ -27,7 +28,7 @@ import { t as activeTabState } from "../../../../chunks/activeTab.svelte.js";
 import { t as schemaTypes } from "../../../../chunks/schemaTypes.js";
 import { n as Alert_description, r as Alert, t as Alert_title } from "../../../../chunks/alert.js";
 import { CalendarDate, CalendarDateTime, DateFormatter, ZonedDateTime, endOfMonth, getDayOfWeek, getLocalTimeZone, isEqualMonth, isSameDay, isSameMonth, isToday, parseDate, parseDateTime, parseZonedDateTime, startOfMonth, toCalendar, today } from "@internationalized/date";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
 /**
 * Content hashing utilities for document version tracking
 * Includes timestamp for proper change detection and UX
@@ -5465,7 +5466,7 @@ function Popover_trigger($$renderer, $$props) {
 //#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/popover/index.js
 var Root = Popover;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
 /**
 * Copy a URL to the clipboard, showing a toast on success/failure.
 */
@@ -5492,7 +5493,7 @@ function downloadFile(url, filename) {
 	document.body.removeChild(a);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
 function MediaBrowser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/** When true, shows a "Select" button for picking an asset */
@@ -6372,7 +6373,7 @@ function MediaBrowser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
 /**
 * Simple English pluralization.
 * Handles common patterns: y→ies, s/sh/ch/x/z→es, otherwise appends s.
@@ -6384,13 +6385,13 @@ function pluralize(word) {
 	return word + "s";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
 var SAVE_STATE_KEY = Symbol("aphex-save-state");
 function setSaveStateContext(state) {
 	setContext(SAVE_STATE_KEY, state);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
 function AdminSlot($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { name, id, order = 0, children } = $$props;
@@ -6398,7 +6399,7 @@ function AdminSlot($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/ScheduleDialog.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/ScheduleDialog.svelte
 function ScheduleDialog($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -6651,7 +6652,7 @@ function ScheduleDialog($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
 var KEY = Symbol("aphex:richtext-editors");
 function setRichtextEditorRegistry() {
 	const registry = /* @__PURE__ */ new Map();
@@ -6659,7 +6660,7 @@ function setRichtextEditorRegistry() {
 	return registry;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
 function parsedValue($$renderer, key, val, depth) {
 	if (val && typeof val === "object") {
 		$$renderer.push("<!--[0-->");
@@ -7650,7 +7651,7 @@ function DocumentEditor($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
 function DocumentVersionPanel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { documentId, onClose, onPreviewVersion } = $$props;
@@ -7753,7 +7754,7 @@ function DocumentVersionPanel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
 function AdminApp($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -8088,7 +8089,7 @@ function AdminApp($$renderer, $$props) {
 		let $$settled = true;
 		let $$inner_renderer;
 		function $$render_inner($$renderer) {
-			head("1hxxig8", $$renderer, ($$renderer) => {
+			head("jxvok", $$renderer, ($$renderer) => {
 				$$renderer.title(($$renderer) => {
 					$$renderer.push(`<title>${escape_html(activeTab.value === "structure" ? "Content" : activeTab.value === "media" ? "Media" : "Vision")} - ${escape_html(title)}</title>`);
 				});

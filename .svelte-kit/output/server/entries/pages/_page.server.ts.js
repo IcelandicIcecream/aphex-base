@@ -9,7 +9,8 @@ var load = async ({ locals }) => {
 	};
 	const { docs } = await locals.aphexCMS.localAPI.collections.page.find(context, {
 		limit: 20,
-		sort: ["-updatedAt"]
+		sort: ["-updatedAt"],
+		public: true
 	});
 	return { pages: docs };
 };

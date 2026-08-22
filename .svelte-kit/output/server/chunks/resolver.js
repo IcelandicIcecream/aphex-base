@@ -1,5 +1,5 @@
 import { z } from "zod";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/types/capabilities.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/types/capabilities.js
 /**
 * Enumerate every capability. Useful for owner seeding and validation.
 */
@@ -330,7 +330,7 @@ function effectiveOrganizationRole(auth) {
 }
 var EMPTY = /* @__PURE__ */ new Set();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/define-event.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/define-event.js
 function defineEvent(type, schema) {
 	return {
 		type,
@@ -339,7 +339,7 @@ function defineEvent(type, schema) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/catalog.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/catalog.js
 /** Emitted after a document's draft is copied to published, inside the publish transaction. */
 var documentPublished = defineEvent("document.published", z.object({
 	documentId: z.string(),
@@ -364,7 +364,7 @@ var userDeleted = defineEvent("user.deleted", z.object({
 	image: z.string().nullable()
 }));
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/built-in-consumers.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/built-in-consumers.js
 /** Extract the asset id from an avatar path, or null if it isn't one of ours. */
 function avatarAssetId(image) {
 	return /^\/media\/([^/]+)\//.exec(image)?.[1] ?? null;
@@ -388,7 +388,7 @@ var BUILT_IN_EVENT_CONSUMERS = [{
 	}
 }];
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/plugins/resolver.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/plugins/resolver.js
 function createPartResolver(plugins = []) {
 	const allParts = [...BUILT_IN_EVENT_CONSUMERS, ...plugins.flatMap((p) => p.parts ?? [])];
 	const seen = /* @__PURE__ */ new Map();

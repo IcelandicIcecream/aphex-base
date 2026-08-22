@@ -1,8 +1,8 @@
 import { a as derived, c as head, d as spread_props, k as escape_html, s as ensure_array_like } from "../../../../../../chunks/server2.js";
-import { Et as usePermissions, R as Icon, a as Root, c as Select_item, g as Search, h as Send, k as toast, n as confirmDialog, o as Select_trigger, s as Select_content, y as Mail } from "../../../../../../chunks/stega.js";
 import { s as organizations } from "../../../../../../chunks/api.js";
 import { n as invalidateAll } from "../../../../../../chunks/client.js";
 import "../../../../../../chunks/navigation.js";
+import { Et as usePermissions, R as Icon, a as Root, c as Select_item, g as Search, h as Send, k as toast, n as confirmDialog, o as Select_trigger, s as Select_content, y as Mail } from "../../../../../../chunks/stega.js";
 import { O as Input } from "../../../../../../chunks/label.js";
 import { n as Avatar_image, r as Avatar, t as Avatar_fallback } from "../../../../../../chunks/avatar.js";
 import { t as Button } from "../../../../../../chunks/button.js";

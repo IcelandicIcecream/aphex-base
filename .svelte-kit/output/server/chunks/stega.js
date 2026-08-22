@@ -1,6 +1,7 @@
 import { D as attr, O as clsx, a as derived, b as hasContext, d as spread_props, f as stringify, i as bind_props, k as escape_html, l as props_id, m as html$2, n as attr_style, o as element, r as attributes, s as ensure_array_like, t as attr_class, v as getAllContexts, wt as run, x as setContext, y as getContext } from "./server2.js";
 import { i as mount, o as tick, s as unmount, u as on } from "./internal.js";
 import "./settings.js";
+import { n as resolvePreviewTitle } from "./preview.js";
 import { u as apiClient } from "./api.js";
 import { t as goto } from "./client.js";
 import "./navigation.js";
@@ -13,96 +14,13 @@ import { n as buttonVariants, t as Button } from "./button.js";
 import "./badge.js";
 import "./card.js";
 import { tv } from "tailwind-variants";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/preview.js
-/**
-* Walk a dot-path (e.g. `seo.title`) through an object. Returns the
-* terminal value, or `undefined` if any segment along the way is missing.
-*
-* Quoted strings (single or double) are treated as literals and returned
-* as-is, e.g. `'"My Title"'` → `'My Title'`. Useful for singletons or
-* any schema that needs a static preview title.
-*/
-function readPath(item, path) {
-	const match = path.match(/^(['"])(.+)\1$/);
-	if (match) return match[2];
-	let current = item;
-	for (const segment of path.split(".")) {
-		if (current == null) return void 0;
-		current = current[segment];
-	}
-	return current;
-}
-/**
-* Coerce a value into a printable string for preview rows. Returns `null`
-* when the value isn't worth rendering (empty, nullish, non-primitive).
-*/
-function toPreviewString(value) {
-	if (typeof value === "string") {
-		const trimmed = value.trim();
-		return trimmed ? trimmed : null;
-	}
-	if (typeof value === "number" && Number.isFinite(value)) return String(value);
-	if (typeof value === "boolean") return value ? "true" : "false";
-	return null;
-}
-/**
-* Conventional fallback field names for the title slot when a schema
-* doesn't declare a `preview.select.title`. Mirrors Sanity's heuristic
-* — the first non-empty string wins.
-*/
-var DEFAULT_TITLE_FIELDS = [
-	"title",
-	"heading",
-	"name",
-	"label"
-];
-/**
-* Run `preview.prepare` if defined: resolve every dot-path in `select`,
-* pass the resolved selection map to `prepare`, and return the result.
-* Returns `null` when no `prepare` is configured — callers should fall
-* back to direct `select.title` / `select.subtitle` reads in that case.
-*/
-function runPrepare(item, schema) {
-	const prepare = schema?.preview?.prepare;
-	if (!prepare) return null;
-	const select = schema?.preview?.select ?? {};
-	const selection = {};
-	for (const [key, path] of Object.entries(select)) selection[key] = readPath(item, path);
-	return prepare(selection);
-}
-/**
-* Resolve the title to display for an item (array row, document list row,
-* reference picker row, editor breadcrumb). Precedence: `preview.prepare()` →
-* literal `preview.title` → `select.title` dot-path → conventional field names →
-* schema title → type name.
-*/
-function resolvePreviewTitle(item, schema, defaultTypeLabel) {
-	const prepared = runPrepare(item, schema);
-	if (prepared) {
-		const resolved = toPreviewString(prepared.title);
-		if (resolved) return resolved;
-	} else {
-		const literal = toPreviewString(schema?.preview?.title);
-		if (literal) return literal;
-		const configured = schema?.preview?.select?.title;
-		if (configured) {
-			const resolved = toPreviewString(readPath(item, configured));
-			if (resolved) return resolved;
-		} else for (const name of DEFAULT_TITLE_FIELDS) {
-			const resolved = toPreviewString(item?.[name]);
-			if (resolved) return resolved;
-		}
-	}
-	return schema?.title ?? defaultTypeLabel ?? "Untitled";
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-context.svelte.js
 var SCHEMA_CONTEXT_KEY = Symbol("aphex-schemas");
 function setSchemaContext(schemas) {
 	setContext(SCHEMA_CONTEXT_KEY, schemas);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/slots.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/slots.svelte.js
 var AdminSlots = class {
 	#slots = new SvelteMap();
 	/**
@@ -141,13 +59,13 @@ function useAdminSlots() {
 	return getContext(ADMIN_SLOTS_KEY);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/field-components.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/field-components.svelte.js
 var FIELD_COMPONENTS_KEY = Symbol.for("aphex.admin.field-components");
 function setFieldComponents(lookup) {
 	setContext(FIELD_COMPONENTS_KEY, lookup);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/nav.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/nav.svelte.js
 var ADMIN_NAV_KEY = Symbol.for("aphex.admin.nav");
 function setAdminNav(basePath = "/admin") {
 	const nav = createAdminNav(basePath);
@@ -218,7 +136,7 @@ function createAdminNav(basePath = "/admin") {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/permissions-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/permissions-context.svelte.js
 var KEY = Symbol.for("aphex.permissions");
 function setPermissionsContext(getCapabilities, getRole = () => null) {
 	const ctx = {
@@ -271,7 +189,7 @@ function warnOnce() {
 	if (typeof window !== "undefined") console.warn("[aphex] usePermissions() called outside a PermissionsContext provider. All capability checks will return false. Call setPermissionsContext() in an ancestor.");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/block-previews.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/block-previews.svelte.js
 var BLOCK_PREVIEWS_KEY = Symbol.for("aphex.admin.block-previews");
 function setBlockPreviews(lookup) {
 	setContext(BLOCK_PREVIEWS_KEY, lookup);
@@ -14926,7 +14844,7 @@ function Dropdown_menu_trigger($$renderer, $$props) {
 }
 var Root$2 = Menu;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/OrganizationSwitcher.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/OrganizationSwitcher.svelte
 function OrganizationSwitcher($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { organizations: orgs = [], activeOrganization, canCreateOrganization = false, onOpenChange } = $$props;
@@ -15196,7 +15114,7 @@ function Collapsible_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavMain.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavMain.svelte
 function NavMain($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { items, label = "Content", isActive: isActiveProp } = $$props;
@@ -15366,7 +15284,7 @@ function NavMain($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavUser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavUser.svelte
 function NavUser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { user, onSignOut } = $$props;
@@ -15481,7 +15399,7 @@ function NavUser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/AppSidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/AppSidebar.svelte
 function AppSidebar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const activeView = derived(() => page.url.pathname === "/admin" ? page.url.searchParams.get("view") ?? "" : "");
@@ -19866,7 +19784,7 @@ function createDOMPurify() {
 }
 var purify = createDOMPurify();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/agent-chat-state.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/agent-chat-state.svelte.js
 var STORAGE_KEY = "aphex:agent-chat-state:v1";
 function loadPersisted() {
 	if (typeof localStorage === "undefined") return null;
@@ -19914,7 +19832,7 @@ function createAgentChatState() {
 }
 var agentChatState = createAgentChatState();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/document-workspace-registry.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/document-workspace-registry.svelte.js
 function createDocumentWorkspaceRegistry() {
 	let current = null;
 	return {
@@ -19934,7 +19852,7 @@ function createDocumentWorkspaceRegistry() {
 }
 var documentWorkspaceRegistry = createDocumentWorkspaceRegistry();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/agent-chat.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/agent-chat.js
 function parseSSEFrame(frame) {
 	const payload = frame.split(/\r?\n/).filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart()).join("\n");
 	if (!payload) return null;
@@ -19989,7 +19907,7 @@ function recordWorkspaceOperation(body) {
 	return apiClient.post("/agent/operations", body);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/document-refresh.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/document-refresh.svelte.js
 var versions = new SvelteMap();
 function notifyDocumentChanged(documentId) {
 	if (!documentId) return;
@@ -20001,7 +19919,7 @@ function notifyCollectionChanged(docType) {
 	collectionVersions.set(docType, (collectionVersions.get(docType) ?? 0) + 1);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/AgentChat.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/AgentChat.svelte
 function AgentChat($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/** A suggestion can be a bare string, or `{ text, icon }` for a leading icon — the plain
@@ -20801,7 +20719,7 @@ function AgentChat($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/Sidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/Sidebar.svelte
 function Sidebar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const slots = setAdminSlots();
@@ -21366,7 +21284,7 @@ function Switch($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/PluginSettingsPanel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/PluginSettingsPanel.svelte
 function PluginSettingsPanel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -21385,7 +21303,7 @@ function PluginSettingsPanel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/confirm-dialog.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/confirm-dialog.svelte.js
 var confirmDialogState = {
 	open: false,
 	title: "",
@@ -21707,7 +21625,7 @@ function Alert_dialog_description($$renderer, $$props) {
 //#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/index.js
 var Root = Alert_dialog;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/ConfirmDialogHost.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/ConfirmDialogHost.svelte
 function ConfirmDialogHost($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		function handleOpenChange(open) {
@@ -21792,4 +21710,4 @@ function ConfirmDialogHost($$renderer, $$props) {
 	});
 }
 //#endregion
-export { chunk as $, Triangle_alert as A, setSchemaContext as At, Dialog_content as B, Copy as C, useSidebar as Ct, Check as D, setAdminNav as Dt, Chevron_down as E, usePermissions as Et, Sheet_header as F, Popper_layer as G, Dialog as H, Sheet_content as I, getFloatingContentCSSVars as J, Floating_layer_anchor as K, X$1 as L, Root$3 as M, Sheet_description as N, Calendar_clock as O, setFieldComponents as Ot, Sheet_title as P, useId as Q, Icon as R, Database as S, srOnlyStylesString as St, Chevron_right as T, setPermissionsContext as Tt, SafePolygon as U, Dialog_close as V, Popper_layer_force_mount as W, Dialog_description as X, Hidden_input as Y, Dialog_overlay as Z, Refresh_cw as _, ENTER as _t, Root$1 as a, DialogTriggerState as at, Image as b, watch$1 as bt, Select_item as c, RovingFocusGroup as ct, notifyDocumentChanged as d, isHTMLElement$1 as dt, isValidIndex as et, Textarea as f, isTouch as ft, Search as g, ARROW_UP as gt, Send as h, ARROW_RIGHT as ht, Switch as i, Dialog_title as it, Circle_check as j, resolvePreviewTitle as jt, toast as k, useAdminSlots as kt, Select_group as l, isBrowser$1 as lt, Sparkles as m, ARROW_LEFT as mt, confirmDialog as n, Portal$3 as nt, Select_trigger as o, noop as ot, Trash_2 as p, ARROW_DOWN as pt, Floating_layer as q, PluginSettingsPanel as r, resolveLocaleProp as rt, Select_content as s, PresenceManager as st, ConfirmDialogHost as t, isTabbable as tt, Sidebar as u, isElement$1 as ut, Pencil as v, DOMContext as vt, Circle_alert as w, setBlockPreviews as wt, File_text as x, Context$1 as xt, Mail as y, afterTick as yt, Separator as z };
+export { chunk as $, Triangle_alert as A, setSchemaContext as At, Dialog_content as B, Copy as C, useSidebar as Ct, Check as D, setAdminNav as Dt, Chevron_down as E, usePermissions as Et, Sheet_header as F, Popper_layer as G, Dialog as H, Sheet_content as I, getFloatingContentCSSVars as J, Floating_layer_anchor as K, X$1 as L, Root$3 as M, Sheet_description as N, Calendar_clock as O, setFieldComponents as Ot, Sheet_title as P, useId as Q, Icon as R, Database as S, srOnlyStylesString as St, Chevron_right as T, setPermissionsContext as Tt, SafePolygon as U, Dialog_close as V, Popper_layer_force_mount as W, Dialog_description as X, Hidden_input as Y, Dialog_overlay as Z, Refresh_cw as _, ENTER as _t, Root$1 as a, DialogTriggerState as at, Image as b, watch$1 as bt, Select_item as c, RovingFocusGroup as ct, notifyDocumentChanged as d, isHTMLElement$1 as dt, isValidIndex as et, Textarea as f, isTouch as ft, Search as g, ARROW_UP as gt, Send as h, ARROW_RIGHT as ht, Switch as i, Dialog_title as it, Circle_check as j, toast as k, useAdminSlots as kt, Select_group as l, isBrowser$1 as lt, Sparkles as m, ARROW_LEFT as mt, confirmDialog as n, Portal$3 as nt, Select_trigger as o, noop as ot, Trash_2 as p, ARROW_DOWN as pt, Floating_layer as q, PluginSettingsPanel as r, resolveLocaleProp as rt, Select_content as s, PresenceManager as st, ConfirmDialogHost as t, isTabbable as tt, Sidebar as u, isElement$1 as ut, Pencil as v, DOMContext as vt, Circle_alert as w, setBlockPreviews as wt, File_text as x, Context$1 as xt, Mail as y, afterTick as yt, Separator as z };

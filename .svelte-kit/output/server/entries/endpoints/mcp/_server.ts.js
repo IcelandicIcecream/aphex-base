@@ -12348,7 +12348,7 @@ var StreamableHTTPTransport = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/routes/mcp.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/routes/mcp.js
 var SERVER_INFO = {
 	name: "aphexcms",
 	version: "0.1.0"

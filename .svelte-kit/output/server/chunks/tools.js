@@ -2,6 +2,7 @@ import { s as __toESM } from "./rolldown-runtime.js";
 import { c as isInstanceRole, o as effectiveOrganizationRole, s as hasCapability, u as resolveCapabilities } from "./resolver.js";
 import { a as validateDocumentData, i as isFieldRequired, n as VALID_FIELD_TYPES, r as validateSchemaReferences, t as RESERVED_FIELDS } from "./validator.js";
 import { t as cmsLogger } from "./logger.js";
+import { t as readPath } from "./preview.js";
 import { t as emitDocumentPublished } from "./emit.js";
 import { t as collectReferenceIds } from "./reference-walk.js";
 import { n as systemContext } from "./auth-helpers.js";
@@ -9,7 +10,51 @@ import { n as toPascalCase } from "./string-case.js";
 import { z } from "zod";
 import { lookup } from "node:dns/promises";
 import net from "node:net";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/singleton.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/utils.js
+/**
+* Conventional fallback field names for search when a schema doesn't declare
+* an explicit `search` config. Mirrors the title-resolution fallback in
+* `resolvePreviewTitle` (`title`/`heading`/`name`/`label`), plus `slug`.
+*/
+var DEFAULT_SEARCH_FIELDS = [
+	"title",
+	"heading",
+	"name",
+	"label",
+	"slug"
+];
+/**
+* Resolve which dot-paths a document's search index is built from: the
+* schema's explicit `search` config if set, else the conventional title-ish
+* fields (`title`/`heading`/`name`/`label`/`slug`) plus whatever
+* `preview.select.title` points to — the same fields `resolvePreviewTitle`
+* already uses to pick a display title.
+*/
+function resolveSearchPaths(schema) {
+	if (schema.search?.length) return schema.search.map((field) => field.path);
+	const fallback = new Set(DEFAULT_SEARCH_FIELDS);
+	const titlePath = schema.preview?.select?.title;
+	if (titlePath) fallback.add(titlePath);
+	return Array.from(fallback);
+}
+/**
+* Flatten the given dot-paths off a document's data into a single normalized
+* string — the value stored in `search_text` and indexed for full-text search.
+*/
+function buildSearchText(paths, data) {
+	if (!data) return "";
+	const parts = [];
+	for (const path of paths) {
+		const value = readPath(data, path);
+		if (typeof value === "string") {
+			const trimmed = value.trim();
+			if (trimmed) parts.push(trimmed);
+		} else if (typeof value === "number" || typeof value === "boolean") parts.push(String(value));
+	}
+	return parts.join(" ").replace(/\s+/g, " ").trim();
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/singleton.js
 var SINGLETON_NAMESPACE = "6f4d2c3b-7a51-4e62-9b1d-aphexsingleton";
 /**
 * 64-bit FNV-1a over a UTF-8 string, returned as 16 hex chars. Synchronous
@@ -48,7 +93,7 @@ function singletonId(schemaName, organizationId) {
 	].join("-");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/cache/document-cache.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/cache/document-cache.js
 /**
 * Document-aware cache wrapper.
 * Translates document/collection operations into generic key-value calls on the underlying CacheAdapter.
@@ -90,7 +135,7 @@ var DocumentCache = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/hierarchy-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/hierarchy-service.js
 /**
 * HierarchyService — caches organization parent→child lookups
 * using the shared CacheAdapter.
@@ -142,7 +187,7 @@ var HierarchyService = class HierarchyService {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/version-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/version-service.js
 /**
 * VersionService — orchestrates document versioning with rolling retention.
 *
@@ -266,7 +311,7 @@ var VersionService = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/references-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/references-service.js
 /**
 * Maintains the back-reference index. After every doc save the collection-API
 * calls into here with the doc's draftData (the freshly-saved version) and
@@ -320,7 +365,7 @@ var ReferencesService = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/hooks.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/hooks.js
 /**
 * Run a phase of document hooks in order, threading the (possibly transformed)
 * data through each. Returns the final data. A hook that throws aborts the write.
@@ -335,7 +380,7 @@ async function runDocumentHooks(hooks, args) {
 	return data;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/jobs/document-jobs.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/jobs/document-jobs.js
 /** Reserved built-in job types. Scheduling uses these; the worker maps them to the handlers below. */
 var DOCUMENT_PUBLISH_JOB = "document.publish";
 var DOCUMENT_UNPUBLISH_JOB = "document.unpublish";
@@ -372,7 +417,7 @@ function createDocumentJobHandlers(deps) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-access.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-access.js
 /**
 * Return the set of field names the caller may NOT read.
 * Fields with no `access.read` list are readable by default.
@@ -430,7 +475,7 @@ function dropLockedWrites(data, locked) {
 	return copy;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/collection-api.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/collection-api.js
 var EMPTY_SET = /* @__PURE__ */ new Set();
 /**
 * Re-project a FindResult through a hidden-fields filter without mutating
@@ -451,6 +496,35 @@ function applyHiddenToDoc(doc, hidden) {
 		copy[key] = value;
 	}
 	return copy;
+}
+var PUBLIC_STRIPPED_META_FIELDS = [
+	"organizationId",
+	"createdBy",
+	"updatedBy",
+	"publishedHash"
+];
+/**
+* Re-project a FindResult's `_meta` for public reads without mutating the
+* shared (potentially cached) original — same shape as `applyHiddenToResult`,
+* applied after the cache read/write for the same reason: the cached payload
+* must stay the full, unfiltered one so a later admin-context read of the
+* same document isn't served the stripped version.
+*/
+function applyPublicMetaToResult(result, isPublic) {
+	if (!isPublic) return result;
+	return {
+		...result,
+		docs: result.docs.map((d) => applyPublicMetaToDoc(d, isPublic))
+	};
+}
+function applyPublicMetaToDoc(doc, isPublic) {
+	if (!isPublic || !doc || typeof doc !== "object" || !("_meta" in doc)) return doc;
+	const meta = { ...doc._meta };
+	for (const field of PUBLIC_STRIPPED_META_FIELDS) delete meta[field];
+	return {
+		...doc,
+		_meta: meta
+	};
 }
 /**
 * Transform a raw database document into a typed document with data extracted
@@ -544,6 +618,15 @@ var CollectionAPI = class {
 		await this.referencesService.syncReferencesFor(organizationId, documentId, data, this._schema, this.schemaRegistry ?? []);
 	}
 	/**
+	* Recompute the document's full-text search index from freshly-saved
+	* draftData. Best-effort, same shape as {@link syncReferences}: not part
+	* of the write transaction, self-healing on the next edit if missed.
+	*/
+	async syncSearchText(organizationId, documentId, data) {
+		const searchText = buildSearchText(resolveSearchPaths(this._schema), data);
+		await this.databaseAdapter.updateSearchText?.(organizationId, documentId, searchText);
+	}
+	/**
 	* Get the schema for this collection
 	*/
 	get schema() {
@@ -618,7 +701,7 @@ var CollectionAPI = class {
 			docs: unfilteredDocs
 		};
 		if (perspective === "published" && this.documentCache) await this.documentCache.setQuery(context.organizationId, this.collectionName, options, unfilteredResult);
-		return applyHiddenToResult(unfilteredResult, hidden);
+		return applyPublicMetaToResult(applyHiddenToResult(unfilteredResult, hidden), options.public);
 	}
 	resolveHiddenReadFields(context) {
 		if (context.overrideAccess) return EMPTY_SET;
@@ -678,7 +761,7 @@ var CollectionAPI = class {
 		const hidden = this.resolveHiddenReadFields(context);
 		if (perspective === "published" && this.documentCache) {
 			const cached = await this.documentCache.getDocument(context.organizationId, id);
-			if (cached) return applyHiddenToDoc(cached, hidden);
+			if (cached) return applyPublicMetaToDoc(applyHiddenToDoc(cached, hidden), options?.public);
 		}
 		const findOptions = { ...options };
 		if (this.hierarchyService && !findOptions.filterOrganizationIds) findOptions.filterOrganizationIds = await this.hierarchyService.getOrgIdsWithChildren(context.organizationId);
@@ -686,7 +769,7 @@ var CollectionAPI = class {
 		if (!result) return null;
 		const unfiltered = transformDocument(result, perspective);
 		if (perspective === "published" && this.documentCache) await this.documentCache.setDocument(context.organizationId, id, unfiltered);
-		return applyHiddenToDoc(unfiltered, hidden);
+		return applyPublicMetaToDoc(applyHiddenToDoc(unfiltered, hidden), options?.public);
 	}
 	/**
 	* Count documents matching a where clause
@@ -782,6 +865,7 @@ var CollectionAPI = class {
 				};
 			});
 			await this.syncReferences(context.organizationId, document.id, validationResult.normalizedData);
+			await this.syncSearchText(context.organizationId, document.id, validationResult.normalizedData);
 			if (versionService) await versionService.enforceRetentionFor(this.databaseAdapter, context.organizationId, document.id);
 			if (published) {
 				if (this.documentCache) {
@@ -807,6 +891,7 @@ var CollectionAPI = class {
 			id: options?.id
 		});
 		await this.syncReferences(context.organizationId, document.id, validationResult.normalizedData);
+		await this.syncSearchText(context.organizationId, document.id, validationResult.normalizedData);
 		if (versionService) await versionService.createVersion(this.databaseAdapter, context.organizationId, document.id, "draft", validationResult.normalizedData, context.user?.id);
 		if (this.documentCache) await this.documentCache.invalidateCollection(context.organizationId, this.collectionName);
 		return {
@@ -856,6 +941,7 @@ var CollectionAPI = class {
 		const document = this.versionService && !options?.skipVersioning ? await this.versionService.saveWithVersion(this.databaseAdapter, context.organizationId, id, validationResult.normalizedData, context.user?.id, options?.expectedRevision) : await this.databaseAdapter.updateDocDraft(context.organizationId, id, validationResult.normalizedData, context.user?.id, options?.expectedRevision);
 		if (!document) return null;
 		await this.syncReferences(context.organizationId, id, validationResult.normalizedData);
+		await this.syncSearchText(context.organizationId, id, validationResult.normalizedData);
 		if (options?.publish) {
 			await this.permissions.canPublish(context, this.collectionName, document);
 			if (!validationResult.isValid) {
@@ -1073,7 +1159,7 @@ var CollectionAPI = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/permissions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/permissions.js
 var PermissionError = class extends Error {
 	operation;
 	resource;
@@ -1191,7 +1277,7 @@ var PermissionChecker = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/index.js
 /**
 * CollectionAPI methods that compute synchronously and don't touch the DB.
 * The LocalAPI proxy bypasses its async-adapter-swap wrapper for these so
@@ -1395,7 +1481,7 @@ function createLocalAPI(config, userAdapter, systemAdapter) {
 	return localAPIInstance;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/mime-detect.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/mime-detect.js
 /**
 * Detect MIME type from file magic bytes (file signatures).
 * Returns the detected MIME type, or null if unknown.
@@ -1550,7 +1636,7 @@ function validateFile(buffer, filename, clientMimeType, options = {}) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/fetch-remote-file.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/fetch-remote-file.js
 var undiciPromise;
 function loadUndici() {
 	undiciPromise ??= (async () => {
@@ -1690,7 +1776,7 @@ async function fetchRemoteFile(url) {
 	throw new Error("Too many redirects.");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/type-gen.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/type-gen.js
 /**
 * Map Aphex field types to TypeScript types
 */
@@ -1804,7 +1890,7 @@ function fieldHasReferences(field, schemaMap, visited) {
 	return false;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/ai/content-workspace-tools.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/ai/content-workspace-tools.js
 var unreachable = (name) => Promise.resolve({
 	success: false,
 	error: `${name} must be resolved client-side against a live DocumentWorkspace; the server should never execute it directly.`
@@ -1831,7 +1917,7 @@ var contentWorkspaceTools = [{
 	execute: () => unreachable("content_save_draft")
 }];
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/block-defaults.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/block-defaults.js
 var DEFAULT_BLOCK_STYLES = [
 	"normal",
 	"h1",
@@ -1851,7 +1937,7 @@ var DEFAULT_BLOCK_DECORATORS = [
 ];
 var DEFAULT_BLOCK_LISTS = ["bullet", "number"];
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.9.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/mcp/tools.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/mcp/tools.js
 var ok = (data) => ({
 	success: true,
 	data
