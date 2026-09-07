@@ -12,7 +12,7 @@ installChunkLoadRecovery();
 // Covers a failed client-side navigation (clicking a link to a lazily-loaded route) —
 // SvelteKit's router catches that failure internally and routes it here rather than letting it
 // surface as a global error, so installChunkLoadRecovery()'s window listeners never see it.
-export const handleError: HandleClientError = ({ error }) => {
-	handleChunkLoadClientError(error);
+export const handleError: HandleClientError = ({ error, event }) => {
+	handleChunkLoadClientError(error, 'url' in event ? event.url : undefined);
 	console.error(error);
 };

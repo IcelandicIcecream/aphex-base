@@ -1,4 +1,4 @@
-import { D as attr, O as clsx, a as derived, c as head, d as spread_props, f as stringify, i as bind_props, k as escape_html, l as props_id, n as attr_style, r as attributes, s as ensure_array_like, t as attr_class, wt as run, x as setContext } from "../../../../chunks/server2.js";
+import { A as escape_html, Et as run, O as attr, S as setContext, a as derived, c as head, d as spread_props, i as bind_props, k as clsx, l as props_id, n as attr_style, p as stringify, r as attributes, s as ensure_array_like, t as attr_class } from "../../../../chunks/server2.js";
 import "../../../../chunks/internal.js";
 import { t as createPartResolver } from "../../../../chunks/resolver.js";
 import "../../../../chunks/validator.js";
@@ -6,20 +6,25 @@ import { t as cmsLogger } from "../../../../chunks/logger.js";
 import { n as resolvePreviewTitle } from "../../../../chunks/preview.js";
 import "../../../../chunks/schema-utils.js";
 import "../../../../chunks/utils2.js";
+import { a as normalizeAcceptedFileTypes, i as isAcceptedFileType, n as acceptedFileTypesInputValue, r as effectiveFileType } from "../../../../chunks/file-accept.js";
 import { a as assets, c as documents, l as ApiError } from "../../../../chunks/api.js";
+import { b as maxUploadFileBytes, c as usableWidths, h as buildVariantUrl, n as canGenerateVariants, s as thumbnailWidth, v as MAX_UPLOAD_BYTES } from "../../../../chunks/variants.js";
 import { t as collectReferenceIds } from "../../../../chunks/reference-walk.js";
 import { t as goto } from "../../../../chunks/client.js";
 import "../../../../chunks/navigation.js";
 import { t as page } from "../../../../chunks/state.js";
-import { $ as chunk, At as setSchemaContext, Ct as useSidebar, Dt as setAdminNav, E as Chevron_down, Et as usePermissions, G as Popper_layer, J as getFloatingContentCSSVars, K as Floating_layer_anchor, L as X, O as Calendar_clock, Ot as setFieldComponents, Q as useId, R as Icon, St as srOnlyStylesString, T as Chevron_right, Tt as setPermissionsContext, U as SafePolygon, W as Popper_layer_force_mount, _ as Refresh_cw, _t as ENTER, b as Image, bt as watch, ct as RovingFocusGroup, d as notifyDocumentChanged, dt as isHTMLElement, et as isValidIndex, ft as isTouch, g as Search, gt as ARROW_UP, ht as ARROW_RIGHT, j as Circle_check, k as toast, kt as useAdminSlots, lt as isBrowser, mt as ARROW_LEFT, n as confirmDialog, nt as Portal, ot as noop$1, p as Trash_2, pt as ARROW_DOWN, q as Floating_layer, rt as resolveLocaleProp, st as PresenceManager, t as ConfirmDialogHost, tt as isTabbable, ut as isElement, vt as DOMContext, w as Circle_alert, wt as setBlockPreviews, x as File_text, xt as Context, yt as afterTick, z as Separator } from "../../../../chunks/stega.js";
-import { a as SvelteMap, o as SvelteSet, s as SvelteURLSearchParams } from "../../../../chunks/dist5.js";
+import { $ as resolveLocaleProp, B as SafePolygon, C as Circle_alert, D as toast, E as Calendar_clock, F as X, G as getFloatingContentCSSVars, H as Popper_layer, I as Separator, J as useId, Q as Portal, T as Chevron_down, U as Floating_layer_anchor, V as Popper_layer_force_mount, W as Floating_layer, X as isValidIndex, Y as chunk, Z as isTabbable, _ as Search, at as useSidebar, ct as usePermissions, d as notifyDocumentChanged, dt as useAdminSlots, ft as setSchemaContext, it as afterTick, k as Circle_check, lt as setAdminNav, n as confirmDialog, nt as PresenceManager, ot as setBlockPreviews, p as Trash_2, rt as RovingFocusGroup, st as setPermissionsContext, t as ConfirmDialogHost, ut as setFieldComponents, v as Refresh_cw, w as Chevron_right, x as Image } from "../../../../chunks/stega.js";
+import { i as SvelteURLSearchParams, n as SvelteMap, r as SvelteSet } from "../../../../chunks/events.js";
 import { t as cn } from "../../../../chunks/utils3.js";
 import { O as Input, d as getDataTransitionAttrs, f as attachRef, i as boolToStr, n as createId, o as boolToTrueOrUndef, p as mergeProps, r as boolToEmptyStrOrUndef, s as createBitsAttrs, t as Label, u as getDataOpenClosed, x as boxWith } from "../../../../chunks/label.js";
+import { E as DOMContext, M as watch, N as Context, P as srOnlyStylesString, a as isElement, c as isHTMLElement, f as isTouch, g as ARROW_UP, h as ARROW_RIGHT, i as isBrowser, m as ARROW_LEFT, p as ARROW_DOWN, r as noop$1, y as ENTER } from "../../../../chunks/check.js";
 import { a as Dialog_header, i as Dialog_content, o as Dialog_footer, r as Dialog_description, s as Dialog_title, t as Root$1 } from "../../../../chunks/dialog.js";
 import { t as Checkbox } from "../../../../chunks/checkbox.js";
 import { n as buttonVariants, t as Button } from "../../../../chunks/button.js";
+import { t as Icon } from "../../../../chunks/Icon.js";
+import { n as Download, t as Lock } from "../../../../chunks/lock.js";
 import { t as External_link } from "../../../../chunks/external-link.js";
-import { t as Lock } from "../../../../chunks/lock.js";
+import { n as File_text } from "../../../../chunks/settings2.js";
 import { t as Upload } from "../../../../chunks/upload.js";
 import { t as Badge } from "../../../../chunks/badge.js";
 import "../../../../chunks/card.js";
@@ -28,7 +33,7 @@ import { t as activeTabState } from "../../../../chunks/activeTab.svelte.js";
 import { t as schemaTypes } from "../../../../chunks/schemaTypes.js";
 import { n as Alert_description, r as Alert, t as Alert_title } from "../../../../chunks/alert.js";
 import { CalendarDate, CalendarDateTime, DateFormatter, ZonedDateTime, endOfMonth, getDayOfWeek, getLocalTimeZone, isEqualMonth, isSameDay, isSameMonth, isToday, parseDate, parseDateTime, parseZonedDateTime, startOfMonth, toCalendar, today } from "@internationalized/date";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils/content-hash.js
 /**
 * Content hashing utilities for document version tracking
 * Includes timestamp for proper change detection and UX
@@ -3186,73 +3191,6 @@ function Code($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/download.svelte
-function Download($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		/**
-		* @license @lucide/svelte v0.554.0 - ISC
-		*
-		* ISC License
-		*
-		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-		*
-		* Permission to use, copy, modify, and/or distribute this software for any
-		* purpose with or without fee is hereby granted, provided that the above
-		* copyright notice and this permission notice appear in all copies.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-		*
-		* ---
-		*
-		* The MIT License (MIT) (for portions derived from Feather)
-		*
-		* Copyright (c) 2013-2023 Cole Bemis
-		*
-		* Permission is hereby granted, free of charge, to any person obtaining a copy
-		* of this software and associated documentation files (the "Software"), to deal
-		* in the Software without restriction, including without limitation the rights
-		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		* copies of the Software, and to permit persons to whom the Software is
-		* furnished to do so, subject to the following conditions:
-		*
-		* The above copyright notice and this permission notice shall be included in all
-		* copies or substantial portions of the Software.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		* SOFTWARE.
-		*
-		*/
-		let { $$slots, $$events, ...props } = $$props;
-		Icon($$renderer, spread_props([
-			{ name: "download" },
-			props,
-			{
-				iconNode: [
-					["path", { "d": "M12 15V3" }],
-					["path", { "d": "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" }],
-					["path", { "d": "m7 10 5 5 5-5" }]
-				],
-				children: ($$renderer) => {
-					props.children?.($$renderer);
-					$$renderer.push(`<!---->`);
-				},
-				$$slots: { default: true }
-			}
-		]));
-	});
-}
-//#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/ellipsis.svelte
 function Ellipsis($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -3332,6 +3270,80 @@ function Ellipsis($$renderer, $$props) {
 	});
 }
 //#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/file-archive.svelte
+function File_archive($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "file-archive" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M13.659 22H18a2 2 0 0 0 2-2V8a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 14 2H6a2 2 0 0 0-2 2v11.5" }],
+					["path", { "d": "M14 2v5a1 1 0 0 0 1 1h5" }],
+					["path", { "d": "M8 12v-1" }],
+					["path", { "d": "M8 18v-2" }],
+					["path", { "d": "M8 7V6" }],
+					["circle", {
+						"cx": "8",
+						"cy": "20",
+						"r": "2"
+					}]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/file-image.svelte
 function File_image($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -3393,6 +3405,84 @@ function File_image($$renderer, $$props) {
 						"r": "2"
 					}],
 					["path", { "d": "m20 17-1.296-1.296a2.41 2.41 0 0 0-3.408 0L9 22" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/film.svelte
+function Film($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "film" },
+			props,
+			{
+				iconNode: [
+					["rect", {
+						"width": "18",
+						"height": "18",
+						"x": "3",
+						"y": "3",
+						"rx": "2"
+					}],
+					["path", { "d": "M7 3v18" }],
+					["path", { "d": "M3 7.5h4" }],
+					["path", { "d": "M3 12h18" }],
+					["path", { "d": "M3 16.5h4" }],
+					["path", { "d": "M17 3v18" }],
+					["path", { "d": "M17 7.5h4" }],
+					["path", { "d": "M17 16.5h4" }]
 				],
 				children: ($$renderer) => {
 					props.children?.($$renderer);
@@ -3606,6 +3696,91 @@ function History($$renderer, $$props) {
 					["path", { "d": "M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" }],
 					["path", { "d": "M3 3v5h5" }],
 					["path", { "d": "M12 7v5l4 2" }]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/image-off.svelte
+function Image_off($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "image-off" },
+			props,
+			{
+				iconNode: [
+					["line", {
+						"x1": "2",
+						"x2": "22",
+						"y1": "2",
+						"y2": "22"
+					}],
+					["path", { "d": "M10.41 10.41a2 2 0 1 1-2.83-2.83" }],
+					["line", {
+						"x1": "13.5",
+						"x2": "6",
+						"y1": "13.5",
+						"y2": "21"
+					}],
+					["line", {
+						"x1": "18",
+						"x2": "21",
+						"y1": "12",
+						"y2": "15"
+					}],
+					["path", { "d": "M3.59 3.59A1.99 1.99 0 0 0 3 5v14a2 2 0 0 0 2 2h14c.55 0 1.052-.22 1.41-.59" }],
+					["path", { "d": "M21 15V5a2 2 0 0 0-2-2H9" }]
 				],
 				children: ($$renderer) => {
 					props.children?.($$renderer);
@@ -3959,6 +4134,144 @@ function Monitor($$renderer, $$props) {
 						"y2": "21"
 					}]
 				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/music.svelte
+function Music($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "music" },
+			props,
+			{
+				iconNode: [
+					["path", { "d": "M9 18V5l12-2v13" }],
+					["circle", {
+						"cx": "6",
+						"cy": "18",
+						"r": "3"
+					}],
+					["circle", {
+						"cx": "18",
+						"cy": "16",
+						"r": "3"
+					}]
+				],
+				children: ($$renderer) => {
+					props.children?.($$renderer);
+					$$renderer.push(`<!---->`);
+				},
+				$$slots: { default: true }
+			}
+		]));
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/play.svelte
+function Play($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* @license @lucide/svelte v0.554.0 - ISC
+		*
+		* ISC License
+		*
+		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
+		*
+		* Permission to use, copy, modify, and/or distribute this software for any
+		* purpose with or without fee is hereby granted, provided that the above
+		* copyright notice and this permission notice appear in all copies.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+		*
+		* ---
+		*
+		* The MIT License (MIT) (for portions derived from Feather)
+		*
+		* Copyright (c) 2013-2023 Cole Bemis
+		*
+		* Permission is hereby granted, free of charge, to any person obtaining a copy
+		* of this software and associated documentation files (the "Software"), to deal
+		* in the Software without restriction, including without limitation the rights
+		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+		* copies of the Software, and to permit persons to whom the Software is
+		* furnished to do so, subject to the following conditions:
+		*
+		* The above copyright notice and this permission notice shall be included in all
+		* copies or substantial portions of the Software.
+		*
+		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+		* SOFTWARE.
+		*
+		*/
+		let { $$slots, $$events, ...props } = $$props;
+		Icon($$renderer, spread_props([
+			{ name: "play" },
+			props,
+			{
+				iconNode: [["path", { "d": "M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" }]],
 				children: ($$renderer) => {
 					props.children?.($$renderer);
 					$$renderer.push(`<!---->`);
@@ -4345,7 +4658,7 @@ function Zoom_out($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs.svelte
 function Tabs($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, value = "", class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4396,7 +4709,7 @@ function Tabs($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/tabs/tabs-content.svelte
 function Tabs_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4437,7 +4750,7 @@ function Tabs_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar.svelte
 function Calendar_1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, value = void 0, placeholder = void 0, class: className, weekdayFormat = "short", buttonVariant = "ghost", captionLayout = "label", locale = "en-US", months: monthsProp, years, monthFormat: monthFormatProp, yearFormat = "numeric", day, disableDaysOutsideMonth = false, $$slots, $$events, ...restProps } = $$props;
@@ -4734,7 +5047,7 @@ function Calendar_1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-cell.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-cell.svelte
 function Calendar_cell($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4772,7 +5085,7 @@ function Calendar_cell($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-day.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-day.svelte
 function Calendar_day($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4810,7 +5123,7 @@ function Calendar_day($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid.svelte
 function Calendar_grid($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4848,7 +5161,7 @@ function Calendar_grid($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-header.svelte
 function Calendar_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4886,7 +5199,7 @@ function Calendar_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-months.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-months.svelte
 function Calendar_months($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -4900,7 +5213,7 @@ function Calendar_months($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-row.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-row.svelte
 function Calendar_grid_row($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4938,7 +5251,7 @@ function Calendar_grid_row($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-body.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-body.svelte
 function Calendar_grid_body($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -4976,7 +5289,7 @@ function Calendar_grid_body($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-head.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-grid-head.svelte
 function Calendar_grid_head($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5014,7 +5327,7 @@ function Calendar_grid_head($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-head-cell.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-head-cell.svelte
 function Calendar_head_cell($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5052,7 +5365,7 @@ function Calendar_head_cell($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-next-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-next-button.svelte
 function Fallback$1($$renderer) {
 	Chevron_right($$renderer, { class: "size-4" });
 }
@@ -5096,7 +5409,7 @@ function Calendar_next_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-prev-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-prev-button.svelte
 function Fallback($$renderer) {
 	Chevron_left($$renderer, { class: "size-4" });
 }
@@ -5140,7 +5453,7 @@ function Calendar_prev_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month-select.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month-select.svelte
 function Calendar_month_select($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, value, onchange, $$slots, $$events, ...restProps } = $$props;
@@ -5207,7 +5520,7 @@ function Calendar_month_select($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-year-select.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-year-select.svelte
 function Calendar_year_select($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, value, $$slots, $$events, ...restProps } = $$props;
@@ -5273,7 +5586,7 @@ function Calendar_year_select($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-month.svelte
 function Calendar_month($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -5287,7 +5600,7 @@ function Calendar_month($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-nav.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-nav.svelte
 function Calendar_nav($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -5301,7 +5614,7 @@ function Calendar_nav($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-caption.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/calendar/calendar-caption.svelte
 function Calendar_caption($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { captionLayout, months, monthFormat, years, yearFormat, month, locale, placeholder = void 0, monthIndex = 0 } = $$props;
@@ -5367,7 +5680,7 @@ function Calendar_caption($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-content.svelte
 function Popover_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, sideOffset = 4, align = "center", portalProps, $$slots, $$events, ...restProps } = $$props;
@@ -5422,7 +5735,7 @@ function Popover_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/popover/popover-trigger.svelte
 function Popover_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -5463,10 +5776,10 @@ function Popover_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/popover/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/popover/index.js
 var Root = Popover;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils/asset-actions.js
 /**
 * Copy a URL to the clipboard, showing a toast on success/failure.
 */
@@ -5493,40 +5806,459 @@ function downloadFile(url, filename) {
 	document.body.removeChild(a);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils/video-metadata.js
+/**
+* Read a video's duration, real pixel dimensions and a representative frame —
+* in the browser, from the file the user just picked.
+*
+* Done here rather than on the server because the alternative is ffmpeg: a large
+* native dependency, awkward on serverless, and a build-time burden for every
+* self-hoster who never uploads a video. The browser already has a demuxer and a
+* decoder for exactly the formats it can play, and at upload time the file is
+* local — no download, no storage round-trip.
+*
+* What it cannot do is the honest tradeoff: a codec this browser can't decode
+* (or a server-side/API upload, which never runs this) yields nothing. Every
+* field is therefore optional, and callers must render a video with no poster
+* and no duration rather than treating absence as an error.
+*/
+/** Give up rather than hang a queue on a file the browser silently won't decode. */
+var TIMEOUT_MS = 1e4;
+/**
+* Where to grab the poster frame from.
+*
+* Not 0: the first frame of a video is very often black, a fade-in, or a slate,
+* which makes for a poster that identifies nothing. A little way in is far more
+* likely to be representative — capped so a long recording doesn't seek minutes
+* deep, which would mean fetching that far into the file.
+*/
+function posterTimestamp(duration) {
+	if (!Number.isFinite(duration) || duration <= 0) return 0;
+	return Math.min(duration * .1, 3);
+}
+async function extractVideoInfo(file) {
+	if (typeof document === "undefined" || !file.type.startsWith("video/")) return {};
+	const objectUrl = URL.createObjectURL(file);
+	const video = document.createElement("video");
+	video.muted = true;
+	video.playsInline = true;
+	video.preload = "metadata";
+	video.src = objectUrl;
+	try {
+		if (!await once(video, "loadedmetadata", TIMEOUT_MS)) return {};
+		const info = {
+			duration: Number.isFinite(video.duration) && video.duration > 0 ? video.duration : void 0,
+			width: video.videoWidth || void 0,
+			height: video.videoHeight || void 0
+		};
+		try {
+			info.poster = await captureFrame(video, posterTimestamp(video.duration));
+		} catch {}
+		return info;
+	} catch {
+		return {};
+	} finally {
+		video.removeAttribute("src");
+		video.load();
+		URL.revokeObjectURL(objectUrl);
+	}
+}
+async function captureFrame(video, time) {
+	video.currentTime = time;
+	if (!await once(video, "seeked", TIMEOUT_MS)) return void 0;
+	const canvas = document.createElement("canvas");
+	canvas.width = video.videoWidth;
+	canvas.height = video.videoHeight;
+	if (!canvas.width || !canvas.height) return void 0;
+	const context = canvas.getContext("2d");
+	if (!context) return void 0;
+	context.drawImage(video, 0, 0, canvas.width, canvas.height);
+	return new Promise((resolve) => {
+		canvas.toBlob((blob) => resolve(blob ?? void 0), "image/webp", .8);
+	});
+}
+/**
+* Resolve on an event, or `false` on timeout or error.
+*
+* A rejected promise would be wrong: none of these are exceptional. A video the
+* browser can't decode is an ordinary outcome, and the caller's response is the
+* same as for a plain file — upload it without extras.
+*/
+function once(target, event, timeoutMs) {
+	return new Promise((resolve) => {
+		const done = (result) => {
+			clearTimeout(timer);
+			target.removeEventListener(event, onEvent);
+			target.removeEventListener("error", onError);
+			resolve(result);
+		};
+		const onEvent = () => done(true);
+		const onError = () => done(false);
+		const timer = setTimeout(() => done(false), timeoutMs);
+		target.addEventListener(event, onEvent, { once: true });
+		target.addEventListener("error", onError, { once: true });
+	});
+}
+/**
+* Read duration, dimensions and a poster frame from a video already in storage.
+*
+* For assets uploaded before posters existed, or through the API, where no
+* browser ever saw the file. Only viable because `/media/:id/:filename` serves
+* byte ranges: the browser fetches the container header and the frames around
+* the seek point, not the whole video. Against a 200-only server this would
+* download the entire file to grab one frame.
+*
+* `crossOrigin` is left unset deliberately — the media route is same-origin, and
+* a canvas tainted by a cross-origin frame throws on `toBlob` rather than
+* returning anything.
+*/
+async function extractVideoInfoFromUrl(url) {
+	if (typeof document === "undefined") return {};
+	const video = document.createElement("video");
+	video.muted = true;
+	video.playsInline = true;
+	video.preload = "metadata";
+	video.src = url;
+	try {
+		if (!await once(video, "loadedmetadata", TIMEOUT_MS)) return {};
+		const info = {
+			duration: Number.isFinite(video.duration) && video.duration > 0 ? video.duration : void 0,
+			width: video.videoWidth || void 0,
+			height: video.videoHeight || void 0
+		};
+		try {
+			info.poster = await captureFrame(video, posterTimestamp(video.duration));
+		} catch {}
+		return info;
+	} catch {
+		return {};
+	} finally {
+		video.removeAttribute("src");
+		video.load();
+	}
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils/image-support.js
+/**
+* Image formats no mainstream browser will decode in an `<img>`.
+*
+* HEIC/HEIF is the one that reaches a CMS in volume: it is the iPhone camera
+* default. Safari renders it — macOS has the system decoder — while Chrome and
+* Firefox show the broken-image glyph. sharp offers no way out either: the
+* prebuilt libvips ships a HEIF loader restricted to AVIF, with no HEVC decoder
+* (patent licensing), so there is no derivative to fall back to and the
+* undecodable original is all there is to show.
+*
+* Keep this list to formats that genuinely cannot render anywhere. Anything a
+* browser merely *might* not support is better left to the `<img>` and its
+* error handler, which catches the real answer without guessing.
+*/
+var UNDECODABLE_IMAGE_MIME_TYPES = /* @__PURE__ */ new Set([
+	"image/heic",
+	"image/heif",
+	"image/heic-sequence",
+	"image/heif-sequence"
+]);
+/**
+* Whether it is worth pointing an `<img>` at this asset at all.
+*
+* An unknown type answers `true`: the request is the cheapest way to find out,
+* and a failed load falls back to the same placeholder anyway.
+*/
+function browserCanDecodeImage(mimeType) {
+	if (!mimeType) return true;
+	return !UNDECODABLE_IMAGE_MIME_TYPES.has(mimeType.toLowerCase());
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/AssetImage.svelte
+function AssetImage($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/**
+		* An `<img>` that degrades to a placeholder instead of the browser's
+		* broken-image glyph.
+		*
+		* Two ways an asset fails to render, both landing on the same fallback:
+		*
+		* - The format is undecodable everywhere (HEIC — see `browserCanDecodeImage`).
+		*   Known up front, so no request is made and there is no flash of a broken
+		*   icon while it fails.
+		* - The load fails for any other reason — the object is gone, a signed URL has
+		*   expired, the file is truncated. Only `onerror` can tell us that.
+		*
+		* The same reasoning the grid already applies to posterless videos, which the
+		* note by `backfillPosters` puts as a grid of broken <img> being worse than
+		* no image at all.
+		*/
+		/** Applied to the `<img>` and to the placeholder, so layout holds either way. */
+		/** The asset's stored MIME type, used to skip a load that cannot succeed. */
+		/** Caption under the placeholder icon. Omit in tiles too small to read it. */
+		let { src, alt = "", class: className = "", style, loading, mimeType, label } = $$props;
+		let failedSrc = null;
+		const failed = derived(() => !!src && failedSrc === src);
+		if (derived(() => !src || failed() || !browserCanDecodeImage(mimeType))()) {
+			$$renderer.push("<!--[0-->");
+			$$renderer.push(`<div${attr_class(`bg-muted/40 text-muted-foreground flex flex-col items-center justify-center gap-1 ${stringify(className)}`)}${attr_style(style)}${attr("title", label ?? alt)}>`);
+			Image_off($$renderer, { class: "h-4 w-4 shrink-0" });
+			$$renderer.push(`<!----> `);
+			if (label) {
+				$$renderer.push("<!--[0-->");
+				$$renderer.push(`<span class="px-2 text-center text-[10px] leading-tight">${escape_html(label)}</span>`);
+			} else $$renderer.push("<!--[-1-->");
+			$$renderer.push(`<!--]--></div>`);
+		} else {
+			$$renderer.push("<!--[-1-->");
+			$$renderer.push(`<img${attr("src", src)}${attr("alt", alt)}${attr_class(clsx(className))}${attr_style(style)}${attr("loading", loading)} onerror="this.__e=event"/>`);
+		}
+		$$renderer.push(`<!--]-->`);
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/MediaBrowser.svelte
 function MediaBrowser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/** When true, shows a "Select" button for picking an asset */
 		/** When true, allows selecting multiple assets (used with selectable) */
 		/** Callback when an asset is selected (single select mode) */
 		/** Callback when multiple assets are selected (multi select mode) */
+		/**
+		* Confirmed multi-selection, as the complete set of selected asset IDs —
+		* across every page, not just the visible one. Treat it as the desired
+		* final state: anything absent was deselected.
+		*/
 		/** Filter to specific asset type */
+		/** MIME types/extensions accepted by the field that opened this picker. */
 		/** Number of assets per page */
 		/** Whether this tab is currently active (triggers refetch when becoming active) */
 		/** Asset IDs already in use (shown with a tick indicator) */
-		let { selectable = false, multiSelect = false, onSelect, onSelectMultiple, assetTypeFilter, pageSize = 30, active = true, existingAssetIds } = $$props;
+		/**
+		* Asset to open on mount, addressed by id.
+		*
+		* Looked up on its own rather than searched for in the current page: a
+		* deep-linked asset is usually *not* on page 1 — that's why someone
+		* linked to it — so filtering the loaded list would silently do nothing
+		* for exactly the assets this exists to reach.
+		*/
+		/**
+		* Fires when the open asset changes (null when the panel closes), so the
+		* host can reflect it in the URL. The component holds no opinion about
+		* routing; it only reports.
+		*/
+		/**
+		* The field this browser was opened from, when it was opened as a picker.
+		*
+		* Recorded on anything uploaded here, because it is what the media route
+		* later reads to decide whether the asset is private: privacy is declared
+		* on the field (`private: true`), and resolved from the field an asset was
+		* uploaded into. Without it, everything uploaded through the library is
+		* public regardless of where it is used — which was the case for every
+		* library upload until now.
+		*
+		* Absent when the library is opened as a destination in its own right (the
+		* Media tab), where there is no field to inherit from.
+		*/
+		let { selectable = false, multiSelect = false, onSelect, onSelectMultiple, assetTypeFilter, accept, pageSize = 30, active = true, existingAssetIds, assetId = null, onAssetOpen, schemaType, fieldPath } = $$props;
+		let globalAllowedMimeTypes = void 0;
+		const effectiveAccept = derived(() => accept ?? (assetTypeFilter === "image" ? "image/*" : void 0));
+		const acceptedFileTypes = derived(() => normalizeAcceptedFileTypes(effectiveAccept()));
+		const acceptInputValue = derived(() => acceptedFileTypesInputValue(acceptedFileTypes().length > 0 ? acceptedFileTypes() : globalAllowedMimeTypes));
+		function acceptsUpload(file) {
+			const mimeType = effectiveFileType(file.name, file.type);
+			return isAcceptedFileType(file.name, mimeType, globalAllowedMimeTypes) && isAcceptedFileType(file.name, mimeType, acceptedFileTypes());
+		}
 		let assetList = [];
 		let loading = false;
 		let searchQuery = "";
-		let sortOrder = "newest";
+		/**
+		* How the library is displayed. These are per-editor habits rather than app
+		* state, so they're remembered per browser — resetting someone's view on every
+		* visit is a small daily annoyance. Storage can be unavailable or throw (a
+		* private window, blocked site data), and the defaults are correct when it is.
+		*/
+		/**
+		* Tile track minimums. The grid was laid out on a fixed `xl:grid-cols-10`,
+		* which on a wide screen produced ~90px thumbnails — a contact sheet you can
+		* count but not read. Sizing tracks by a minimum width instead lets the column
+		* count follow the space actually available (opening the inspector reflows it).
+		*/
+		const TILE_MIN_WIDTH = {
+			compact: 110,
+			default: 165,
+			large: 240
+		};
+		const STORAGE_KEYS = {
+			density: "aphex:media:density",
+			view: "aphex:media:view",
+			sort: "aphex:media:sort"
+		};
+		function readStored(key, allowed, fallback) {
+			if (typeof localStorage === "undefined") return fallback;
+			try {
+				const stored = localStorage.getItem(key);
+				return stored !== null && allowed.includes(stored) ? stored : fallback;
+			} catch {
+				return fallback;
+			}
+		}
+		/**
+		* Media-kind filter, applied in SQL. Not persisted: unlike a view preference,
+		* a filter changes *which* assets exist as far as the editor can tell, and
+		* silently restoring one from a previous session reads as missing data.
+		*/
+		let categoryFilter = "all";
+		/**
+		* Used / unused, answered by the asset-reference index. Not persisted, for the
+		* same reason as the kind filter: a restored filter reads as missing data.
+		*/
+		let usageFilter = "all";
+		/**
+		* The server is still building the reference index for this org, so usage
+		* answers aren't trustworthy yet. Worth saying out loud: an unbuilt index makes
+		* every asset look unused, and "unused" is the answer that invites deletion.
+		*/
+		let usageIndexing = false;
+		let viewMode = readStored(STORAGE_KEYS.view, ["grid", "list"], "grid");
+		let sortOrder = readStored(STORAGE_KEYS.sort, [
+			"newest",
+			"oldest",
+			"name-asc",
+			"name-desc"
+		], "newest");
+		let gridDensity = readStored(STORAGE_KEYS.density, [
+			"compact",
+			"default",
+			"large"
+		], "default");
 		const perms = usePermissions();
+		const canRead = derived(() => perms.can("asset.read"));
 		const canUpload = derived(() => perms.can("asset.upload"));
 		const canDeleteAssets = derived(() => perms.can("asset.delete"));
+		/**
+		* Set when the server answers a read with 403.
+		*
+		* Normally `canRead` already stops us before the request, and the sidebar
+		* hides the media area entirely — but the client's capability set is a copy
+		* resolved at load, so a role edited in another tab (or a stale session) can
+		* disagree with the server. Treat the server's answer as the truth and show
+		* the same empty state rather than a "Failed to fetch assets" error, which
+		* reads as a broken CMS instead of a permission boundary.
+		*/
+		let accessDenied = false;
+		const showAccessDenied = derived(() => !canRead() || accessDenied);
 		let selectedAsset = null;
 		let lightboxOpen = false;
 		let currentPage = 1;
 		let totalPages = 1;
 		let totalAssets = 0;
+		let isUploading = false;
 		let showUploadModal = false;
+		const modalIsDragging = derived(() => false);
+		/**
+		* `rejected` and `failed` are deliberately distinct. A rejected file failed a
+		* local precondition — accepted type, size limit — that is known from the
+		* `File` alone before anything is sent, so retrying re-runs the same check
+		* and reaches the same answer. A failed one was actually attempted and lost
+		* to something transient, which retrying can fix. Only the latter is offered
+		* a Retry; the former is offered removal, and is re-evaluated by
+		* `revalidateRejected` if the server's limits land after it was queued.
+		*
+		* Rejected files are also excluded from the queued tallies: they are not
+		* part of the upload, so counting them made the dialog report a file as
+		* selected and failed at once.
+		*/
+		/** Why it was rejected or failed, shown next to the file. Absent otherwise. */
+		/** 0–100 while uploading. */
+		/**
+		* Object URL for an image preview, so a failed row can be identified by
+		* sight rather than by filename. Revoked when the queue is cleared —
+		* object URLs live until the document unloads otherwise.
+		*/
+		/**
+		* How many files upload at once.
+		*
+		* Sequential uploads make a 20-image drop feel broken — each waits for the
+		* whole of the previous one. Unbounded parallelism is worse: browsers cap
+		* connections per host anyway, so the extra requests queue invisibly while
+		* every progress bar crawls at once and the server handles a burst it
+		* didn't ask for. A small fixed width keeps throughput up and progress
+		* legible.
+		*/
+		const UPLOAD_CONCURRENCY = 3;
 		let uploadQueue = [];
+		/**
+		* The server's request body limit. Seeded with the built-in default and
+		* replaced by the value the assets endpoint reports, so a configured limit is
+		* respected without the number being duplicated here.
+		*/
+		let maxUploadBytes = MAX_UPLOAD_BYTES;
+		/**
+		* Whether the server offers direct-to-storage upload. Reported by the assets
+		* endpoint rather than inferred: it depends on the adapter, an encryption
+		* key, and an operator opt-in that implies bucket CORS nothing here can see.
+		*/
+		let directUpload = false;
+		/**
+		* The image pipeline the server is running, or null when it's off.
+		*
+		* Needed so a grid tile can request a derivative instead of the original.
+		* Reported by the server, never derived here: the config hash decides which
+		* files exist, and a client that computed a different one would request URLs
+		* that silently fall back to the full-size original.
+		*/
+		let imageConfig = null;
+		let editFilename = "";
 		let editTitle = "";
 		let editDescription = "";
 		let editAlt = "";
 		let editCreditLine = "";
 		let isSaving = false;
+		/**
+		* Whether the metadata form differs from the asset it was loaded from.
+		*
+		* Drives both the Save button's enabled state and the guard when switching
+		* assets. Compared against `selectedAsset` rather than a snapshot taken at
+		* open, so a successful save — which replaces `selectedAsset` with the
+		* server's row — settles back to clean without any extra bookkeeping.
+		*
+		* `?? ''` on both sides: the columns are nullable, the inputs are not, so a
+		* null title and an untouched empty input are the same thing.
+		*/
+		const metadataDirty = derived(() => !!selectedAsset && (editFilename.trim() !== (selectedAsset.originalFilename ?? "") || editTitle !== (selectedAsset.title ?? "") || editDescription !== (selectedAsset.description ?? "") || editAlt !== (selectedAsset.alt ?? "") || editCreditLine !== (selectedAsset.creditLine ?? "")));
+		let selectMode = false;
 		let selectedIds = (() => selectable && multiSelect && existingAssetIds ? new Set(existingAssetIds) : /* @__PURE__ */ new Set())();
 		let isBulkDeleting = false;
-		const isSelectMode = derived(() => selectable && multiSelect);
+		/**
+		* The asset a shift-click extends *from* — the last one whose selection the
+		* user set directly.
+		*
+		* Held as an id rather than an index because the list underneath it moves:
+		* sorting, searching and paging all reorder `orderedAssets`, and an index
+		* would then point at a different asset than the one that was clicked.
+		*/
+		let selectionAnchor = null;
+		/**
+		* Which way the anchor click went — `true` if it selected, `false` if it
+		* deselected. A shift-click repeats it across the range.
+		*
+		* Recorded rather than read back off the anchor at shift-click time: by then
+		* the anchor may have been re-toggled by a checkbox or swept by select-all,
+		* and the range would silently invert.
+		*/
+		let anchorSelects = true;
+		const isSelectMode = derived(() => selectMode || selectable && multiSelect);
+		/**
+		* Keep the mode in step with the selection.
+		*
+		* The list view's checkboxes are always rendered, so a user can start
+		* selecting without ever finding the toolbar's select-mode button — and until
+		* this existed, doing so ticked boxes that produced no action bar and no way
+		* to delete anything. Selecting something *is* the request to be in select
+		* mode.
+		*/
+		function syncSelectMode() {
+			if (selectable) return;
+			if (selectedIds.size > 0) selectMode = true;
+			else selectMode = false;
+		}
 		let referenceCounts = {};
 		let selectedRefCount = 0;
 		let searchTimeout;
@@ -5538,16 +6270,39 @@ function MediaBrowser($$renderer, $$props) {
 				fetchAssets();
 			}, 300);
 		}
+		/**
+		* Monotonic id for the most recently *issued* asset fetch.
+		*
+		* Responses are not guaranteed to arrive in the order they were requested: a
+		* search for "a" and the search for "ab" typed 200ms later are two in-flight
+		* requests, and if the first is slower its results land last and win. The same
+		* applies to paging quickly, and to a refetch racing the initial load. Every
+		* fetch stamps itself, and only the newest is allowed to write state — an
+		* older response is read and discarded.
+		*
+		* Not `$state`: it's request bookkeeping, and nothing renders from it.
+		*/
+		let fetchGeneration = 0;
 		async function fetchAssets(page = currentPage) {
+			if (!canRead()) {
+				assetList = [];
+				loading = false;
+				return;
+			}
+			const generation = ++fetchGeneration;
 			loading = true;
 			try {
 				const offset = (page - 1) * pageSize;
 				const result = await assets.list({
 					assetType: assetTypeFilter,
+					category: categoryFilter === "all" ? void 0 : categoryFilter,
+					usage: usageFilter === "all" ? void 0 : usageFilter,
 					search: searchQuery || void 0,
+					sort: sortOrder,
 					limit: pageSize,
 					offset
 				});
+				if (generation !== fetchGeneration) return;
 				if (result.success && result.data) {
 					assetList = result.data;
 					currentPage = page;
@@ -5555,81 +6310,183 @@ function MediaBrowser($$renderer, $$props) {
 						totalPages = result.pagination.totalPages;
 						totalAssets = result.pagination.total;
 					}
-					if (!(selectable && multiSelect)) selectedIds = /* @__PURE__ */ new Set();
+					if (typeof result.limits?.maxUploadBytes === "number") maxUploadBytes = result.limits.maxUploadBytes;
+					globalAllowedMimeTypes = result.limits?.allowedMimeTypes;
+					directUpload = result.limits?.directUpload === true;
+					revalidateRejected();
+					usageIndexing = result.indexing === true;
+					backfillPosters(assetList.filter((asset) => isVideo(asset) && !getPosterUrl(asset) || isAudio(asset) && !formatDuration(asset)));
+					imageConfig = result.images ?? null;
+					if (!(selectable && multiSelect)) {
+						selectedIds = /* @__PURE__ */ new Set();
+						syncSelectMode();
+					}
+					selectionAnchor = null;
 					fetchReferenceCounts(result.data.map((a) => a.id));
 				}
-			} catch {
-				toast.error("Failed to fetch assets");
+			} catch (error) {
+				if (generation !== fetchGeneration) return;
+				if (error instanceof ApiError && error.status === 403) {
+					accessDenied = true;
+					assetList = [];
+				} else toast.error("Failed to fetch assets");
 			} finally {
-				loading = false;
+				if (generation === fetchGeneration) loading = false;
 			}
 		}
 		async function fetchReferenceCounts(assetIds) {
-			if (assetIds.length === 0) return;
+			if (assetIds.length === 0 || !canRead()) return;
 			try {
 				const result = await assets.getReferenceCounts(assetIds);
 				if (result.success && result.data) referenceCounts = {
 					...referenceCounts,
 					...result.data
 				};
-			} catch {
-				toast.error("Failed to fetch reference counts");
+			} catch (error) {
+				if (!(error instanceof ApiError && error.status === 403)) toast.error("Failed to fetch reference counts");
 			}
 		}
 		function isSystemAsset(asset) {
 			const metadata = asset.metadata;
 			return metadata?.system === true || metadata?.fieldPath === "user.image" || metadata?.fieldPath === "organization.metadata.logo";
 		}
-		function sortAssets(list) {
-			const sorted = [...list];
-			switch (sortOrder) {
-				case "newest": return sorted.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
-				case "oldest": return sorted.sort((a, b) => new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime());
-				case "name-asc": return sorted.sort((a, b) => a.originalFilename.localeCompare(b.originalFilename));
-				case "name-desc": return sorted.sort((a, b) => b.originalFilename.localeCompare(a.originalFilename));
-				default: return sorted;
-			}
-		}
 		const pinnedAssets = derived(() => {
 			if (!(selectable && multiSelect && existingAssetIds && existingAssetIds.size > 0)) return [];
 			return assetList.filter((a) => !isSystemAsset(a) && existingAssetIds.has(a.id));
 		});
+		/**
+		* The page as the server ordered it, minus the system assets and (in picker
+		* mode) the ones shown as pinned.
+		*
+		* Deliberately does not re-sort. It used to, and that sort only ever saw the
+		* loaded page: "Name: A–Z" across 300 assets alphabetised whichever 30 rows
+		* happened to be in `assetList`, so the first page showed the A's from the
+		* newest 30 uploads rather than the A's from the library. It looked sorted,
+		* which is why it survived this long. `sort` is a query parameter now.
+		*/
 		const sortedAssets = derived(() => {
 			const visibleAssets = assetList.filter((a) => !isSystemAsset(a));
-			if (selectable && multiSelect && existingAssetIds && existingAssetIds.size > 0) return sortAssets(visibleAssets.filter((a) => !existingAssetIds.has(a.id)));
-			return sortAssets(visibleAssets);
+			if (selectable && multiSelect && existingAssetIds && existingAssetIds.size > 0) return visibleAssets.filter((a) => !existingAssetIds.has(a.id));
+			return visibleAssets;
 		});
-		derived(() => sortedAssets().length > 0 && sortedAssets().every((a) => selectedIds.has(a.id)));
+		/**
+		* Every visible asset, in the order it renders: pinned first, then the sorted
+		* page.
+		*
+		* Range selection needs one flat order that both views agree on, because
+		* "everything between these two" is meaningless against a list the user isn't
+		* looking at. It's also the honest answer for select-all: `sortedAssets`
+		* excludes the pinned ones in picker mode, so a select-all built on it could
+		* add every visible asset but never clear the pinned ones back off.
+		*/
+		const orderedAssets = derived(() => [...pinnedAssets(), ...sortedAssets()]);
+		const allSelected = derived(() => orderedAssets().length > 0 && orderedAssets().every((a) => selectedIds.has(a.id)));
+		/**
+		* Add or remove the *visible* assets, as a delta.
+		*
+		* Never assign the page as the whole set: in picker mode `selectedIds` spans
+		* pages, so replacing it would discard every selection not on screen —
+		* deleting those images from the field on confirm.
+		*/
+		function toggleSelectAll() {
+			const next = new SvelteSet(selectedIds);
+			if (allSelected()) for (const asset of orderedAssets()) next.delete(asset.id);
+			else for (const asset of orderedAssets()) next.add(asset.id);
+			selectedIds = next;
+			selectionAnchor = null;
+			syncSelectMode();
+		}
 		function toggleSelect(id) {
 			const next = new SvelteSet(selectedIds);
 			if (next.has(id)) next.delete(id);
 			else next.add(id);
 			selectedIds = next;
+			syncSelectMode();
 		}
+		/**
+		* Apply the anchor's own outcome to everything between it and `id`, inclusive.
+		*
+		* The range doesn't always *select*: it repeats whatever the anchor click did.
+		* Ticking one asset and shift-clicking ten below it selects eleven; unticking
+		* one and shift-clicking ten below it clears eleven. Deselecting a range is
+		* the only practical way to undo an overshoot on a hundred-item page, and
+		* making the gesture mean "select" in both directions would leave the
+		* correction to a hundred individual clicks.
+		*
+		* Only the assets between the two ends are touched, so a picker-mode
+		* selection that spans other pages survives either direction.
+		*
+		* The anchor deliberately stays put afterwards, so a second shift-click
+		* re-extends from the same origin instead of chaining off the previous target.
+		* That's what makes "oops, one too far" a correction rather than a restart.
+		*/
+		function selectRange(id) {
+			const to = orderedAssets().findIndex((a) => a.id === id);
+			if (to === -1) return;
+			const from = selectionAnchor ? orderedAssets().findIndex((a) => a.id === selectionAnchor) : -1;
+			if (from === -1) {
+				setAnchor(id);
+				return;
+			}
+			const [start, end] = from < to ? [from, to] : [to, from];
+			const next = new SvelteSet(selectedIds);
+			for (let i = start; i <= end; i++) {
+				const rangeId = orderedAssets()[i].id;
+				if (anchorSelects) next.add(rangeId);
+				else next.delete(rangeId);
+			}
+			selectedIds = next;
+			syncSelectMode();
+		}
+		/**
+		* Toggle `id` and make it the anchor, recording which way it went so a
+		* following shift-click can repeat it.
+		*/
+		function setAnchor(id) {
+			anchorSelects = !selectedIds.has(id);
+			toggleSelect(id);
+			selectionAnchor = id;
+		}
+		/**
+		* The single entry point for "the user clicked this asset to select it".
+		*
+		* Every tile, row and checkbox routes through here so the anchor is
+		* maintained in one place — a path that toggles without moving the anchor
+		* leaves shift-click extending from an asset the user stopped thinking about
+		* several clicks ago.
+		*/
+		function handleSelectClick(id, event) {
+			if (event.shiftKey) {
+				selectRange(id);
+				return;
+			}
+			setAnchor(id);
+		}
+		function clearSelection() {
+			selectedIds = /* @__PURE__ */ new Set();
+			selectionAnchor = null;
+			syncSelectMode();
+		}
+		/**
+		* Hand back the complete selected ID set — never a list of `Asset` objects.
+		*
+		* `selectedIds` is seeded from `existingAssetIds` and spans every page, but
+		* `assetList` only ever holds the current one. Resolving the selection through
+		* `assetList` therefore silently dropped every selected asset that wasn't on
+		* the visible page, and the consumer — which treats the result as the complete
+		* desired set — deleted them from the field.
+		*
+		* IDs are also all the consumer needs: it rebuilds items as `{ _ref: id }` and
+		* preserves per-item data (alt text, `_key`, order) from what it already holds.
+		*/
 		function confirmMultiSelect() {
 			if (onSelectMultiple) {
-				const selected = assetList.filter((a) => selectedIds.has(a.id));
-				onSelectMultiple(selected);
-				selectedIds = /* @__PURE__ */ new Set();
+				onSelectMultiple([...selectedIds]);
+				clearSelection();
 			}
 		}
 		async function bulkDelete() {
 			if (selectedIds.size === 0) return;
-			const idsToCheck = [...selectedIds];
-			try {
-				const result = await assets.getReferenceCounts(idsToCheck);
-				if (result.success && result.data) referenceCounts = {
-					...referenceCounts,
-					...result.data
-				};
-			} catch {
-				toast.error("Failed to check references");
-			}
-			const referencedAssets = idsToCheck.filter((id) => (referenceCounts[id] || 0) > 0);
-			if (referencedAssets.length > 0) {
-				toast.error(`Cannot delete ${referencedAssets.length} asset${referencedAssets.length > 1 ? "s" : ""} — still referenced by documents. Remove the references first.`);
-				return;
-			}
 			const count = selectedIds.size;
 			if (!await confirmDialog({
 				title: `Delete ${count} asset${count > 1 ? "s" : ""}?`,
@@ -5637,31 +6494,244 @@ function MediaBrowser($$renderer, $$props) {
 				confirmText: "Delete",
 				variant: "destructive"
 			})) return;
+			await performBulkDelete([...selectedIds], false);
+		}
+		async function performBulkDelete(ids, force) {
 			isBulkDeleting = true;
 			try {
-				if ((await assets.deleteBulk([...selectedIds])).success) {
-					if (selectedAsset && selectedIds.has(selectedAsset.id)) selectedAsset = null;
-					selectedIds = /* @__PURE__ */ new Set();
+				if ((await assets.deleteBulk(ids, force ? { force: true } : void 0)).success) {
+					if (selectedAsset && ids.includes(selectedAsset.id)) selectedAsset = null;
+					clearSelection();
 					await fetchAssets();
 				}
-			} catch {
+			} catch (err) {
+				if (err instanceof ApiError && err.status === 409) {
+					await handleBulkDeleteConflict(ids, err.response);
+					return;
+				}
 				toast.error("Failed to delete assets");
 			} finally {
 				isBulkDeleting = false;
 			}
 		}
-		function closeAssetDetail() {
+		/**
+		* The batch was refused. Mirrors {@link handleDeleteConflict}: offer force only
+		* when an unregistered schema type is what's blocking, because that is the case
+		* where removing the reference by hand is impossible.
+		*/
+		async function handleBulkDeleteConflict(ids, conflict) {
+			const blocked = conflict.referencedIds ?? [];
+			const unregisteredTypes = conflict.unregisteredTypes ?? [];
+			const corrected = { ...referenceCounts };
+			for (const id of blocked) corrected[id] = Math.max(corrected[id] ?? 0, 1);
+			referenceCounts = corrected;
+			if (unregisteredTypes.length === 0) {
+				toast.error(conflict.error);
+				return;
+			}
+			if (await confirmDialog({
+				title: "Referenced by documents you cannot open",
+				description: `${blocked.length} asset${blocked.length > 1 ? "s are" : " is"} used by documents of type ${unregisteredTypes.join(", ")}, which no longer ${unregisteredTypes.length > 1 ? "exist" : "exists"} in your schema. Force delete removes the references for you.`,
+				confirmText: "Force delete",
+				variant: "destructive"
+			})) await performBulkDelete(ids, true);
+		}
+		/**
+		* The local preconditions a file must meet to be worth sending. Returns the
+		* reason it cannot be uploaded, or `undefined` when it can. Shared by the
+		* queue, the retry path and `revalidateRejected` so the three can't drift into
+		* disagreeing about why a file was turned away.
+		*/
+		function uploadRejection(file) {
+			if (!acceptsUpload(file)) return `File type ${file.type || file.name} is not accepted here`;
+			const fileLimit = maxUploadFileBytes(maxUploadBytes);
+			if (file.size > fileLimit) return `Too large — ${formatSize(file.size)}, limit is ${formatSize(fileLimit)}`;
+		}
+		/**
+		* Re-run the preconditions over rejected files. The server's real limits
+		* (`maxUploadBytes`, `globalAllowedMimeTypes`) arrive with the first asset
+		* page, which can land after files were already dropped in. Without this, a
+		* file turned away by the compiled-in defaults would stay rejected once the
+		* true, more permissive limits showed up — and since rejected rows carry no
+		* Retry, nothing in the dialog could clear it.
+		*/
+		function revalidateRejected() {
+			let changed = false;
+			for (const item of uploadQueue) {
+				if (item.status !== "rejected") continue;
+				const rejection = uploadRejection(item.file);
+				if (!rejection) {
+					item.status = "pending";
+					item.error = void 0;
+					changed = true;
+				} else if (rejection !== item.error) {
+					item.error = rejection;
+					changed = true;
+				}
+			}
+			if (changed) {
+				uploadQueue = [...uploadQueue];
+				processUploadQueue();
+			}
+		}
+		/** Drop one file from the queue, releasing the preview object URL it holds. */
+		function removeQueueItem(index) {
+			const item = uploadQueue[index];
+			if (!item || item.status === "uploading") return;
+			if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+			uploadQueue = [...uploadQueue.slice(0, index), ...uploadQueue.slice(index + 1)];
+		}
+		/** Upload one queued item, reporting progress as it goes. */
+		async function uploadItem(index) {
+			const item = uploadQueue[index];
+			if (!item) return;
+			item.status = "uploading";
+			item.progress = 0;
+			item.error = void 0;
+			uploadQueue = [...uploadQueue];
+			try {
+				const videoInfo = await extractVideoInfo(item.file);
+				const uploadedId = (await assets.uploadFile(item.file, {
+					direct: directUpload,
+					schemaType,
+					fieldPath,
+					allowedMimeTypes: acceptedFileTypes(),
+					videoDuration: videoInfo.duration,
+					videoWidth: videoInfo.width,
+					videoHeight: videoInfo.height,
+					onProgress: (percent) => {
+						item.progress = percent;
+						uploadQueue = [...uploadQueue];
+					}
+				}))?.data?.id;
+				if (uploadedId && videoInfo.poster) try {
+					await assets.uploadPoster(uploadedId, videoInfo.poster, {
+						duration: videoInfo.duration,
+						width: videoInfo.width,
+						height: videoInfo.height
+					});
+				} catch (err) {
+					cmsLogger.warn("[Media]", "Poster upload failed; video is fine:", err);
+				}
+				item.status = "done";
+				item.progress = 100;
+			} catch (err) {
+				item.status = !(err instanceof ApiError) || err.status >= 500 || err.status === 408 || err.status === 429 ? "failed" : "rejected";
+				item.error = uploadErrorMessage(err);
+			}
+			uploadQueue = [...uploadQueue];
+		}
+		async function processUploadQueue() {
+			if (isUploading) return;
+			isUploading = true;
+			const next = () => uploadQueue.findIndex((item) => item.status === "pending");
+			const worker = async () => {
+				for (let i = next(); i !== -1; i = next()) await uploadItem(i);
+			};
+			await Promise.all(Array.from({ length: Math.min(UPLOAD_CONCURRENCY, uploadQueue.length) }, worker));
+			isUploading = false;
+			currentPage = 1;
+			await fetchAssets(1);
+		}
+		/**
+		* Re-queue a failed upload.
+		*
+		* The `File` is still held by the queue item, so this costs the editor
+		* nothing — the alternative was closing the dialog and picking the file
+		* again, which for a drag-and-drop of twenty images meant redoing the lot to
+		* retry one.
+		*/
+		function retryUpload(index) {
+			const item = uploadQueue[index];
+			if (!item || item.status !== "failed") return;
+			const rejection = uploadRejection(item.file);
+			if (rejection) {
+				item.status = "rejected";
+				item.error = rejection;
+				uploadQueue = [...uploadQueue];
+				return;
+			}
+			item.status = "pending";
+			item.error = void 0;
+			uploadQueue = [...uploadQueue];
+			processUploadQueue();
+		}
+		function retryAllFailed() {
+			for (const item of uploadQueue) {
+				if (item.status !== "failed") continue;
+				const rejection = uploadRejection(item.file);
+				if (rejection) {
+					item.status = "rejected";
+					item.error = rejection;
+					continue;
+				}
+				item.status = "pending";
+				item.error = void 0;
+			}
+			uploadQueue = [...uploadQueue];
+			processUploadQueue();
+		}
+		const failedCount = derived(() => uploadQueue.filter((i) => i.status === "failed").length);
+		const rejectedCount = derived(() => uploadQueue.filter((i) => i.status === "rejected").length);
+		/** Rejected files are never sent, so they count toward neither tally. */
+		const queuedItems = derived(() => uploadQueue.filter((i) => i.status !== "rejected"));
+		const queuedBytes = derived(() => queuedItems().reduce((total, item) => total + item.file.size, 0));
+		/** Empty the queue, releasing the preview object URLs it holds. */
+		function clearUploadQueue() {
+			for (const item of uploadQueue) if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+			uploadQueue = [];
+		}
+		/**
+		* Turn a thrown upload error into something an editor can act on.
+		*
+		* The server's own message is preferred — it's the one that names the actual
+		* limit — with the status only used to fill in cases where the response
+		* carries no body, such as a proxy rejecting an oversized request before it
+		* ever reaches the app.
+		*/
+		function uploadErrorMessage(err) {
+			if (err instanceof ApiError) {
+				const serverMessage = err.response?.error;
+				if (typeof serverMessage === "string" && serverMessage) return serverMessage;
+				if (err.status === 413) return "File is too large for this server’s upload limit";
+				return `Upload failed (${err.status})`;
+			}
+			if (err instanceof Error && err.message) return err.message;
+			return "Upload failed";
+		}
+		const isDragging = derived(() => false);
+		/**
+		* Ask before throwing away metadata edits.
+		*
+		* Everything that replaces or closes the detail panel goes through here.
+		* Without it, typing alt text and then clicking the next thumbnail — the
+		* natural rhythm of captioning a shoot — discarded the text silently, with
+		* the panel that appeared next looking exactly like a successful save.
+		*/
+		async function confirmDiscardEdits() {
+			if (!metadataDirty()) return true;
+			return confirmDialog({
+				title: "Discard unsaved changes?",
+				description: "The metadata you edited on this asset has not been saved.",
+				confirmText: "Discard",
+				variant: "destructive"
+			});
+		}
+		async function closeAssetDetail() {
+			if (!await confirmDiscardEdits()) return;
 			selectedAsset = null;
+			onAssetOpen?.(null);
 		}
 		async function saveMetadata() {
-			if (!selectedAsset) return;
+			if (!selectedAsset || !canUpload()) return;
 			isSaving = true;
 			try {
 				const result = await assets.update(selectedAsset.id, {
-					title: editTitle || void 0,
-					description: void 0,
-					alt: editAlt || void 0,
-					creditLine: editCreditLine || void 0
+					originalFilename: editFilename.trim() || void 0,
+					title: editTitle || null,
+					description: null,
+					alt: editAlt || null,
+					creditLine: editCreditLine || null
 				});
 				if (result.success && result.data) {
 					assetList = assetList.map((a) => a.id === selectedAsset.id ? result.data : a);
@@ -5674,42 +6744,81 @@ function MediaBrowser($$renderer, $$props) {
 			}
 		}
 		async function deleteAsset(asset) {
-			try {
-				const result = await assets.getReferenceCounts([asset.id]);
-				if (result.success && result.data) referenceCounts = {
-					...referenceCounts,
-					...result.data
-				};
-			} catch {}
-			const refCount = referenceCounts[asset.id] || 0;
-			if (refCount > 0) {
-				toast.error(`Cannot delete "${asset.originalFilename}" — referenced by ${refCount} document${refCount > 1 ? "s" : ""}. Remove the references first.`);
-				return;
-			}
 			if (!await confirmDialog({
 				title: "Delete asset?",
 				description: `"${asset.originalFilename}" will be permanently deleted. This cannot be undone.`,
 				confirmText: "Delete",
 				variant: "destructive"
 			})) return;
+			await performDelete(asset, false);
+		}
+		async function performDelete(asset, force) {
 			try {
-				if ((await assets.delete(asset.id)).success) {
+				if ((await assets.delete(asset.id, force ? { force: true } : void 0)).success) {
 					if (selectedAsset?.id === asset.id) selectedAsset = null;
+					const next = { ...referenceCounts };
+					delete next[asset.id];
+					referenceCounts = next;
 					await fetchAssets();
 				}
-			} catch {
+			} catch (error) {
+				if (error instanceof ApiError && error.status === 409) {
+					await handleDeleteConflict(asset, error.response);
+					return;
+				}
 				toast.error("Failed to delete asset");
 			}
 		}
+		/**
+		* The asset is still referenced. The server has just done a fresh unfiltered
+		* scan, so treat its answer as the truth and correct the cached count with it.
+		*
+		* When any referencing document uses an unregistered schema type, force is the
+		* user's only route — that document cannot be opened in the admin, so the
+		* reference cannot be removed by hand and the asset would be undeletable.
+		*/
+		async function handleDeleteConflict(asset, conflict) {
+			const references = conflict.references ?? [];
+			const unregisteredTypes = conflict.unregisteredTypes ?? [];
+			referenceCounts = {
+				...referenceCounts,
+				[asset.id]: references.length
+			};
+			if (unregisteredTypes.length === 0) {
+				toast.error(conflict.error);
+				return;
+			}
+			const blocking = references.filter((ref) => unregisteredTypes.includes(ref.type));
+			if (await confirmDialog({
+				title: "Referenced by a document you cannot open",
+				description: `"${asset.originalFilename}" is used by ${blocking.length} document${blocking.length > 1 ? "s" : ""} of type ${unregisteredTypes.join(", ")}, which no longer ${unregisteredTypes.length > 1 ? "exist" : "exists"} in your schema. Force delete removes the reference${blocking.length > 1 ? "s" : ""} for you.`,
+				confirmText: "Force delete",
+				variant: "destructive"
+			})) await performDelete(asset, true);
+		}
 		let copiedUrl = false;
 		async function copyAssetUrl(asset) {
-			if (await copyUrlToClipboard(getThumbnailUrl(asset))) {
+			if (await copyUrlToClipboard(getOriginalUrl(asset))) {
 				copiedUrl = true;
 				setTimeout(() => copiedUrl = false, 2e3);
 			}
 		}
 		function downloadAsset(asset) {
-			downloadFile(getThumbnailUrl(asset), asset.originalFilename);
+			downloadFile(getOriginalUrl(asset), asset.originalFilename);
+		}
+		/**
+		* Secondary line on a grid tile: `PNG · 2.4 MB`, with dimensions when known.
+		* The filename alone rarely distinguishes two crops of the same photo, which
+		* is the case where a contact-sheet grid is least useful.
+		*/
+		function assetMetaLine(asset) {
+			const kind = (asset.mimeType?.split("/")[1] ?? "").toUpperCase();
+			const dimensions = asset.width && asset.height ? `${asset.width}×${asset.height}` : null;
+			return [
+				kind || null,
+				dimensions,
+				formatSize(asset.size)
+			].filter(Boolean).join(" · ");
 		}
 		function formatSize(bytes) {
 			if (bytes < 1024) return `${bytes} B`;
@@ -5724,11 +6833,191 @@ function MediaBrowser($$renderer, $$props) {
 				year: "numeric"
 			});
 		}
+		/**
+		* URL to draw an asset at tile size.
+		*
+		* Prefers the smallest derivative on the ladder. This grid used to render
+		* `asset.url` — the original — so a page of thirty photographs pulled thirty
+		* full-resolution files to fill thirty ~200px tiles. Nothing looked wrong,
+		* which is precisely why it went unnoticed.
+		*
+		* Falls back to the original when the pipeline is off or the asset can't be
+		* resized (SVG, animated): the variant route would serve the original for
+		* those anyway, and naming it directly saves a pointless redirect through a
+		* generation attempt.
+		*/
+		/**
+		* A video's poster frame, when one was extracted at upload.
+		*
+		* Gated on the recorded flag rather than optimistically requesting the URL: a
+		* video without a poster answers 404, and a grid of broken <img> is worse than
+		* a grid of honest placeholder icons.
+		*/
+		let generatingPoster = false;
+		/**
+		* Videos whose poster we have already tried to produce this session.
+		*
+		* Without it a video the browser cannot decode is retried on every render:
+		* failure leaves no poster, an absent poster is the trigger, and the loop
+		* costs a fetch and a decode attempt each time round.
+		*/
+		const posterAttempts = new SvelteSet();
+		/**
+		* Fill in posters for videos that have none.
+		*
+		* Automatic rather than a button, because "this video has no thumbnail" is not
+		* a decision an editor should have to make — it is just an asset uploaded
+		* before posters existed, or through the API where no browser saw the file.
+		*
+		* Only a browser can do this (see `video-metadata.ts`), so it happens here
+		* rather than in a job. Three deliberate limits: only assets on the page in
+		* front of the user, one at a time, and never the same asset twice — each
+		* fetches part of a video and runs a decode, and thirty of those at once would
+		* make opening the media library expensive.
+		*/
+		async function backfillPosters(candidates) {
+			for (const asset of candidates) {
+				if (posterAttempts.has(asset.id)) continue;
+				posterAttempts.add(asset.id);
+				try {
+					const info = await extractVideoInfoFromUrl(getOriginalUrl(asset));
+					if (!info.poster && info.duration == null) continue;
+					await assets.uploadPoster(asset.id, info.poster, {
+						duration: info.duration,
+						width: info.width,
+						height: info.height
+					});
+					assetList = assetList.map((item) => item.id === asset.id ? {
+						...item,
+						width: info.width ?? item.width,
+						height: info.height ?? item.height,
+						metadata: {
+							...item.metadata ?? {},
+							poster: true,
+							duration: info.duration ?? item.metadata?.duration
+						}
+					} : item);
+				} catch (err) {
+					cmsLogger.debug("[Media]", "Poster backfill skipped for", asset.id, err);
+				}
+			}
+		}
+		/**
+		* Produce a poster for a video that has none — one uploaded before posters
+		* existed, or through the API where no browser saw the file.
+		*
+		* Cheap only because the media route serves byte ranges: the browser fetches
+		* the container header and the frames around the seek point rather than the
+		* whole video.
+		*/
+		async function generatePoster(asset) {
+			generatingPoster = true;
+			try {
+				const info = await extractVideoInfoFromUrl(getOriginalUrl(asset));
+				if (!info.poster) {
+					toast.error("Could not read a frame — this browser may not decode that codec");
+					return;
+				}
+				await assets.uploadPoster(asset.id, info.poster, {
+					duration: info.duration,
+					width: info.width,
+					height: info.height
+				});
+				toast.success("Poster generated");
+				await fetchAssets(currentPage);
+				const refreshed = await assets.getById(asset.id);
+				if (refreshed.success && refreshed.data) selectedAsset = refreshed.data;
+			} catch (err) {
+				cmsLogger.error("[Media]", "Poster generation failed:", err);
+				toast.error("Failed to save poster");
+			} finally {
+				generatingPoster = false;
+			}
+		}
+		function getPosterUrl(asset) {
+			return asset.metadata?.poster === true ? `/media/${asset.id}/poster.webp` : null;
+		}
 		function getThumbnailUrl(asset) {
+			return variantUrlAt(asset, (config) => thumbnailWidth(config, asset.width ?? null));
+		}
+		/**
+		* The asset's own URL — the file that was uploaded, at full size.
+		*
+		* Distinct from {@link getThumbnailUrl} on purpose. Copying a URL and
+		* downloading a file both mean the *original*: handing someone a 320px webp
+		* when they asked for the asset is a data-loss-shaped bug, even though
+		* nothing errors.
+		*/
+		function getOriginalUrl(asset) {
 			return asset.url || `/media/${asset.id}/${asset.filename}`;
+		}
+		/**
+		* A derivative at the width `pick` chooses, or the original when the pipeline
+		* is off or the asset can't be resized (SVG, animated). The variant route
+		* serves the original for those anyway; naming it directly skips a pointless
+		* generation attempt.
+		*/
+		function variantUrlAt(asset, pick) {
+			if (!imageConfig || !canGenerateVariants(asset)) return getOriginalUrl(asset);
+			return buildVariantUrl(asset.id, pick(imageConfig), imageConfig.configHash);
+		}
+		/** Detail-pane preview: a panel-width rung, not a tile and not the original. */
+		function getPreviewUrl(asset) {
+			return variantUrlAt(asset, (config) => {
+				const widths = usableWidths(config, asset.width ?? null);
+				return widths.find((w) => w >= 640) ?? widths[widths.length - 1];
+			});
+		}
+		/**
+		* Lightbox: the largest rung, not the original.
+		*
+		* "Enlarge" on a 14MB photograph should not mean downloading 14MB — the top
+		* rung is already beyond any screen it will be shown on. `Download` is right
+		* there for anyone who wants the actual file.
+		*/
+		function getLightboxUrl(asset) {
+			return variantUrlAt(asset, (config) => {
+				const widths = usableWidths(config, asset.width ?? null);
+				return widths[widths.length - 1];
+			});
 		}
 		function isImage(asset) {
 			return asset.assetType === "image" || asset.mimeType.startsWith("image/");
+		}
+		function isVectorOrTransparent(asset) {
+			const mime = asset.mimeType ?? "";
+			return mime === "image/svg+xml" || mime === "image/png";
+		}
+		function isVideo(asset) {
+			return (asset.mimeType ?? "").startsWith("video/");
+		}
+		function isAudio(asset) {
+			return (asset.mimeType ?? "").startsWith("audio/");
+		}
+		/**
+		* Playable length, when we know it. Read from `metadata.duration` (seconds) —
+		* the column set doesn't have a duration field, but `AssetMetadata` carries an
+		* open index signature, so this needs no migration. It is only populated for
+		* assets uploaded through the browser, which is where the duration can be read
+		* off a `<video>` element; anything uploaded via the API has none, hence the
+		* null return rather than a "0:00" that would look like an empty file.
+		*/
+		function formatDuration(asset) {
+			const seconds = Number(asset.metadata?.duration);
+			if (!Number.isFinite(seconds) || seconds <= 0) return null;
+			const total = Math.round(seconds);
+			const hours = Math.floor(total / 3600);
+			const minutes = Math.floor(total % 3600 / 60);
+			const secs = total % 60;
+			return hours > 0 ? `${hours}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}` : `${minutes}:${String(secs).padStart(2, "0")}`;
+		}
+		function fileIconFor(mimeType) {
+			const mime = mimeType ?? "";
+			if (mime.startsWith("video/")) return Film;
+			if (mime.startsWith("audio/")) return Music;
+			if (mime.startsWith("image/")) return File_image;
+			if (/zip|tar|gzip|compressed|archive/.test(mime)) return File_archive;
+			return File_text;
 		}
 		const visiblePages = derived(() => {
 			const pages = [];
@@ -5744,7 +7033,27 @@ function MediaBrowser($$renderer, $$props) {
 			}
 			return pages;
 		});
-		const sortLabel = derived(() => "Last created: Newest first");
+		const sortLabel = derived(() => sortOrder === "newest" ? "Last created: Newest first" : sortOrder === "oldest" ? "Last created: Oldest first" : sortOrder === "name-asc" ? "Name: A-Z" : "Name: Z-A");
+		function fileIcon($$renderer, mimeType, sizeClass) {
+			const Icon = fileIconFor(mimeType);
+			if (Icon) {
+				$$renderer.push("<!--[-->");
+				Icon($$renderer, { class: `text-muted-foreground ${stringify(sizeClass)}` });
+				$$renderer.push("<!--]-->");
+			} else {
+				$$renderer.push("<!--[!-->");
+				$$renderer.push("<!--]-->");
+			}
+		}
+		function selectCheckbox($$renderer, asset) {
+			$$renderer.push(`<div>`);
+			Checkbox($$renderer, {
+				checked: selectedIds.has(asset.id),
+				onCheckedChange: () => handleSelectClick(asset.id, { shiftKey: false }),
+				onclick: (e) => e.stopPropagation()
+			});
+			$$renderer.push(`<!----></div>`);
+		}
 		function failed($$renderer, error, reset) {
 			$$renderer.push(`<div class="border-destructive/30 bg-destructive/5 rounded-md border p-4 text-center"><p class="text-destructive font-medium">Media browser encountered an error</p> <p class="text-muted-foreground mt-1 text-sm">${escape_html(error instanceof Error ? error.message : "Unknown error")}</p> <button class="bg-primary text-primary-foreground mt-3 rounded px-4 py-2 text-sm">Retry</button></div>`);
 		}
@@ -5752,7 +7061,12 @@ function MediaBrowser($$renderer, $$props) {
 		let $$inner_renderer;
 		function $$render_inner($$renderer) {
 			$$renderer.push(`<div class="flex h-full flex-col" role="region">`);
-			$$renderer.push("<!--[-1-->");
+			if (isDragging()) {
+				$$renderer.push("<!--[0-->");
+				$$renderer.push(`<div class="bg-primary/5 border-primary pointer-events-none absolute inset-0 z-50 flex items-center justify-center border-2 border-dashed"><div class="text-center">`);
+				Upload($$renderer, { class: "text-primary mx-auto mb-2 h-12 w-12" });
+				$$renderer.push(`<!----> <p class="text-primary text-lg font-medium">Drop files to upload</p></div></div>`);
+			} else $$renderer.push("<!--[-1-->");
 			$$renderer.push(`<!--]--> <div class="border-border flex items-center justify-between border-b px-4 py-3 sm:px-6 sm:py-4"><h2 class="text-base font-semibold sm:text-lg">Browse Assets</h2> `);
 			if (canUpload()) {
 				$$renderer.push("<!--[0-->");
@@ -5760,7 +7074,6 @@ function MediaBrowser($$renderer, $$props) {
 					size: "sm",
 					onclick: () => {
 						showUploadModal = true;
-						uploadQueue = [];
 					},
 					children: ($$renderer) => {
 						Upload($$renderer, {
@@ -5789,35 +7102,89 @@ function MediaBrowser($$renderer, $$props) {
 				$$renderer.push("<!--[0-->");
 				$$renderer.push(`<span class="text-muted-foreground hidden text-xs sm:inline">${escape_html((currentPage - 1) * pageSize + 1)}–${escape_html(Math.min(currentPage * pageSize, totalAssets))} of ${escape_html(totalAssets)}</span>`);
 			} else $$renderer.push("<!--[-1-->");
-			$$renderer.push(`<!--]--> <div class="hidden flex-1 sm:block"></div> <div class="hidden items-center gap-1.5 sm:flex"><span class="text-muted-foreground text-xs">Show</span> `);
+			$$renderer.push(`<!--]--> <div class="hidden flex-1 sm:block"></div> `);
 			$$renderer.select({
-				value: pageSize,
+				value: categoryFilter,
 				onchange: (e) => {
-					pageSize = parseInt(e.target.value);
+					categoryFilter = e.target.value;
 					currentPage = 1;
 					fetchAssets(1);
 				},
-				class: "border-input bg-background text-foreground h-7 rounded-md border px-1.5 text-xs"
+				"aria-label": "Filter by media type",
+				class: "border-input bg-background text-foreground hidden h-7 rounded-md border px-1.5 text-xs sm:block"
 			}, ($$renderer) => {
-				$$renderer.option({ value: 10 }, ($$renderer) => {
-					$$renderer.push(`10`);
+				$$renderer.option({ value: "all" }, ($$renderer) => {
+					$$renderer.push(`All types`);
 				});
-				$$renderer.option({ value: 20 }, ($$renderer) => {
-					$$renderer.push(`20`);
+				$$renderer.option({ value: "image" }, ($$renderer) => {
+					$$renderer.push(`Images`);
 				});
-				$$renderer.option({ value: 30 }, ($$renderer) => {
-					$$renderer.push(`30`);
+				$$renderer.option({ value: "svg" }, ($$renderer) => {
+					$$renderer.push(`SVG`);
 				});
-				$$renderer.option({ value: 50 }, ($$renderer) => {
-					$$renderer.push(`50`);
+				$$renderer.option({ value: "video" }, ($$renderer) => {
+					$$renderer.push(`Video`);
 				});
-				$$renderer.option({ value: 100 }, ($$renderer) => {
-					$$renderer.push(`100`);
+				$$renderer.option({ value: "audio" }, ($$renderer) => {
+					$$renderer.push(`Audio`);
+				});
+				$$renderer.option({ value: "document" }, ($$renderer) => {
+					$$renderer.push(`Documents`);
 				});
 			});
-			$$renderer.push(`</div> <div class="bg-muted flex items-center rounded-md p-0.5"><button${attr_class(`rounded p-1.5 ${stringify("bg-background shadow")}`)} title="Grid view">`);
+			$$renderer.push(` `);
+			if (usageIndexing) {
+				$$renderer.push("<!--[0-->");
+				$$renderer.push(`<span class="text-muted-foreground hidden items-center gap-1.5 text-xs sm:inline-flex" title="Building the reference index. Usage results are incomplete until it finishes."><span class="border-muted-foreground/40 h-3 w-3 animate-spin rounded-full border-2 border-t-transparent"></span> Indexing usage…</span>`);
+			} else $$renderer.push("<!--[-1-->");
+			$$renderer.push(`<!--]--> `);
+			$$renderer.select({
+				value: usageFilter,
+				onchange: (e) => {
+					usageFilter = e.target.value;
+					currentPage = 1;
+					fetchAssets(1);
+				},
+				"aria-label": "Filter by usage",
+				class: "border-input bg-background text-foreground hidden h-7 rounded-md border px-1.5 text-xs sm:block"
+			}, ($$renderer) => {
+				$$renderer.option({ value: "all" }, ($$renderer) => {
+					$$renderer.push(`All assets`);
+				});
+				$$renderer.option({ value: "in-use" }, ($$renderer) => {
+					$$renderer.push(`In use`);
+				});
+				$$renderer.option({ value: "unused" }, ($$renderer) => {
+					$$renderer.push(`Unused`);
+				});
+			});
+			$$renderer.push(` `);
+			if (viewMode === "grid") {
+				$$renderer.push("<!--[0-->");
+				$$renderer.push(`<div class="bg-muted hidden items-center rounded-md p-0.5 sm:flex"><!--[-->`);
+				const each_array = ensure_array_like([
+					{
+						id: "compact",
+						label: "Compact"
+					},
+					{
+						id: "default",
+						label: "Default"
+					},
+					{
+						id: "large",
+						label: "Large"
+					}
+				]);
+				for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
+					let option = each_array[$$index];
+					$$renderer.push(`<button${attr("title", `${stringify(option.label)} thumbnails`)}${attr("aria-pressed", gridDensity === option.id)}${attr_class(`rounded px-2 py-1 text-xs transition-colors ${stringify(gridDensity === option.id ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground")}`)}>${escape_html(option.label)}</button>`);
+				}
+				$$renderer.push(`<!--]--></div>`);
+			} else $$renderer.push("<!--[-1-->");
+			$$renderer.push(`<!--]--> <div class="bg-muted flex items-center rounded-md p-0.5"><button${attr_class(`rounded p-1.5 ${stringify(viewMode === "grid" ? "bg-background shadow" : "text-muted-foreground")}`)} title="Grid view">`);
 			Grid_3x3($$renderer, { size: 14 });
-			$$renderer.push(`<!----></button> <button${attr_class(`rounded p-1.5 ${stringify("text-muted-foreground")}`)} title="List view">`);
+			$$renderer.push(`<!----></button> <button${attr_class(`rounded p-1.5 ${stringify(viewMode === "list" ? "bg-background shadow" : "text-muted-foreground")}`)} title="List view">`);
 			List($$renderer, { size: 14 });
 			$$renderer.push(`<!----></button></div> `);
 			if (!selectable && canDeleteAssets()) {
@@ -5831,11 +7198,16 @@ function MediaBrowser($$renderer, $$props) {
 			$$renderer.push(`<!----> <span class="hidden sm:inline">${escape_html(sortLabel())}</span></button></div> <div class="flex flex-1 flex-col overflow-y-auto md:flex-row md:overflow-hidden"><div${attr_class(`min-h-0 flex-1 md:overflow-y-auto ${stringify(selectedAsset ? "hidden md:block" : "")}`)}>`);
 			$$renderer.boundary({ failed }, ($$renderer) => {
 				$$renderer.push(`<!--[-->`);
-				if (loading && assetList.length === 0) {
+				if (showAccessDenied()) {
 					$$renderer.push("<!--[0-->");
-					$$renderer.push(`<div class="flex h-full items-center justify-center"><p class="text-muted-foreground">Loading assets...</p></div>`);
-				} else if (sortedAssets().length === 0) {
+					$$renderer.push(`<div class="flex h-full flex-col items-center justify-center gap-4"><div class="bg-muted/50 flex h-16 w-16 items-center justify-center rounded-full">`);
+					Lock($$renderer, { class: "text-muted-foreground h-8 w-8" });
+					$$renderer.push(`<!----></div> <div class="text-center"><h3 class="mb-1 font-medium">No access to media</h3> <p class="text-muted-foreground text-sm">Your role doesn't include permission to view assets.</p></div></div>`);
+				} else if (loading && assetList.length === 0) {
 					$$renderer.push("<!--[1-->");
+					$$renderer.push(`<div class="flex h-full items-center justify-center"><p class="text-muted-foreground">Loading assets...</p></div>`);
+				} else if (orderedAssets().length === 0) {
+					$$renderer.push("<!--[2-->");
 					$$renderer.push(`<div class="flex h-full flex-col items-center justify-center gap-4"><div class="bg-muted/50 flex h-16 w-16 items-center justify-center rounded-full">`);
 					Image($$renderer, { class: "text-muted-foreground h-8 w-8" });
 					$$renderer.push(`<!----></div> <div class="text-center"><h3 class="mb-1 font-medium">No assets found</h3> <p class="text-muted-foreground text-sm">${escape_html(searchQuery ? "Try a different search term" : "Upload your first asset to get started")}</p></div></div>`);
@@ -5843,7 +7215,7 @@ function MediaBrowser($$renderer, $$props) {
 					$$renderer.push("<!--[-1-->");
 					if (selectable && multiSelect) {
 						$$renderer.push("<!--[0-->");
-						$$renderer.push(`<div class="bg-muted border-border flex items-center gap-3 border-b px-4 py-2"><span class="text-sm font-medium">${escape_html(selectedIds.size)} selected</span> `);
+						$$renderer.push(`<div class="bg-muted border-border sticky top-0 z-20 flex items-center gap-3 border-b px-4 py-2"><span class="text-sm font-medium">${escape_html(selectedIds.size)} selected</span> <button class="text-muted-foreground hover:text-foreground text-sm transition-colors">${escape_html(allSelected() ? "Deselect page" : "Select page")}</button> <span class="text-muted-foreground hidden text-xs lg:inline">Shift-click to extend a range</span> <div class="flex-1"></div> `);
 						Button($$renderer, {
 							variant: "default",
 							size: "sm",
@@ -5854,87 +7226,159 @@ function MediaBrowser($$renderer, $$props) {
 							$$slots: { default: true }
 						});
 						$$renderer.push(`<!----></div>`);
-					} else if (selectedIds.size > 0) {
+					} else if (isSelectMode()) {
 						$$renderer.push("<!--[1-->");
-						$$renderer.push(`<div class="bg-muted border-border flex items-center gap-3 border-b px-4 py-2"><span class="text-sm font-medium">${escape_html(selectedIds.size)} selected</span> `);
-						if (canDeleteAssets()) {
+						$$renderer.push(`<div class="bg-muted border-border sticky top-0 z-20 flex items-center gap-3 border-b px-4 py-2"><span class="text-sm font-medium">${escape_html(selectedIds.size)} selected</span> <button class="text-muted-foreground hover:text-foreground text-sm transition-colors">${escape_html(allSelected() ? "Deselect page" : "Select page")}</button> `);
+						if (selectedIds.size > 0) {
 							$$renderer.push("<!--[0-->");
-							Button($$renderer, {
-								variant: "destructive",
-								size: "sm",
-								onclick: bulkDelete,
-								disabled: isBulkDeleting,
-								children: ($$renderer) => {
-									Trash_2($$renderer, {
-										size: 14,
-										class: "mr-1.5"
-									});
-									$$renderer.push(`<!----> ${escape_html(isBulkDeleting ? "Deleting..." : "Delete")}`);
-								},
-								$$slots: { default: true }
-							});
+							if (canDeleteAssets()) {
+								$$renderer.push("<!--[0-->");
+								Button($$renderer, {
+									variant: "destructive",
+									size: "sm",
+									onclick: bulkDelete,
+									disabled: isBulkDeleting,
+									children: ($$renderer) => {
+										Trash_2($$renderer, {
+											size: 14,
+											class: "mr-1.5"
+										});
+										$$renderer.push(`<!----> ${escape_html(isBulkDeleting ? "Deleting..." : "Delete")}`);
+									},
+									$$slots: { default: true }
+								});
+							} else $$renderer.push("<!--[-1-->");
+							$$renderer.push(`<!--]--> <button class="text-muted-foreground hover:text-foreground text-sm transition-colors">Clear selection</button>`);
 						} else $$renderer.push("<!--[-1-->");
-						$$renderer.push(`<!--]--> <button class="text-muted-foreground hover:text-foreground text-sm transition-colors">Clear selection</button></div>`);
+						$$renderer.push(`<!--]--> <div class="flex-1"></div> <span class="text-muted-foreground hidden text-xs lg:inline">Shift-click to extend a range</span></div>`);
 					} else $$renderer.push("<!--[-1-->");
 					$$renderer.push(`<!--]--> `);
-					{
+					if (viewMode === "grid") {
 						$$renderer.push("<!--[0-->");
-						$$renderer.push(`<div class="grid grid-cols-2 gap-0.5 p-1 sm:grid-cols-5 xl:grid-cols-10"><!--[-->`);
-						const each_array = ensure_array_like(pinnedAssets());
-						for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
-							let asset = each_array[$$index];
-							$$renderer.push(`<button${attr_class(`group relative flex flex-col overflow-hidden rounded-sm transition-colors ${stringify(selectedIds.has(asset.id) ? "ring-primary ring-2" : selectedAsset?.id === asset.id ? "ring-primary ring-2" : "hover:bg-muted/50")}`)}><div class="bg-muted/30 relative aspect-square overflow-hidden">`);
+						$$renderer.push(`<div class="grid gap-3 p-3 select-none"${attr_style(`grid-template-columns: repeat(auto-fill, minmax(${stringify(TILE_MIN_WIDTH[gridDensity])}px, 1fr));`)}><!--[-->`);
+						const each_array_1 = ensure_array_like(pinnedAssets());
+						for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
+							let asset = each_array_1[$$index_1];
+							$$renderer.push(`<button${attr_class(`group border-border bg-card relative flex flex-col overflow-hidden rounded-md border text-left transition-all ${stringify(selectedIds.has(asset.id) ? "border-primary ring-primary/40 ring-2" : selectedAsset?.id === asset.id ? "border-primary ring-primary/40 ring-2" : "hover:border-muted-foreground/40 hover:shadow-sm")}`)}><div class="bg-muted/30 relative aspect-square overflow-hidden">`);
+							if (asset.isPrivate) {
+								$$renderer.push("<!--[0-->");
+								$$renderer.push(`<span class="pointer-events-none absolute top-1.5 left-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-black/70" title="Private — needs a session or a signed URL">`);
+								Lock($$renderer, { class: "h-3 w-3 text-white" });
+								$$renderer.push(`<!----></span>`);
+							} else $$renderer.push("<!--[-1-->");
+							$$renderer.push(`<!--]--> `);
+							if (isVideo(asset) || isAudio(asset)) {
+								$$renderer.push("<!--[0-->");
+								const duration = formatDuration(asset);
+								if (getPosterUrl(asset)) {
+									$$renderer.push("<!--[0-->");
+									$$renderer.push(`<div class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"><span class="flex h-9 w-9 items-center justify-center rounded-full bg-black/45 backdrop-blur-[1px]">`);
+									Play($$renderer, { class: "h-4 w-4 translate-x-[1px] fill-white text-white" });
+									$$renderer.push(`<!----></span></div>`);
+								} else $$renderer.push("<!--[-1-->");
+								$$renderer.push(`<!--]--> `);
+								if (duration) {
+									$$renderer.push("<!--[0-->");
+									$$renderer.push(`<span class="pointer-events-none absolute right-1.5 bottom-1.5 z-10 rounded-sm bg-black/70 px-1 py-0.5 text-[10px] font-medium text-white tabular-nums">${escape_html(duration)}</span>`);
+								} else $$renderer.push("<!--[-1-->");
+								$$renderer.push(`<!--]-->`);
+							} else $$renderer.push("<!--[-1-->");
+							$$renderer.push(`<!--]--> `);
 							if (isImage(asset)) {
 								$$renderer.push("<!--[0-->");
-								$$renderer.push(`<img${attr("src", getThumbnailUrl(asset))}${attr("alt", asset.alt || asset.originalFilename)} class="h-full w-full object-contain" loading="lazy"/>`);
+								AssetImage($$renderer, {
+									src: getThumbnailUrl(asset),
+									alt: asset.alt || asset.originalFilename,
+									mimeType: asset.mimeType,
+									class: `h-full w-full ${stringify(isVectorOrTransparent(asset) ? "object-contain p-3" : "object-cover")}`,
+									loading: "lazy"
+								});
+							} else if (getPosterUrl(asset)) {
+								$$renderer.push("<!--[1-->");
+								AssetImage($$renderer, {
+									src: getPosterUrl(asset),
+									alt: asset.alt || asset.originalFilename,
+									class: "h-full w-full object-cover",
+									loading: "lazy"
+								});
 							} else {
 								$$renderer.push("<!--[-1-->");
 								$$renderer.push(`<div class="flex h-full items-center justify-center">`);
-								File_text($$renderer, { class: "text-muted-foreground h-10 w-10" });
+								fileIcon($$renderer, asset.mimeType, "h-1/3 w-1/3 min-h-8 min-w-8 max-h-20 max-w-20");
 								$$renderer.push(`<!----></div>`);
 							}
 							$$renderer.push(`<!--]--> `);
 							if (isSelectMode() && !selectable) {
 								$$renderer.push("<!--[0-->");
 								$$renderer.push(`<div class="absolute top-1.5 left-1.5">`);
-								Checkbox($$renderer, {
-									checked: selectedIds.has(asset.id),
-									onCheckedChange: () => toggleSelect(asset.id),
-									onclick: (e) => e.stopPropagation()
-								});
+								selectCheckbox($$renderer, asset);
 								$$renderer.push(`<!----></div>`);
 							} else $$renderer.push("<!--[-1-->");
-							$$renderer.push(`<!--]--></div> <div class="p-1.5"><p class="text-muted-foreground truncate text-xs">${escape_html(asset.originalFilename)}</p></div></button>`);
+							$$renderer.push(`<!--]--></div> <div class="border-border min-w-0 border-t px-2 py-1.5"><p class="text-foreground truncate text-xs"${attr("title", asset.originalFilename)}>${escape_html(asset.originalFilename)}</p> <p class="text-muted-foreground truncate text-[11px]">${escape_html(assetMetaLine(asset))}</p></div></button>`);
 						}
 						$$renderer.push(`<!--]--> <!--[-->`);
-						const each_array_1 = ensure_array_like(sortedAssets());
-						for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
-							let asset = each_array_1[$$index_1];
-							$$renderer.push(`<button${attr_class(`group relative flex flex-col overflow-hidden rounded-sm transition-colors ${stringify(selectedIds.has(asset.id) ? "ring-primary ring-2" : selectedAsset?.id === asset.id ? "ring-primary ring-2" : "hover:bg-muted/50")}`)}><div class="bg-muted/30 relative aspect-square overflow-hidden">`);
+						const each_array_2 = ensure_array_like(sortedAssets());
+						for (let $$index_2 = 0, $$length = each_array_2.length; $$index_2 < $$length; $$index_2++) {
+							let asset = each_array_2[$$index_2];
+							$$renderer.push(`<button${attr_class(`group border-border bg-card relative flex flex-col overflow-hidden rounded-md border text-left transition-all ${stringify(selectedIds.has(asset.id) ? "border-primary ring-primary/40 ring-2" : selectedAsset?.id === asset.id ? "border-primary ring-primary/40 ring-2" : "hover:border-muted-foreground/40 hover:shadow-sm")}`)}><div class="bg-muted/30 relative aspect-square overflow-hidden">`);
+							if (asset.isPrivate) {
+								$$renderer.push("<!--[0-->");
+								$$renderer.push(`<span class="pointer-events-none absolute top-1.5 left-1.5 z-10 flex h-5 w-5 items-center justify-center rounded-full bg-black/70" title="Private — needs a session or a signed URL">`);
+								Lock($$renderer, { class: "h-3 w-3 text-white" });
+								$$renderer.push(`<!----></span>`);
+							} else $$renderer.push("<!--[-1-->");
+							$$renderer.push(`<!--]--> `);
+							if (isVideo(asset) || isAudio(asset)) {
+								$$renderer.push("<!--[0-->");
+								const duration = formatDuration(asset);
+								if (getPosterUrl(asset)) {
+									$$renderer.push("<!--[0-->");
+									$$renderer.push(`<div class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"><span class="flex h-9 w-9 items-center justify-center rounded-full bg-black/45 backdrop-blur-[1px]">`);
+									Play($$renderer, { class: "h-4 w-4 translate-x-[1px] fill-white text-white" });
+									$$renderer.push(`<!----></span></div>`);
+								} else $$renderer.push("<!--[-1-->");
+								$$renderer.push(`<!--]--> `);
+								if (duration) {
+									$$renderer.push("<!--[0-->");
+									$$renderer.push(`<span class="pointer-events-none absolute right-1.5 bottom-1.5 z-10 rounded-sm bg-black/70 px-1 py-0.5 text-[10px] font-medium text-white tabular-nums">${escape_html(duration)}</span>`);
+								} else $$renderer.push("<!--[-1-->");
+								$$renderer.push(`<!--]-->`);
+							} else $$renderer.push("<!--[-1-->");
+							$$renderer.push(`<!--]--> `);
 							if (isImage(asset)) {
 								$$renderer.push("<!--[0-->");
-								$$renderer.push(`<img${attr("src", getThumbnailUrl(asset))}${attr("alt", asset.alt || asset.originalFilename)} class="h-full w-full object-contain" loading="lazy"/>`);
+								AssetImage($$renderer, {
+									src: getThumbnailUrl(asset),
+									alt: asset.alt || asset.originalFilename,
+									mimeType: asset.mimeType,
+									class: `h-full w-full ${stringify(isVectorOrTransparent(asset) ? "object-contain p-3" : "object-cover")}`,
+									loading: "lazy"
+								});
+							} else if (getPosterUrl(asset)) {
+								$$renderer.push("<!--[1-->");
+								AssetImage($$renderer, {
+									src: getPosterUrl(asset),
+									alt: asset.alt || asset.originalFilename,
+									class: "h-full w-full object-cover",
+									loading: "lazy"
+								});
 							} else {
 								$$renderer.push("<!--[-1-->");
 								$$renderer.push(`<div class="flex h-full items-center justify-center">`);
-								File_text($$renderer, { class: "text-muted-foreground h-10 w-10" });
+								fileIcon($$renderer, asset.mimeType, "h-1/3 w-1/3 min-h-8 min-w-8 max-h-20 max-w-20");
 								$$renderer.push(`<!----></div>`);
 							}
 							$$renderer.push(`<!--]--> `);
 							if (selectable) {
 								$$renderer.push("<!--[0-->");
 								$$renderer.push(`<div role="button" tabindex="0" class="bg-background/80 absolute top-1.5 right-1.5 rounded p-1 opacity-0 transition-opacity group-hover:opacity-100" title="View details"><svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg></div>`);
-							} else if (isSelectMode()) {
+							} else if (isSelectMode() || canDeleteAssets()) {
 								$$renderer.push("<!--[1-->");
-								$$renderer.push(`<div class="absolute top-1.5 left-1.5">`);
-								Checkbox($$renderer, {
-									checked: selectedIds.has(asset.id),
-									onCheckedChange: () => toggleSelect(asset.id),
-									onclick: (e) => e.stopPropagation()
-								});
+								$$renderer.push(`<div${attr_class(`absolute top-1.5 left-1.5 transition-opacity ${stringify(isSelectMode() || selectedIds.has(asset.id) ? "opacity-100" : "opacity-0 group-hover:opacity-100 focus-within:opacity-100")}`)}>`);
+								selectCheckbox($$renderer, asset);
 								$$renderer.push(`<!----></div>`);
 							} else $$renderer.push("<!--[-1-->");
-							$$renderer.push(`<!--]--></div> <div class="p-1.5"><p class="text-muted-foreground truncate text-xs">${escape_html(asset.originalFilename)}</p></div></button>`);
+							$$renderer.push(`<!--]--></div> <div class="border-border min-w-0 border-t px-2 py-1.5"><p class="text-foreground truncate text-xs"${attr("title", asset.originalFilename)}>${escape_html(asset.originalFilename)}</p> <p class="text-muted-foreground truncate text-[11px]">${escape_html(assetMetaLine(asset))}</p></div></button>`);
 						}
 						$$renderer.push(`<!--]--></div> `);
 						if (totalPages > 1) {
@@ -5942,9 +7386,9 @@ function MediaBrowser($$renderer, $$props) {
 							$$renderer.push(`<div class="border-border flex items-center justify-center gap-1 border-t px-4 py-3"><button${attr("disabled", currentPage <= 1 || loading, true)} class="hover:bg-muted rounded p-1.5 transition-colors disabled:pointer-events-none disabled:opacity-30">`);
 							Chevron_left($$renderer, { size: 16 });
 							$$renderer.push(`<!----></button> <!--[-->`);
-							const each_array_2 = ensure_array_like(visiblePages());
-							for (let $$index_2 = 0, $$length = each_array_2.length; $$index_2 < $$length; $$index_2++) {
-								let pg = each_array_2[$$index_2];
+							const each_array_3 = ensure_array_like(visiblePages());
+							for (let $$index_3 = 0, $$length = each_array_3.length; $$index_3 < $$length; $$index_3++) {
+								let pg = each_array_3[$$index_3];
 								if (pg === "...") {
 									$$renderer.push("<!--[0-->");
 									$$renderer.push(`<span class="text-muted-foreground px-1.5 text-sm">...</span>`);
@@ -5959,6 +7403,99 @@ function MediaBrowser($$renderer, $$props) {
 							$$renderer.push(`<!----></button></div>`);
 						} else $$renderer.push("<!--[-1-->");
 						$$renderer.push(`<!--]-->`);
+					} else {
+						$$renderer.push("<!--[-1-->");
+						$$renderer.push(`<div class="w-full select-none"><div class="bg-muted/30 border-border text-muted-foreground hidden items-center gap-4 border-b px-4 py-2 text-xs font-medium tracking-wider uppercase md:grid md:grid-cols-[auto_40px_1fr_100px_100px_80px_50px_100px]"><div class="w-4">`);
+						Checkbox($$renderer, {
+							checked: allSelected(),
+							onCheckedChange: toggleSelectAll
+						});
+						$$renderer.push(`<!----></div> <div></div> <div>Filename</div> <div>Resolution</div> <div>Mime type</div> <div>Size</div> <div>Refs</div> <div>Last updated</div></div> <div class="bg-muted/30 border-border text-muted-foreground flex items-center gap-3 border-b px-4 py-2 text-xs font-medium tracking-wider uppercase md:hidden"><div class="w-4">`);
+						Checkbox($$renderer, {
+							checked: allSelected(),
+							onCheckedChange: toggleSelectAll
+						});
+						$$renderer.push(`<!----></div> <div>Assets</div></div> <!--[-->`);
+						const each_array_4 = ensure_array_like(orderedAssets());
+						for (let $$index_4 = 0, $$length = each_array_4.length; $$index_4 < $$length; $$index_4++) {
+							let asset = each_array_4[$$index_4];
+							$$renderer.push(`<button${attr_class(`border-border hidden w-full items-center gap-4 border-b px-4 py-2 text-left transition-colors md:grid md:grid-cols-[auto_40px_1fr_100px_100px_80px_50px_100px] ${stringify(selectedAsset?.id === asset.id ? "bg-muted" : selectedIds.has(asset.id) ? "bg-muted/70" : "hover:bg-muted/50")}`)}><div class="w-4">`);
+							selectCheckbox($$renderer, asset);
+							$$renderer.push(`<!----></div> <div class="bg-muted/30 h-10 w-10 overflow-hidden rounded">`);
+							if (isImage(asset)) {
+								$$renderer.push("<!--[0-->");
+								AssetImage($$renderer, {
+									src: getThumbnailUrl(asset),
+									alt: asset.alt || asset.originalFilename,
+									mimeType: asset.mimeType,
+									class: "h-full w-full object-cover",
+									loading: "lazy"
+								});
+							} else if (getPosterUrl(asset)) {
+								$$renderer.push("<!--[1-->");
+								AssetImage($$renderer, {
+									src: getPosterUrl(asset),
+									alt: asset.alt || asset.originalFilename,
+									class: "h-full w-full object-cover",
+									loading: "lazy"
+								});
+							} else {
+								$$renderer.push("<!--[-1-->");
+								$$renderer.push(`<div class="flex h-full items-center justify-center">`);
+								fileIcon($$renderer, asset.mimeType, "h-4 w-4");
+								$$renderer.push(`<!----></div>`);
+							}
+							$$renderer.push(`<!--]--></div> <div class="min-w-0"><p class="truncate text-sm">${escape_html(asset.originalFilename)}</p></div> <div class="text-muted-foreground text-xs">${escape_html(asset.width && asset.height ? `${asset.width}x${asset.height}` : "-")}</div> <div class="text-muted-foreground text-xs">${escape_html(asset.mimeType)}</div> <div class="text-muted-foreground text-xs">${escape_html(formatSize(asset.size))}</div> <div class="text-muted-foreground text-xs">${escape_html(referenceCounts[asset.id] || 0)}</div> <div class="text-muted-foreground text-xs">${escape_html(formatDate(asset.updatedAt || asset.createdAt))}</div></button> <button${attr_class(`border-border flex w-full items-center gap-3 border-b px-4 py-2 text-left transition-colors md:hidden ${stringify(selectedAsset?.id === asset.id ? "bg-muted" : selectedIds.has(asset.id) ? "bg-muted/70" : "hover:bg-muted/50")}`)}><div class="w-4">`);
+							selectCheckbox($$renderer, asset);
+							$$renderer.push(`<!----></div> <div class="bg-muted/30 h-10 w-10 shrink-0 overflow-hidden rounded">`);
+							if (isImage(asset)) {
+								$$renderer.push("<!--[0-->");
+								AssetImage($$renderer, {
+									src: getThumbnailUrl(asset),
+									alt: asset.alt || asset.originalFilename,
+									mimeType: asset.mimeType,
+									class: "h-full w-full object-cover",
+									loading: "lazy"
+								});
+							} else if (getPosterUrl(asset)) {
+								$$renderer.push("<!--[1-->");
+								AssetImage($$renderer, {
+									src: getPosterUrl(asset),
+									alt: asset.alt || asset.originalFilename,
+									class: "h-full w-full object-cover",
+									loading: "lazy"
+								});
+							} else {
+								$$renderer.push("<!--[-1-->");
+								$$renderer.push(`<div class="flex h-full items-center justify-center">`);
+								fileIcon($$renderer, asset.mimeType, "h-4 w-4");
+								$$renderer.push(`<!----></div>`);
+							}
+							$$renderer.push(`<!--]--></div> <div class="min-w-0 flex-1"><p class="truncate text-sm">${escape_html(asset.originalFilename)}</p> <p class="text-muted-foreground text-xs">${escape_html(formatSize(asset.size))}</p></div></button>`);
+						}
+						$$renderer.push(`<!--]--> `);
+						if (totalPages > 1) {
+							$$renderer.push("<!--[0-->");
+							$$renderer.push(`<div class="border-border flex items-center justify-center gap-1 border-t px-4 py-3"><button${attr("disabled", currentPage <= 1 || loading, true)} class="hover:bg-muted rounded p-1.5 transition-colors disabled:pointer-events-none disabled:opacity-30">`);
+							Chevron_left($$renderer, { size: 16 });
+							$$renderer.push(`<!----></button> <!--[-->`);
+							const each_array_5 = ensure_array_like(visiblePages());
+							for (let $$index_5 = 0, $$length = each_array_5.length; $$index_5 < $$length; $$index_5++) {
+								let pg = each_array_5[$$index_5];
+								if (pg === "...") {
+									$$renderer.push("<!--[0-->");
+									$$renderer.push(`<span class="text-muted-foreground px-1.5 text-sm">...</span>`);
+								} else {
+									$$renderer.push("<!--[-1-->");
+									$$renderer.push(`<button${attr("disabled", loading, true)}${attr_class(`min-w-[32px] rounded px-2 py-1 text-sm font-medium transition-colors ${stringify(pg === currentPage ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted hover:text-foreground")}`)}>${escape_html(pg)}</button>`);
+								}
+								$$renderer.push(`<!--]-->`);
+							}
+							$$renderer.push(`<!--]--> <button${attr("disabled", currentPage >= totalPages || loading, true)} class="hover:bg-muted rounded p-1.5 transition-colors disabled:pointer-events-none disabled:opacity-30">`);
+							Chevron_right($$renderer, { size: 16 });
+							$$renderer.push(`<!----></button></div>`);
+						} else $$renderer.push("<!--[-1-->");
+						$$renderer.push(`<!--]--></div>`);
 					}
 					$$renderer.push(`<!--]-->`);
 				}
@@ -5968,7 +7505,7 @@ function MediaBrowser($$renderer, $$props) {
 			$$renderer.push(`</div> `);
 			if (selectedAsset) {
 				$$renderer.push("<!--[0-->");
-				$$renderer.push(`<div class="bg-background border-border flex flex-col border-t md:w-[350px] md:shrink-0 md:overflow-y-auto md:border-t-0 md:border-l"><div class="border-border flex items-center justify-between border-b px-4 py-3"><button class="text-muted-foreground hover:text-foreground flex items-center gap-1 text-sm transition-colors md:hidden">`);
+				$$renderer.push(`<div class="bg-background border-border flex min-h-0 flex-col border-t md:w-[350px] md:shrink-0 md:border-t-0 md:border-l"><div class="border-border flex items-center justify-between border-b px-4 py-3"><button class="text-muted-foreground hover:text-foreground flex items-center gap-1 text-sm transition-colors md:hidden">`);
 				Chevron_left($$renderer, { size: 16 });
 				$$renderer.push(`<!----> Back</button> <p class="min-w-0 flex-1 truncate pl-2 text-sm font-medium md:pl-0"${attr("title", selectedAsset.originalFilename)}>${escape_html(selectedAsset.originalFilename)}</p> <div class="flex items-center gap-1">`);
 				if (!selectable && canDeleteAssets()) {
@@ -6020,22 +7557,54 @@ function MediaBrowser($$renderer, $$props) {
 				$$renderer.push(`<!--]--> <div class="p-4 pb-0">`);
 				if (isImage(selectedAsset)) {
 					$$renderer.push("<!--[0-->");
-					$$renderer.push(`<button class="bg-muted/30 mb-3 w-full cursor-zoom-in overflow-hidden rounded-lg" title="Click to enlarge"><img${attr("src", getThumbnailUrl(selectedAsset))}${attr("alt", selectedAsset.alt || selectedAsset.originalFilename)} class="w-full object-contain" style="max-height: 200px;"/></button>`);
+					$$renderer.push(`<button class="bg-muted/30 mb-3 w-full cursor-zoom-in overflow-hidden rounded-lg" title="Click to enlarge">`);
+					AssetImage($$renderer, {
+						src: getPreviewUrl(selectedAsset),
+						alt: selectedAsset.alt || selectedAsset.originalFilename,
+						mimeType: selectedAsset.mimeType,
+						class: "w-full object-contain",
+						style: "max-height: 200px;"
+					});
+					$$renderer.push(`<!----></button>`);
+				} else if (isVideo(selectedAsset)) {
+					$$renderer.push("<!--[1-->");
+					$$renderer.push(`<video${attr("src", getOriginalUrl(selectedAsset))} controls="" preload="metadata" class="bg-muted/30 mb-3 max-h-52 w-full rounded-lg object-contain"><track kind="captions"/></video> `);
+					if (!getPosterUrl(selectedAsset) && canUpload() && posterAttempts.has(selectedAsset.id)) {
+						$$renderer.push("<!--[0-->");
+						Button($$renderer, {
+							variant: "outline",
+							size: "sm",
+							class: "mb-3 w-full",
+							disabled: generatingPoster,
+							onclick: () => generatePoster(selectedAsset),
+							children: ($$renderer) => {
+								$$renderer.push(`<!---->${escape_html(generatingPoster ? "Reading a frame…" : "Generate poster")}`);
+							},
+							$$slots: { default: true }
+						});
+					} else $$renderer.push("<!--[-1-->");
+					$$renderer.push(`<!--]-->`);
+				} else if (isAudio(selectedAsset)) {
+					$$renderer.push("<!--[2-->");
+					$$renderer.push(`<audio${attr("src", getOriginalUrl(selectedAsset))} controls="" preload="metadata" class="mb-3 w-full"></audio>`);
 				} else {
 					$$renderer.push("<!--[-1-->");
 					$$renderer.push(`<div class="bg-muted/30 mb-3 flex h-28 items-center justify-center overflow-hidden rounded-lg">`);
-					File_text($$renderer, { class: "text-muted-foreground h-12 w-12" });
+					fileIcon($$renderer, selectedAsset.mimeType, "h-12 w-12");
 					$$renderer.push(`<!----></div>`);
 				}
-				$$renderer.push(`<!--]--></div> <div class="border-border flex border-b"><button${attr_class(`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${stringify("border-foreground text-foreground border-b-2")}`)}>Details</button> <button${attr_class(`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${stringify("text-muted-foreground hover:text-foreground")}`)}>References (${escape_html(selectedRefCount)})</button></div> <div class="flex-1 overflow-y-auto p-4">`);
+				$$renderer.push(`<!--]--></div> <div class="border-border flex border-b"><button${attr_class(`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${stringify("border-foreground text-foreground border-b-2")}`)}>Details</button> <button${attr_class(`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${stringify("text-muted-foreground hover:text-foreground")}`)}>References (${escape_html(selectedRefCount)})</button></div> <div class="min-h-0 flex-1 overflow-y-auto p-4">`);
 				{
 					$$renderer.push("<!--[0-->");
-					$$renderer.push(`<div class="mb-4 space-y-2 text-sm"><div class="flex justify-between"><span class="text-muted-foreground">Filename</span> <span class="max-w-[180px] truncate font-medium"${attr("title", selectedAsset.originalFilename)}>${escape_html(selectedAsset.originalFilename)}</span></div> <div class="flex justify-between"><span class="text-muted-foreground">Type</span> <span>${escape_html(selectedAsset.mimeType)}</span></div> <div class="flex justify-between"><span class="text-muted-foreground">Size</span> <span>${escape_html(formatSize(selectedAsset.size))}</span></div> `);
-					if (selectedAsset.width && selectedAsset.height) {
+					$$renderer.push(`<div class="mb-3"><p class="truncate text-sm font-medium"${attr("title", selectedAsset.originalFilename)}>${escape_html(selectedAsset.originalFilename)}</p> <p class="text-muted-foreground mt-0.5 text-xs">${escape_html(assetMetaLine(selectedAsset))}${escape_html(formatDuration(selectedAsset) ? ` · ${formatDuration(selectedAsset)}` : "")}</p> `);
+					if (selectedAsset.isPrivate) {
 						$$renderer.push("<!--[0-->");
-						$$renderer.push(`<div class="flex justify-between"><span class="text-muted-foreground">Dimensions</span> <span>${escape_html(selectedAsset.width)} x ${escape_html(selectedAsset.height)}</span></div>`);
+						$$renderer.push(`<p class="text-muted-foreground mt-1.5 flex items-start gap-1.5 text-xs">`);
+						Lock($$renderer, { class: "mt-[1px] h-3 w-3 shrink-0" });
+						$$renderer.push(`<!----> <span>Private — needs a signed URL or a session in this organization. Set by the
+										schema field this asset was uploaded into.</span></p>`);
 					} else $$renderer.push("<!--[-1-->");
-					$$renderer.push(`<!--]--> <div class="flex justify-between"><span class="text-muted-foreground">Uploaded</span> <span>${escape_html(formatDate(selectedAsset.createdAt))}</span></div></div> <div class="mb-4 flex gap-2">`);
+					$$renderer.push(`<!--]--></div> <div class="mb-4 flex gap-2">`);
 					Button($$renderer, {
 						variant: "outline",
 						size: "sm",
@@ -6069,6 +7638,30 @@ function MediaBrowser($$renderer, $$props) {
 					Separator($$renderer, { class: "my-4" });
 					$$renderer.push(`<!----> <div class="space-y-3"><div>`);
 					Label($$renderer, {
+						for: "asset-filename",
+						class: "text-xs",
+						children: ($$renderer) => {
+							$$renderer.push(`<!---->Filename`);
+						},
+						$$slots: { default: true }
+					});
+					$$renderer.push(`<!----> `);
+					Input($$renderer, {
+						id: "asset-filename",
+						readonly: !canUpload(),
+						disabled: !canUpload(),
+						class: "mt-1 h-8 text-sm",
+						placeholder: "filename.jpg",
+						get value() {
+							return editFilename;
+						},
+						set value($$value) {
+							editFilename = $$value;
+							$$settled = false;
+						}
+					});
+					$$renderer.push(`<!----></div> <div>`);
+					Label($$renderer, {
 						for: "asset-title",
 						class: "text-xs",
 						children: ($$renderer) => {
@@ -6079,6 +7672,8 @@ function MediaBrowser($$renderer, $$props) {
 					$$renderer.push(`<!----> `);
 					Input($$renderer, {
 						id: "asset-title",
+						readonly: !canUpload(),
+						disabled: !canUpload(),
 						class: "mt-1 h-8 text-sm",
 						placeholder: "Asset title",
 						get value() {
@@ -6098,7 +7693,7 @@ function MediaBrowser($$renderer, $$props) {
 						},
 						$$slots: { default: true }
 					});
-					$$renderer.push(`<!----> <textarea id="asset-description" class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring mt-1 flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none" rows="2" placeholder="Description">`);
+					$$renderer.push(`<!----> <textarea id="asset-description"${attr("readonly", !canUpload(), true)}${attr("disabled", !canUpload(), true)} class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring mt-1 flex w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50" rows="2" placeholder="Description">`);
 					const $$body = escape_html(editDescription);
 					if ($$body) $$renderer.push(`${$$body}`);
 					$$renderer.push(`</textarea></div> <div>`);
@@ -6113,6 +7708,8 @@ function MediaBrowser($$renderer, $$props) {
 					$$renderer.push(`<!----> `);
 					Input($$renderer, {
 						id: "asset-alt",
+						readonly: !canUpload(),
+						disabled: !canUpload(),
 						class: "mt-1 h-8 text-sm",
 						placeholder: "Alternative text",
 						get value() {
@@ -6135,6 +7732,8 @@ function MediaBrowser($$renderer, $$props) {
 					$$renderer.push(`<!----> `);
 					Input($$renderer, {
 						id: "asset-credit",
+						readonly: !canUpload(),
+						disabled: !canUpload(),
 						class: "mt-1 h-8 text-sm",
 						placeholder: "Credit / attribution",
 						get value() {
@@ -6146,19 +7745,44 @@ function MediaBrowser($$renderer, $$props) {
 						}
 					});
 					$$renderer.push(`<!----></div> `);
+					if (!canUpload()) {
+						$$renderer.push("<!--[0-->");
+						$$renderer.push(`<p class="text-muted-foreground text-xs">You don't have permission to edit asset metadata.</p>`);
+					} else $$renderer.push("<!--[-1-->");
+					$$renderer.push(`<!--]--> <details class="group border-border mt-2 border-t pt-3"><summary class="text-muted-foreground hover:text-foreground flex cursor-pointer list-none items-center gap-1 text-xs select-none [&amp;::-webkit-details-marker]:hidden">`);
+					Chevron_right($$renderer, {
+						size: 12,
+						class: "transition-transform group-open:rotate-90"
+					});
+					$$renderer.push(`<!----> File information</summary> <div class="mt-2 space-y-2 text-xs"><div class="flex justify-between gap-2"><span class="text-muted-foreground">Type</span> <span class="font-mono">${escape_html(selectedAsset.mimeType)}</span></div> <div class="flex justify-between gap-2"><span class="text-muted-foreground">Size</span> <span>${escape_html(formatSize(selectedAsset.size))}</span></div> `);
+					if (selectedAsset.width && selectedAsset.height) {
+						$$renderer.push("<!--[0-->");
+						$$renderer.push(`<div class="flex justify-between gap-2"><span class="text-muted-foreground">Dimensions</span> <span>${escape_html(selectedAsset.width)} × ${escape_html(selectedAsset.height)}</span></div>`);
+					} else $$renderer.push("<!--[-1-->");
+					$$renderer.push(`<!--]--> `);
+					if (formatDuration(selectedAsset)) {
+						$$renderer.push("<!--[0-->");
+						$$renderer.push(`<div class="flex justify-between gap-2"><span class="text-muted-foreground">Duration</span> <span class="tabular-nums">${escape_html(formatDuration(selectedAsset))}</span></div>`);
+					} else $$renderer.push("<!--[-1-->");
+					$$renderer.push(`<!--]--> <div class="flex justify-between gap-2"><span class="text-muted-foreground">Uploaded</span> <span>${escape_html(formatDate(selectedAsset.createdAt))}</span></div> <div class="flex items-center justify-between gap-2"><span class="text-muted-foreground">Asset ID</span> <button${attr("title", `${stringify(selectedAsset.id)} — click to copy`)} class="hover:text-foreground max-w-[180px] cursor-pointer truncate font-mono">${escape_html(selectedAsset.id)}</button></div></div></details></div>`);
+				}
+				$$renderer.push(`<!--]--></div> `);
+				if (canUpload()) {
+					$$renderer.push("<!--[0-->");
+					$$renderer.push(`<div class="border-border bg-background sticky bottom-0 border-t p-3">`);
 					Button($$renderer, {
 						onclick: saveMetadata,
-						disabled: isSaving,
+						disabled: isSaving || !metadataDirty(),
 						size: "sm",
 						class: "w-full",
 						children: ($$renderer) => {
-							$$renderer.push(`<!---->${escape_html(isSaving ? "Saving..." : "Save changes")}`);
+							$$renderer.push(`<!---->${escape_html(isSaving ? "Saving..." : metadataDirty() ? "Save changes" : "Saved")}`);
 						},
 						$$slots: { default: true }
 					});
 					$$renderer.push(`<!----></div>`);
-				}
-				$$renderer.push(`<!--]--></div></div>`);
+				} else $$renderer.push("<!--[-1-->");
+				$$renderer.push(`<!--]--></div>`);
 			} else $$renderer.push("<!--[-1-->");
 			$$renderer.push(`<!--]--></div></div> `);
 			if (selectedAsset && isImage(selectedAsset)) {
@@ -6208,7 +7832,14 @@ function MediaBrowser($$renderer, $$props) {
 											$$renderer.push("<!--[!-->");
 											$$renderer.push("<!--]-->");
 										}
-										$$renderer.push(` <div class="flex flex-1 items-center justify-center overflow-hidden p-4"><img${attr("src", getThumbnailUrl(selectedAsset))}${attr("alt", selectedAsset.alt || selectedAsset.originalFilename)} class="max-h-[70vh] max-w-full object-contain"/></div> <div class="border-border flex items-center justify-between border-t px-4 py-3"><div class="flex items-center gap-2">`);
+										$$renderer.push(` <div class="flex flex-1 items-center justify-center overflow-hidden p-4">`);
+										AssetImage($$renderer, {
+											src: getLightboxUrl(selectedAsset),
+											alt: selectedAsset.alt || selectedAsset.originalFilename,
+											mimeType: selectedAsset.mimeType,
+											class: "max-h-[70vh] max-w-full object-contain"
+										});
+										$$renderer.push(`<!----></div> <div class="border-border flex items-center justify-between border-t px-4 py-3"><div class="flex items-center gap-2">`);
 										Button($$renderer, {
 											variant: "outline",
 											size: "sm",
@@ -6269,7 +7900,7 @@ function MediaBrowser($$renderer, $$props) {
 				$$renderer.push("<!--[-->");
 				Root$1($$renderer, {
 					onOpenChange: (v) => {
-						if (!v && true) showUploadModal = false;
+						if (!v && !isUploading) showUploadModal = false;
 					},
 					get open() {
 						return showUploadModal;
@@ -6310,19 +7941,71 @@ function MediaBrowser($$renderer, $$props) {
 										$$renderer.push("<!--[!-->");
 										$$renderer.push("<!--]-->");
 									}
-									$$renderer.push(` <div${attr_class(`border-border mt-2 flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 transition-colors ${stringify("hover:bg-muted/50")}`)} role="button" tabindex="0">`);
+									$$renderer.push(` <div${attr_class(`border-border mt-2 flex flex-col items-center justify-center rounded-lg border-2 border-dashed px-6 py-10 transition-colors ${stringify(modalIsDragging() ? "border-primary bg-primary/5" : "hover:bg-muted/50")}`)} role="button" tabindex="0">`);
 									File_image($$renderer, {
 										size: 32,
 										class: "text-muted-foreground mb-3"
 									});
-									$$renderer.push(`<!----> <p class="text-sm font-medium">${escape_html("Drag and drop files here")}</p> <p class="text-muted-foreground mt-1 text-xs">or click to browse</p></div> <input type="file" multiple="" accept="image/*,.pdf,.txt" class="hidden"/> `);
+									$$renderer.push(`<!----> <p class="text-sm font-medium">${escape_html(modalIsDragging() ? "Drop files here" : "Drag and drop files here")}</p> <p class="text-muted-foreground mt-1 text-xs">or click to browse</p></div> <input type="file" multiple=""${attr("accept", acceptInputValue())} class="hidden"/>  `);
+									if (rejectedCount() > 0) {
+										$$renderer.push("<!--[0-->");
+										$$renderer.push(`<p class="text-destructive mt-4 text-xs">${escape_html(rejectedCount())}
+				${escape_html(rejectedCount() === 1 ? "file can’t" : "files can’t")} be uploaded</p>`);
+									} else $$renderer.push("<!--[-1-->");
+									$$renderer.push(`<!--]--> `);
+									if (failedCount() > 0) {
+										$$renderer.push("<!--[0-->");
+										$$renderer.push(`<div class="mt-4 flex items-center justify-between gap-3"><p class="text-destructive text-xs">${escape_html(failedCount())}
+					${escape_html(failedCount() === 1 ? "upload" : "uploads")} failed</p> `);
+										Button($$renderer, {
+											variant: "outline",
+											size: "sm",
+											disabled: isUploading,
+											onclick: retryAllFailed,
+											children: ($$renderer) => {
+												$$renderer.push(`<!---->Retry all`);
+											},
+											$$slots: { default: true }
+										});
+										$$renderer.push(`<!----></div>`);
+									} else $$renderer.push("<!--[-1-->");
+									$$renderer.push(`<!--]--> `);
 									if (uploadQueue.length > 0) {
 										$$renderer.push("<!--[0-->");
-										$$renderer.push(`<div class="mt-4 max-h-48 space-y-2 overflow-y-auto"><!--[-->`);
-										const each_array_6 = ensure_array_like(uploadQueue);
-										for (let $$index_6 = 0, $$length = each_array_6.length; $$index_6 < $$length; $$index_6++) {
-											let item = each_array_6[$$index_6];
-											$$renderer.push(`<div class="border-border flex items-center gap-3 rounded-md border px-3 py-2"><div class="min-w-0 flex-1"><p class="truncate text-sm">${escape_html(item.file.name)}</p> <p class="text-muted-foreground text-xs">${escape_html(formatSize(item.file.size))}</p></div> `);
+										if (queuedItems().length > 0) {
+											$$renderer.push("<!--[0-->");
+											$$renderer.push(`<div class="text-muted-foreground mt-4 flex items-baseline justify-between text-xs"><span>${escape_html(queuedItems().length)}
+						${escape_html(queuedItems().length === 1 ? "file" : "files")} selected</span> <span class="tabular-nums">${escape_html(formatSize(queuedBytes()))}</span></div>`);
+										} else $$renderer.push("<!--[-1-->");
+										$$renderer.push(`<!--]--> <div class="mt-2 max-h-64 space-y-2 overflow-y-auto"><!--[-->`);
+										const each_array_7 = ensure_array_like(uploadQueue);
+										for (let index = 0, $$length = each_array_7.length; index < $$length; index++) {
+											let item = each_array_7[index];
+											$$renderer.push(`<div${attr_class(`border-border flex items-center gap-3 rounded-md border px-3 py-2 ${stringify(item.status === "failed" || item.status === "rejected" ? "border-destructive/50" : "")}`)}><div class="bg-muted/40 border-border h-9 w-9 shrink-0 overflow-hidden rounded border">`);
+											if (item.previewUrl) {
+												$$renderer.push("<!--[0-->");
+												$$renderer.push(`<img${attr("src", item.previewUrl)} alt="" class="h-full w-full object-cover"/>`);
+											} else {
+												$$renderer.push("<!--[-1-->");
+												$$renderer.push(`<div class="flex h-full items-center justify-center">`);
+												fileIcon($$renderer, item.file.type, "h-4 w-4");
+												$$renderer.push(`<!----></div>`);
+											}
+											$$renderer.push(`<!--]--></div> <div class="min-w-0 flex-1"><p class="truncate text-sm">${escape_html(item.file.name)}</p> `);
+											if ((item.status === "failed" || item.status === "rejected") && item.error) {
+												$$renderer.push("<!--[0-->");
+												$$renderer.push(`<p class="text-destructive text-xs">${escape_html(item.error)}</p>`);
+											} else if (item.status === "pending" && isUploading) {
+												$$renderer.push("<!--[1-->");
+												$$renderer.push(`<p class="text-muted-foreground text-xs">Waiting…</p>`);
+											} else if (item.status === "uploading") {
+												$$renderer.push("<!--[2-->");
+												$$renderer.push(`<div class="mt-1 flex items-center gap-2"><div class="bg-muted h-1 flex-1 overflow-hidden rounded-full"><div class="bg-primary h-full transition-[width] duration-150"${attr_style(`width: ${stringify(item.progress ?? 0)}%`)}></div></div> <span class="text-muted-foreground w-9 text-right text-xs tabular-nums">${escape_html(item.progress ?? 0)}%</span></div>`);
+											} else {
+												$$renderer.push("<!--[-1-->");
+												$$renderer.push(`<p class="text-muted-foreground text-xs">${escape_html(formatSize(item.file.size))}</p>`);
+											}
+											$$renderer.push(`<!--]--></div> `);
 											if (item.status === "uploading") {
 												$$renderer.push("<!--[0-->");
 												$$renderer.push(`<div class="border-primary h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-t-transparent"></div>`);
@@ -6334,17 +8017,74 @@ function MediaBrowser($$renderer, $$props) {
 												});
 											} else if (item.status === "failed") {
 												$$renderer.push("<!--[2-->");
+												$$renderer.push(`<div class="flex shrink-0 items-center gap-1">`);
 												Circle_alert($$renderer, {
 													size: 16,
-													class: "text-destructive shrink-0"
+													class: "text-destructive"
 												});
+												$$renderer.push(`<!----> `);
+												Button($$renderer, {
+													variant: "ghost",
+													size: "sm",
+													class: "h-6 px-2 text-xs",
+													onclick: () => retryUpload(index),
+													children: ($$renderer) => {
+														$$renderer.push(`<!---->Retry`);
+													},
+													$$slots: { default: true }
+												});
+												$$renderer.push(`<!----></div>`);
+											} else if (item.status === "rejected") {
+												$$renderer.push("<!--[3-->");
+												$$renderer.push(`<div class="flex shrink-0 items-center gap-1">`);
+												Circle_alert($$renderer, {
+													size: 16,
+													class: "text-destructive"
+												});
+												$$renderer.push(`<!----> `);
+												Button($$renderer, {
+													variant: "ghost",
+													size: "sm",
+													class: "h-6 w-6 p-0",
+													"aria-label": `Remove ${stringify(item.file.name)}`,
+													onclick: () => removeQueueItem(index),
+													children: ($$renderer) => {
+														X($$renderer, { class: "h-3.5 w-3.5" });
+													},
+													$$slots: { default: true }
+												});
+												$$renderer.push(`<!----></div>`);
 											} else {
 												$$renderer.push("<!--[-1-->");
 												$$renderer.push(`<div class="bg-muted h-4 w-4 shrink-0 rounded-full"></div>`);
 											}
 											$$renderer.push(`<!--]--></div>`);
 										}
-										$$renderer.push(`<!--]--></div>`);
+										$$renderer.push(`<!--]--></div> <div class="mt-4 flex items-center justify-between gap-3">`);
+										Button($$renderer, {
+											variant: "ghost",
+											size: "sm",
+											disabled: isUploading,
+											onclick: clearUploadQueue,
+											children: ($$renderer) => {
+												$$renderer.push(`<!---->Clear list`);
+											},
+											$$slots: { default: true }
+										});
+										$$renderer.push(`<!----> `);
+										Button($$renderer, {
+											size: "sm",
+											disabled: isUploading,
+											onclick: () => {
+												showUploadModal = false;
+												clearUploadQueue();
+											},
+											children: ($$renderer) => {
+												$$renderer.push(`<!---->Done`);
+											},
+											$$slots: { default: true }
+										});
+										$$renderer.push(`<!----></div>`);
 									} else $$renderer.push("<!--[-1-->");
 									$$renderer.push(`<!--]-->`);
 								},
@@ -6373,7 +8113,7 @@ function MediaBrowser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils/pluralize.js
 /**
 * Simple English pluralization.
 * Handles common patterns: y→ies, s/sh/ch/x/z→es, otherwise appends s.
@@ -6385,13 +8125,13 @@ function pluralize(word) {
 	return word + "s";
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/save-state-context.svelte.js
 var SAVE_STATE_KEY = Symbol("aphex-save-state");
 function setSaveStateContext(state) {
 	setContext(SAVE_STATE_KEY, state);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/AdminSlot.svelte
 function AdminSlot($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { name, id, order = 0, children } = $$props;
@@ -6399,7 +8139,7 @@ function AdminSlot($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/ScheduleDialog.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/ScheduleDialog.svelte
 function ScheduleDialog($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -6652,7 +8392,7 @@ function ScheduleDialog($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/richtext-context.svelte.js
 var KEY = Symbol("aphex:richtext-editors");
 function setRichtextEditorRegistry() {
 	const registry = /* @__PURE__ */ new Map();
@@ -6660,7 +8400,7 @@ function setRichtextEditorRegistry() {
 	return registry;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentEditor.svelte
 function parsedValue($$renderer, key, val, depth) {
 	if (val && typeof val === "object") {
 		$$renderer.push("<!--[0-->");
@@ -6778,8 +8518,22 @@ function DocumentEditor($$renderer, $$props) {
 		const isViewingPublished = derived(() => perspective === "published");
 		const scheduleAction = derived(() => perspective === "published" ? "unpublish" : "publish");
 		const canScheduleNow = derived(() => scheduleAction() === "publish" ? canPublishDoc() : canUnpublishDoc());
+		/**
+		* The type this editor is actually editing.
+		*
+		* `documentType` is only what the *caller* asked for — a URL parameter, an
+		* entry on the reference stack, a row in a picker — and any of those can be
+		* stale or simply wrong. The loaded document knows its own type, so once it
+		* has arrived it wins.
+		*
+		* Trusting the caller instead is how a post gets opened with the page schema:
+		* every field the page schema lacks is then reported as orphaned, and the
+		* editor offers to delete the article's entire body. The id check keeps a
+		* previous document's type from leaking in while the next one is in flight.
+		*/
+		const effectiveType = derived(() => (fullDocument?.id === documentId ? fullDocument?._meta?.type : void 0) ?? documentType);
 		const pluginDocumentActions = derived(() => createPartResolver(plugins).documentActions({
-			schemaName: documentType,
+			schemaName: effectiveType(),
 			capabilities: [...perms.capabilities],
 			overrideAccess: perms.role === "super_admin" || perms.role === "admin"
 		}));
@@ -7270,7 +9024,7 @@ function DocumentEditor($$renderer, $$props) {
 				Arrow_left($$renderer, { class: "h-4 w-4" });
 				$$renderer.push(`<!----></button>`);
 			} else $$renderer.push("<!--[-1-->");
-			$$renderer.push(`<!--]--> <span class="shrink-0 whitespace-nowrap">${escape_html(documentType)}</span> `);
+			$$renderer.push(`<!--]--> <span class="shrink-0 whitespace-nowrap">${escape_html(effectiveType())}</span> `);
 			if (presentationMode) {
 				$$renderer.push("<!--[0-->");
 				$$renderer.push(`<span class="shrink-0" aria-hidden="true">·</span> <span class="max-w-[24rem] min-w-0 truncate">${escape_html(getPreviewTitle())}</span>`);
@@ -7347,7 +9101,7 @@ function DocumentEditor($$renderer, $$props) {
 			} else $$renderer.push("<!--[-1-->");
 			$$renderer.push(`<!--]--> `);
 			$$renderer.push("<!--[-1-->");
-			$$renderer.push(`<div class="border-muted-foreground/30 rounded-md border border-dashed p-4"><p class="text-muted-foreground text-center text-sm">No schema found for document type: ${escape_html(documentType)}</p></div>`);
+			$$renderer.push(`<div class="border-muted-foreground/30 rounded-md border border-dashed p-4"><p class="text-muted-foreground text-center text-sm">No schema found for document type: ${escape_html(effectiveType())}</p></div>`);
 			$$renderer.push(`<!--]--></div></div></div> `);
 			if (presentationMode) {
 				$$renderer.push("<!--[0-->");
@@ -7651,7 +9405,7 @@ function DocumentEditor($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/DocumentVersionPanel.svelte
 function DocumentVersionPanel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { documentId, onClose, onPreviewVersion } = $$props;
@@ -7754,7 +9508,7 @@ function DocumentVersionPanel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/AdminApp.svelte
 function AdminApp($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -7897,6 +9651,7 @@ function AdminApp($$renderer, $$props) {
 		const MIN_EDITOR_WIDTH = 650;
 		const COLLAPSED_WIDTH = 60;
 		const TYPES_WIDTH = 350;
+		const VERSION_PANEL_WIDTH = 280;
 		let layoutConfig = derived(() => {
 			const totalEditors = 0 + (editorStack.length > 0 ? 1 : 0);
 			if (totalEditors === 0) return {
@@ -7915,21 +9670,30 @@ function AdminApp($$renderer, $$props) {
 			const docsActive = activeEditorIndex === -2;
 			let typesExpanded = typesActive || totalEditors < 2;
 			let docsExpanded = docsActive || totalEditors < 2;
+			const available = windowWidth - (showVersionPanel ? VERSION_PANEL_WIDTH : 0);
 			let panelsWidth = (typesExpanded ? TYPES_WIDTH : COLLAPSED_WIDTH) + 0;
-			let editorSpace = windowWidth - panelsWidth;
+			let editorSpace = available - panelsWidth;
 			let maxEditors = Math.floor(editorSpace / MIN_EDITOR_WIDTH);
-			if (totalEditors === 1 && !typesActive && !docsActive) {
-				if (maxEditors < 1) {
-					typesExpanded = false;
-					panelsWidth = 60;
-					editorSpace = windowWidth - panelsWidth;
-					maxEditors = Math.floor(editorSpace / MIN_EDITOR_WIDTH);
+			const reclaim = (collapseTypes, collapseDocs) => {
+				if (maxEditors >= 1) return;
+				if (collapseTypes) typesExpanded = false;
+				panelsWidth = (typesExpanded ? TYPES_WIDTH : COLLAPSED_WIDTH) + 0;
+				editorSpace = available - panelsWidth;
+				maxEditors = Math.floor(editorSpace / MIN_EDITOR_WIDTH);
+			};
+			if (totalEditors >= 1) {
+				reclaim(!typesActive, false);
+				reclaim(false, !docsActive);
+				if (!typesActive && !docsActive) {
+					reclaim(true, false);
+					reclaim(false, true);
 				}
 			}
 			if (maxEditors < 1) maxEditors = 1;
-			let expandedIndices = [validActiveIndex];
+			const primaryIndex = validActiveIndex >= 0 ? validActiveIndex : totalEditors - 1;
+			let expandedIndices = [primaryIndex];
 			if (maxEditors > 1) {
-				for (let i = totalEditors - 1; i >= 0 && expandedIndices.length < maxEditors; i--) if (i !== validActiveIndex) expandedIndices.push(i);
+				for (let i = totalEditors - 1; i >= 0 && expandedIndices.length < maxEditors; i--) if (i !== primaryIndex) expandedIndices.push(i);
 			}
 			return {
 				totalEditors,
@@ -8037,6 +9801,23 @@ function AdminApp($$renderer, $$props) {
 			await goto(`/admin?${params.toString()}`, { replaceState: false });
 			activeEditorIndex = 1;
 		}
+		/**
+		* Mirror the open asset into `?assetId=`, so a media item is linkable.
+		*
+		* `replaceState`, because browsing a media library is not navigation —
+		* clicking through twenty thumbnails would otherwise bury the page the user
+		* arrived from under twenty history entries.
+		*/
+		async function syncAssetIdParam(assetId) {
+			const params = new SvelteURLSearchParams(page.url.searchParams);
+			if (params.get("assetId") === (assetId ?? null)) return;
+			if (assetId) params.set("assetId", assetId);
+			else params.delete("assetId");
+			await goto(`/admin?${params.toString()}`, {
+				replaceState: true,
+				noScroll: true
+			});
+		}
 		async function handleStackedEditorBack() {
 			const newStack = editorStack.slice(0, -1);
 			const params = new SvelteURLSearchParams(page.url.searchParams);
@@ -8089,7 +9870,7 @@ function AdminApp($$renderer, $$props) {
 		let $$settled = true;
 		let $$inner_renderer;
 		function $$render_inner($$renderer) {
-			head("jxvok", $$renderer, ($$renderer) => {
+			head("13ffimv", $$renderer, ($$renderer) => {
 				$$renderer.title(($$renderer) => {
 					$$renderer.push(`<title>${escape_html(activeTab.value === "structure" ? "Content" : activeTab.value === "media" ? "Media" : "Vision")} - ${escape_html(title)}</title>`);
 				});
@@ -8324,7 +10105,7 @@ function AdminApp($$renderer, $$props) {
 									$$renderer.push(`<!--]--> `);
 									if (showVersionPanel && versionPanelDocId) {
 										$$renderer.push("<!--[0-->");
-										$$renderer.push(`<div class="border-rule h-full w-[280px] shrink-0 overflow-y-auto border-l transition-all duration-200">`);
+										$$renderer.push(`<div${attr_class(clsx(windowWidth < 620 ? "bg-background fixed inset-0 z-50 overflow-y-auto" : "border-rule h-full w-[280px] shrink-0 overflow-y-auto border-l transition-all duration-200"))}>`);
 										DocumentVersionPanel($$renderer, {
 											documentId: versionPanelDocId,
 											onClose: handleCloseVersionPanel,
@@ -8373,7 +10154,11 @@ function AdminApp($$renderer, $$props) {
 								value: "media",
 								class: "m-0 h-full p-0",
 								children: ($$renderer) => {
-									MediaBrowser($$renderer, { active: activeTab.value === "media" });
+									MediaBrowser($$renderer, {
+										active: activeTab.value === "media",
+										assetId: page.url.searchParams.get("assetId"),
+										onAssetOpen: syncAssetIdParam
+									});
 								},
 								$$slots: { default: true }
 							});

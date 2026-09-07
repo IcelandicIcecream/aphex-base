@@ -1,3 +1,5 @@
+import "../../../../chunks/dist.js";
+import { i as isPendingInvitation } from "../../../../chunks/invitation-status.js";
 import { json } from "@sveltejs/kit";
 //#region src/routes/api/invitations/+server.ts
 var GET = async ({ locals }) => {
@@ -9,9 +11,7 @@ var GET = async ({ locals }) => {
 			error: "Unauthorized",
 			message: "Session authentication required"
 		}, { status: 401 });
-		const allInvitations = await databaseAdapter.findInvitationsByEmail(auth.user.email);
-		const now = /* @__PURE__ */ new Date();
-		const pending = allInvitations.filter((inv) => inv.acceptedAt === null && new Date(inv.expiresAt) > now);
+		const pending = (await databaseAdapter.findInvitationsByEmail(auth.user.email)).filter((inv) => isPendingInvitation(inv));
 		return json({
 			success: true,
 			data: await Promise.all(pending.map(async (inv) => {

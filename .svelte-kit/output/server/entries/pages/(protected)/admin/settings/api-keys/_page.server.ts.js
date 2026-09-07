@@ -1,6 +1,6 @@
-import { i as apikey, r as drizzleDb } from "../../../../../../chunks/db.js";
 import { s as hasCapability } from "../../../../../../chunks/resolver.js";
 import "../../../../../../chunks/dist.js";
+import { i as auth_schema_exports, r as drizzleDb } from "../../../../../../chunks/db.js";
 import { error } from "@sveltejs/kit";
 import { eq } from "drizzle-orm";
 //#region src/routes/(protected)/admin/settings/api-keys/+page.server.ts
@@ -9,7 +9,7 @@ var load = async ({ locals }) => {
 	if (!auth || auth.type !== "session") throw new Error("No session found");
 	if (!hasCapability(auth, "apiKey.manage")) throw error(403, "You do not have permission to manage API keys");
 	return { apiKeys: (await drizzleDb.query.apikey.findMany({
-		where: eq(apikey.referenceId, auth.user.id),
+		where: eq(auth_schema_exports.apikey.referenceId, auth.user.id),
 		columns: {
 			id: true,
 			name: true,

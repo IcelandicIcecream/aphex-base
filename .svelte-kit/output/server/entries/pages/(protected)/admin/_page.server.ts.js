@@ -1,7 +1,7 @@
 import { s as hasCapability } from "../../../../chunks/resolver.js";
 import "../../../../chunks/server3.js";
 import { redirect } from "@sveltejs/kit";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/types/auth.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/types/auth.js
 /**
 * Does the user have *any* mutating capability?
 *

@@ -1,10 +1,10 @@
 import { l as normalizeCapabilities, s as hasCapability } from "../../../../../chunks/resolver.js";
 import "../../../../../chunks/dist.js";
+import { r as authService } from "../../../../../chunks/auth.js";
 import { r as capabilitySchema } from "../../../../../chunks/server3.js";
-import { t as authService } from "../../../../../chunks/service.js";
 import { json } from "@sveltejs/kit";
 import { z } from "zod";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/schemas/api-keys.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/schemas/api-keys.js
 var apiKeyPermissionSchema = z.enum(["read", "write"]);
 var apiKeyCapabilitySchema = capabilitySchema;
 var createApiKeyRequest = z.object({

@@ -1,5 +1,7 @@
 // @ts-nocheck
 import type { PageServerLoad } from './$types';
+import { email } from '$lib/server/email';
+import { authOptions } from '$lib/server/auth/auth.config';
 
 export const load = async ({ locals }: Parameters<PageServerLoad>[0]) => {
 	const auth = locals.auth;
@@ -19,8 +21,14 @@ export const load = async ({ locals }: Parameters<PageServerLoad>[0]) => {
 		hasChildOrganizations = childOrgs.length > 0;
 	}
 
+	// Same resolution as the sign-in challenge: email needs an adapter behind it,
+	// and TOTP comes back if dropping it would leave no factor at all.
+	const emailOtpAvailable = Boolean(authOptions.twoFactorMethods.includes('email') && email);
+
 	return {
 		userPreferences,
-		hasChildOrganizations
+		hasChildOrganizations,
+		totpAvailable: authOptions.twoFactorMethods.includes('totp') || !emailOtpAvailable,
+		emailOtpAvailable
 	};
 };

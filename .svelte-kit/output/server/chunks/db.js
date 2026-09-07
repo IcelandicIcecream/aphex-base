@@ -1,4 +1,4 @@
-import { r as __exportAll } from "./rolldown-runtime.js";
+import { i as __reExport, r as __exportAll } from "./rolldown-runtime.js";
 import { t as private_env } from "./shared-server.js";
 import { t as building } from "./internal2.js";
 import { createPostgreSQLProvider, pgConnectionUrl } from "@aphexcms/postgresql-adapter";
@@ -6,115 +6,24 @@ import { dirname, resolve } from "node:path";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
-import { assets, documentReferences, documentStatusEnum, documentVersions, documents, domainEvents, eventOutbox, instanceSettings, invitations, jobStatusEnum, jobs, organizationMembers, organizations, pluginSettings, pluginStorage, roles, schemaTypeEnum, schemaTypes, userProfiles, userSessions, versionEventEnum } from "@aphexcms/postgresql-adapter/schema";
-import { boolean, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { mkdirSync } from "node:fs";
 import { drizzle as drizzle$1 } from "drizzle-orm/libsql";
 import { createClient } from "@libsql/client";
 import { applyRecommendedPragmas, createSQLiteProvider } from "@aphexcms/sqlite-adapter";
 import * as sqliteCmsSchema from "@aphexcms/sqlite-adapter/schema";
-import { integer as integer$1, sqliteTable, text as text$1 } from "drizzle-orm/sqlite-core";
 //#region src/lib/server/db/cms-schema.ts
-var cms_schema_exports = /* @__PURE__ */ __exportAll({
-	assets: () => assets,
-	documentReferences: () => documentReferences,
-	documentStatusEnum: () => documentStatusEnum,
-	documentVersions: () => documentVersions,
-	documents: () => documents,
-	domainEvents: () => domainEvents,
-	eventOutbox: () => eventOutbox,
-	instanceSettings: () => instanceSettings,
-	invitations: () => invitations,
-	jobStatusEnum: () => jobStatusEnum,
-	jobs: () => jobs,
-	organizationMembers: () => organizationMembers,
-	organizations: () => organizations,
-	pluginSettings: () => pluginSettings,
-	pluginStorage: () => pluginStorage,
-	roles: () => roles,
-	schemaTypeEnum: () => schemaTypeEnum,
-	schemaTypes: () => schemaTypes,
-	userProfiles: () => userProfiles,
-	userSessions: () => userSessions,
-	versionEventEnum: () => versionEventEnum
-});
+var cms_schema_exports = /* @__PURE__ */ __exportAll({});
+import * as import__aphexcms_postgresql_adapter_schema from "@aphexcms/postgresql-adapter/schema";
+__reExport(cms_schema_exports, import__aphexcms_postgresql_adapter_schema);
 //#endregion
 //#region src/lib/server/db/auth-schema/pg.ts
-var user$1 = pgTable("user", {
-	id: text("id").primaryKey(),
-	name: text("name").notNull(),
-	email: text("email").notNull().unique(),
-	emailVerified: boolean("email_verified").default(false).notNull(),
-	image: text("image"),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-	updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => /* @__PURE__ */ new Date()).notNull()
-});
-var session$1 = pgTable("session", {
-	id: text("id").primaryKey(),
-	expiresAt: timestamp("expires_at").notNull(),
-	token: text("token").notNull().unique(),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-	updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date()).notNull(),
-	ipAddress: text("ip_address"),
-	userAgent: text("user_agent"),
-	userId: text("user_id").notNull().references(() => user$1.id, { onDelete: "cascade" })
-});
-var account$1 = pgTable("account", {
-	id: text("id").primaryKey(),
-	accountId: text("account_id").notNull(),
-	providerId: text("provider_id").notNull(),
-	userId: text("user_id").notNull().references(() => user$1.id, { onDelete: "cascade" }),
-	accessToken: text("access_token"),
-	refreshToken: text("refresh_token"),
-	idToken: text("id_token"),
-	accessTokenExpiresAt: timestamp("access_token_expires_at"),
-	refreshTokenExpiresAt: timestamp("refresh_token_expires_at"),
-	scope: text("scope"),
-	password: text("password"),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-	updatedAt: timestamp("updated_at").$onUpdate(() => /* @__PURE__ */ new Date()).notNull()
-});
-var verification$1 = pgTable("verification", {
-	id: text("id").primaryKey(),
-	identifier: text("identifier").notNull(),
-	value: text("value").notNull(),
-	expiresAt: timestamp("expires_at").notNull(),
-	createdAt: timestamp("created_at").defaultNow().notNull(),
-	updatedAt: timestamp("updated_at").defaultNow().$onUpdate(() => /* @__PURE__ */ new Date()).notNull()
-});
-var apikey$1 = pgTable("apikey", {
-	id: text("id").primaryKey(),
-	configId: text("config_id").notNull().default("default"),
-	name: text("name"),
-	start: text("start"),
-	prefix: text("prefix"),
-	key: text("key").notNull(),
-	referenceId: text("reference_id").notNull(),
-	refillInterval: integer("refill_interval"),
-	refillAmount: integer("refill_amount"),
-	lastRefillAt: timestamp("last_refill_at"),
-	enabled: boolean("enabled").default(true),
-	rateLimitEnabled: boolean("rate_limit_enabled").default(true),
-	rateLimitTimeWindow: integer("rate_limit_time_window").default(864e5),
-	rateLimitMax: integer("rate_limit_max").default(1e4),
-	requestCount: integer("request_count").default(0),
-	remaining: integer("remaining"),
-	lastRequest: timestamp("last_request"),
-	expiresAt: timestamp("expires_at"),
-	createdAt: timestamp("created_at").notNull(),
-	updatedAt: timestamp("updated_at").notNull(),
-	permissions: text("permissions"),
-	metadata: text("metadata")
-});
+var pg_exports = /* @__PURE__ */ __exportAll({});
+import * as import__aphexcms_auth_schema_pg from "@aphexcms/auth/schema/pg";
+__reExport(pg_exports, import__aphexcms_auth_schema_pg);
 //#endregion
 //#region src/lib/server/db/auth-schema/index.ts
-var auth_schema_exports = /* @__PURE__ */ __exportAll({
-	account: () => account$1,
-	apikey: () => apikey$1,
-	session: () => session$1,
-	user: () => user$1,
-	verification: () => verification$1
-});
+var auth_schema_exports = /* @__PURE__ */ __exportAll({});
+__reExport(auth_schema_exports, pg_exports);
 //#endregion
 //#region src/lib/server/db/adapters/postgres.ts
 var schema$1 = {
@@ -131,8 +40,8 @@ var MIGRATION_LOCK_KEY = "7021226604092025191";
 * Standard Postgres driver (postgres-js against DATABASE_URL / PG_*). Connects
 * lazily on first query, so a placeholder URL is fine during the build pass.
 *
-* Auto-migrates on boot (like the sqlite adapter) so `pnpm dev` just works. Real
-* Postgres can have several replicas booting at once,
+* Auto-migrates on boot (like the sqlite adapter) so `pnpm dev` just works. Unlike
+* a single-instance embedded database, real Postgres can have several replicas booting at once,
 * so the migration runs under a session-level **advisory lock**: exactly one boot
 * applies the pending migrations while the rest block, then find nothing to do.
 * Additive, generated migration files only — the same ones `pnpm db:migrate` runs.
@@ -156,7 +65,8 @@ async function postgresAdapter(config) {
 		max: 50,
 		idle_timeout: 20,
 		connect_timeout: 10,
-		max_lifetime: 300
+		max_lifetime: 300,
+		connection: { idle_in_transaction_session_timeout: 6e4 }
 	});
 	return {
 		client: sql,
@@ -173,89 +83,32 @@ async function postgresAdapter(config) {
 }
 //#endregion
 //#region src/lib/server/db/auth-schema/sqlite.ts
-var sqlite_exports = /* @__PURE__ */ __exportAll({
-	account: () => account,
-	apikey: () => apikey,
-	session: () => session,
-	user: () => user,
-	verification: () => verification
-});
-var timestamp$1 = (name) => integer$1(name, { mode: "timestamp_ms" });
-var boolean$1 = (name) => integer$1(name, { mode: "boolean" });
-var user = sqliteTable("user", {
-	id: text$1("id").primaryKey(),
-	name: text$1("name").notNull(),
-	email: text$1("email").notNull().unique(),
-	emailVerified: boolean$1("email_verified").default(false).notNull(),
-	image: text$1("image"),
-	createdAt: timestamp$1("created_at").$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
-	updatedAt: timestamp$1("updated_at").$defaultFn(() => /* @__PURE__ */ new Date()).$onUpdate(() => /* @__PURE__ */ new Date()).notNull()
-});
-var session = sqliteTable("session", {
-	id: text$1("id").primaryKey(),
-	expiresAt: timestamp$1("expires_at").notNull(),
-	token: text$1("token").notNull().unique(),
-	createdAt: timestamp$1("created_at").$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
-	updatedAt: timestamp$1("updated_at").$onUpdate(() => /* @__PURE__ */ new Date()).notNull(),
-	ipAddress: text$1("ip_address"),
-	userAgent: text$1("user_agent"),
-	userId: text$1("user_id").notNull().references(() => user.id, { onDelete: "cascade" })
-});
-var account = sqliteTable("account", {
-	id: text$1("id").primaryKey(),
-	accountId: text$1("account_id").notNull(),
-	providerId: text$1("provider_id").notNull(),
-	userId: text$1("user_id").notNull().references(() => user.id, { onDelete: "cascade" }),
-	accessToken: text$1("access_token"),
-	refreshToken: text$1("refresh_token"),
-	idToken: text$1("id_token"),
-	accessTokenExpiresAt: timestamp$1("access_token_expires_at"),
-	refreshTokenExpiresAt: timestamp$1("refresh_token_expires_at"),
-	scope: text$1("scope"),
-	password: text$1("password"),
-	createdAt: timestamp$1("created_at").$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
-	updatedAt: timestamp$1("updated_at").$onUpdate(() => /* @__PURE__ */ new Date()).notNull()
-});
-var verification = sqliteTable("verification", {
-	id: text$1("id").primaryKey(),
-	identifier: text$1("identifier").notNull(),
-	value: text$1("value").notNull(),
-	expiresAt: timestamp$1("expires_at").notNull(),
-	createdAt: timestamp$1("created_at").$defaultFn(() => /* @__PURE__ */ new Date()).notNull(),
-	updatedAt: timestamp$1("updated_at").$defaultFn(() => /* @__PURE__ */ new Date()).$onUpdate(() => /* @__PURE__ */ new Date()).notNull()
-});
-var apikey = sqliteTable("apikey", {
-	id: text$1("id").primaryKey(),
-	configId: text$1("config_id").notNull().default("default"),
-	name: text$1("name"),
-	start: text$1("start"),
-	prefix: text$1("prefix"),
-	key: text$1("key").notNull(),
-	referenceId: text$1("reference_id").notNull(),
-	refillInterval: integer$1("refill_interval"),
-	refillAmount: integer$1("refill_amount"),
-	lastRefillAt: timestamp$1("last_refill_at"),
-	enabled: boolean$1("enabled").default(true),
-	rateLimitEnabled: boolean$1("rate_limit_enabled").default(true),
-	rateLimitTimeWindow: integer$1("rate_limit_time_window").default(864e5),
-	rateLimitMax: integer$1("rate_limit_max").default(1e4),
-	requestCount: integer$1("request_count").default(0),
-	remaining: integer$1("remaining"),
-	lastRequest: timestamp$1("last_request"),
-	expiresAt: timestamp$1("expires_at"),
-	createdAt: timestamp$1("created_at").notNull(),
-	updatedAt: timestamp$1("updated_at").notNull(),
-	permissions: text$1("permissions"),
-	metadata: text$1("metadata")
-});
+var sqlite_exports = /* @__PURE__ */ __exportAll({});
+import * as import__aphexcms_auth_schema_sqlite from "@aphexcms/auth/schema/sqlite";
+__reExport(sqlite_exports, import__aphexcms_auth_schema_sqlite);
 //#endregion
 //#region src/lib/server/db/adapters/sqlite.ts
 var schema = {
 	...sqliteCmsSchema,
 	...sqlite_exports
 };
+var migrationLocks = globalThis.__aphexSQLiteMigrationLocks ??= /* @__PURE__ */ new Map();
+async function withMigrationLock(url, migrate) {
+	const previous = migrationLocks.get(url) ?? Promise.resolve();
+	let release;
+	const current = new Promise((resolve) => release = resolve);
+	const queued = previous.then(() => current);
+	migrationLocks.set(url, queued);
+	await previous;
+	try {
+		return await migrate();
+	} finally {
+		release();
+		if (migrationLocks.get(url) === queued) migrationLocks.delete(url);
+	}
+}
 /**
-* libsql file database — this template's default driver.
+* libsql file database (the standalone templates' default).
 * Schema is pushed on boot via drizzle-kit — no migration files. `drizzle-kit`
 * is a devDependency, so this path targets dev, not a pruned production image.
 */
@@ -268,11 +121,31 @@ async function sqliteAdapter(config) {
 	});
 	if (!config.building) {
 		await applyRecommendedPragmas(libsql, url);
-		if (config.autoMigrate !== false) {
-			const { pushSQLiteSchema } = await import("drizzle-kit/api");
-			const { apply } = await pushSQLiteSchema(schema, drizzle$1(libsql));
-			await apply();
-		}
+		if (config.autoMigrate !== false) await withMigrationLock(url, async () => {
+			const migration = await libsql.transaction("write");
+			try {
+				const { pushSQLiteSchema, generateSQLiteDrizzleJson, generateSQLiteMigration } = await import("drizzle-kit/api");
+				const existing = new Set((await migration.execute("select name from sqlite_master where type in ('table','view') and name not like 'sqlite_%'")).rows.map((row) => String(row.name)));
+				const missing = Object.values(schema).map((table) => {
+					const nameSymbol = Object.getOwnPropertySymbols(table ?? {}).find((symbol) => symbol.description === "drizzle:Name");
+					return nameSymbol ? String(table[nameSymbol]) : null;
+				}).filter((name) => !!name && !existing.has(name));
+				if (missing.length > 0) {
+					const wanted = (await generateSQLiteMigration(await generateSQLiteDrizzleJson({}), await generateSQLiteDrizzleJson(schema))).filter((sql) => {
+						const createdTable = sql.match(/^CREATE TABLE\s+[\`"']?([^\`"'\s(]+)/i)?.[1];
+						return createdTable ? missing.includes(createdTable) : false;
+					});
+					for (const sql of wanted) await migration.execute(sql);
+				}
+				const { statementsToExecute } = await pushSQLiteSchema(schema, drizzle$1(migration));
+				const statements = statementsToExecute.filter((sql) => !sql.toLowerCase().includes("cms_documents_fts"));
+				for (const sql of statements) await migration.execute(sql);
+				await migration.commit();
+			} catch (error) {
+				await migration.rollback();
+				throw error;
+			}
+		});
 	}
 	return {
 		client: libsql,
@@ -332,4 +205,4 @@ else database = await sqliteAdapter({
 });
 var { client, drizzleDb, dbDialect, db } = database;
 //#endregion
-export { user$1 as a, organizations as c, apikey$1 as i, dbDialect as n, invitations as o, drizzleDb as r, organizationMembers as s, db as t };
+export { cms_schema_exports as a, auth_schema_exports as i, dbDialect as n, drizzleDb as r, db as t };

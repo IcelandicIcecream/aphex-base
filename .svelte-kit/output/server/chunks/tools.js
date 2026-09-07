@@ -4,13 +4,15 @@ import { a as validateDocumentData, i as isFieldRequired, n as VALID_FIELD_TYPES
 import { t as cmsLogger } from "./logger.js";
 import { t as readPath } from "./preview.js";
 import { t as emitDocumentPublished } from "./emit.js";
+import { i as isAcceptedFileType } from "./file-accept.js";
 import { t as collectReferenceIds } from "./reference-walk.js";
+import { n as ReferencesService, t as AssetReferencesService } from "./asset-references-service.js";
 import { n as systemContext } from "./auth-helpers.js";
 import { n as toPascalCase } from "./string-case.js";
 import { z } from "zod";
 import { lookup } from "node:dns/promises";
 import net from "node:net";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/schema-utils/utils.js
 /**
 * Conventional fallback field names for search when a schema doesn't declare
 * an explicit `search` config. Mirrors the title-resolution fallback in
@@ -54,7 +56,7 @@ function buildSearchText(paths, data) {
 	return parts.join(" ").replace(/\s+/g, " ").trim();
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/singleton.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/schema-utils/singleton.js
 var SINGLETON_NAMESPACE = "6f4d2c3b-7a51-4e62-9b1d-aphexsingleton";
 /**
 * 64-bit FNV-1a over a UTF-8 string, returned as 16 hex chars. Synchronous
@@ -93,7 +95,7 @@ function singletonId(schemaName, organizationId) {
 	].join("-");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/cache/document-cache.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/cache/document-cache.js
 /**
 * Document-aware cache wrapper.
 * Translates document/collection operations into generic key-value calls on the underlying CacheAdapter.
@@ -135,7 +137,173 @@ var DocumentCache = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/hierarchy-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils/mime-detect.js
+/**
+* Detect MIME type from file magic bytes (file signatures).
+* Returns the detected MIME type, or null if unknown.
+*/
+function detectMimeType(buffer, filename) {
+	if (buffer.length < 4) return null;
+	if (buffer[0] === 37 && buffer[1] === 80 && buffer[2] === 68 && buffer[3] === 70) return "application/pdf";
+	if (buffer[0] === 137 && buffer[1] === 80 && buffer[2] === 78 && buffer[3] === 71) return "image/png";
+	if (buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255) return "image/jpeg";
+	if (buffer[0] === 71 && buffer[1] === 73 && buffer[2] === 70 && buffer[3] === 56 && (buffer[4] === 55 || buffer[4] === 57) && buffer[5] === 97) return "image/gif";
+	if (buffer.length >= 12 && buffer[0] === 82 && buffer[1] === 73 && buffer[2] === 70 && buffer[3] === 70 && buffer[8] === 87 && buffer[9] === 69 && buffer[10] === 66 && buffer[11] === 80) return "image/webp";
+	if (buffer.length >= 12) {
+		if (buffer.subarray(4, 8).toString("ascii") === "ftyp") {
+			const brand = buffer.subarray(8, 12).toString("ascii");
+			if (brand === "avif") return "image/avif";
+			if (brand === "heic" || brand === "heix") return "image/heic";
+			if (brand.startsWith("mp4") || brand === "isom") return "video/mp4";
+		}
+	}
+	const head = buffer.subarray(0, Math.min(buffer.length, 256)).toString("utf-8");
+	if (head.trimStart().startsWith("<") && head.includes("<svg")) return "image/svg+xml";
+	const normalizedHead = head.trimStart().toLowerCase();
+	if (normalizedHead.startsWith("<!doctype html") || normalizedHead.startsWith("<html") || normalizedHead.startsWith("<script")) return "text/html";
+	if (normalizedHead.startsWith("<?xml") || normalizedHead.startsWith("<!doctype xml")) return "application/xml";
+	if (buffer[0] === 80 && buffer[1] === 75 && buffer[2] === 3 && buffer[3] === 4) return detectZipFormat(buffer);
+	if (buffer[0] === 208 && buffer[1] === 207 && buffer[2] === 17 && buffer[3] === 224) return "application/msword";
+	if (buffer[0] === 0 && buffer[1] === 97 && buffer[2] === 115 && buffer[3] === 109) return "application/wasm";
+	if (buffer[0] === 127 && buffer[1] === 69 && buffer[2] === 76 && buffer[3] === 70) return "application/x-executable";
+	if (buffer[0] === 207 && buffer[1] === 250 && buffer[2] === 237 && buffer[3] === 254 || buffer[0] === 206 && buffer[1] === 250 && buffer[2] === 237 && buffer[3] === 254 || buffer[0] === 254 && buffer[1] === 237 && buffer[2] === 250 && buffer[3] === 207 || buffer[0] === 254 && buffer[1] === 237 && buffer[2] === 250 && buffer[3] === 206) return "application/x-executable";
+	if (buffer[0] === 77 && buffer[1] === 90) return "application/x-executable";
+	if (buffer[0] === 35 && buffer[1] === 33) return "application/x-shellscript";
+	if (filename?.toLowerCase().endsWith(".csv") && isTextContent(buffer)) return "text/csv";
+	return null;
+}
+function isTextContent(buffer) {
+	if (buffer.includes(0)) return false;
+	try {
+		new TextDecoder("utf-8", { fatal: true }).decode(buffer);
+	} catch {
+		return false;
+	}
+	return !buffer.some((byte) => byte < 32 && byte !== 9 && byte !== 10 && byte !== 13);
+}
+/**
+* Detect specific format within a ZIP container.
+*/
+function detectZipFormat(buffer) {
+	const content = buffer.subarray(0, Math.min(buffer.length, 2e3)).toString("binary");
+	if (content.includes("word/")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+	if (content.includes("xl/")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+	if (content.includes("ppt/")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+	return "application/zip";
+}
+/**
+* Blocked MIME types that should never be uploaded.
+*/
+var BLOCKED_MIME_TYPES = /* @__PURE__ */ new Set([
+	"application/x-executable",
+	"application/x-shellscript",
+	"application/wasm",
+	"application/x-msdos-program",
+	"application/x-msdownload",
+	"text/html",
+	"application/xhtml+xml",
+	"text/xml",
+	"application/xml"
+]);
+/**
+* Blocked file extensions (regardless of MIME type).
+*/
+var BLOCKED_EXTENSIONS = /* @__PURE__ */ new Set([
+	".exe",
+	".dll",
+	".bat",
+	".cmd",
+	".com",
+	".msi",
+	".scr",
+	".pif",
+	".sh",
+	".bash",
+	".zsh",
+	".csh",
+	".ksh",
+	".app",
+	".command",
+	".action",
+	".ps1",
+	".psm1",
+	".psd1",
+	".vbs",
+	".vbe",
+	".js",
+	".jse",
+	".wsf",
+	".wsh",
+	".reg",
+	".inf",
+	".hta",
+	".wasm",
+	".html",
+	".htm",
+	".xhtml",
+	".shtml",
+	".xml",
+	".xsl",
+	".mhtml"
+]);
+/**
+* Validate an uploaded file's actual content against allowed types.
+* Checks magic bytes, not just the client-provided MIME type.
+*/
+function validateFile(buffer, filename, clientMimeType, options = {}) {
+	const lowerName = filename.toLowerCase();
+	const detectedMimeType = detectMimeType(buffer, filename);
+	const normalizedClientMimeType = clientMimeType.toLowerCase().split(";", 1)[0]?.trim() ?? "";
+	const allExts = lowerName.match(/\.[^.]+/g) || [];
+	for (const e of allExts) if (BLOCKED_EXTENSIONS.has(e)) return {
+		valid: false,
+		error: `File type "${e}" is not allowed`,
+		detectedMimeType
+	};
+	if (BLOCKED_MIME_TYPES.has(normalizedClientMimeType)) return {
+		valid: false,
+		error: `File type "${normalizedClientMimeType}" is not allowed`,
+		detectedMimeType
+	};
+	if (detectedMimeType && BLOCKED_MIME_TYPES.has(detectedMimeType)) return {
+		valid: false,
+		error: `File content detected as "${detectedMimeType}" which is not allowed`,
+		detectedMimeType
+	};
+	if (detectedMimeType && clientMimeType) {
+		const detectedBase = detectedMimeType.split("/")[0];
+		const clientBase = clientMimeType.split("/")[0];
+		if (detectedMimeType === "application/x-executable" && clientBase !== "application") return {
+			valid: false,
+			error: "File content does not match the declared type",
+			detectedMimeType
+		};
+		if (clientBase === "image" && detectedBase !== "image" && detectedMimeType !== null) return {
+			valid: false,
+			error: `File content is "${detectedMimeType}" but was uploaded as an image`,
+			detectedMimeType
+		};
+	}
+	if (options.allowedMimeTypes && options.allowedMimeTypes.length > 0) {
+		const mimeToCheck = detectedMimeType || clientMimeType;
+		if (!isAcceptedFileType(filename, mimeToCheck, options.allowedMimeTypes)) return {
+			valid: false,
+			error: `File type "${mimeToCheck}" is not allowed`,
+			detectedMimeType
+		};
+	}
+	if (options.maxSize && buffer.length > options.maxSize) return {
+		valid: false,
+		error: `File exceeds maximum size of ${(options.maxSize / (1024 * 1024)).toFixed(1)} MB`,
+		detectedMimeType
+	};
+	return {
+		valid: true,
+		detectedMimeType
+	};
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/services/hierarchy-service.js
 /**
 * HierarchyService — caches organization parent→child lookups
 * using the shared CacheAdapter.
@@ -187,7 +355,7 @@ var HierarchyService = class HierarchyService {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/version-service.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/services/version-service.js
 /**
 * VersionService — orchestrates document versioning with rolling retention.
 *
@@ -251,12 +419,31 @@ var VersionService = class {
 	}
 	/**
 	* Save draft and create version atomically using adapter transaction.
+	*
+	* `alsoInTx` runs against the same handle once the write has succeeded, for
+	* work that must commit with the document — the reference indexes. It exists
+	* because this method owns the transaction: a caller that wrapped its own
+	* around this one would be nesting `withTransaction`, which is not something
+	* every adapter promises. Handing the inside out is the honest version.
+	*
+	* Skipped when the write returns null (nothing was updated), and its failure
+	* rolls the document write back with it — which is the entire point.
 	*/
-	async saveWithVersion(db, organizationId, documentId, data, userId, expectedRevision) {
-		if (!db.createDocumentVersion) return db.updateDocDraft(organizationId, documentId, data, userId, expectedRevision);
+	async saveWithVersion(db, organizationId, documentId, data, userId, expectedRevision, alsoInTx) {
+		if (!db.createDocumentVersion) {
+			if (!alsoInTx) return db.updateDocDraft(organizationId, documentId, data, userId, expectedRevision);
+			return db.withTransaction(async (txAdapter) => {
+				const result = await txAdapter.updateDocDraft(organizationId, documentId, data, userId, expectedRevision);
+				if (result) await alsoInTx(txAdapter, result);
+				return result;
+			});
+		}
 		const updated = await db.withTransaction(async (txAdapter) => {
 			const result = await txAdapter.updateDocDraft(organizationId, documentId, data, userId, expectedRevision);
-			if (result) await this.snapshotTx(txAdapter, organizationId, documentId, "draft", data, userId);
+			if (result) {
+				await this.snapshotTx(txAdapter, organizationId, documentId, "draft", data, userId);
+				if (alsoInTx) await alsoInTx(txAdapter, result);
+			}
 			return result;
 		});
 		if (updated) await this.enforceRetention(db, documentId, organizationId);
@@ -311,61 +498,7 @@ var VersionService = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/services/references-service.js
-/**
-* Maintains the back-reference index. After every doc save the collection-API
-* calls into here with the doc's draftData (the freshly-saved version) and
-* its schema; we walk the data via the schema-aware walker, dedupe the
-* resulting ref IDs, and atomically replace the rows for that referencer.
-*
-* Failures are logged but never thrown — a stale ref index is bad UX (the
-* publish/unpublish guards may be wrong), but it shouldn't block the user's
-* save. The boot-time backfill catches up gaps when the studio restarts.
-*/
-var ReferencesService = class {
-	databaseAdapter;
-	constructor(databaseAdapter) {
-		this.databaseAdapter = databaseAdapter;
-	}
-	/**
-	* Sync the back-reference rows for a single document. Idempotent —
-	* safe to call repeatedly with the same data.
-	*/
-	async syncReferencesFor(organizationId, documentId, data, schema, registry) {
-		try {
-			const refIds = collectReferenceIds(data, schema, registry);
-			await this.databaseAdapter.replaceReferencesFor(organizationId, documentId, refIds);
-		} catch (err) {
-			cmsLogger.error("[References]", "Failed to sync references for", documentId, err);
-		}
-	}
-	/**
-	* Boot-time backfill — if the references table is empty for an org,
-	* scan every document and rebuild the index. Idempotent and cheap when
-	* the index already has rows (the empty check short-circuits).
-	*
-	* Skipped silently in error paths — boot must keep going even if the
-	* scan can't run (missing perms, connection issues, etc).
-	*/
-	async backfillIfEmpty(organizationId, schemas, listAllDocuments) {
-		try {
-			if (await this.databaseAdapter.hasAnyReferences(organizationId)) return;
-			const docs = await listAllDocuments();
-			if (docs.length === 0) return;
-			cmsLogger.info("[References]", `Backfilling reference index for ${docs.length} document(s) in org ${organizationId}`);
-			for (const doc of docs) {
-				const schema = schemas.find((s) => s.name === doc.type) ?? null;
-				const refIds = collectReferenceIds(doc.data, schema, schemas);
-				await this.databaseAdapter.replaceReferencesFor(organizationId, doc.id, refIds);
-			}
-			cmsLogger.info("[References]", "Backfill complete");
-		} catch (err) {
-			cmsLogger.error("[References]", "Backfill failed (continuing without index)", err);
-		}
-	}
-};
-//#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/hooks.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/local-api/hooks.js
 /**
 * Run a phase of document hooks in order, threading the (possibly transformed)
 * data through each. Returns the final data. A hook that throws aborts the write.
@@ -380,7 +513,7 @@ async function runDocumentHooks(hooks, args) {
 	return data;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/jobs/document-jobs.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/jobs/document-jobs.js
 /** Reserved built-in job types. Scheduling uses these; the worker maps them to the handlers below. */
 var DOCUMENT_PUBLISH_JOB = "document.publish";
 var DOCUMENT_UNPUBLISH_JOB = "document.unpublish";
@@ -417,7 +550,7 @@ function createDocumentJobHandlers(deps) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-access.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/field-access.js
 /**
 * Return the set of field names the caller may NOT read.
 * Fields with no `access.read` list are readable by default.
@@ -475,7 +608,7 @@ function dropLockedWrites(data, locked) {
 	return copy;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/collection-api.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/local-api/collection-api.js
 var EMPTY_SET = /* @__PURE__ */ new Set();
 /**
 * Re-project a FindResult through a hidden-fields filter without mutating
@@ -610,12 +743,34 @@ var CollectionAPI = class {
 	}
 	/**
 	* Refresh the back-reference index for this doc using the freshly-saved
-	* draftData. Best-effort: failures are logged inside the service and
-	* never thrown — a stale ref index doesn't block the user's save.
+	* draftData.
+	*
+	* Takes the adapter to write through — always a `withTransaction` handle on
+	* the write paths, so the index rows commit or roll back with the document
+	* itself. It throws now, which is the point: this index backs the publish and
+	* unpublish guards, and a guard that quietly weakens when its write failed is
+	* more dangerous than no guard.
 	*/
-	async syncReferences(organizationId, documentId, data) {
+	async syncReferences(db, organizationId, documentId, data) {
 		if (!this.referencesService) return;
-		await this.referencesService.syncReferencesFor(organizationId, documentId, data, this._schema, this.schemaRegistry ?? []);
+		await this.referencesService.syncReferencesFor(db, organizationId, documentId, data, this._schema, this.schemaRegistry ?? []);
+	}
+	/**
+	* Refresh the asset-reference index for this doc — which assets its draft and
+	* published data use. Same contract as {@link syncReferences}: written through
+	* the caller's transaction handle, and throws.
+	*
+	* Built here rather than injected: it needs nothing but the adapter this class
+	* already holds, and threading a tenth constructor argument through every call
+	* site would be the only other option.
+	*/
+	get assetReferencesService() {
+		this._assetReferencesService ??= new AssetReferencesService(this.databaseAdapter);
+		return this._assetReferencesService;
+	}
+	_assetReferencesService;
+	async syncAssetReferences(db, organizationId, documentId, draftData, publishedData) {
+		await this.assetReferencesService.syncAssetReferencesFor(db, organizationId, documentId, this.collectionName, draftData, publishedData);
 	}
 	/**
 	* Recompute the document's full-text search index from freshly-saved
@@ -651,7 +806,7 @@ var CollectionAPI = class {
 		const id = singletonId(this._schema.name, context.organizationId);
 		const existing = await this.findByID(context, id, options);
 		if (existing) return existing;
-		return (await this.create(context, {}, { id })).document;
+		return applyPublicMetaToDoc(applyHiddenToDoc((await this.create(context, {}, { id })).document, this.resolveHiddenReadFields(context)), options?.public);
 	}
 	/**
 	* Find multiple documents with advanced filtering and pagination
@@ -675,7 +830,8 @@ var CollectionAPI = class {
 		if (this._schema.singleton) return {
 			docs: [await this.get(context, {
 				perspective: options.perspective,
-				depth: options.depth
+				depth: options.depth,
+				public: options.public
 			})],
 			totalDocs: 1,
 			limit: 1,
@@ -690,7 +846,7 @@ var CollectionAPI = class {
 		const hidden = this.resolveHiddenReadFields(context);
 		if (perspective === "published" && this.documentCache) {
 			const cached = await this.documentCache.getQuery(context.organizationId, this.collectionName, options);
-			if (cached) return applyHiddenToResult(cached, hidden);
+			if (cached) return applyPublicMetaToResult(applyHiddenToResult(cached, hidden), options.public);
 		}
 		const findOptions = { ...options };
 		if (this.hierarchyService && !findOptions.filterOrganizationIds) findOptions.filterOrganizationIds = await this.hierarchyService.getOrgIdsWithChildren(context.organizationId);
@@ -859,12 +1015,17 @@ var CollectionAPI = class {
 					published = await tx.publishDoc(context.organizationId, document.id);
 					if (published) await emitDocumentPublished(tx, context.organizationId, published);
 				}
+				await this.syncReferences(tx, context.organizationId, document.id, validationResult.normalizedData);
+				await this.syncAssetReferences(tx, context.organizationId, document.id, validationResult.normalizedData, published ? validationResult.normalizedData : null);
+				for (const event of options?.outboxEvents ?? []) await tx.appendEvent({
+					...event,
+					organizationId: context.organizationId
+				});
 				return {
 					document,
 					published
 				};
 			});
-			await this.syncReferences(context.organizationId, document.id, validationResult.normalizedData);
 			await this.syncSearchText(context.organizationId, document.id, validationResult.normalizedData);
 			if (versionService) await versionService.enforceRetentionFor(this.databaseAdapter, context.organizationId, document.id);
 			if (published) {
@@ -883,14 +1044,22 @@ var CollectionAPI = class {
 				validation: validationResult
 			};
 		}
-		const document = await this.databaseAdapter.createDocument({
-			organizationId: context.organizationId,
-			type: this.collectionName,
-			draftData: validationResult.normalizedData,
-			createdBy: context.user?.id,
-			id: options?.id
+		const document = await this.databaseAdapter.withTransaction(async (tx) => {
+			const document = await tx.createDocument({
+				organizationId: context.organizationId,
+				type: this.collectionName,
+				draftData: validationResult.normalizedData,
+				createdBy: context.user?.id,
+				id: options?.id
+			});
+			await this.syncReferences(tx, context.organizationId, document.id, validationResult.normalizedData);
+			await this.syncAssetReferences(tx, context.organizationId, document.id, validationResult.normalizedData, null);
+			for (const event of options?.outboxEvents ?? []) await tx.appendEvent({
+				...event,
+				organizationId: context.organizationId
+			});
+			return document;
 		});
-		await this.syncReferences(context.organizationId, document.id, validationResult.normalizedData);
 		await this.syncSearchText(context.organizationId, document.id, validationResult.normalizedData);
 		if (versionService) await versionService.createVersion(this.databaseAdapter, context.organizationId, document.id, "draft", validationResult.normalizedData, context.user?.id);
 		if (this.documentCache) await this.documentCache.invalidateCollection(context.organizationId, this.collectionName);
@@ -938,9 +1107,16 @@ var CollectionAPI = class {
 		});
 		const validationResult = await validateDocumentData(this._schema, hookedData);
 		this.assertStructurallyValid(validationResult);
-		const document = this.versionService && !options?.skipVersioning ? await this.versionService.saveWithVersion(this.databaseAdapter, context.organizationId, id, validationResult.normalizedData, context.user?.id, options?.expectedRevision) : await this.databaseAdapter.updateDocDraft(context.organizationId, id, validationResult.normalizedData, context.user?.id, options?.expectedRevision);
+		const indexInTx = async (tx, saved) => {
+			await this.syncReferences(tx, context.organizationId, id, validationResult.normalizedData);
+			await this.syncAssetReferences(tx, context.organizationId, id, validationResult.normalizedData, saved.publishedData ?? null);
+		};
+		const document = this.versionService && !options?.skipVersioning ? await this.versionService.saveWithVersion(this.databaseAdapter, context.organizationId, id, validationResult.normalizedData, context.user?.id, options?.expectedRevision, indexInTx) : await this.databaseAdapter.withTransaction(async (tx) => {
+			const saved = await tx.updateDocDraft(context.organizationId, id, validationResult.normalizedData, context.user?.id, options?.expectedRevision);
+			if (saved) await indexInTx(tx, saved);
+			return saved;
+		});
 		if (!document) return null;
-		await this.syncReferences(context.organizationId, id, validationResult.normalizedData);
 		await this.syncSearchText(context.organizationId, id, validationResult.normalizedData);
 		if (options?.publish) {
 			await this.permissions.canPublish(context, this.collectionName, document);
@@ -1159,7 +1335,7 @@ var CollectionAPI = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/permissions.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/local-api/permissions.js
 var PermissionError = class extends Error {
 	operation;
 	resource;
@@ -1277,7 +1453,7 @@ var PermissionChecker = class {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/local-api/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/local-api/index.js
 /**
 * CollectionAPI methods that compute synchronously and don't touch the DB.
 * The LocalAPI proxy bypasses its async-adapter-swap wrapper for these so
@@ -1383,7 +1559,15 @@ var LocalAPI = class {
 		return this.schemas.has(name);
 	}
 	/**
-	* Get a collection by name (for dynamic access in route handlers and resolvers)
+	* Get a collection by name (for dynamic access in route handlers and resolvers).
+	*
+	* The document type is a parameter because the caller usually knows it and the
+	* registry cannot: `collections.page` is typed from the app's generated types,
+	* but anything reached by a runtime name — a route handler resolving
+	* `result.type`, or a plugin fetching a collection it contributed itself —
+	* lands here. Defaulting to `unknown` keeps every existing call site working,
+	* while `getCollection<Form>('form')` lets a caller that does know the shape
+	* say so, instead of casting the result of every read and write.
 	*/
 	getCollection(name) {
 		return this._collections.get(name);
@@ -1481,162 +1665,7 @@ function createLocalAPI(config, userAdapter, systemAdapter) {
 	return localAPIInstance;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/mime-detect.js
-/**
-* Detect MIME type from file magic bytes (file signatures).
-* Returns the detected MIME type, or null if unknown.
-*/
-function detectMimeType(buffer) {
-	if (buffer.length < 4) return null;
-	if (buffer[0] === 37 && buffer[1] === 80 && buffer[2] === 68 && buffer[3] === 70) return "application/pdf";
-	if (buffer[0] === 137 && buffer[1] === 80 && buffer[2] === 78 && buffer[3] === 71) return "image/png";
-	if (buffer[0] === 255 && buffer[1] === 216 && buffer[2] === 255) return "image/jpeg";
-	if (buffer[0] === 71 && buffer[1] === 73 && buffer[2] === 70 && buffer[3] === 56 && (buffer[4] === 55 || buffer[4] === 57) && buffer[5] === 97) return "image/gif";
-	if (buffer.length >= 12 && buffer[0] === 82 && buffer[1] === 73 && buffer[2] === 70 && buffer[3] === 70 && buffer[8] === 87 && buffer[9] === 69 && buffer[10] === 66 && buffer[11] === 80) return "image/webp";
-	if (buffer.length >= 12) {
-		if (buffer.subarray(4, 8).toString("ascii") === "ftyp") {
-			const brand = buffer.subarray(8, 12).toString("ascii");
-			if (brand === "avif") return "image/avif";
-			if (brand === "heic" || brand === "heix") return "image/heic";
-			if (brand.startsWith("mp4") || brand === "isom") return "video/mp4";
-		}
-	}
-	const head = buffer.subarray(0, Math.min(buffer.length, 256)).toString("utf-8");
-	if (head.trimStart().startsWith("<") && head.includes("<svg")) return "image/svg+xml";
-	if (buffer[0] === 80 && buffer[1] === 75 && buffer[2] === 3 && buffer[3] === 4) return detectZipFormat(buffer);
-	if (buffer[0] === 208 && buffer[1] === 207 && buffer[2] === 17 && buffer[3] === 224) return "application/msword";
-	if (buffer[0] === 0 && buffer[1] === 97 && buffer[2] === 115 && buffer[3] === 109) return "application/wasm";
-	if (buffer[0] === 127 && buffer[1] === 69 && buffer[2] === 76 && buffer[3] === 70) return "application/x-executable";
-	if (buffer[0] === 207 && buffer[1] === 250 && buffer[2] === 237 && buffer[3] === 254 || buffer[0] === 206 && buffer[1] === 250 && buffer[2] === 237 && buffer[3] === 254 || buffer[0] === 254 && buffer[1] === 237 && buffer[2] === 250 && buffer[3] === 207 || buffer[0] === 254 && buffer[1] === 237 && buffer[2] === 250 && buffer[3] === 206) return "application/x-executable";
-	if (buffer[0] === 77 && buffer[1] === 90) return "application/x-executable";
-	if (buffer[0] === 35 && buffer[1] === 33) return "application/x-shellscript";
-	return null;
-}
-/**
-* Detect specific format within a ZIP container.
-*/
-function detectZipFormat(buffer) {
-	const content = buffer.subarray(0, Math.min(buffer.length, 2e3)).toString("binary");
-	if (content.includes("word/")) return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-	if (content.includes("xl/")) return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-	if (content.includes("ppt/")) return "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-	return "application/zip";
-}
-/**
-* Blocked MIME types that should never be uploaded.
-*/
-var BLOCKED_MIME_TYPES = /* @__PURE__ */ new Set([
-	"application/x-executable",
-	"application/x-shellscript",
-	"application/wasm",
-	"application/x-msdos-program",
-	"application/x-msdownload",
-	"text/html",
-	"application/xhtml+xml",
-	"text/xml",
-	"application/xml"
-]);
-/**
-* Blocked file extensions (regardless of MIME type).
-*/
-var BLOCKED_EXTENSIONS = /* @__PURE__ */ new Set([
-	".exe",
-	".dll",
-	".bat",
-	".cmd",
-	".com",
-	".msi",
-	".scr",
-	".pif",
-	".sh",
-	".bash",
-	".zsh",
-	".csh",
-	".ksh",
-	".app",
-	".command",
-	".action",
-	".ps1",
-	".psm1",
-	".psd1",
-	".vbs",
-	".vbe",
-	".js",
-	".jse",
-	".wsf",
-	".wsh",
-	".reg",
-	".inf",
-	".hta",
-	".wasm",
-	".html",
-	".htm",
-	".xhtml",
-	".shtml",
-	".xml",
-	".xsl",
-	".mhtml"
-]);
-/**
-* Validate an uploaded file's actual content against allowed types.
-* Checks magic bytes, not just the client-provided MIME type.
-*/
-function validateFile(buffer, filename, clientMimeType, options = {}) {
-	const lowerName = filename.toLowerCase();
-	const ext = lowerName.substring(lowerName.lastIndexOf("."));
-	const detectedMimeType = detectMimeType(buffer);
-	const allExts = lowerName.match(/\.[^.]+/g) || [];
-	for (const e of allExts) if (BLOCKED_EXTENSIONS.has(e)) return {
-		valid: false,
-		error: `File type "${e}" is not allowed`,
-		detectedMimeType
-	};
-	if (detectedMimeType && BLOCKED_MIME_TYPES.has(detectedMimeType)) return {
-		valid: false,
-		error: `File content detected as "${detectedMimeType}" which is not allowed`,
-		detectedMimeType
-	};
-	if (detectedMimeType && clientMimeType) {
-		const detectedBase = detectedMimeType.split("/")[0];
-		const clientBase = clientMimeType.split("/")[0];
-		if (detectedMimeType === "application/x-executable" && clientBase !== "application") return {
-			valid: false,
-			error: "File content does not match the declared type",
-			detectedMimeType
-		};
-		if (clientBase === "image" && detectedBase !== "image" && detectedMimeType !== null) return {
-			valid: false,
-			error: `File content is "${detectedMimeType}" but was uploaded as an image`,
-			detectedMimeType
-		};
-	}
-	if (options.allowedMimeTypes && options.allowedMimeTypes.length > 0) {
-		const mimeToCheck = detectedMimeType || clientMimeType;
-		if (!options.allowedMimeTypes.some((allowed) => {
-			if (allowed.endsWith("/*")) {
-				const prefix = allowed.slice(0, -2);
-				return mimeToCheck.startsWith(prefix);
-			}
-			if (allowed.startsWith(".")) return ext === allowed.toLowerCase();
-			return mimeToCheck === allowed;
-		})) return {
-			valid: false,
-			error: `File type "${mimeToCheck}" is not allowed. Accepted: ${options.allowedMimeTypes.join(", ")}`,
-			detectedMimeType
-		};
-	}
-	if (options.maxSize && buffer.length > options.maxSize) return {
-		valid: false,
-		error: `File exceeds maximum size of ${(options.maxSize / (1024 * 1024)).toFixed(1)} MB`,
-		detectedMimeType
-	};
-	return {
-		valid: true,
-		detectedMimeType
-	};
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/fetch-remote-file.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils/fetch-remote-file.js
 var undiciPromise;
 function loadUndici() {
 	undiciPromise ??= (async () => {
@@ -1776,7 +1805,7 @@ async function fetchRemoteFile(url) {
 	throw new Error("Too many redirects.");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/type-gen.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/type-gen.js
 /**
 * Map Aphex field types to TypeScript types
 */
@@ -1890,7 +1919,7 @@ function fieldHasReferences(field, schemaMap, visited) {
 	return false;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/ai/content-workspace-tools.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/ai/content-workspace-tools.js
 var unreachable = (name) => Promise.resolve({
 	success: false,
 	error: `${name} must be resolved client-side against a live DocumentWorkspace; the server should never execute it directly.`
@@ -1917,7 +1946,7 @@ var contentWorkspaceTools = [{
 	execute: () => unreachable("content_save_draft")
 }];
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/block-defaults.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/fields/richtext/block-defaults.js
 var DEFAULT_BLOCK_STYLES = [
 	"normal",
 	"h1",
@@ -1937,7 +1966,7 @@ var DEFAULT_BLOCK_DECORATORS = [
 ];
 var DEFAULT_BLOCK_LISTS = ["bullet", "number"];
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/mcp/tools.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/mcp/tools.js
 var ok = (data) => ({
 	success: true,
 	data
@@ -2205,16 +2234,16 @@ var contentAgentTools = [
 	{
 		definition: {
 			name: "query_documents",
-			description: "Query documents in a collection. Supports where filters, sorting, pagination, and draft/published perspective.",
+			description: "Do not call this with `where` or `sort` until you have called get_schema for this exact collection in the current conversation. Query documents using only field names and stored shapes that schema returned. Supports filters, sorting, pagination, and draft/published perspective. Aphex slug fields are bare strings: use `where: { \"slug\": \"home\" }`, never `slug.current` or `{ current: \"home\" }`. Afterward, answer from the returned documents instead of explaining these parameters.",
 			mutates: false,
 			requiredCapabilities: ["document.read"],
 			execution: "server",
 			inputSchema: z.object({
 				collection: z.string().describe("Collection name"),
-				where: z.record(z.string(), z.unknown()).optional().describe("Filter conditions (LocalAPI Where syntax)"),
+				where: z.record(z.string(), z.unknown()).optional().describe("Filter conditions (LocalAPI Where syntax). Call get_schema for this collection first and use only fields it returned. Slugs are bare strings, e.g. { \"slug\": \"home\" }; never use \"slug.current\"."),
 				limit: z.number().optional().describe("Max results (default 50)"),
 				offset: z.number().optional().describe("Results to skip (default 0)"),
-				sort: z.string().optional().describe("Sort field; prefix '-' for descending, e.g. '-updatedAt'"),
+				sort: z.string().optional().describe("Schema-confirmed sort field; prefix '-' for descending, e.g. '-updatedAt'"),
 				perspective: z.enum(["draft", "published"]).optional().describe("Which content to read (default draft)")
 			})
 		},
@@ -2273,7 +2302,7 @@ var contentAgentTools = [
 	{
 		definition: {
 			name: "create_document",
-			description: "Create a document in a collection. Pass field values in `data` (matching the collection schema). Set publish:true to publish immediately, otherwise it is saved as a draft.",
+			description: "Create a NEW document in a collection. Use this whenever the user asks for a new post, page, or other document, even if workspace tools for an already-open document are available. Pass field values in `data` (matching the collection schema). Set publish:true to publish immediately, otherwise it is saved as a draft.",
 			mutates: true,
 			requiredCapabilities: ["document.create"],
 			execution: "server",
@@ -2565,7 +2594,17 @@ function resolveAgentTools({ aphexCMS, context }, opts) {
 	const callerCapabilities = context.auth ? [...resolveCapabilities(context.auth)] : [];
 	const pluginTools = aphexCMS.partResolver.agentToolsForCapabilities(callerCapabilities).filter((t) => !coreNames.has(t.definition.name));
 	const base = [...contentAgentTools, ...pluginTools];
-	if (opts?.documentContext) return [...base.filter((t) => t.definition.name !== "update_document"), ...contentWorkspaceTools];
+	if (opts?.documentContext) {
+		const { collection, id } = opts.documentContext;
+		const workspaceTools = contentWorkspaceTools.map((tool) => ({
+			...tool,
+			definition: {
+				...tool.definition,
+				description: `${tool.definition.description} Exact target: existing document ${collection}/${id}. This tool cannot create a document and must not be used for another collection or document.`
+			}
+		}));
+		return [...base.filter((t) => t.definition.name !== "update_document"), ...workspaceTools];
+	}
 	return base.filter((t) => t.definition.execution !== "workspace");
 }
 /**
@@ -2586,4 +2625,4 @@ function buildContentTools(deps) {
 	}));
 }
 //#endregion
-export { PermissionError as a, createDocumentJobHandlers as c, createLocalAPI as i, resolveAgentTools as n, DocumentValidationError as o, validateFile as r, SingletonOperationError as s, buildContentTools as t };
+export { DocumentValidationError as a, validateFile as c, PermissionError as i, resolveAgentTools as n, SingletonOperationError as o, createLocalAPI as r, createDocumentJobHandlers as s, buildContentTools as t };

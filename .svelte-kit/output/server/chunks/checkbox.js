@@ -1,7 +1,8 @@
-import { a as derived, d as spread_props, i as bind_props, l as props_id, nt as snapshot, r as attributes } from "./server2.js";
-import { D as Check, R as Icon, Y as Hidden_input, bt as watch, dt as isHTMLElement, xt as Context } from "./stega.js";
+import { a as derived, d as spread_props, i as bind_props, l as props_id, r as attributes, rt as snapshot } from "./server2.js";
 import { t as cn } from "./utils3.js";
 import { c as getAriaChecked, f as attachRef, i as boolToStr, n as createId, p as mergeProps, r as boolToEmptyStrOrUndef, s as createBitsAttrs, x as boxWith } from "./label.js";
+import { M as watch, N as Context, c as isHTMLElement, n as Hidden_input, t as Check } from "./check.js";
+import { t as Icon } from "./Icon.js";
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/checkbox/checkbox.svelte.js
 var checkboxAttrs = createBitsAttrs({
 	component: "checkbox",
@@ -320,7 +321,7 @@ function Minus($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/checkbox/checkbox.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/checkbox/checkbox.svelte
 function Checkbox($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, checked = false, indeterminate = false, class: className, $$slots, $$events, ...restProps } = $$props;

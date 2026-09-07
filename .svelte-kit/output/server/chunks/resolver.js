@@ -1,5 +1,5 @@
 import { z } from "zod";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/types/capabilities.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/types/capabilities.js
 /**
 * Enumerate every capability. Useful for owner seeding and validation.
 */
@@ -305,14 +305,29 @@ function coarseApiKeyCapabilities(permissions) {
 *   3. API keys → derived from `read`/`write` scopes.
 *   4. Session fallback → built-in seed for the org role.
 *   5. Partial session → empty set.
+*
+* Every branch is passed through {@link normalizeCapabilities}, so the
+* write-implies-read invariant holds at *resolve* time and not merely at write
+* time. `normalizeCapabilities` is otherwise only applied by the role and
+* API-key request schemas, which covers the admin UI but not seeds, migrations,
+* plugins, or rows written directly — and the read routes now depend on
+* `asset.read`/`document.read` actually being present. Without this, a role
+* persisted with `asset.upload` alone would be able to upload an asset and then
+* get a 403 listing it. It can only ever add a read cap alongside a write cap
+* that already survived whatever clamp produced the set, so it never widens
+* access beyond what the principal was already granted.
 */
 function resolveCapabilities(auth) {
-	if (auth.type === "partial_session") return EMPTY;
-	if ("capabilities" in auth && Array.isArray(auth.capabilities)) return new Set(auth.capabilities);
-	if (auth.type === "session" && INSTANCE_ROLE_OVERRIDES.has(auth.user.role)) return new Set(ALL_CAPABILITIES);
-	if (auth.type === "api_key") return new Set(coarseApiKeyCapabilities(auth.permissions));
+	return new Set(normalizeCapabilities(rawCapabilities(auth)));
+}
+var EMPTY_CAPS = [];
+function rawCapabilities(auth) {
+	if (auth.type === "partial_session") return EMPTY_CAPS;
+	if ("capabilities" in auth && Array.isArray(auth.capabilities)) return auth.capabilities;
+	if (auth.type === "session" && INSTANCE_ROLE_OVERRIDES.has(auth.user.role)) return ALL_CAPABILITIES;
+	if (auth.type === "api_key") return coarseApiKeyCapabilities(auth.permissions);
 	const builtin = BUILTIN_ROLE_SEED[auth.organizationRole];
-	return builtin ? new Set(builtin.capabilities) : EMPTY;
+	return builtin ? builtin.capabilities : EMPTY_CAPS;
 }
 /**
 * Resolve the effective organization role name for an Auth, honoring
@@ -328,9 +343,8 @@ function effectiveOrganizationRole(auth) {
 	if (INSTANCE_ROLE_OVERRIDES.has(auth.user.role)) return "owner";
 	return auth.organizationRole ?? null;
 }
-var EMPTY = /* @__PURE__ */ new Set();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/define-event.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/events/define-event.js
 function defineEvent(type, schema) {
 	return {
 		type,
@@ -339,7 +353,7 @@ function defineEvent(type, schema) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/catalog.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/events/catalog.js
 /** Emitted after a document's draft is copied to published, inside the publish transaction. */
 var documentPublished = defineEvent("document.published", z.object({
 	documentId: z.string(),
@@ -364,7 +378,7 @@ var userDeleted = defineEvent("user.deleted", z.object({
 	image: z.string().nullable()
 }));
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/events/built-in-consumers.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/events/built-in-consumers.js
 /** Extract the asset id from an avatar path, or null if it isn't one of ours. */
 function avatarAssetId(image) {
 	return /^\/media\/([^/]+)\//.exec(image)?.[1] ?? null;
@@ -388,7 +402,7 @@ var BUILT_IN_EVENT_CONSUMERS = [{
 	}
 }];
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/plugins/resolver.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/plugins/resolver.js
 function createPartResolver(plugins = []) {
 	const allParts = [...BUILT_IN_EVENT_CONSUMERS, ...plugins.flatMap((p) => p.parts ?? [])];
 	const seen = /* @__PURE__ */ new Map();

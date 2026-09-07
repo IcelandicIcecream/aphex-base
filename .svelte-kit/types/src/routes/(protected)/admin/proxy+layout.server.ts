@@ -1,6 +1,8 @@
 // @ts-nocheck
 import type { LayoutServerLoad } from './$types';
 import type { SidebarData, SidebarOrganization } from '@aphexcms/cms-core';
+import type { SiteSettings } from '$lib/generated-types';
+import { systemContext } from '@aphexcms/cms-core/local-api/auth-helpers';
 import { redirect } from '@sveltejs/kit';
 import cmsConfig from '../../../../aphex.config';
 
@@ -9,7 +11,7 @@ export const load = async ({ locals }: Parameters<LayoutServerLoad>[0]) => {
 	const auth = locals.auth;
 
 	if (!auth || auth.type !== 'session') {
-		throw new Error('No session found');
+		throw redirect(302, '/login');
 	}
 
 	// Fetch user's organizations directly from database (only once per page load)
@@ -42,11 +44,23 @@ export const load = async ({ locals }: Parameters<LayoutServerLoad>[0]) => {
 	const canCreateOrganization =
 		auth.user.role === 'super_admin' || (instanceSettings.allowUserOrgCreation ?? false);
 	const title = cmsConfig.customization?.branding?.title || 'Aphex CMS';
+	// Don't advertise the assistant FAB when no aiProvider is configured — POST
+	// /api/agent/chat itself 404s in that case, this just keeps the UI consistent with it.
+	const agentEnabled = !!cmsConfig.aiProvider;
 
-	// The base template has no siteSettings singleton — studio/blog load the
-	// public site's favicon here so the admin tab matches. If you add one to
-	// your content model, resolve it here the same way.
-	const faviconUrl: string | null = null;
+	// Load the active org's site favicon so the admin browser tab matches the
+	// public site. Tolerate a missing/unpublished settings row.
+	let faviconUrl: string | null = null;
+	try {
+		const context = systemContext(auth.organizationId);
+		const settings = (await locals.aphexCMS.localAPI.collections.siteSettings.get(context, {
+			perspective: 'published'
+		})) as SiteSettings | null;
+		await locals.aphexCMS.assetService.injectAssetUrls(auth.organizationId, settings);
+		faviconUrl = settings?.favicon?.asset?.url ?? null;
+	} catch {
+		faviconUrl = null;
+	}
 
 	return {
 		auth,
@@ -55,6 +69,7 @@ export const load = async ({ locals }: Parameters<LayoutServerLoad>[0]) => {
 		activeOrganization,
 		canCreateOrganization,
 		faviconUrl,
+		agentEnabled,
 		// Expose resolved capabilities + active role to the admin shell so
 		// client code (UI gating, debug panels) can consult the same set the
 		// server enforces against.

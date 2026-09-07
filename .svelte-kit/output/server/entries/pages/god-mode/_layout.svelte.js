@@ -1,8 +1,8 @@
-import { D as attr, f as stringify, k as escape_html, s as ensure_array_like, t as attr_class } from "../../../chunks/server2.js";
+import { A as escape_html, O as attr, p as stringify, s as ensure_array_like, t as attr_class } from "../../../chunks/server2.js";
 import "../../../chunks/navigation.js";
 import { t as page } from "../../../chunks/state.js";
-import { t as Mode_watcher } from "../../../chunks/dist5.js";
 import { t as Button } from "../../../chunks/button.js";
+import { t as Mode_watcher } from "../../../chunks/dist4.js";
 import "../../../chunks/auth-client.js";
 //#region src/routes/god-mode/+layout.svelte
 function _layout($$renderer, $$props) {

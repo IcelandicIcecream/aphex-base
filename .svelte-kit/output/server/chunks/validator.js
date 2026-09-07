@@ -663,7 +663,7 @@ var customParseFormat_default = (function(o, C, d) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/field-validation/rule.js
 dayjs.extend(customParseFormat_default);
 var ISO_8601_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/;
 function isIso8601DateTime(value) {
@@ -1116,7 +1116,7 @@ var utc_default = (function(option, Dayjs, dayjs) {
 	};
 });
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/field-validation/date-utils.js
 dayjs.extend(customParseFormat_default);
 dayjs.extend(utc_default);
 /**
@@ -1229,7 +1229,33 @@ function normalizeDateFields(data, schema) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/schema-utils/visibility.js
+/**
+* Should this field be rendered and validated?
+*
+* The single source of truth for the answer, deliberately: the admin renderer and
+* the server-side validator both call this. Two implementations would drift, and
+* the way they drift is "the form won't save and nothing on screen says why".
+*
+* A throwing condition resolves to *visible*. A broken predicate should surface
+* as a field that shouldn't be there, not as one that has silently vanished
+* along with whatever the editor typed into it.
+*/
+function isFieldVisible(field, siblingData, documentData) {
+	const hidden = field.hidden;
+	if (typeof hidden !== "function") return true;
+	const sibling = siblingData ?? documentData ?? {};
+	try {
+		return !hidden({
+			siblingData: sibling,
+			documentData: documentData ?? sibling
+		});
+	} catch {
+		return true;
+	}
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/field-validation/utils.js
 /**
 * Check if a field is required based on its validation rules
 */
@@ -1552,6 +1578,7 @@ async function validateField(field, value, context = {}) {
 */
 async function validateFieldSet(fields, data, context) {
 	const validationErrors = [];
+	const visible = fields.filter((field) => isFieldVisible(field, data, context?.document ?? data));
 	const declared = new Set(fields.map((field) => field.name));
 	for (const key of Object.keys(data ?? {})) {
 		if (key.startsWith("_")) continue;
@@ -1562,7 +1589,7 @@ async function validateFieldSet(fields, data, context) {
 			kind: "structural"
 		});
 	}
-	for (const field of fields) {
+	for (const field of visible) {
 		const value = data[field.name];
 		const result = await validateField(field, value, {
 			...context,
@@ -1616,7 +1643,7 @@ async function validateDocumentData(schema, data, context = {}) {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/schema-utils/validator.js
 var RESERVED_FIELD_NAMES = [
 	"id",
 	"type",

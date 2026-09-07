@@ -1,10 +1,12 @@
-import { D as attr, a as derived, c as head, k as escape_html } from "../../../chunks/server2.js";
+import { A as escape_html, O as attr, a as derived, c as head } from "../../../chunks/server2.js";
 import "../../../chunks/navigation.js";
 import { t as page } from "../../../chunks/state.js";
 import { O as Input, t as Label } from "../../../chunks/label.js";
 import { t as Button } from "../../../chunks/button.js";
+import { t as PasswordInput } from "../../../chunks/PasswordInput.js";
 import { a as Card_content, i as Card_description, n as Card_header, o as Card, r as Card_footer, t as Card_title } from "../../../chunks/card.js";
 import { t as authClient } from "../../../chunks/auth-client.js";
+import { t as Logo } from "../../../chunks/Logo.js";
 //#region src/routes/login/+page.svelte
 function _page($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -19,6 +21,7 @@ function _page($$renderer, $$props) {
 		let mode = initialMode;
 		let resetSuccess = "";
 		let signupSuccess = false;
+		let claimCode = "";
 		let unverifiedEmail = "";
 		let resendLoading = false;
 		let resendMessage = "";
@@ -173,6 +176,8 @@ function _page($$renderer, $$props) {
 											$$renderer.push(`<div class="rounded-lg border border-green-500/50 bg-green-500/10 p-3"><p class="text-sm font-medium text-green-700 dark:text-green-400">${escape_html(resetSuccess)}</p></div>`);
 										} else $$renderer.push("<!--[-1-->");
 										$$renderer.push(`<!--]--> `);
+										$$renderer.push("<!--[-1-->");
+										$$renderer.push(`<!--]--> `);
 										if (error) {
 											$$renderer.push("<!--[0-->");
 											$$renderer.push(`<div class="border-destructive/50 bg-destructive/10 space-y-2 rounded-lg border p-3"><p class="text-destructive text-sm font-medium">${escape_html(error)}</p> `);
@@ -244,9 +249,8 @@ function _page($$renderer, $$props) {
 												$$renderer.push(`<button type="button" class="text-primary text-xs hover:underline">Forgot password?</button>`);
 											} else $$renderer.push("<!--[-1-->");
 											$$renderer.push(`<!--]--></div> `);
-											Input($$renderer, {
+											PasswordInput($$renderer, {
 												id: "password",
-												type: "password",
 												placeholder: "••••••••",
 												required: true,
 												autocomplete: mode === "signin" ? "current-password" : "new-password",
@@ -264,6 +268,35 @@ function _page($$renderer, $$props) {
 												$$renderer.push(`<p class="text-muted-foreground text-xs">Must be at least 8 characters long</p>`);
 											} else $$renderer.push("<!--[-1-->");
 											$$renderer.push(`<!--]--></div>`);
+										} else $$renderer.push("<!--[-1-->");
+										$$renderer.push(`<!--]--> `);
+										if (mode === "signup" && data.unclaimed) {
+											$$renderer.push("<!--[0-->");
+											$$renderer.push(`<div class="space-y-2">`);
+											Label($$renderer, {
+												for: "claim-code",
+												children: ($$renderer) => {
+													$$renderer.push(`<!---->Claim code`);
+												},
+												$$slots: { default: true }
+											});
+											$$renderer.push(`<!----> `);
+											Input($$renderer, {
+												id: "claim-code",
+												type: "text",
+												placeholder: "Paste the code from your server log",
+												autocomplete: "off",
+												spellcheck: false,
+												get value() {
+													return claimCode;
+												},
+												set value($$value) {
+													claimCode = $$value;
+													$$settled = false;
+												}
+											});
+											$$renderer.push(`<!----> <p class="text-muted-foreground text-xs">Nobody administers this instance yet. Enter the claim code printed in the server
+									log at startup to become the super admin. Leave it blank to sign up as an editor.</p></div>`);
 										} else $$renderer.push("<!--[-1-->");
 										$$renderer.push(`<!--]--> `);
 										Button($$renderer, {
@@ -339,7 +372,9 @@ function _page($$renderer, $$props) {
 				$$renderer.push("<!--[!-->");
 				$$renderer.push("<!--]-->");
 			}
-			$$renderer.push(` <p class="text-muted-foreground mt-6 text-center text-xs">Aphex CMS - Built with SvelteKit</p> <div class="mt-2 flex justify-center"><img src="/favicon.svg" alt="Aphex CMS" class="h-8 w-8"/></div></div></div>`);
+			$$renderer.push(` <p class="text-muted-foreground mt-6 text-center text-xs">Aphex CMS - Built with SvelteKit</p> <div class="mt-2 flex justify-center">`);
+			Logo($$renderer, { class: "text-foreground h-8 w-8" });
+			$$renderer.push(`<!----></div></div></div>`);
 		}
 		do {
 			$$settled = true;

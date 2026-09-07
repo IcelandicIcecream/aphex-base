@@ -2,6 +2,7 @@
 // This file defines the CMS configuration for your application
 import { env } from '$env/dynamic/private';
 import { dev } from '$app/environment';
+import { createOpenAIAdapter } from '@aphexcms/ai-openai';
 import { createCMSConfig } from '@aphexcms/cms-core/server';
 import { schemaTypes } from './src/lib/schemaTypes/index.js';
 // Single plugin entrypoint. Declared once in a client-safe file (the admin imports
@@ -29,6 +30,15 @@ function previewAs(): 'auto' | 'draft' | 'published' {
 	return 'auto';
 }
 
+/** `true`/`1`/`yes`/`on` (any case) — anything else, including unset, is false. */
+function isTruthy(value: string | undefined): boolean {
+	return ['true', '1', 'yes', 'on'].includes((value ?? '').toLowerCase());
+}
+
+const agentAPIKey = env.AGENT_API_KEY?.trim();
+const agentModel = env.AGENT_MODEL?.trim();
+const agentBaseURL = env.AGENT_BASE_URL?.trim();
+
 export default createCMSConfig({
 	schemaTypes,
 	plugins,
@@ -40,6 +50,14 @@ export default createCMSConfig({
 	email,
 	cache: cacheAdapter,
 
+	// The assistant stays completely disabled unless both required values are set.
+	// Omit AGENT_BASE_URL for OpenAI, or set it for any compatible endpoint.
+	aiProvider:
+		agentAPIKey && agentModel
+			? createOpenAIAdapter({ apiKey: agentAPIKey, baseURL: agentBaseURL })
+			: null,
+	agentModel: agentAPIKey && agentModel ? agentModel : undefined,
+
 	auth: {
 		provider: authProvider,
 		loginUrl: '/login' // Redirect here when unauthenticated
@@ -50,7 +68,14 @@ export default createCMSConfig({
 		// unset, secret settings fields are disabled (read-only) rather than stored as
 		// plaintext. Keep it stable across deploys; rotating it orphans existing secrets.
 		// Read via `$env/dynamic/private` — SvelteKit does NOT put `.env` into process.env.
-		secretEncryptionKey: env.APHEX_SECRET_ENCRYPTION_KEY
+		secretEncryptionKey: env.APHEX_SECRET_ENCRYPTION_KEY,
+
+		// Signs `/media/:id/:filename` URLs, so a private asset can be handed to a
+		// viewer with no admin session — one asset, for a bounded window. Mint links
+		// with `signAssetUrl` from `@aphexcms/cms-core/server`. When unset, signing
+		// is a no-op and verification always fails, so private assets remain
+		// reachable only with a session (fail closed).
+		assetSigningSecret: env.APHEX_ASSET_SIGNING_SECRET
 	},
 
 	// Background jobs — the durable spine that runs scheduled publishes and event consumers.
@@ -60,8 +85,14 @@ export default createCMSConfig({
 	//     fires seconds later. For horizontally-scaled prod, turn this off and use the dedicated
 	//     worker loop / cron instead so N replicas don't each run a loop.
 	//   - `workerSecret`: gates POST /api/internal/workers/run for platform cron / `pnpm worker`.
+	//
+	// APHEX_EMBEDDED_WORKER=true turns the in-process loop on in production too. That is
+	// the right answer for a single-container deploy (Render, Railway, Coolify, a VPS):
+	// there is no cron to configure and no second service to pay for, and without it the
+	// queue silently accumulates — a scheduled publish is accepted and simply never
+	// happens. Leave it off the moment you run more than one replica.
 	jobs: {
-		embedded: dev,
+		embedded: dev || isTruthy(env.APHEX_EMBEDDED_WORKER),
 		workerSecret: env.APHEX_WORKER_SECRET
 	},
 
@@ -86,6 +117,12 @@ export default createCMSConfig({
 		defaultPerspective: 'draft',
 		path: '/api/aphex-graphql'
 	},
+
+	// Uploads go straight from the browser to object storage via a presigned URL,
+	// so a large file never travels through this app's server. Falls back to a
+	// normal server-side upload when the storage adapter can't presign (the local
+	// filesystem one can't), so it's safe to leave on.
+	upload: { direct: true, maxFileSize: 200 * 1024 * 1024 },
 
 	customization: {
 		branding: {

@@ -9,7 +9,7 @@
 	import { page } from '$app/state';
 	import { activeTabState } from '$lib/stores/activeTab.svelte';
 	import { SvelteURLSearchParams } from 'svelte/reactivity';
-	import { House, Activity, Database } from '@lucide/svelte';
+	import { House, Activity, LayoutDashboard } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import type { LayoutData } from './$types';
@@ -39,9 +39,9 @@
 		},
 		// Default nav items (can be customized per app)
 		navItems: [
-			{ href: '/admin', label: 'Studio', icon: House },
-			{ href: '/admin/activity', label: 'Activity', icon: Activity },
-			{ href: '/', label: 'Public Data Site', icon: Database }
+			{ href: '/admin', label: 'Studio', icon: LayoutDashboard },
+			{ href: '/', label: 'Home', icon: House },
+			{ href: '/admin/activity', label: 'Activity', icon: Activity }
 		],
 		organizations: data.organizations,
 		activeOrganization: data.activeOrganization,
@@ -101,6 +101,7 @@
 		data={sidebarData}
 		onSignOut={handleSignOut}
 		{enableGraphiQL}
+		enableAssistant={data.agentEnabled}
 		activeTab={activeTabState}
 		onTabChange={handleTabChange}
 		{plugins}

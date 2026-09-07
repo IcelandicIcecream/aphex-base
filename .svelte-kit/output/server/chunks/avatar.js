@@ -1,7 +1,7 @@
 import { a as derived, d as spread_props, i as bind_props, l as props_id, r as attributes } from "./server2.js";
-import { bt as watch, vt as DOMContext, xt as Context } from "./stega.js";
 import { t as cn } from "./utils3.js";
 import { f as attachRef, n as createId, p as mergeProps, s as createBitsAttrs, x as boxWith } from "./label.js";
+import { E as DOMContext, M as watch, N as Context } from "./check.js";
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/avatar/avatar.svelte.js
 var avatarAttrs = createBitsAttrs({
 	component: "avatar",
@@ -217,7 +217,7 @@ function Avatar_fallback$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar.svelte
 function Avatar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, loadingStatus = "loading", class: className, size = "default", $$slots, $$events, ...restProps } = $$props;
@@ -269,7 +269,7 @@ function Avatar($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar-image.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar-image.svelte
 function Avatar_image($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -310,7 +310,7 @@ function Avatar_image($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar-fallback.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/avatar/avatar-fallback.svelte
 function Avatar_fallback($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;

@@ -1,10 +1,11 @@
 import { t as private_env } from "./shared-server.js";
 import { t as db } from "./db.js";
+import { n as emailConfig, t as email } from "./email.js";
+import { i as cacheAdapter, n as authProvider } from "./auth.js";
 import { a as createCMSConfig, i as createStorageAdapter } from "./server3.js";
-import { a as emailConfig, i as email, r as cacheAdapter } from "./service.js";
-import { t as authProvider } from "./auth.js";
 import { t as plugins } from "./plugins.js";
 import { t as schemaTypes } from "./schemaTypes.js";
+import { createOpenAIAdapter } from "@aphexcms/ai-openai";
 import { s3Storage } from "@aphexcms/storage-s3";
 //#region src/lib/server/email/invitation-hook.ts
 /**
@@ -54,7 +55,7 @@ if (private_env.R2_BUCKET && private_env.R2_ENDPOINT && private_env.R2_ACCESS_KE
 	baseUrl: private_env.R2_CDN_URL || void 0
 }).adapter;
 else storageAdapter = createStorageAdapter("local", {
-	basePath: "./static/uploads",
+	basePath: private_env.APHEX_UPLOADS_DIR || "./uploads",
 	baseUrl: "/uploads"
 });
 //#endregion
@@ -73,6 +74,18 @@ else storageAdapter = createStorageAdapter("local", {
 function previewAs() {
 	return "auto";
 }
+/** `true`/`1`/`yes`/`on` (any case) — anything else, including unset, is false. */
+function isTruthy(value) {
+	return [
+		"true",
+		"1",
+		"yes",
+		"on"
+	].includes((value ?? "").toLowerCase());
+}
+var agentAPIKey = private_env.AGENT_API_KEY?.trim();
+var agentModel = private_env.AGENT_MODEL?.trim();
+var agentBaseURL = private_env.AGENT_BASE_URL?.trim();
 var aphex_config_default = createCMSConfig({
 	schemaTypes,
 	plugins,
@@ -80,13 +93,21 @@ var aphex_config_default = createCMSConfig({
 	storage: storageAdapter,
 	email,
 	cache: cacheAdapter,
+	aiProvider: agentAPIKey && agentModel ? createOpenAIAdapter({
+		apiKey: agentAPIKey,
+		baseURL: agentBaseURL
+	}) : null,
+	agentModel: agentAPIKey && agentModel ? agentModel : void 0,
 	auth: {
 		provider: authProvider,
 		loginUrl: "/login"
 	},
-	security: { secretEncryptionKey: private_env.APHEX_SECRET_ENCRYPTION_KEY },
+	security: {
+		secretEncryptionKey: private_env.APHEX_SECRET_ENCRYPTION_KEY,
+		assetSigningSecret: private_env.APHEX_ASSET_SIGNING_SECRET
+	},
 	jobs: {
-		embedded: false,
+		embedded: isTruthy(private_env.APHEX_EMBEDDED_WORKER),
 		workerSecret: private_env.APHEX_WORKER_SECRET
 	},
 	preview: { resolvePerspective: ({ auth, url }) => {
@@ -100,6 +121,10 @@ var aphex_config_default = createCMSConfig({
 	graphql: {
 		defaultPerspective: "draft",
 		path: "/api/aphex-graphql"
+	},
+	upload: {
+		direct: true,
+		maxFileSize: 200 * 1024 * 1024
 	},
 	customization: { branding: { title: "Aphex" } },
 	api: (app) => {

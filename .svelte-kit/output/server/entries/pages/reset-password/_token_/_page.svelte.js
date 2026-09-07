@@ -1,9 +1,10 @@
-import { c as head, k as escape_html } from "../../../../chunks/server2.js";
+import { A as escape_html, c as head } from "../../../../chunks/server2.js";
 import { s as resolve, t as goto } from "../../../../chunks/client.js";
 import "../../../../chunks/navigation.js";
 import "../../../../chunks/state.js";
-import { O as Input, t as Label } from "../../../../chunks/label.js";
+import { t as Label } from "../../../../chunks/label.js";
 import { t as Button } from "../../../../chunks/button.js";
+import { t as PasswordInput } from "../../../../chunks/PasswordInput.js";
 import { a as Card_content, i as Card_description, n as Card_header, o as Card, t as Card_title } from "../../../../chunks/card.js";
 import "../../../../chunks/auth-client.js";
 //#region src/routes/reset-password/[token]/+page.svelte
@@ -85,9 +86,8 @@ function _page($$renderer, $$props) {
 										$$slots: { default: true }
 									});
 									$$renderer.push(`<!----> `);
-									Input($$renderer, {
+									PasswordInput($$renderer, {
 										id: "newPassword",
-										type: "password",
 										placeholder: "••••••••",
 										required: true,
 										autocomplete: "new-password",
@@ -109,9 +109,8 @@ function _page($$renderer, $$props) {
 										$$slots: { default: true }
 									});
 									$$renderer.push(`<!----> `);
-									Input($$renderer, {
+									PasswordInput($$renderer, {
 										id: "confirmPassword",
-										type: "password",
 										placeholder: "••••••••",
 										required: true,
 										autocomplete: "new-password",

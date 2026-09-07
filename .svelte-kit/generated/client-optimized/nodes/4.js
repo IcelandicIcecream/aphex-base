@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/god-mode/+layout.svelte";
+export { default as component } from "../../../../src/routes/(site)/+layout.svelte";

@@ -29,7 +29,7 @@ declare module "$app/types" {
 	type MatcherParam<M> = M extends (param : string) => param is (infer U extends string) ? U : string;
 
 	export interface AppTypes {
-		RouteId(): "/(protected)" | "/" | "/(protected)/admin" | "/(protected)/admin/activity" | "/(protected)/admin/organizations" | "/(protected)/admin/organizations/_components" | "/(protected)/admin/settings" | "/(protected)/admin/settings/_components" | "/(protected)/admin/settings/account" | "/(protected)/admin/settings/api-keys" | "/(protected)/admin/settings/members" | "/(protected)/admin/settings/plugins" | "/(protected)/admin/settings/roles" | "/api" | "/api/instance-settings" | "/api/invitations" | "/api/invitations/[id]" | "/api/invitations/[id]/accept" | "/api/invitations/[id]/reject" | "/api/settings" | "/api/settings/api-keys" | "/api/settings/api-keys/[id]" | "/api/[...slug]" | "/god-mode" | "/god-mode/_components" | "/god-mode/organizations" | "/invitations" | "/invite" | "/invite/[token]" | "/login" | "/mcp" | "/media" | "/media/[id]" | "/media/[id]/[filename]" | "/reset-password" | "/reset-password/[token]" | "/verify-email";
+		RouteId(): "/(site)" | "/(protected)" | "/" | "/(protected)/admin" | "/(protected)/admin/activity" | "/(protected)/admin/organizations" | "/(protected)/admin/organizations/_components" | "/(protected)/admin/settings" | "/(protected)/admin/settings/_components" | "/(protected)/admin/settings/account" | "/(protected)/admin/settings/api-keys" | "/(protected)/admin/settings/members" | "/(protected)/admin/settings/plugins" | "/(protected)/admin/settings/roles" | "/api" | "/api/instance-settings" | "/api/invitations" | "/api/invitations/[id]" | "/api/invitations/[id]/accept" | "/api/invitations/[id]/reject" | "/api/settings" | "/api/settings/api-keys" | "/api/settings/api-keys/[id]" | "/api/[...slug]" | "/god-mode" | "/god-mode/_components" | "/god-mode/organizations" | "/healthz" | "/invitations" | "/invite" | "/invite/[token]" | "/login" | "/mcp" | "/media" | "/media/[id]" | "/media/[id]/[filename]" | "/reset-password" | "/reset-password/[token]" | "/two-factor" | "/verify-email" | "/(site)/[slug]";
 		RouteParams(): {
 			"/api/invitations/[id]": { id: string };
 			"/api/invitations/[id]/accept": { id: string };
@@ -39,9 +39,11 @@ declare module "$app/types" {
 			"/invite/[token]": { token: string };
 			"/media/[id]": { id: string };
 			"/media/[id]/[filename]": { id: string; filename: string };
-			"/reset-password/[token]": { token: string }
+			"/reset-password/[token]": { token: string };
+			"/(site)/[slug]": { slug: string }
 		};
 		LayoutParams(): {
+			"/(site)": { slug?: string | undefined };
 			"/(protected)": Record<string, never>;
 			"/": { id?: string | undefined; slug?: string | undefined; token?: string | undefined; filename?: string | undefined };
 			"/(protected)/admin": Record<string, never>;
@@ -68,6 +70,7 @@ declare module "$app/types" {
 			"/god-mode": Record<string, never>;
 			"/god-mode/_components": Record<string, never>;
 			"/god-mode/organizations": Record<string, never>;
+			"/healthz": Record<string, never>;
 			"/invitations": Record<string, never>;
 			"/invite": { token?: string | undefined };
 			"/invite/[token]": { token: string };
@@ -78,9 +81,11 @@ declare module "$app/types" {
 			"/media/[id]/[filename]": { id: string; filename: string };
 			"/reset-password": { token?: string | undefined };
 			"/reset-password/[token]": { token: string };
-			"/verify-email": Record<string, never>
+			"/two-factor": Record<string, never>;
+			"/verify-email": Record<string, never>;
+			"/(site)/[slug]": { slug: string }
 		};
-		Pathname(): "/" | "/admin" | "/admin/activity" | "/admin/organizations" | "/admin/settings" | "/admin/settings/account" | "/admin/settings/api-keys" | "/admin/settings/members" | "/admin/settings/plugins" | "/admin/settings/roles" | "/api/instance-settings" | "/api/invitations" | `/api/invitations/${string}/accept` & {} | `/api/invitations/${string}/reject` & {} | "/api/settings/api-keys" | `/api/settings/api-keys/${string}` & {} | `/api/${string}` & {} | "/god-mode" | "/god-mode/organizations" | "/invitations" | `/invite/${string}` & {} | "/login" | "/mcp" | `/media/${string}/${string}` & {} | `/reset-password/${string}` & {} | "/verify-email";
+		Pathname(): "/" | "/admin" | "/admin/activity" | "/admin/organizations" | "/admin/settings" | "/admin/settings/account" | "/admin/settings/api-keys" | "/admin/settings/members" | "/admin/settings/plugins" | "/admin/settings/roles" | "/api/instance-settings" | "/api/invitations" | `/api/invitations/${string}/accept` & {} | `/api/invitations/${string}/reject` & {} | "/api/settings/api-keys" | `/api/settings/api-keys/${string}` & {} | `/api/${string}` & {} | "/god-mode" | "/god-mode/organizations" | "/healthz" | "/invitations" | `/invite/${string}` & {} | "/login" | "/mcp" | `/media/${string}/${string}` & {} | `/reset-password/${string}` & {} | "/two-factor" | "/verify-email" | `/${string}` & {};
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): "/favicon.svg" | "/images/aphex-darkmode.png" | "/images/aphex-lightmode.png" | "/robots.txt" | string & {};
 	}

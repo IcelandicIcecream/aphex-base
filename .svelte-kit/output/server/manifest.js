@@ -10,7 +10,7 @@ return {
 	assets: new Set(["favicon.svg","images/aphex-darkmode.png","images/aphex-lightmode.png","robots.txt"]),
 	mimeTypes: {".svg":"image/svg+xml",".png":"image/png",".txt":"text/plain"},
 	_: {
-		client: {start:"_app/immutable/entry/start.D_uKj0Jq.js",app:"_app/immutable/entry/app.CIG3cyHS.js",imports:["_app/immutable/entry/start.D_uKj0Jq.js","_app/immutable/chunks/5FdN2e8i.js","_app/immutable/chunks/iK_pMUV6.js","_app/immutable/entry/app.CIG3cyHS.js","_app/immutable/chunks/iK_pMUV6.js","_app/immutable/chunks/HclGiUj8.js","_app/immutable/chunks/F6NlIg5i.js","_app/immutable/chunks/5FdN2e8i.js","_app/immutable/chunks/xihTtKlq.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.ZNdv7pcy.js",app:"_app/immutable/entry/app.BzTynoo_.js",imports:["_app/immutable/entry/start.ZNdv7pcy.js","_app/immutable/chunks/DQFvJnrk.js","_app/immutable/chunks/Dnm4jccR.js","_app/immutable/chunks/QTnfLwEv.js","_app/immutable/entry/app.BzTynoo_.js","_app/immutable/chunks/Dnm4jccR.js","_app/immutable/chunks/QTnfLwEv.js","_app/immutable/chunks/HclGiUj8.js","_app/immutable/chunks/Cyw3vPuA.js","_app/immutable/chunks/DQFvJnrk.js","_app/immutable/chunks/xihTtKlq.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),
@@ -33,17 +33,20 @@ return {
 			__memo(() => import('./nodes/18.js')),
 			__memo(() => import('./nodes/19.js')),
 			__memo(() => import('./nodes/20.js')),
-			__memo(() => import('./nodes/21.js'))
+			__memo(() => import('./nodes/21.js')),
+			__memo(() => import('./nodes/22.js')),
+			__memo(() => import('./nodes/23.js')),
+			__memo(() => import('./nodes/24.js'))
 		],
 		remotes: {
 			
 		},
 		routes: [
 			{
-				id: "/",
+				id: "/(site)",
 				pattern: /^\/$/,
 				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 5 },
+				page: { layouts: [0,4,], errors: [1,,], leaf: 15 },
 				endpoint: null
 			},
 			{
@@ -162,35 +165,42 @@ return {
 				id: "/god-mode",
 				pattern: /^\/god-mode\/?$/,
 				params: [],
-				page: { layouts: [0,4,], errors: [1,,], leaf: 15 },
+				page: { layouts: [0,5,], errors: [1,,], leaf: 17 },
 				endpoint: null
 			},
 			{
 				id: "/god-mode/organizations",
 				pattern: /^\/god-mode\/organizations\/?$/,
 				params: [],
-				page: { layouts: [0,4,], errors: [1,,], leaf: 16 },
+				page: { layouts: [0,5,], errors: [1,,], leaf: 18 },
 				endpoint: null
+			},
+			{
+				id: "/healthz",
+				pattern: /^\/healthz\/?$/,
+				params: [],
+				page: null,
+				endpoint: __memo(() => import('./entries/endpoints/healthz/_server.ts.js'))
 			},
 			{
 				id: "/invitations",
 				pattern: /^\/invitations\/?$/,
 				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 17 },
+				page: { layouts: [0,], errors: [1,], leaf: 19 },
 				endpoint: null
 			},
 			{
 				id: "/invite/[token]",
 				pattern: /^\/invite\/([^/]+?)\/?$/,
 				params: [{"name":"token","optional":false,"rest":false,"chained":false}],
-				page: { layouts: [0,], errors: [1,], leaf: 18 },
+				page: { layouts: [0,], errors: [1,], leaf: 20 },
 				endpoint: null
 			},
 			{
 				id: "/login",
 				pattern: /^\/login\/?$/,
 				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 19 },
+				page: { layouts: [0,], errors: [1,], leaf: 21 },
 				endpoint: null
 			},
 			{
@@ -211,14 +221,28 @@ return {
 				id: "/reset-password/[token]",
 				pattern: /^\/reset-password\/([^/]+?)\/?$/,
 				params: [{"name":"token","optional":false,"rest":false,"chained":false}],
-				page: { layouts: [0,], errors: [1,], leaf: 20 },
+				page: { layouts: [0,], errors: [1,], leaf: 22 },
+				endpoint: null
+			},
+			{
+				id: "/two-factor",
+				pattern: /^\/two-factor\/?$/,
+				params: [],
+				page: { layouts: [0,], errors: [1,], leaf: 23 },
 				endpoint: null
 			},
 			{
 				id: "/verify-email",
 				pattern: /^\/verify-email\/?$/,
 				params: [],
-				page: { layouts: [0,], errors: [1,], leaf: 21 },
+				page: { layouts: [0,], errors: [1,], leaf: 24 },
+				endpoint: null
+			},
+			{
+				id: "/(site)/[slug]",
+				pattern: /^\/([^/]+?)\/?$/,
+				params: [{"name":"slug","optional":false,"rest":false,"chained":false}],
+				page: { layouts: [0,4,], errors: [1,,], leaf: 16 },
 				endpoint: null
 			}
 		],

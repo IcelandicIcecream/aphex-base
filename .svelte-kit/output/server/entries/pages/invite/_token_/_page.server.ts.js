@@ -1,3 +1,5 @@
+import "../../../../chunks/dist.js";
+import { n as isAccepted, r as isExpired } from "../../../../chunks/invitation-status.js";
 import { redirect } from "@sveltejs/kit";
 //#region src/routes/invite/[token]/+page.server.ts
 var load = async ({ params, locals }) => {
@@ -10,12 +12,12 @@ var load = async ({ params, locals }) => {
 		invitation: null,
 		organization: null
 	};
-	if (invitation.acceptedAt) return {
+	if (isAccepted(invitation)) return {
 		error: "already_accepted",
 		invitation: null,
 		organization: null
 	};
-	if (new Date(invitation.expiresAt) < /* @__PURE__ */ new Date()) return {
+	if (isExpired(invitation)) return {
 		error: "expired",
 		invitation: null,
 		organization: null

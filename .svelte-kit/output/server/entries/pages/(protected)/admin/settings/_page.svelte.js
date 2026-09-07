@@ -1,11 +1,13 @@
-import { D as attr, a as derived, c as head, d as spread_props, f as stringify, k as escape_html, t as attr_class } from "../../../../../chunks/server2.js";
+import { A as escape_html, O as attr, a as derived, c as head, d as spread_props, p as stringify, t as attr_class } from "../../../../../chunks/server2.js";
 import { s as organizations } from "../../../../../chunks/api.js";
-import { n as invalidateAll } from "../../../../../chunks/client.js";
+import { n as invalidateAll, t as goto } from "../../../../../chunks/client.js";
 import "../../../../../chunks/navigation.js";
-import { C as Copy, R as Icon, k as toast } from "../../../../../chunks/stega.js";
+import { D as toast, S as Copy } from "../../../../../chunks/stega.js";
 import { O as Input, t as Label } from "../../../../../chunks/label.js";
+import { a as Dialog_header, i as Dialog_content, o as Dialog_footer, r as Dialog_description, s as Dialog_title, t as Root } from "../../../../../chunks/dialog.js";
 import { n as Avatar_image, r as Avatar, t as Avatar_fallback } from "../../../../../chunks/avatar.js";
 import { t as Button } from "../../../../../chunks/button.js";
+import { t as Icon } from "../../../../../chunks/Icon.js";
 import "../../../../../chunks/ui.js";
 import { t as Upload } from "../../../../../chunks/upload.js";
 import { t as Users } from "../../../../../chunks/users.js";
@@ -98,6 +100,7 @@ function OrganizationsSettings($$renderer, $$props) {
 		let editOrgName = "";
 		let editOrgSlug = "";
 		let editOrgLogo = "";
+		let editOrgLogoInvertOnDark = false;
 		let isUpdatingOrg = false;
 		let isUploadingLogo = false;
 		let error = null;
@@ -130,7 +133,8 @@ function OrganizationsSettings($$renderer, $$props) {
 					slug: editOrgSlug.trim(),
 					metadata: {
 						...activeOrganization.metadata ?? {},
-						logo: editOrgLogo || void 0
+						logo: editOrgLogo || void 0,
+						logoInvertOnDark: editOrgLogo ? editOrgLogoInvertOnDark : false
 					}
 				});
 				if (!result.success) throw new Error(result.error || "Failed to update organization");
@@ -206,7 +210,7 @@ function OrganizationsSettings($$renderer, $$props) {
 														Avatar_image($$renderer, {
 															src: editOrgLogo,
 															alt: activeOrganization.name,
-															class: "object-cover"
+															class: `object-cover ${stringify(editOrgLogoInvertOnDark ? "dark:invert" : "")}`
 														});
 														$$renderer.push("<!--]-->");
 													} else {
@@ -261,7 +265,10 @@ function OrganizationsSettings($$renderer, $$props) {
 											type: "button",
 											variant: "ghost",
 											size: "sm",
-											onclick: () => editOrgLogo = "",
+											onclick: () => {
+												editOrgLogo = "";
+												editOrgLogoInvertOnDark = false;
+											},
 											disabled: isUpdatingOrg,
 											children: ($$renderer) => {
 												$$renderer.push(`<!---->Remove`);
@@ -407,6 +414,7 @@ function OrganizationsSettings($$renderer, $$props) {
 											editOrgName = activeOrganization.name;
 											editOrgSlug = activeOrganization.slug;
 											editOrgLogo = activeOrganization.metadata?.logo || "";
+											editOrgLogoInvertOnDark = activeOrganization.metadata?.logoInvertOnDark === true;
 											error = null;
 										},
 										disabled: isUpdatingOrg || isUploadingLogo,
@@ -451,6 +459,214 @@ function OrganizationsSettings($$renderer, $$props) {
 	});
 }
 //#endregion
+//#region src/routes/(protected)/admin/settings/_components/DeleteOrganizationSettings.svelte
+function DeleteOrganizationSettings($$renderer, $$props) {
+	$$renderer.component(($$renderer) => {
+		/** Only owners may delete; the server enforces this too. */
+		let { organization, canDelete } = $$props;
+		let open = false;
+		let confirmation = "";
+		let isDeleting = false;
+		const memberCount = derived(() => organization.members.length);
+		const confirmed = derived(() => confirmation.trim() === organization.name);
+		function onOpenChange(next) {
+			if (isDeleting) return;
+			open = next;
+			if (!next) confirmation = "";
+		}
+		async function deleteOrganization() {
+			if (!confirmed() || isDeleting) return;
+			isDeleting = true;
+			try {
+				const result = await organizations.remove(organization.id);
+				if (!result.success) throw new Error(result.error || result.message || "Could not delete this workspace");
+				await invalidateAll();
+				await goto("/admin");
+				toast.success(`${organization.name} was deleted`);
+			} catch (error) {
+				toast.error(error instanceof Error ? error.message : "Could not delete this workspace");
+				isDeleting = false;
+			}
+		}
+		let $$settled = true;
+		let $$inner_renderer;
+		function $$render_inner($$renderer) {
+			if (Card) {
+				$$renderer.push("<!--[-->");
+				Card($$renderer, {
+					class: "border-destructive/40",
+					children: ($$renderer) => {
+						if (Card_content) {
+							$$renderer.push("<!--[-->");
+							Card_content($$renderer, {
+								class: "flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between",
+								children: ($$renderer) => {
+									$$renderer.push(`<div class="space-y-1"><p class="text-sm font-medium">Delete workspace</p> <p class="text-muted-foreground max-w-prose text-sm">Permanently deletes <span class="font-medium">${escape_html(organization.name)}</span> along with every document,
+				uploaded file, role and invitation in it. This can't be undone.</p> `);
+									if (!canDelete) {
+										$$renderer.push("<!--[0-->");
+										$$renderer.push(`<p class="text-muted-foreground text-sm">Only owners can delete a workspace.</p>`);
+									} else $$renderer.push("<!--[-1-->");
+									$$renderer.push(`<!--]--></div> `);
+									Button($$renderer, {
+										variant: "destructive",
+										class: "shrink-0",
+										disabled: !canDelete,
+										onclick: () => open = true,
+										children: ($$renderer) => {
+											$$renderer.push(`<!---->Delete workspace`);
+										},
+										$$slots: { default: true }
+									});
+									$$renderer.push(`<!---->`);
+								},
+								$$slots: { default: true }
+							});
+							$$renderer.push("<!--]-->");
+						} else {
+							$$renderer.push("<!--[!-->");
+							$$renderer.push("<!--]-->");
+						}
+					},
+					$$slots: { default: true }
+				});
+				$$renderer.push("<!--]-->");
+			} else {
+				$$renderer.push("<!--[!-->");
+				$$renderer.push("<!--]-->");
+			}
+			$$renderer.push(` `);
+			if (Root) {
+				$$renderer.push("<!--[-->");
+				Root($$renderer, {
+					open,
+					onOpenChange,
+					children: ($$renderer) => {
+						if (Dialog_content) {
+							$$renderer.push("<!--[-->");
+							Dialog_content($$renderer, {
+								class: "sm:max-w-md",
+								children: ($$renderer) => {
+									if (Dialog_header) {
+										$$renderer.push("<!--[-->");
+										Dialog_header($$renderer, {
+											children: ($$renderer) => {
+												if (Dialog_title) {
+													$$renderer.push("<!--[-->");
+													Dialog_title($$renderer, {
+														children: ($$renderer) => {
+															$$renderer.push(`<!---->Delete ${escape_html(organization.name)}?`);
+														},
+														$$slots: { default: true }
+													});
+													$$renderer.push("<!--]-->");
+												} else {
+													$$renderer.push("<!--[!-->");
+													$$renderer.push("<!--]-->");
+												}
+												$$renderer.push(` `);
+												if (Dialog_description) {
+													$$renderer.push("<!--[-->");
+													Dialog_description($$renderer, {
+														children: ($$renderer) => {
+															$$renderer.push(`<!---->Every document, uploaded file, role and invitation in this workspace is erased, and
+				${escape_html(memberCount() === 1 ? "its member is" : `all ${memberCount()} members are`)} removed. This is permanent.`);
+														},
+														$$slots: { default: true }
+													});
+													$$renderer.push("<!--]-->");
+												} else {
+													$$renderer.push("<!--[!-->");
+													$$renderer.push("<!--]-->");
+												}
+											},
+											$$slots: { default: true }
+										});
+										$$renderer.push("<!--]-->");
+									} else {
+										$$renderer.push("<!--[!-->");
+										$$renderer.push("<!--]-->");
+									}
+									$$renderer.push(` <div class="grid gap-2 py-2">`);
+									Label($$renderer, {
+										for: "delete-org-confirmation",
+										children: ($$renderer) => {
+											$$renderer.push(`<!---->Type <span class="font-mono font-medium">${escape_html(organization.name)}</span> to confirm`);
+										},
+										$$slots: { default: true }
+									});
+									$$renderer.push(`<!----> `);
+									Input($$renderer, {
+										id: "delete-org-confirmation",
+										autocomplete: "off",
+										disabled: isDeleting,
+										get value() {
+											return confirmation;
+										},
+										set value($$value) {
+											confirmation = $$value;
+											$$settled = false;
+										}
+									});
+									$$renderer.push(`<!----></div> `);
+									if (Dialog_footer) {
+										$$renderer.push("<!--[-->");
+										Dialog_footer($$renderer, {
+											children: ($$renderer) => {
+												Button($$renderer, {
+													variant: "outline",
+													onclick: () => onOpenChange(false),
+													disabled: isDeleting,
+													children: ($$renderer) => {
+														$$renderer.push(`<!---->Cancel`);
+													},
+													$$slots: { default: true }
+												});
+												$$renderer.push(`<!----> `);
+												Button($$renderer, {
+													variant: "destructive",
+													onclick: deleteOrganization,
+													disabled: !confirmed() || isDeleting,
+													children: ($$renderer) => {
+														$$renderer.push(`<!---->${escape_html(isDeleting ? "Deleting…" : "Delete workspace")}`);
+													},
+													$$slots: { default: true }
+												});
+												$$renderer.push(`<!---->`);
+											},
+											$$slots: { default: true }
+										});
+										$$renderer.push("<!--]-->");
+									} else {
+										$$renderer.push("<!--[!-->");
+										$$renderer.push("<!--]-->");
+									}
+								},
+								$$slots: { default: true }
+							});
+							$$renderer.push("<!--]-->");
+						} else {
+							$$renderer.push("<!--[!-->");
+							$$renderer.push("<!--]-->");
+						}
+					},
+					$$slots: { default: true }
+				});
+				$$renderer.push("<!--]-->");
+			} else {
+				$$renderer.push("<!--[!-->");
+				$$renderer.push("<!--]-->");
+			}
+		}
+		do {
+			$$settled = true;
+			$$inner_renderer = $$renderer.copy();
+			$$render_inner($$inner_renderer);
+		} while (!$$settled);
+		$$renderer.subsume($$inner_renderer);
+	});
+}
+//#endregion
 //#region src/routes/(protected)/admin/settings/+page.svelte
 function _page($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -464,6 +680,12 @@ function _page($$renderer, $$props) {
 		if (data.activeOrganization) {
 			$$renderer.push("<!--[0-->");
 			OrganizationsSettings($$renderer, { activeOrganization: data.activeOrganization });
+			$$renderer.push(`<!----> <section class="mt-5 grid gap-4"><header><h2 class="text-base font-semibold">Danger zone</h2> <p class="text-muted-foreground text-sm">Irreversible, and affects everyone here.</p></header> `);
+			DeleteOrganizationSettings($$renderer, {
+				organization: data.activeOrganization,
+				canDelete: data.user.organizationRole === "owner"
+			});
+			$$renderer.push(`<!----></section>`);
 		} else {
 			$$renderer.push("<!--[-1-->");
 			if (Card) {

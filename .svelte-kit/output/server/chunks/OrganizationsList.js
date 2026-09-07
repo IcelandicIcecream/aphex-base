@@ -1,4 +1,4 @@
-import { D as attr, k as escape_html, s as ensure_array_like } from "./server2.js";
+import { A as escape_html, O as attr, s as ensure_array_like } from "./server2.js";
 import "./navigation.js";
 import "./ui.js";
 import { t as External_link } from "./external-link.js";

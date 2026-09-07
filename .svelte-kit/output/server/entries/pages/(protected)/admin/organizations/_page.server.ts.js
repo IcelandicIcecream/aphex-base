@@ -1,4 +1,4 @@
-import { t as authService } from "../../../../../chunks/service.js";
+import { r as authService } from "../../../../../chunks/auth.js";
 //#region src/routes/(protected)/admin/organizations/+page.server.ts
 var load = async ({ locals }) => {
 	const { databaseAdapter } = locals.aphexCMS;

@@ -1,4 +1,38 @@
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/client.js
+import { r as effectiveFileType } from "./file-accept.js";
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/upload-timeout.js
+/**
+* How long to wait on a request carrying a file body.
+*
+* Its own module because both transports need it — the XHR upload path and the
+* fetch client — and a second copy of a heuristic is a second thing to get
+* wrong. No imports, so neither pays for it.
+*
+* Derived from the payload rather than configured. A timeout encodes no
+* decision the way a size limit does: its only job is to stop a hung request
+* spinning forever. Exposing it as a setting invites an inconsistent pair —
+* raise `upload.maxFileSize` to 100MB, leave the timeout at the JSON default,
+* and every large upload fails in a way that reads as a server rejection.
+* Deriving it means raising the size limit adjusts the deadline for free.
+*/
+/**
+* Assumed floor throughput, deliberately pessimistic — a phone on a bad
+* connection, not an office line. Too generous costs a slow failure on a
+* genuinely dead request; too tight kills uploads that were succeeding.
+*/
+var UPLOAD_ASSUMED_BYTES_PER_SECOND = 64 * 1024;
+var UPLOAD_TIMEOUT_FLOOR = 3e4;
+var UPLOAD_TIMEOUT_CEILING = 900 * 1e3;
+function uploadTimeoutForBytes(bytes) {
+	const transfer = bytes / UPLOAD_ASSUMED_BYTES_PER_SECOND * 1e3;
+	return Math.min(UPLOAD_TIMEOUT_CEILING, Math.max(UPLOAD_TIMEOUT_FLOOR, transfer));
+}
+function uploadTimeoutFor(body) {
+	let bytes = 0;
+	for (const value of body.values()) if (typeof Blob !== "undefined" && value instanceof Blob) bytes += value.size;
+	return uploadTimeoutForBytes(bytes);
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/client.js
 var DEFAULT_BASE_URL = "/api";
 var DEFAULT_TIMEOUT = 1e4;
 var ApiError = class extends Error {
@@ -21,25 +55,31 @@ var ApiClient = class {
 	/**
 	* Make HTTP request with proper error handling
 	*/
-	async request(endpoint, options = {}) {
+	async request(endpoint, options = {}, timeoutMs) {
 		const url = `${this.baseUrl}${endpoint}`;
 		const headers = {};
 		if (!(options.body instanceof FormData)) headers["Content-Type"] = "application/json";
 		const requestOptions = {
+			...options,
 			headers: {
 				...headers,
 				...options.headers
-			},
-			...options
+			}
 		};
 		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+		const timeoutId = setTimeout(() => controller.abort(), timeoutMs ?? this.timeout);
 		requestOptions.signal = controller.signal;
 		try {
 			const response = await fetch(url, requestOptions);
 			clearTimeout(timeoutId);
-			const data = await response.json();
-			if (!response.ok) throw new ApiError(response.status, data, data.message || data.error);
+			let data = null;
+			try {
+				data = await response.json();
+			} catch {
+				if (response.ok) throw new ApiError(response.status, null, "Malformed response from server");
+			}
+			if (!response.ok) throw new ApiError(response.status, data, data?.message || data?.error || `Request failed (${response.status})`);
+			if (!data) throw new ApiError(response.status, null, "Malformed response from server");
 			if (!data.success) throw new ApiError(response.status, data, data.message || data.error);
 			return data;
 		} catch (error) {
@@ -66,11 +106,13 @@ var ApiClient = class {
 	/**
 	* POST request
 	*/
-	async post(endpoint, body) {
+	async post(endpoint, body, headers) {
+		const isUpload = body instanceof FormData;
 		return this.request(endpoint, {
 			method: "POST",
-			body: body instanceof FormData ? body : body ? JSON.stringify(body) : void 0
-		});
+			...headers ? { headers } : {},
+			body: isUpload ? body : body ? JSON.stringify(body) : void 0
+		}, isUpload ? uploadTimeoutFor(body) : void 0);
 	}
 	/**
 	* PUT request
@@ -102,7 +144,7 @@ var ApiClient = class {
 };
 var apiClient = new ApiClient();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/documents.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/documents.js
 var DocumentsApi = class {
 	/**
 	* List documents with optional filtering
@@ -257,7 +299,7 @@ var documents = {
 	restoreVersion: DocumentsApi.restoreVersion.bind(DocumentsApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/organizations.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/organizations.js
 var OrganizationsApi = class {
 	/**
 	* List user's organizations
@@ -353,7 +395,7 @@ var organizations = {
 	cancelInvitation: OrganizationsApi.cancelInvitation.bind(OrganizationsApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/roles.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/roles.js
 var RolesApi = class {
 	/** List all roles (built-in + custom) for the active organization. */
 	static async list() {
@@ -379,11 +421,141 @@ var roles = {
 	remove: RolesApi.remove.bind(RolesApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/assets.js
-var AssetsApi = class {
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/upload.js
+/**
+* POST a FormData body with progress reporting.
+*
+* Resolves with the parsed body on success and rejects with `ApiError`
+* otherwise, matching `ApiClient` exactly.
+*/
+/**
+* PUT a file straight to object storage, reporting progress.
+*
+* Distinct from {@link uploadFormData} in two ways that matter:
+*
+* - **No credentials.** The target is a third-party origin and the URL already
+*   carries its own signature. Sending cookies would leak the session to the
+*   storage provider and trip CORS besides.
+* - **Raw body, not FormData.** The signature covers the object bytes; wrapping
+*   them in multipart framing would store the framing.
+*
+* A failure here is very often missing bucket CORS rather than a broken file,
+* and the browser deliberately hides the distinction — so the error says so.
+*/
+function putToStorage(url, file, headers = {}, options = {}) {
+	const { onProgress, signal, timeoutMs } = options;
+	return new Promise((resolve, reject) => {
+		if (signal?.aborted) {
+			reject(new ApiError(0, null, "Upload cancelled"));
+			return;
+		}
+		const xhr = new XMLHttpRequest();
+		xhr.open("PUT", url, true);
+		xhr.withCredentials = false;
+		for (const [name, value] of Object.entries(headers)) xhr.setRequestHeader(name, value);
+		if (timeoutMs) xhr.timeout = timeoutMs;
+		if (onProgress) xhr.upload.addEventListener("progress", (event) => {
+			if (event.lengthComputable && event.total > 0) onProgress(Math.min(100, Math.round(event.loaded / event.total * 100)));
+		});
+		const onAbort = () => xhr.abort();
+		signal?.addEventListener("abort", onAbort, { once: true });
+		const cleanup = () => signal?.removeEventListener("abort", onAbort);
+		xhr.addEventListener("load", () => {
+			cleanup();
+			if (xhr.status >= 200 && xhr.status < 300) {
+				resolve();
+				return;
+			}
+			reject(new ApiError(xhr.status, null, `Storage rejected the upload (${xhr.status})`));
+		});
+		xhr.addEventListener("error", () => {
+			cleanup();
+			reject(new ApiError(0, null, "Could not reach storage. The bucket may not allow PUT from this origin (CORS)."));
+		});
+		xhr.addEventListener("timeout", () => {
+			cleanup();
+			reject(new ApiError(0, null, "Upload timed out"));
+		});
+		xhr.addEventListener("abort", () => {
+			cleanup();
+			reject(new ApiError(0, null, "Upload cancelled"));
+		});
+		xhr.send(file);
+	});
+}
+function uploadFormData(url, body, options = {}) {
+	const { onProgress, signal, timeoutMs } = options;
+	return new Promise((resolve, reject) => {
+		if (signal?.aborted) {
+			reject(new ApiError(0, null, "Upload cancelled"));
+			return;
+		}
+		const xhr = new XMLHttpRequest();
+		xhr.open("POST", url, true);
+		xhr.withCredentials = true;
+		if (timeoutMs) xhr.timeout = timeoutMs;
+		if (onProgress) xhr.upload.addEventListener("progress", (event) => {
+			if (event.lengthComputable && event.total > 0) onProgress(Math.min(100, Math.round(event.loaded / event.total * 100)));
+		});
+		const onAbort = () => xhr.abort();
+		signal?.addEventListener("abort", onAbort, { once: true });
+		const cleanup = () => signal?.removeEventListener("abort", onAbort);
+		xhr.addEventListener("load", () => {
+			cleanup();
+			let data = null;
+			try {
+				data = JSON.parse(xhr.responseText);
+			} catch {}
+			if (!(xhr.status >= 200 && xhr.status < 300)) {
+				reject(new ApiError(xhr.status, data, data?.message || data?.error || `Upload failed (${xhr.status})`));
+				return;
+			}
+			if (!data) {
+				reject(new ApiError(xhr.status, null, "Malformed response from server"));
+				return;
+			}
+			if (!data.success) {
+				reject(new ApiError(xhr.status, data, data.message || data.error));
+				return;
+			}
+			resolve(data);
+		});
+		xhr.addEventListener("error", () => {
+			cleanup();
+			reject(new ApiError(0, null, "Network error during upload"));
+		});
+		xhr.addEventListener("timeout", () => {
+			cleanup();
+			reject(new ApiError(0, null, "Upload timed out"));
+		});
+		xhr.addEventListener("abort", () => {
+			cleanup();
+			reject(new ApiError(0, null, "Upload cancelled"));
+		});
+		xhr.send(body);
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/assets.js
+var AssetsApi = class AssetsApi {
 	/**
 	* List assets with optional filters
 	*/
+	/**
+	* Attach a poster frame to an existing video.
+	*
+	* Separate from the upload because the frame's storage key derives from an
+	* asset id that doesn't exist until the row does: upload the video, learn the
+	* id, then send the frame here.
+	*/
+	static async uploadPoster(assetId, poster, info = {}) {
+		const body = new FormData();
+		if (poster) body.append("poster", new File([poster], "poster.webp", { type: "image/webp" }));
+		if (info.duration != null) body.append("duration", String(info.duration));
+		if (info.width != null) body.append("width", String(info.width));
+		if (info.height != null) body.append("height", String(info.height));
+		return apiClient.post(`/assets/${assetId}/poster`, body);
+	}
 	static async list(filters) {
 		return apiClient.get("/assets", filters);
 	}
@@ -394,11 +566,63 @@ var AssetsApi = class {
 		return apiClient.get(`/assets/${id}`);
 	}
 	/**
+	* Upload a file, choosing the transport.
+	*
+	* Direct-to-storage when the server reports it available, otherwise through
+	* the app. The choice is the server's to report, not the client's to guess:
+	* it depends on whether the adapter can sign, whether an encryption key is
+	* configured, and whether the operator opted in — the last of which implies
+	* bucket CORS that nothing here can detect.
+	*/
+	static async uploadFile(file, opts = {}) {
+		const { direct, schemaType, fieldPath, allowedMimeTypes, videoDuration, videoWidth, videoHeight, ...uploadOptions } = opts;
+		if (direct) try {
+			return await AssetsApi.uploadDirect(file, {
+				schemaType,
+				fieldPath
+			}, uploadOptions);
+		} catch (err) {
+			if (!(err instanceof ApiError) || err.status !== 404) throw err;
+		}
+		const formData = new FormData();
+		formData.append("file", file);
+		if (schemaType) formData.append("schemaType", schemaType);
+		if (fieldPath) formData.append("fieldPath", fieldPath);
+		if (allowedMimeTypes?.length) formData.append("allowedMimeTypes", JSON.stringify(allowedMimeTypes));
+		if (videoDuration != null) formData.append("videoDuration", String(videoDuration));
+		if (videoWidth != null) formData.append("videoWidth", String(videoWidth));
+		if (videoHeight != null) formData.append("videoHeight", String(videoHeight));
+		return AssetsApi.upload(formData, uploadOptions);
+	}
+	/**
+	* Three-step direct upload: get a signed URL, PUT to storage, confirm.
+	*
+	* Progress covers only the PUT — it is the whole transfer, and reporting the
+	* two bookkeeping calls would just make the bar jump.
+	*/
+	static async uploadDirect(file, meta, options) {
+		const grant = (await apiClient.post("/assets/upload-url", {
+			filename: file.name,
+			mimeType: effectiveFileType(file.name, file.type) || "application/octet-stream",
+			size: file.size,
+			...meta
+		})).data;
+		if (!grant) throw new ApiError(500, null, "Malformed upload grant");
+		await putToStorage(grant.uploadUrl, file, grant.headers, {
+			...options,
+			timeoutMs: options.timeoutMs ?? uploadTimeoutForBytes(file.size)
+		});
+		return apiClient.post("/assets/confirm", { assetId: grant.assetId }, { "x-upload-ticket": grant.ticket });
+	}
+	/**
 	* Upload a new asset (multipart/form-data)
 	* Note: Use FormData for file uploads
 	*/
-	static async upload(formData) {
-		return apiClient.post("/assets", formData);
+	static async upload(formData, options) {
+		return uploadFormData("/api/assets", formData, {
+			...options,
+			timeoutMs: options?.timeoutMs ?? uploadTimeoutFor(formData)
+		});
 	}
 	/**
 	* Update asset metadata
@@ -407,16 +631,29 @@ var AssetsApi = class {
 		return apiClient.patch(`/assets/${id}`, data);
 	}
 	/**
-	* Delete an asset
+	* Delete an asset.
+	*
+	* Throws `ApiError` with status 409 and an {@link AssetDeleteConflict} body when
+	* the asset is still referenced. Pass `{ force: true }` to delete anyway —
+	* necessary when the reference is held by a document whose schema type is no
+	* longer registered, since that document can't be opened to remove it by hand.
 	*/
-	static async delete(id) {
-		return apiClient.delete(`/assets/${id}`);
+	static async delete(id, options) {
+		const query = options?.force ? "?force=true" : "";
+		return apiClient.delete(`/assets/${id}${query}`);
 	}
 	/**
-	* Bulk delete assets
+	* Bulk delete assets.
+	*
+	* Rejects with a 409 carrying {@link BulkAssetDeleteConflict} when any of them
+	* is still referenced. `{ force: true }` deletes anyway — the same escape the
+	* single-asset delete has, and for the same reason: a reference held by a
+	* document whose schema type is no longer registered cannot be removed by
+	* hand, so without it those assets are undeletable.
 	*/
-	static async deleteBulk(ids) {
-		return apiClient.delete("/assets/bulk", { ids });
+	static async deleteBulk(ids, options) {
+		const query = options?.force ? "?force=true" : "";
+		return apiClient.delete(`/assets/bulk${query}`, { ids });
 	}
 	/**
 	* Get documents that reference a specific asset
@@ -433,8 +670,10 @@ var AssetsApi = class {
 };
 var assets = {
 	list: AssetsApi.list.bind(AssetsApi),
+	uploadPoster: AssetsApi.uploadPoster.bind(AssetsApi),
 	getById: AssetsApi.getById.bind(AssetsApi),
 	upload: AssetsApi.upload.bind(AssetsApi),
+	uploadFile: AssetsApi.uploadFile.bind(AssetsApi),
 	update: AssetsApi.update.bind(AssetsApi),
 	delete: AssetsApi.delete.bind(AssetsApi),
 	deleteBulk: AssetsApi.deleteBulk.bind(AssetsApi),
@@ -442,7 +681,7 @@ var assets = {
 	getReferenceCounts: AssetsApi.getReferenceCounts.bind(AssetsApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/user.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/user.js
 var UserApi = class {
 	/**
 	* Update user profile
@@ -462,7 +701,7 @@ var user = {
 	updatePreferences: UserApi.updatePreferences.bind(UserApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/api-keys.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/api-keys.js
 var ApiKeysApi = class {
 	/**
 	* Create a new API key
@@ -482,7 +721,7 @@ var apiKeys = {
 	remove: ApiKeysApi.remove.bind(ApiKeysApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/invitations.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/invitations.js
 var InvitationsApi = class {
 	/**
 	* List all pending invitations for the authenticated user
@@ -509,7 +748,7 @@ var invitations = {
 	reject: InvitationsApi.reject.bind(InvitationsApi)
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/instance.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/instance.js
 var InstanceApi = class {
 	/**
 	* Get instance settings

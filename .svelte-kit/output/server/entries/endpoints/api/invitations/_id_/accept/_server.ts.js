@@ -1,3 +1,5 @@
+import "../../../../../../chunks/dist.js";
+import { n as isAccepted, r as isExpired } from "../../../../../../chunks/invitation-status.js";
 import { json } from "@sveltejs/kit";
 //#region src/routes/api/invitations/[id]/accept/+server.ts
 var POST = async ({ params, locals }) => {
@@ -15,11 +17,11 @@ var POST = async ({ params, locals }) => {
 			success: false,
 			error: "Invitation not found"
 		}, { status: 404 });
-		if (invitation.acceptedAt !== null) return json({
+		if (isAccepted(invitation)) return json({
 			success: false,
 			error: "Invitation already accepted"
 		}, { status: 400 });
-		if (new Date(invitation.expiresAt) < /* @__PURE__ */ new Date()) return json({
+		if (isExpired(invitation)) return json({
 			success: false,
 			error: "Invitation has expired"
 		}, { status: 400 });

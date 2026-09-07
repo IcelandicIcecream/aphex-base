@@ -1,4 +1,4 @@
-import { y as getContext } from "./server2.js";
+import { b as getContext } from "./server2.js";
 import "./internal.js";
 import { r as stores } from "./client.js";
 stores.updated.check;

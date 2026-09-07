@@ -1,84 +1,17 @@
-import { a as derived, c as head, d as spread_props, k as escape_html, s as ensure_array_like } from "../../../../../../chunks/server2.js";
+import { A as escape_html, a as derived, c as head, s as ensure_array_like } from "../../../../../../chunks/server2.js";
 import { r as apiKeys } from "../../../../../../chunks/api.js";
 import { n as invalidateAll } from "../../../../../../chunks/client.js";
 import "../../../../../../chunks/navigation.js";
-import { C as Copy, Et as usePermissions, R as Icon, a as Root, c as Select_item, k as toast, l as Select_group, n as confirmDialog, o as Select_trigger, p as Trash_2, s as Select_content } from "../../../../../../chunks/stega.js";
+import { D as toast, S as Copy, a as Root, c as Select_item, ct as usePermissions, l as Select_group, n as confirmDialog, o as Select_trigger, p as Trash_2, s as Select_content } from "../../../../../../chunks/stega.js";
 import { O as Input, t as Label } from "../../../../../../chunks/label.js";
 import { a as Dialog_header, i as Dialog_content, o as Dialog_footer, r as Dialog_description, s as Dialog_title, t as Root$1 } from "../../../../../../chunks/dialog.js";
 import { t as Button } from "../../../../../../chunks/button.js";
 import "../../../../../../chunks/ui.js";
+import { t as Key_round } from "../../../../../../chunks/key-round.js";
 import { n as Plus, t as SettingsHeaderActions } from "../../../../../../chunks/SettingsHeaderActions.js";
 import { t as Badge } from "../../../../../../chunks/badge.js";
 import { a as Card_content, i as Card_description, n as Card_header, o as Card, t as Card_title } from "../../../../../../chunks/card.js";
 import { n as Alert_description, r as Alert } from "../../../../../../chunks/alert.js";
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/key-round.svelte
-function Key_round($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		/**
-		* @license @lucide/svelte v0.554.0 - ISC
-		*
-		* ISC License
-		*
-		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-		*
-		* Permission to use, copy, modify, and/or distribute this software for any
-		* purpose with or without fee is hereby granted, provided that the above
-		* copyright notice and this permission notice appear in all copies.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-		*
-		* ---
-		*
-		* The MIT License (MIT) (for portions derived from Feather)
-		*
-		* Copyright (c) 2013-2023 Cole Bemis
-		*
-		* Permission is hereby granted, free of charge, to any person obtaining a copy
-		* of this software and associated documentation files (the "Software"), to deal
-		* in the Software without restriction, including without limitation the rights
-		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		* copies of the Software, and to permit persons to whom the Software is
-		* furnished to do so, subject to the following conditions:
-		*
-		* The above copyright notice and this permission notice shall be included in all
-		* copies or substantial portions of the Software.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		* SOFTWARE.
-		*
-		*/
-		let { $$slots, $$events, ...props } = $$props;
-		Icon($$renderer, spread_props([
-			{ name: "key-round" },
-			props,
-			{
-				iconNode: [["path", { "d": "M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" }], ["circle", {
-					"cx": "16.5",
-					"cy": "7.5",
-					"r": ".5",
-					"fill": "currentColor"
-				}]],
-				children: ($$renderer) => {
-					props.children?.($$renderer);
-					$$renderer.push(`<!---->`);
-				},
-				$$slots: { default: true }
-			}
-		]));
-	});
-}
-//#endregion
 //#region src/routes/(protected)/admin/settings/_components/ApiKeysSettings.svelte
 function ApiKeysSettings($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {

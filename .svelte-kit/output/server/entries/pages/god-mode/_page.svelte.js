@@ -1,4 +1,4 @@
-import { c as head, k as escape_html } from "../../../chunks/server2.js";
+import { A as escape_html, c as head } from "../../../chunks/server2.js";
 import { a as Card_content, i as Card_description, n as Card_header, o as Card, t as Card_title } from "../../../chunks/card.js";
 //#region src/routes/god-mode/+page.svelte
 function _page($$renderer, $$props) {

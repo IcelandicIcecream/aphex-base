@@ -1,26 +1,32 @@
-import { D as attr, O as clsx, a as derived, b as hasContext, d as spread_props, f as stringify, i as bind_props, k as escape_html, l as props_id, m as html$2, n as attr_style, o as element, r as attributes, s as ensure_array_like, t as attr_class, v as getAllContexts, wt as run, x as setContext, y as getContext } from "./server2.js";
+import { A as escape_html, Et as run, O as attr, S as setContext, a as derived, b as getContext, d as spread_props, g as html$2, i as bind_props, k as clsx$1, l as props_id, n as attr_style, p as stringify, r as attributes, s as ensure_array_like, t as attr_class, x as hasContext, y as getAllContexts } from "./server2.js";
 import { i as mount, o as tick, s as unmount, u as on } from "./internal.js";
 import "./settings.js";
 import { n as resolvePreviewTitle } from "./preview.js";
 import { u as apiClient } from "./api.js";
 import { t as goto } from "./client.js";
 import "./navigation.js";
-import "./dist4.js";
+import "./dist3.js";
 import { t as page } from "./state.js";
-import { a as SvelteMap, c as createSubscriber, i as MediaQuery, n as toggleMode, r as derivedMode, s as SvelteURLSearchParams, t as Mode_watcher } from "./dist5.js";
-import { t as cn$1 } from "./utils3.js";
-import { C as isWritableBox, D as isObject, E as toReadonlyBox, S as isBox, T as simpleBox, _ as composeHandlers, a as boolToStrTrueOrUndef, b as boxFrom, c as getAriaChecked, d as getDataTransitionAttrs, f as attachRef, g as cssToStyleObj, h as executeCallbacks, i as boolToStr, l as getDataChecked, m as styleToString, n as createId, o as boolToTrueOrUndef, p as mergeProps, r as boolToEmptyStrOrUndef, s as createBitsAttrs, u as getDataOpenClosed, v as BoxSymbol, w as isWritableSymbol, x as boxWith, y as boxFlatten } from "./label.js";
+import { a as createSubscriber, i as SvelteURLSearchParams, n as SvelteMap, t as MediaQuery } from "./events.js";
+import { t as cn$2 } from "./utils3.js";
+import { C as isWritableBox, E as toReadonlyBox, S as isBox, T as simpleBox, _ as composeHandlers, a as boolToStrTrueOrUndef, b as boxFrom, c as getAriaChecked, d as getDataTransitionAttrs, f as attachRef, g as cssToStyleObj, h as executeCallbacks, i as boolToStr, l as getDataChecked, m as styleToString, n as createId, o as boolToTrueOrUndef, p as mergeProps, r as boolToEmptyStrOrUndef, s as createBitsAttrs, u as getDataOpenClosed, v as BoxSymbol, w as isWritableSymbol, x as boxWith, y as boxFlatten } from "./label.js";
+import { A as Previous, C as PAGE_DOWN, D as contains, E as DOMContext, M as watch$1, N as Context$1, O as getDocument, a as isElement$1, c as isHTMLElement$1, d as isSelectableInput, g as ARROW_UP, h as ARROW_RIGHT, i as isBrowser$1, j as ElementSize, k as getWindow$1, l as isIOS, m as ARROW_LEFT, n as Hidden_input, o as isElementOrSVGElement, p as ARROW_DOWN, r as noop$1, s as isFocusVisible, t as Check, u as isNotNull, w as PAGE_UP, x as HOME, y as ENTER } from "./check.js";
 import { n as buttonVariants, t as Button } from "./button.js";
+import { t as Icon } from "./Icon.js";
+import { n as toggleMode, r as derivedMode, t as Mode_watcher } from "./dist4.js";
+import { n as File_text, t as Settings } from "./settings2.js";
 import "./badge.js";
 import "./card.js";
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 import { tv } from "tailwind-variants";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/schema-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/schema-context.svelte.js
 var SCHEMA_CONTEXT_KEY = Symbol("aphex-schemas");
 function setSchemaContext(schemas) {
 	setContext(SCHEMA_CONTEXT_KEY, schemas);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/slots.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/admin/slots.svelte.js
 var AdminSlots = class {
 	#slots = new SvelteMap();
 	/**
@@ -59,13 +65,13 @@ function useAdminSlots() {
 	return getContext(ADMIN_SLOTS_KEY);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/field-components.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/admin/field-components.svelte.js
 var FIELD_COMPONENTS_KEY = Symbol.for("aphex.admin.field-components");
 function setFieldComponents(lookup) {
 	setContext(FIELD_COMPONENTS_KEY, lookup);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/nav.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/admin/nav.svelte.js
 var ADMIN_NAV_KEY = Symbol.for("aphex.admin.nav");
 function setAdminNav(basePath = "/admin") {
 	const nav = createAdminNav(basePath);
@@ -136,7 +142,7 @@ function createAdminNav(basePath = "/admin") {
 	};
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/permissions-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/permissions-context.svelte.js
 var KEY = Symbol.for("aphex.permissions");
 function setPermissionsContext(getCapabilities, getRole = () => null) {
 	const ctx = {
@@ -189,13 +195,13 @@ function warnOnce() {
 	if (typeof window !== "undefined") console.warn("[aphex] usePermissions() called outside a PermissionsContext provider. All capability checks will return false. Call setPermissionsContext() in an ancestor.");
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/admin/block-previews.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/admin/block-previews.svelte.js
 var BLOCK_PREVIEWS_KEY = Symbol.for("aphex.admin.block-previews");
 function setBlockPreviews(lookup) {
 	setContext(BLOCK_PREVIEWS_KEY, lookup);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/hooks/is-mobile.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/hooks/is-mobile.svelte.js
 var DEFAULT_MOBILE_BREAKPOINT = 768;
 var IsMobile = class extends MediaQuery {
 	constructor(breakpoint = DEFAULT_MOBILE_BREAKPOINT) {
@@ -203,14 +209,14 @@ var IsMobile = class extends MediaQuery {
 	}
 };
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/constants.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/constants.js
 var SIDEBAR_COOKIE_NAME = "sidebar:state";
 var SIDEBAR_COOKIE_MAX_AGE = 3600 * 24 * 7;
 var SIDEBAR_WIDTH = "16rem";
 var SIDEBAR_WIDTH_MOBILE = "18rem";
 var SIDEBAR_WIDTH_ICON = "3rem";
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/context.svelte.js
 var SidebarState = class {
 	props;
 	#open = derived(() => this.props.open());
@@ -272,14 +278,14 @@ function useSidebar() {
 	return getContext(Symbol.for(SYMBOL_KEY));
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-content.svelte
 function Sidebar_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "sidebar-content",
 			"data-sidebar": "content",
-			class: clsx(cn$1("flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden", className)),
+			class: clsx$1(cn$2("flex min-h-0 flex-1 flex-col gap-2 overflow-auto group-data-[collapsible=icon]:overflow-hidden", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -288,14 +294,14 @@ function Sidebar_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-footer.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-footer.svelte
 function Sidebar_footer($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "sidebar-footer",
 			"data-sidebar": "footer",
-			class: clsx(cn$1("flex flex-col gap-2 p-2", className)),
+			class: clsx$1(cn$2("flex flex-col gap-2 p-2", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -304,12 +310,12 @@ function Sidebar_footer($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-group-label.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-group-label.svelte
 function Sidebar_group_label($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, children, child, class: className, $$slots, $$events, ...restProps } = $$props;
 		const mergedProps = derived(() => ({
-			class: cn$1("text-sidebar-foreground/70 ring-sidebar-ring outline-hidden flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0", "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0", className),
+			class: cn$2("text-sidebar-foreground/70 ring-sidebar-ring outline-hidden flex h-8 shrink-0 items-center rounded-md px-2 text-xs font-medium transition-[margin,opacity] duration-200 ease-linear focus-visible:ring-2 [&>svg]:size-4 [&>svg]:shrink-0", "group-data-[collapsible=icon]:-mt-8 group-data-[collapsible=icon]:opacity-0", className),
 			"data-slot": "sidebar-group-label",
 			"data-sidebar": "group-label",
 			...restProps
@@ -329,14 +335,14 @@ function Sidebar_group_label($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-group.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-group.svelte
 function Sidebar_group($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "sidebar-group",
 			"data-sidebar": "group",
-			class: clsx(cn$1("relative flex w-full min-w-0 flex-col p-2", className)),
+			class: clsx$1(cn$2("relative flex w-full min-w-0 flex-col p-2", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -345,14 +351,14 @@ function Sidebar_group($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-header.svelte
 function Sidebar_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "sidebar-header",
 			"data-sidebar": "header",
-			class: clsx(cn$1("flex flex-col gap-2 p-2", className)),
+			class: clsx$1(cn$2("flex flex-col gap-2 p-2", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -361,13 +367,13 @@ function Sidebar_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-inset.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-inset.svelte
 function Sidebar_inset($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<main${attributes({
 			"data-slot": "sidebar-inset",
-			class: clsx(cn$1("bg-background relative flex w-full flex-1 flex-col", "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2", className)),
+			class: clsx$1(cn$2("bg-background relative flex w-full flex-1 flex-col", "md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-sm md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -397,372 +403,6 @@ box.readonly = toReadonlyBox;
 box.isBox = isBox;
 box.isWritableBox = isWritableBox;
 //#endregion
-//#region ../../node_modules/.pnpm/svelte-toolbelt@0.10.6_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plu_8254bc56c2e9192e8e9e6e2e74d93767/node_modules/svelte-toolbelt/dist/utils/sr-only-styles.js
-var srOnlyStyles = {
-	position: "absolute",
-	width: "1px",
-	height: "1px",
-	padding: "0",
-	margin: "-1px",
-	overflow: "hidden",
-	clip: "rect(0, 0, 0, 0)",
-	whiteSpace: "nowrap",
-	borderWidth: "0",
-	transform: "translateX(-100%)"
-};
-var srOnlyStylesString = styleToString(srOnlyStyles);
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/internal/configurable-globals.js
-var defaultWindow$1 = void 0;
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/internal/utils/dom.js
-/**
-* Handles getting the active element in a document or shadow root.
-* If the active element is within a shadow root, it will traverse the shadow root
-* to find the active element.
-* If not, it will return the active element in the document.
-*
-* @param document A document or shadow root to get the active element from.
-* @returns The active element in the document or shadow root.
-*/
-function getActiveElement$2(document) {
-	let activeElement = document.activeElement;
-	while (activeElement?.shadowRoot) {
-		const node = activeElement.shadowRoot.activeElement;
-		if (node === activeElement) break;
-		else activeElement = node;
-	}
-	return activeElement;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/utilities/active-element/active-element.svelte.js
-var ActiveElement$1 = class {
-	#document;
-	#subscribe;
-	constructor(options = {}) {
-		const { window = defaultWindow$1, document = window?.document } = options;
-		if (window === void 0) return;
-		this.#document = document;
-		this.#subscribe = createSubscriber((update) => {
-			const cleanupFocusIn = on(window, "focusin", update);
-			const cleanupFocusOut = on(window, "focusout", update);
-			return () => {
-				cleanupFocusIn();
-				cleanupFocusOut();
-			};
-		});
-	}
-	get current() {
-		this.#subscribe?.();
-		if (!this.#document) return null;
-		return getActiveElement$2(this.#document);
-	}
-};
-new ActiveElement$1();
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/internal/utils/is.js
-function isFunction(value) {
-	return typeof value === "function";
-}
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/utilities/context/context.js
-var Context$1 = class {
-	#name;
-	#key;
-	/**
-	* @param name The name of the context.
-	* This is used for generating the context key and error messages.
-	*/
-	constructor(name) {
-		this.#name = name;
-		this.#key = Symbol(name);
-	}
-	/**
-	* The key used to get and set the context.
-	*
-	* It is not recommended to use this value directly.
-	* Instead, use the methods provided by this class.
-	*/
-	get key() {
-		return this.#key;
-	}
-	/**
-	* Checks whether this has been set in the context of a parent component.
-	*
-	* Must be called during component initialisation.
-	*/
-	exists() {
-		return hasContext(this.#key);
-	}
-	/**
-	* Retrieves the context that belongs to the closest parent component.
-	*
-	* Must be called during component initialisation.
-	*
-	* @throws An error if the context does not exist.
-	*/
-	get() {
-		const context = getContext(this.#key);
-		if (context === void 0) throw new Error(`Context "${this.#name}" not found`);
-		return context;
-	}
-	/**
-	* Retrieves the context that belongs to the closest parent component,
-	* or the given fallback value if the context does not exist.
-	*
-	* Must be called during component initialisation.
-	*/
-	getOr(fallback) {
-		const context = getContext(this.#key);
-		if (context === void 0) return fallback;
-		return context;
-	}
-	/**
-	* Associates the given value with the current component and returns it.
-	*
-	* Must be called during component initialisation.
-	*/
-	set(context) {
-		return setContext(this.#key, context);
-	}
-};
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/utilities/watch/watch.svelte.js
-function runWatcher$1(sources, flush, effect, options = {}) {
-	const { lazy = false } = options;
-}
-function watch$1(sources, effect, options) {
-	runWatcher$1(sources, "post", effect, options);
-}
-function watchPre$1(sources, effect, options) {
-	runWatcher$1(sources, "pre", effect, options);
-}
-watch$1.pre = watchPre$1;
-function watchOnce$1(source, effect) {}
-function watchOncePre$1(source, effect) {}
-watchOnce$1.pre = watchOncePre$1;
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/internal/utils/get.js
-function get$1(value) {
-	if (isFunction(value)) return value();
-	return value;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/utilities/element-size/element-size.svelte.js
-var ElementSize = class {
-	#size = {
-		width: 0,
-		height: 0
-	};
-	#observed = false;
-	#options;
-	#node;
-	#window;
-	#width = derived(() => {
-		this.#subscribe()?.();
-		return this.getSize().width;
-	});
-	#height = derived(() => {
-		this.#subscribe()?.();
-		return this.getSize().height;
-	});
-	#subscribe = derived(() => {
-		const node$ = get$1(this.#node);
-		if (!node$) return;
-		return createSubscriber((update) => {
-			if (!this.#window) return;
-			const observer = new this.#window.ResizeObserver((entries) => {
-				this.#observed = true;
-				for (const entry of entries) {
-					const boxSize = this.#options.box === "content-box" ? entry.contentBoxSize : entry.borderBoxSize;
-					const boxSizeArr = Array.isArray(boxSize) ? boxSize : [boxSize];
-					this.#size.width = boxSizeArr.reduce((acc, size) => Math.max(acc, size.inlineSize), 0);
-					this.#size.height = boxSizeArr.reduce((acc, size) => Math.max(acc, size.blockSize), 0);
-				}
-				update();
-			});
-			observer.observe(node$);
-			return () => {
-				this.#observed = false;
-				observer.disconnect();
-			};
-		});
-	});
-	constructor(node, options = { box: "border-box" }) {
-		this.#window = options.window ?? defaultWindow$1;
-		this.#options = options;
-		this.#node = node;
-		this.#size = {
-			width: 0,
-			height: 0
-		};
-	}
-	calculateSize() {
-		const element = get$1(this.#node);
-		if (!element || !this.#window) return;
-		const offsetWidth = element.offsetWidth;
-		const offsetHeight = element.offsetHeight;
-		if (this.#options.box === "border-box") return {
-			width: offsetWidth,
-			height: offsetHeight
-		};
-		const style = this.#window.getComputedStyle(element);
-		const paddingWidth = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight);
-		const paddingHeight = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
-		const borderWidth = parseFloat(style.borderLeftWidth) + parseFloat(style.borderRightWidth);
-		const borderHeight = parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
-		return {
-			width: offsetWidth - paddingWidth - borderWidth,
-			height: offsetHeight - paddingHeight - borderHeight
-		};
-	}
-	getSize() {
-		return this.#observed ? this.#size : this.calculateSize() ?? this.#size;
-	}
-	get current() {
-		this.#subscribe()?.();
-		return this.getSize();
-	}
-	get width() {
-		return this.#width();
-	}
-	get height() {
-		return this.#height();
-	}
-};
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/utilities/previous/previous.svelte.js
-var Previous = class {
-	#previousCallback = () => void 0;
-	#previous = derived(() => this.#previousCallback());
-	constructor(getter, initialValue) {
-		let actualPrevious = void 0;
-		if (initialValue !== void 0) actualPrevious = initialValue;
-		this.#previousCallback = () => {
-			try {
-				return actualPrevious;
-			} finally {
-				actualPrevious = getter();
-			}
-		};
-	}
-	get current() {
-		return this.#previous();
-	}
-};
-//#endregion
-//#region ../../node_modules/.pnpm/runed@0.35.1_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte_6c143f66b9a6dcb2ee2be836cd350402/node_modules/runed/dist/utilities/resource/resource.svelte.js
-function debounce$2(fn, delay) {
-	let timeoutId;
-	let lastResolve = null;
-	return (...args) => {
-		return new Promise((resolve) => {
-			if (lastResolve) lastResolve(void 0);
-			lastResolve = resolve;
-			clearTimeout(timeoutId);
-			timeoutId = setTimeout(async () => {
-				const result = await fn(...args);
-				if (lastResolve) {
-					lastResolve(result);
-					lastResolve = null;
-				}
-			}, delay);
-		});
-	};
-}
-function throttle$1(fn, delay) {
-	let lastRun = 0;
-	let lastPromise = null;
-	return (...args) => {
-		const now = Date.now();
-		if (lastRun && now - lastRun < delay) return lastPromise ?? Promise.resolve(void 0);
-		lastRun = now;
-		lastPromise = fn(...args);
-		return lastPromise;
-	};
-}
-function runResource$1(source, fetcher, options = {}, effectFn) {
-	const { lazy = false, once = false, initialValue, debounce: debounceTime, throttle: throttleTime } = options;
-	let current = initialValue;
-	let loading = false;
-	let error = void 0;
-	let cleanupFns = [];
-	const runCleanup = () => {
-		cleanupFns.forEach((fn) => fn());
-		cleanupFns = [];
-	};
-	const onCleanup = (fn) => {
-		cleanupFns = [...cleanupFns, fn];
-	};
-	const baseFetcher = async (value, previousValue, refetching = false) => {
-		try {
-			loading = true;
-			error = void 0;
-			runCleanup();
-			const controller = new AbortController();
-			onCleanup(() => controller.abort());
-			const result = await fetcher(value, previousValue, {
-				data: current,
-				refetching,
-				onCleanup,
-				signal: controller.signal
-			});
-			current = result;
-			return result;
-		} catch (e) {
-			if (!(e instanceof DOMException && e.name === "AbortError")) error = e;
-			return;
-		} finally {
-			loading = false;
-		}
-	};
-	const runFetcher = debounceTime ? debounce$2(baseFetcher, debounceTime) : throttleTime ? throttle$1(baseFetcher, throttleTime) : baseFetcher;
-	const sources = Array.isArray(source) ? source : [source];
-	let prevValues;
-	effectFn((values, previousValues) => {
-		if (once && prevValues) return;
-		prevValues = values;
-		runFetcher(Array.isArray(source) ? values : values[0], Array.isArray(source) ? previousValues : previousValues?.[0]);
-	}, { lazy });
-	return {
-		get current() {
-			return current;
-		},
-		get loading() {
-			return loading;
-		},
-		get error() {
-			return error;
-		},
-		mutate: (value) => {
-			current = value;
-		},
-		refetch: (info) => {
-			const values = sources.map((s) => s());
-			return runFetcher(Array.isArray(source) ? values : values[0], Array.isArray(source) ? values : values[0], info ?? true);
-		}
-	};
-}
-function resource$1(source, fetcher, options) {
-	return runResource$1(source, fetcher, options, (fn, options) => {
-		const sources = Array.isArray(source) ? source : [source];
-		const getters = () => sources.map((s) => s());
-		watch$1(getters, (values, previousValues) => {
-			fn(values, previousValues ?? []);
-		}, options);
-	});
-}
-function resourcePre$1(source, fetcher, options) {
-	return runResource$1(source, fetcher, options, (fn, options) => {
-		const sources = Array.isArray(source) ? source : [source];
-		const getter = () => sources.map((s) => s());
-		watch$1.pre(getter, (values, previousValues) => {
-			fn(values, previousValues ?? []);
-		}, options);
-	});
-}
-resource$1.pre = resourcePre$1;
-//#endregion
 //#region ../../node_modules/.pnpm/svelte-toolbelt@0.10.6_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plu_8254bc56c2e9192e8e9e6e2e74d93767/node_modules/svelte-toolbelt/dist/utils/after-sleep.js
 /**
 * A utility function that executes a callback after a specified number of milliseconds.
@@ -775,117 +415,6 @@ function afterSleep(ms, cb) {
 function afterTick(fn) {
 	(/* @__PURE__ */ tick()).then(fn);
 }
-//#endregion
-//#region ../../node_modules/.pnpm/svelte-toolbelt@0.10.6_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plu_8254bc56c2e9192e8e9e6e2e74d93767/node_modules/svelte-toolbelt/dist/utils/dom.js
-var ELEMENT_NODE = 1;
-var DOCUMENT_NODE = 9;
-var DOCUMENT_FRAGMENT_NODE = 11;
-function isHTMLElement$2(node) {
-	return isObject(node) && node.nodeType === ELEMENT_NODE && typeof node.nodeName === "string";
-}
-function isDocument(node) {
-	return isObject(node) && node.nodeType === DOCUMENT_NODE;
-}
-function isWindow(node) {
-	return isObject(node) && node.constructor?.name === "VisualViewport";
-}
-function isNode$1(node) {
-	return isObject(node) && node.nodeType !== void 0;
-}
-function isShadowRoot$1(node) {
-	return isNode$1(node) && node.nodeType === DOCUMENT_FRAGMENT_NODE && "host" in node;
-}
-function contains(parent, child) {
-	if (!parent || !child) return false;
-	if (!isHTMLElement$2(parent) || !isHTMLElement$2(child)) return false;
-	const rootNode = child.getRootNode?.();
-	if (parent === child) return true;
-	if (parent.contains(child)) return true;
-	if (rootNode && isShadowRoot$1(rootNode)) {
-		let next = child;
-		while (next) {
-			if (parent === next) return true;
-			next = next.parentNode || next.host;
-		}
-	}
-	return false;
-}
-function getDocument(node) {
-	if (isDocument(node)) return node;
-	if (isWindow(node)) return node.document;
-	return node?.ownerDocument ?? document;
-}
-function getWindow$1(node) {
-	if (isShadowRoot$1(node)) return getWindow$1(node.host);
-	if (isDocument(node)) return node.defaultView ?? window;
-	if (isHTMLElement$2(node)) return node.ownerDocument?.defaultView ?? window;
-	return window;
-}
-function getActiveElement$1(rootNode) {
-	let activeElement = rootNode.activeElement;
-	while (activeElement?.shadowRoot) {
-		const el = activeElement.shadowRoot.activeElement;
-		if (el === activeElement) break;
-		else activeElement = el;
-	}
-	return activeElement;
-}
-//#endregion
-//#region ../../node_modules/.pnpm/svelte-toolbelt@0.10.6_@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plu_8254bc56c2e9192e8e9e6e2e74d93767/node_modules/svelte-toolbelt/dist/utils/dom-context.svelte.js
-var DOMContext = class {
-	element;
-	#root = derived(() => {
-		if (!this.element.current) return document;
-		return this.element.current.getRootNode() ?? document;
-	});
-	get root() {
-		return this.#root();
-	}
-	set root($$value) {
-		return this.#root($$value);
-	}
-	constructor(element) {
-		if (typeof element === "function") this.element = boxWith(element);
-		else this.element = element;
-	}
-	getDocument = () => {
-		return getDocument(this.root);
-	};
-	getWindow = () => {
-		return this.getDocument().defaultView ?? window;
-	};
-	getActiveElement = () => {
-		return getActiveElement$1(this.root);
-	};
-	isActiveElement = (node) => {
-		return node === this.getActiveElement();
-	};
-	getElementById(id) {
-		return this.root.getElementById(id);
-	}
-	querySelector = (selector) => {
-		if (!this.root) return null;
-		return this.root.querySelector(selector);
-	};
-	querySelectorAll = (selector) => {
-		if (!this.root) return [];
-		return this.root.querySelectorAll(selector);
-	};
-	setTimeout = (callback, delay) => {
-		return this.getWindow().setTimeout(callback, delay);
-	};
-	clearTimeout = (timeoutId) => {
-		return this.getWindow().clearTimeout(timeoutId);
-	};
-};
-var ARROW_DOWN = "ArrowDown";
-var ARROW_LEFT = "ArrowLeft";
-var ARROW_RIGHT = "ArrowRight";
-var ARROW_UP = "ArrowUp";
-var ENTER = "Enter";
-var HOME = "Home";
-var PAGE_DOWN = "PageDown";
-var PAGE_UP = "PageUp";
 //#endregion
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/locale.js
 /**
@@ -937,38 +466,6 @@ function getDirectionalKeys(dir = "ltr", orientation = "horizontal") {
 		nextKey: getNextKey(dir, orientation),
 		prevKey: getPrevKey(dir, orientation)
 	};
-}
-//#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/is.js
-var isBrowser$1 = typeof document !== "undefined";
-var isIOS = getIsIOS();
-function getIsIOS() {
-	return isBrowser$1 && window?.navigator?.userAgent && (/iP(ad|hone|od)/.test(window.navigator.userAgent) || window?.navigator?.maxTouchPoints > 2 && /iPad|Macintosh/.test(window?.navigator.userAgent));
-}
-function isHTMLElement$1(element) {
-	return element instanceof HTMLElement;
-}
-function isElement$1(element) {
-	return element instanceof Element;
-}
-function isElementOrSVGElement(element) {
-	return element instanceof Element || element instanceof SVGElement;
-}
-function isTouch(e) {
-	return e.pointerType === "touch";
-}
-function isFocusVisible(element) {
-	return element.matches(":focus-visible");
-}
-function isNotNull(value) {
-	return value !== null;
-}
-/**
-* Determines if the provided object is a valid `HTMLInputElement` with
-* a `select` method available.
-*/
-function isSelectableInput(element) {
-	return element instanceof HTMLInputElement && "select" in element;
 }
 //#endregion
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/roving-focus-group.js
@@ -1189,12 +686,6 @@ var PresenceManager = class {
 		this.#transitionFrame = null;
 	}
 };
-//#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/noop.js
-/**
-* A no operation function (does nothing)
-*/
-function noop() {}
 //#endregion
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/dialog/dialog.svelte.js
 var dialogAttrs = createBitsAttrs({
@@ -1604,7 +1095,7 @@ var AlertDialogCancelState = class AlertDialogCancelState {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/alert-dialog/components/alert-dialog.svelte
 function Alert_dialog($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { open = false, onOpenChange = noop, onOpenChangeComplete = noop, children } = $$props;
+		let { open = false, onOpenChange = noop$1, onOpenChangeComplete = noop$1, children } = $$props;
 		DialogRootState.create({
 			variant: boxWith(() => "alert-dialog"),
 			open: boxWith(() => open, (v) => {
@@ -2506,7 +1997,7 @@ function wrapArray(array, startIndex) {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/internal/box-auto-reset.svelte.js
 var defaultOptions = {
 	afterMs: 1e4,
-	onChange: noop
+	onChange: noop$1
 };
 function boxAutoReset(defaultValue, options) {
 	const { afterMs, onChange, getWindow } = {
@@ -3569,13 +3060,13 @@ var DismissibleLayerState = class DismissibleLayerState {
 	#isFocusInsideDOMTree = false;
 	#documentObj = void 0;
 	#onFocusOutside;
-	#unsubClickListener = noop;
+	#unsubClickListener = noop$1;
 	constructor(opts) {
 		this.opts = opts;
 		this.#behaviorType = opts.interactOutsideBehavior;
 		this.#interactOutsideProp = opts.onInteractOutside;
 		this.#onFocusOutside = opts.onFocusOutside;
-		let unsubEvents = noop;
+		let unsubEvents = noop$1;
 		const cleanup = () => {
 			this.#resetState();
 			globalThis.bitsDismissableLayers.delete(this);
@@ -3730,7 +3221,7 @@ function createWrappedEvent(e) {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/utilities/dismissible-layer/dismissible-layer.svelte
 function Dismissible_layer($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { interactOutsideBehavior = "close", onInteractOutside = noop, onFocusOutside = noop, id, children, enabled, isValidEvent = () => false, ref } = $$props;
+		let { interactOutsideBehavior = "close", onInteractOutside = noop$1, onFocusOutside = noop$1, id, children, enabled, isValidEvent = () => false, ref } = $$props;
 		const dismissibleLayerState = DismissibleLayerState.create({
 			id: boxWith(() => id),
 			interactOutsideBehavior: boxWith(() => interactOutsideBehavior),
@@ -3756,7 +3247,7 @@ var EscapeLayerState = class EscapeLayerState {
 	constructor(opts) {
 		this.opts = opts;
 		this.domContext = new DOMContext(this.opts.ref);
-		let unsubEvents = noop;
+		let unsubEvents = noop$1;
 		watch$1(() => opts.enabled.current, (enabled) => {
 			if (enabled) {
 				globalThis.bitsEscapeLayers.set(this, opts.escapeKeydownBehavior);
@@ -3797,7 +3288,7 @@ function isResponsibleEscapeLayer(instance) {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/utilities/escape-layer/escape-layer.svelte
 function Escape_layer($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { escapeKeydownBehavior = "close", onEscapeKeydown = noop, children, enabled, ref } = $$props;
+		let { escapeKeydownBehavior = "close", onEscapeKeydown = noop$1, children, enabled, ref } = $$props;
 		EscapeLayerState.create({
 			escapeKeydownBehavior: boxWith(() => escapeKeydownBehavior),
 			onEscapeKeydown: boxWith(() => onEscapeKeydown),
@@ -4016,7 +3507,7 @@ var FocusScope = class FocusScope {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/utilities/focus-scope/focus-scope.svelte
 function Focus_scope($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { enabled = false, trapFocus = false, loop = false, onCloseAutoFocus = noop, onOpenAutoFocus = noop, focusScope, ref } = $$props;
+		let { enabled = false, trapFocus = false, loop = false, onCloseAutoFocus = noop$1, onOpenAutoFocus = noop$1, focusScope, ref } = $$props;
 		const focusScopeState = FocusScope.use({
 			enabled: boxWith(() => enabled),
 			trap: boxWith(() => trapFocus),
@@ -4039,14 +3530,14 @@ var TextSelectionLayerState = class TextSelectionLayerState {
 	}
 	opts;
 	domContext;
-	#unsubSelectionLock = noop;
+	#unsubSelectionLock = noop$1;
 	#enabledSnapshot = false;
 	#onPointerDownSnapshot = noopPointer;
 	#onPointerUpSnapshot = noopPointer;
 	constructor(opts) {
 		this.opts = opts;
 		this.domContext = new DOMContext(opts.ref);
-		let unsubEvents = noop;
+		let unsubEvents = noop$1;
 		watch$1(() => [
 			this.opts.enabled.current,
 			this.opts.onPointerDown.current,
@@ -4090,7 +3581,7 @@ var TextSelectionLayerState = class TextSelectionLayerState {
 	};
 	#resetSelectionLock = () => {
 		this.#unsubSelectionLock();
-		this.#unsubSelectionLock = noop;
+		this.#unsubSelectionLock = noop$1;
 	};
 };
 var getUserSelect = (node) => node.style.userSelect || node.style.webkitUserSelect;
@@ -4119,7 +3610,7 @@ function isHighestLayer(instance) {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/utilities/text-selection-layer/text-selection-layer.svelte
 function Text_selection_layer($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { preventOverflowTextSelection = true, onPointerDown = noop, onPointerUp = noop, id, children, enabled, ref } = $$props;
+		let { preventOverflowTextSelection = true, onPointerDown = noop$1, onPointerUp = noop$1, id, children, enabled, ref } = $$props;
 		TextSelectionLayerState.create({
 			id: boxWith(() => id),
 			onPointerDown: boxWith(() => onPointerDown),
@@ -4306,7 +3797,7 @@ function Scroll_lock($$renderer, $$props) {
 function Alert_dialog_content$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { id = createId(uid), children, child, ref = null, forceMount = false, interactOutsideBehavior = "ignore", onCloseAutoFocus = noop, onEscapeKeydown = noop, onOpenAutoFocus = noop, onInteractOutside = noop, preventScroll = true, trapFocus = true, restoreScrollDelay = null, $$slots, $$events, ...restProps } = $$props;
+		let { id = createId(uid), children, child, ref = null, forceMount = false, interactOutsideBehavior = "ignore", onCloseAutoFocus = noop$1, onEscapeKeydown = noop$1, onOpenAutoFocus = noop$1, onInteractOutside = noop$1, preventScroll = true, trapFocus = true, restoreScrollDelay = null, $$slots, $$events, ...restProps } = $$props;
 		const contentState = DialogContentState.create({
 			id: boxWith(() => id),
 			ref: boxWith(() => ref, (v) => ref = v)
@@ -4448,38 +3939,6 @@ function Dialog_description($$renderer, $$props) {
 		}
 		$$renderer.push(`<!--]-->`);
 		bind_props($$props, { ref });
-	});
-}
-//#endregion
-//#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/utilities/hidden-input.svelte
-function Hidden_input($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		let { value = void 0, $$slots, $$events, ...restProps } = $$props;
-		const mergedProps = derived(() => mergeProps(restProps, {
-			"aria-hidden": "true",
-			tabindex: -1,
-			style: {
-				...srOnlyStyles,
-				position: "absolute",
-				top: "0",
-				left: "0"
-			}
-		}));
-		if (mergedProps().type === "checkbox") {
-			$$renderer.push("<!--[0-->");
-			$$renderer.push(`<input${attributes({
-				...mergedProps(),
-				value
-			}, void 0, void 0, void 0, 4)}/>`);
-		} else {
-			$$renderer.push("<!--[-1-->");
-			$$renderer.push(`<input${attributes({
-				value,
-				...mergedProps()
-			}, void 0, void 0, void 0, 4)}/>`);
-		}
-		$$renderer.push(`<!--]-->`);
-		bind_props($$props, { value });
 	});
 }
 //#endregion
@@ -4675,7 +4134,7 @@ var CollapsibleTriggerState = class CollapsibleTriggerState {
 function Collapsible$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { children, child, id = createId(uid), ref = null, open = false, disabled = false, onOpenChange = noop, onOpenChangeComplete = noop, $$slots, $$events, ...restProps } = $$props;
+		let { children, child, id = createId(uid), ref = null, open = false, disabled = false, onOpenChange = noop$1, onOpenChangeComplete = noop$1, $$slots, $$events, ...restProps } = $$props;
 		const rootState = CollapsibleRootState.create({
 			open: boxWith(() => open, (v) => {
 				open = v;
@@ -7367,7 +6826,7 @@ var SelectScrollButtonImplState = class {
 	autoScrollTimer = null;
 	userScrollTimer = -1;
 	isUserScrolling = false;
-	onAutoScroll = noop;
+	onAutoScroll = noop$1;
 	mounted = false;
 	constructor(opts, content) {
 		this.opts = opts;
@@ -7951,7 +7410,7 @@ function Popper_layer_force_mount($$renderer, $$props) {
 function Select_content$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { id = createId(uid), ref = null, forceMount = false, side = "bottom", onInteractOutside = noop, onEscapeKeydown = noop, children, child, preventScroll = false, style, $$slots, $$events, ...restProps } = $$props;
+		let { id = createId(uid), ref = null, forceMount = false, side = "bottom", onInteractOutside = noop$1, onEscapeKeydown = noop$1, children, child, preventScroll = false, style, $$slots, $$events, ...restProps } = $$props;
 		const contentState = SelectContentState.create({
 			id: boxWith(() => id),
 			ref: boxWith(() => ref, (v) => ref = v),
@@ -8042,7 +7501,7 @@ function Select_content$1($$renderer, $$props) {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/utilities/mounted.svelte
 function Mounted($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { mounted = false, onMountedChange = noop } = $$props;
+		let { mounted = false, onMountedChange = noop$1 } = $$props;
 		bind_props($$props, { mounted });
 	});
 }
@@ -8051,7 +7510,7 @@ function Mounted($$renderer, $$props) {
 function Select_item$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { id = createId(uid), ref = null, value, label = value, disabled = false, children, child, onHighlight = noop, onUnhighlight = noop, $$slots, $$events, ...restProps } = $$props;
+		let { id = createId(uid), ref = null, value, label = value, disabled = false, children, child, onHighlight = noop$1, onUnhighlight = noop$1, $$slots, $$events, ...restProps } = $$props;
 		const itemState = SelectItemState.create({
 			id: boxWith(() => id),
 			ref: boxWith(() => ref, (v) => ref = v),
@@ -8254,7 +7713,7 @@ function Select_scroll_up_button$1($$renderer, $$props) {
 function Menu_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { child, children, ref = null, id = createId(uid), disabled = false, onSelect = noop, closeOnSelect = true, $$slots, $$events, ...restProps } = $$props;
+		let { child, children, ref = null, id = createId(uid), disabled = false, onSelect = noop$1, closeOnSelect = true, $$slots, $$events, ...restProps } = $$props;
 		const itemState = MenuItemState.create({
 			id: boxWith(() => id),
 			disabled: boxWith(() => disabled),
@@ -8552,7 +8011,7 @@ var SafePolygon = class {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/dialog/components/dialog.svelte
 function Dialog($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { open = false, onOpenChange = noop, onOpenChangeComplete = noop, children } = $$props;
+		let { open = false, onOpenChange = noop$1, onOpenChangeComplete = noop$1, children } = $$props;
 		DialogRootState.create({
 			variant: boxWith(() => "dialog"),
 			open: boxWith(() => open, (v) => {
@@ -8598,7 +8057,7 @@ function Dialog_close($$renderer, $$props) {
 function Dialog_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { id = createId(uid), children, child, ref = null, forceMount = false, onCloseAutoFocus = noop, onOpenAutoFocus = noop, onEscapeKeydown = noop, onInteractOutside = noop, trapFocus = true, preventScroll = true, restoreScrollDelay = null, $$slots, $$events, ...restProps } = $$props;
+		let { id = createId(uid), children, child, ref = null, forceMount = false, onCloseAutoFocus = noop$1, onOpenAutoFocus = noop$1, onEscapeKeydown = noop$1, onInteractOutside = noop$1, trapFocus = true, preventScroll = true, restoreScrollDelay = null, $$slots, $$events, ...restProps } = $$props;
 		const contentState = DialogContentState.create({
 			id: boxWith(() => id),
 			ref: boxWith(() => ref, (v) => ref = v)
@@ -8683,7 +8142,7 @@ function Dialog_content($$renderer, $$props) {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/menu/components/menu.svelte
 function Menu($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { open = false, dir = "ltr", onOpenChange = noop, onOpenChangeComplete = noop, _internal_variant: variant = "dropdown-menu", _internal_should_skip_exit_animation: shouldSkipExitAnimation = void 0, children } = $$props;
+		let { open = false, dir = "ltr", onOpenChange = noop$1, onOpenChangeComplete = noop$1, _internal_variant: variant = "dropdown-menu", _internal_should_skip_exit_animation: shouldSkipExitAnimation = void 0, children } = $$props;
 		const root = MenuRootState.create({
 			variant: boxWith(() => variant),
 			dir: boxWith(() => dir),
@@ -8715,7 +8174,7 @@ function Menu($$renderer, $$props) {
 function Dropdown_menu_content$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { id = createId(uid), child, children, ref = null, loop = true, onInteractOutside = noop, onEscapeKeydown = noop, onCloseAutoFocus = noop, forceMount = false, trapFocus = false, style, $$slots, $$events, ...restProps } = $$props;
+		let { id = createId(uid), child, children, ref = null, loop = true, onInteractOutside = noop$1, onEscapeKeydown = noop$1, onCloseAutoFocus = noop$1, forceMount = false, trapFocus = false, style, $$slots, $$events, ...restProps } = $$props;
 		const contentState = MenuContentState.create({
 			id: boxWith(() => id),
 			loop: boxWith(() => loop),
@@ -8859,7 +8318,7 @@ function Menu_trigger($$renderer, $$props) {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/select/components/select.svelte
 function Select($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { value = void 0, onValueChange = noop, name = "", disabled = false, type, open = false, onOpenChange = noop, onOpenChangeComplete = noop, loop = false, scrollAlignment = "nearest", required = false, items = [], allowDeselect = false, autocomplete, children } = $$props;
+		let { value = void 0, onValueChange = noop$1, name = "", disabled = false, type, open = false, onOpenChange = noop$1, onOpenChangeComplete = noop$1, loop = false, scrollAlignment = "nearest", required = false, items = [], allowDeselect = false, autocomplete, children } = $$props;
 		function handleDefaultValue() {
 			if (value !== void 0) return;
 			value = type === "single" ? "" : [];
@@ -9133,7 +8592,7 @@ function Switch_input($$renderer, $$props) {
 function Switch$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { child, children, ref = null, id = createId(uid), disabled = false, required = false, checked = false, value = "on", name = void 0, type = "button", onCheckedChange = noop, $$slots, $$events, ...restProps } = $$props;
+		let { child, children, ref = null, id = createId(uid), disabled = false, required = false, checked = false, value = "on", name = void 0, type = "button", onCheckedChange = noop$1, $$slots, $$events, ...restProps } = $$props;
 		const rootState = SwitchRootState.create({
 			checked: boxWith(() => checked, (v) => {
 				checked = v;
@@ -9787,7 +9246,7 @@ var TooltipContentState = class TooltipContentState {
 //#region ../../node_modules/.pnpm/bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@opentelemetry+api@1_e5f0bdab08e659ef80f2706ee55b720a/node_modules/bits-ui/dist/bits/tooltip/components/tooltip.svelte
 function Tooltip($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
-		let { open = false, triggerId = null, onOpenChange = noop, onOpenChangeComplete = noop, disabled, delayDuration, disableCloseOnTriggerClick, disableHoverableContent, ignoreNonKeyboardFocus, tether, children } = $$props;
+		let { open = false, triggerId = null, onOpenChange = noop$1, onOpenChangeComplete = noop$1, disabled, delayDuration, disableCloseOnTriggerClick, disableHoverableContent, ignoreNonKeyboardFocus, tether, children } = $$props;
 		const rootState = TooltipRootState.create({
 			open: boxWith(() => open, (v) => {
 				open = v;
@@ -9827,7 +9286,7 @@ function Tooltip($$renderer, $$props) {
 function Tooltip_content$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const uid = props_id($$renderer);
-		let { children, child, id = createId(uid), ref = null, side = "top", sideOffset = 0, align = "center", avoidCollisions = true, arrowPadding = 0, sticky = "partial", strategy, hideWhenDetached = false, customAnchor, collisionPadding = 0, onInteractOutside = noop, onEscapeKeydown = noop, forceMount = false, style, $$slots, $$events, ...restProps } = $$props;
+		let { children, child, id = createId(uid), ref = null, side = "top", sideOffset = 0, align = "center", avoidCollisions = true, arrowPadding = 0, sticky = "partial", strategy, hideWhenDetached = false, customAnchor, collisionPadding = 0, onInteractOutside = noop$1, onEscapeKeydown = noop$1, forceMount = false, style, $$slots, $$events, ...restProps } = $$props;
 		const contentState = TooltipContentState.create({
 			id: boxWith(() => id),
 			ref: boxWith(() => ref, (v) => ref = v),
@@ -10008,7 +9467,7 @@ function Tooltip_provider($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/tooltip/tooltip-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/tooltip/tooltip-trigger.svelte
 function Tooltip_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -10046,7 +9505,7 @@ function Tooltip_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/tooltip/tooltip-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/tooltip/tooltip-content.svelte
 function Tooltip_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, sideOffset = 0, side = "top", children, arrowClasses, $$slots, $$events, ...restProps } = $$props;
@@ -10064,7 +9523,7 @@ function Tooltip_content($$renderer, $$props) {
 									"data-slot": "tooltip-content",
 									sideOffset,
 									side,
-									class: cn$1("bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--bits-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance", className)
+									class: cn$2("bg-primary text-primary-foreground animate-in fade-in-0 zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 w-fit origin-(--bits-tooltip-content-transform-origin) rounded-md px-3 py-1.5 text-xs text-balance", className)
 								},
 								restProps,
 								{
@@ -10081,7 +9540,7 @@ function Tooltip_content($$renderer, $$props) {
 										{
 											function child($$renderer, { props }) {
 												$$renderer.push(`<div${attributes({
-													class: clsx(cn$1("bg-primary z-50 size-2.5 rotate-45 rounded-[2px]", "data-[side=top]:translate-x-1/2 data-[side=top]:translate-y-[calc(-50%_+_2px)]", "data-[side=bottom]:-translate-x-1/2 data-[side=bottom]:-translate-y-[calc(-50%_+_1px)]", "data-[side=right]:translate-x-[calc(50%_+_2px)] data-[side=right]:translate-y-1/2", "data-[side=left]:-translate-y-[calc(50%_-_3px)]", arrowClasses)),
+													class: clsx$1(cn$2("bg-primary z-50 size-2.5 rotate-45 rounded-[2px]", "data-[side=top]:translate-x-1/2 data-[side=top]:translate-y-[calc(-50%_+_2px)]", "data-[side=bottom]:-translate-x-1/2 data-[side=bottom]:-translate-y-[calc(-50%_+_1px)]", "data-[side=right]:translate-x-[calc(50%_+_2px)] data-[side=right]:translate-y-1/2", "data-[side=left]:-translate-y-[calc(50%_-_3px)]", arrowClasses)),
 													...props
 												})}></div>`);
 											}
@@ -10125,11 +9584,11 @@ function Tooltip_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/tooltip/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/tooltip/index.js
 var Root$4 = Tooltip;
 var Provider = Tooltip_provider;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-button.svelte
 var sidebarMenuButtonVariants = tv({
 	base: "peer/menu-button outline-hidden ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground group-has-data-[sidebar=menu-action]/menu-item:pr-8 data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:size-8! group-data-[collapsible=icon]:p-2! flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm transition-[width,height,padding] focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:font-medium [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
 	variants: {
@@ -10153,7 +9612,7 @@ function Sidebar_menu_button($$renderer, $$props) {
 		let { ref = null, class: className, children, child, variant = "default", size = "default", isActive = false, tooltipContent, tooltipContentProps, $$slots, $$events, ...restProps } = $$props;
 		const sidebar = useSidebar();
 		const buttonProps = derived(() => ({
-			class: cn$1(sidebarMenuButtonVariants({
+			class: cn$2(sidebarMenuButtonVariants({
 				variant,
 				size
 			}), className),
@@ -10246,14 +9705,14 @@ function Sidebar_menu_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-item.svelte
 function Sidebar_menu_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<li${attributes({
 			"data-slot": "sidebar-menu-item",
 			"data-sidebar": "menu-item",
-			class: clsx(cn$1("group/menu-item relative", className)),
+			class: clsx$1(cn$2("group/menu-item relative", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -10262,12 +9721,12 @@ function Sidebar_menu_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub-button.svelte
 function Sidebar_menu_sub_button($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, children, child, class: className, size = "md", isActive = false, $$slots, $$events, ...restProps } = $$props;
 		const mergedProps = derived(() => ({
-			class: cn$1("text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground outline-hidden flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0", "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground", size === "sm" && "text-xs", size === "md" && "text-sm", "group-data-[collapsible=icon]:hidden", className),
+			class: cn$2("text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground active:bg-sidebar-accent active:text-sidebar-accent-foreground [&>svg]:text-sidebar-accent-foreground outline-hidden flex h-7 min-w-0 -translate-x-px items-center gap-2 overflow-hidden rounded-md px-2 focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50 aria-disabled:pointer-events-none aria-disabled:opacity-50 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0", "data-[active=true]:bg-sidebar-accent data-[active=true]:text-sidebar-accent-foreground", size === "sm" && "text-xs", size === "md" && "text-sm", "group-data-[collapsible=icon]:hidden", className),
 			"data-slot": "sidebar-menu-sub-button",
 			"data-sidebar": "menu-sub-button",
 			"data-size": size,
@@ -10289,14 +9748,14 @@ function Sidebar_menu_sub_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub-item.svelte
 function Sidebar_menu_sub_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, children, class: className, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<li${attributes({
 			"data-slot": "sidebar-menu-sub-item",
 			"data-sidebar": "menu-sub-item",
-			class: clsx(cn$1("group/menu-sub-item relative", className)),
+			class: clsx$1(cn$2("group/menu-sub-item relative", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -10305,14 +9764,14 @@ function Sidebar_menu_sub_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu-sub.svelte
 function Sidebar_menu_sub($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<ul${attributes({
 			"data-slot": "sidebar-menu-sub",
 			"data-sidebar": "menu-sub",
-			class: clsx(cn$1("border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5", "group-data-[collapsible=icon]:hidden", className)),
+			class: clsx$1(cn$2("border-sidebar-border mx-3.5 flex min-w-0 translate-x-px flex-col gap-1 border-l px-2.5 py-0.5", "group-data-[collapsible=icon]:hidden", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -10321,14 +9780,14 @@ function Sidebar_menu_sub($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-menu.svelte
 function Sidebar_menu($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<ul${attributes({
 			"data-slot": "sidebar-menu",
 			"data-sidebar": "menu",
-			class: clsx(cn$1("flex w-full min-w-0 flex-col gap-1", className)),
+			class: clsx$1(cn$2("flex w-full min-w-0 flex-col gap-1", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -10337,7 +9796,7 @@ function Sidebar_menu($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-provider.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-provider.svelte
 function Sidebar_provider($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, open = true, onOpenChange = () => {}, class: className, style, children, $$slots, $$events, ...restProps } = $$props;
@@ -10357,7 +9816,7 @@ function Sidebar_provider($$renderer, $$props) {
 					$$renderer.push(`<div${attributes({
 						"data-slot": "sidebar-wrapper",
 						style: `--sidebar-width: ${stringify(SIDEBAR_WIDTH)}; --sidebar-width-icon: ${stringify(SIDEBAR_WIDTH_ICON)}; ${stringify(style)}`,
-						class: clsx(cn$1("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full", className)),
+						class: clsx$1(cn$2("group/sidebar-wrapper has-data-[variant=inset]:bg-sidebar flex min-h-svh w-full", className)),
 						...restProps
 					})}>`);
 					children?.($$renderer);
@@ -10377,7 +9836,7 @@ function Sidebar_provider($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-rail.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-rail.svelte
 function Sidebar_rail($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -10388,7 +9847,7 @@ function Sidebar_rail($$renderer, $$props) {
 			"aria-label": "Toggle Sidebar",
 			tabindex: -1,
 			title: "Toggle Sidebar",
-			class: clsx(cn$1("hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-[calc(1/2*100%-1px)] after:w-[2px] sm:flex", "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize", "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize", "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full", "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2", "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2", className)),
+			class: clsx$1(cn$2("hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-[calc(1/2*100%-1px)] after:w-[2px] sm:flex", "in-data-[side=left]:cursor-w-resize in-data-[side=right]:cursor-e-resize", "[[data-side=left][data-state=collapsed]_&]:cursor-e-resize [[data-side=right][data-state=collapsed]_&]:cursor-w-resize", "hover:group-data-[collapsible=offcanvas]:bg-sidebar group-data-[collapsible=offcanvas]:translate-x-0 group-data-[collapsible=offcanvas]:after:left-full", "[[data-side=left][data-collapsible=offcanvas]_&]:-right-2", "[[data-side=right][data-collapsible=offcanvas]_&]:-left-2", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -10397,7 +9856,7 @@ function Sidebar_rail($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/separator/separator.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/separator/separator.svelte
 function Separator($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, "data-slot": dataSlot = "separator", $$slots, $$events, ...restProps } = $$props;
@@ -10409,7 +9868,7 @@ function Separator($$renderer, $$props) {
 				Separator$1($$renderer, spread_props([
 					{
 						"data-slot": dataSlot,
-						class: cn$1("bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px", className)
+						class: cn$2("bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px", className)
 					},
 					restProps,
 					{
@@ -10435,93 +9894,6 @@ function Separator($$renderer, $$props) {
 		} while (!$$settled);
 		$$renderer.subsume($$inner_renderer);
 		bind_props($$props, { ref });
-	});
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/defaultAttributes.js
-/**
-* @license @lucide/svelte v0.554.0 - ISC
-*
-* ISC License
-* 
-* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-* 
-* Permission to use, copy, modify, and/or distribute this software for any
-* purpose with or without fee is hereby granted, provided that the above
-* copyright notice and this permission notice appear in all copies.
-* 
-* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-* 
-* ---
-* 
-* The MIT License (MIT) (for portions derived from Feather)
-* 
-* Copyright (c) 2013-2023 Cole Bemis
-* 
-* Permission is hereby granted, free of charge, to any person obtaining a copy
-* of this software and associated documentation files (the "Software"), to deal
-* in the Software without restriction, including without limitation the rights
-* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-* copies of the Software, and to permit persons to whom the Software is
-* furnished to do so, subject to the following conditions:
-* 
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-* 
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-* SOFTWARE.
-* 
-*/
-var defaultAttributes = {
-	xmlns: "http://www.w3.org/2000/svg",
-	width: 24,
-	height: 24,
-	viewBox: "0 0 24 24",
-	fill: "none",
-	stroke: "currentColor",
-	"stroke-width": 2,
-	"stroke-linecap": "round",
-	"stroke-linejoin": "round"
-};
-//#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/Icon.svelte
-function Icon($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		const { name, color = "currentColor", size = 24, strokeWidth = 2, absoluteStrokeWidth = false, iconNode = [], children, $$slots, $$events, ...props } = $$props;
-		$$renderer.push(`<svg${attributes({
-			...defaultAttributes,
-			...props,
-			width: size,
-			height: size,
-			stroke: color,
-			"stroke-width": absoluteStrokeWidth ? Number(strokeWidth) * 24 / Number(size) : strokeWidth,
-			class: clsx([
-				"lucide-icon lucide",
-				name && `lucide-${name}`,
-				props.class
-			])
-		}, void 0, void 0, void 0, 3)}><!--[-->`);
-		const each_array = ensure_array_like(iconNode);
-		for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
-			let [tag, attrs] = each_array[$$index];
-			element($$renderer, tag, () => {
-				$$renderer.push(`${attributes({ ...attrs }, void 0, void 0, void 0, 3)}`);
-			});
-		}
-		$$renderer.push(`<!--]-->`);
-		children?.($$renderer);
-		$$renderer.push(`<!----></svg>`);
 	});
 }
 //#endregion
@@ -10594,7 +9966,7 @@ function Panel_left($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar-trigger.svelte
 function Sidebar_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, onclick, $$slots, $$events, ...restProps } = $$props;
@@ -10605,7 +9977,7 @@ function Sidebar_trigger($$renderer, $$props) {
 				"data-slot": "sidebar-trigger",
 				variant: "ghost",
 				size: "icon",
-				class: cn$1("size-7", className),
+				class: cn$2("size-7", className),
 				type: "button",
 				onclick: (e) => {
 					onclick?.(e);
@@ -10625,7 +9997,7 @@ function Sidebar_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-overlay.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-overlay.svelte
 function Sheet_overlay($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -10637,7 +10009,7 @@ function Sheet_overlay($$renderer, $$props) {
 				Dialog_overlay($$renderer, spread_props([
 					{
 						"data-slot": "sheet-overlay",
-						class: cn$1("data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50", className)
+						class: cn$2("data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50", className)
 					},
 					restProps,
 					{
@@ -10729,7 +10101,7 @@ function X$1($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-content.svelte
 var sheetVariants = tv({
 	base: "bg-background data-[state=open]:animate-in data-[state=closed]:animate-out fixed z-50 flex flex-col gap-4 shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500",
 	variants: { side: {
@@ -10757,7 +10129,7 @@ function Sheet_content($$renderer, $$props) {
 							Dialog_content($$renderer, spread_props([
 								{
 									"data-slot": "sheet-content",
-									class: cn$1(sheetVariants({ side }), className)
+									class: cn$2(sheetVariants({ side }), className)
 								},
 								restProps,
 								{
@@ -10814,13 +10186,13 @@ function Sheet_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-header.svelte
 function Sheet_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "sheet-header",
-			class: clsx(cn$1("flex flex-col gap-1.5 p-4", className)),
+			class: clsx$1(cn$2("flex flex-col gap-1.5 p-4", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -10829,7 +10201,7 @@ function Sheet_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-title.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-title.svelte
 function Sheet_title($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -10841,7 +10213,7 @@ function Sheet_title($$renderer, $$props) {
 				Dialog_title($$renderer, spread_props([
 					{
 						"data-slot": "sheet-title",
-						class: cn$1("text-foreground font-semibold", className)
+						class: cn$2("text-foreground font-semibold", className)
 					},
 					restProps,
 					{
@@ -10870,7 +10242,7 @@ function Sheet_title($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-description.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sheet/sheet-description.svelte
 function Sheet_description($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -10882,7 +10254,7 @@ function Sheet_description($$renderer, $$props) {
 				Dialog_description($$renderer, spread_props([
 					{
 						"data-slot": "sheet-description",
-						class: cn$1("text-muted-foreground text-sm", className)
+						class: cn$2("text-muted-foreground text-sm", className)
 					},
 					restProps,
 					{
@@ -10911,10 +10283,10 @@ function Sheet_description($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sheet/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sheet/index.js
 var Root$3 = Dialog;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sidebar/sidebar.svelte
 function Sidebar$1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, side = "left", variant = "sidebar", collapsible = "offcanvas", class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -10925,7 +10297,7 @@ function Sidebar$1($$renderer, $$props) {
 			if (collapsible === "none") {
 				$$renderer.push("<!--[0-->");
 				$$renderer.push(`<div${attributes({
-					class: clsx(cn$1("bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col", className)),
+					class: clsx$1(cn$2("bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col", className)),
 					...restProps
 				})}>`);
 				children?.($$renderer);
@@ -11020,9 +10392,9 @@ function Sidebar$1($$renderer, $$props) {
 				}
 			} else {
 				$$renderer.push("<!--[-1-->");
-				$$renderer.push(`<div class="text-sidebar-foreground group peer hidden md:block"${attr("data-state", sidebar.state)}${attr("data-collapsible", sidebar.state === "collapsed" ? collapsible : "")}${attr("data-variant", variant)}${attr("data-side", side)} data-slot="sidebar"><div data-slot="sidebar-gap"${attr_class(clsx(cn$1("relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear", "group-data-[collapsible=offcanvas]:w-0", "group-data-[side=right]:rotate-180", variant === "floating" || variant === "inset" ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]" : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)")))}></div> <div${attributes({
+				$$renderer.push(`<div class="text-sidebar-foreground group peer hidden md:block"${attr("data-state", sidebar.state)}${attr("data-collapsible", sidebar.state === "collapsed" ? collapsible : "")}${attr("data-variant", variant)}${attr("data-side", side)} data-slot="sidebar"><div data-slot="sidebar-gap"${attr_class(clsx$1(cn$2("relative w-(--sidebar-width) bg-transparent transition-[width] duration-200 ease-linear", "group-data-[collapsible=offcanvas]:w-0", "group-data-[side=right]:rotate-180", variant === "floating" || variant === "inset" ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]" : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)")))}></div> <div${attributes({
 					"data-slot": "sidebar-container",
-					class: clsx(cn$1("fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex", side === "left" ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]" : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]", variant === "floating" || variant === "inset" ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]" : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l", className)),
+					class: clsx$1(cn$2("fixed inset-y-0 z-10 hidden h-svh w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex", side === "left" ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]" : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]", variant === "floating" || variant === "inset" ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]" : "group-data-[collapsible=icon]:w-(--sidebar-width-icon) group-data-[side=left]:border-r group-data-[side=right]:border-l", className)),
 					...restProps
 				})}><div data-sidebar="sidebar" data-slot="sidebar-inner" class="bg-sidebar group-data-[variant=floating]:border-sidebar-border flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:shadow-sm">`);
 				children?.($$renderer);
@@ -11381,7 +10753,7 @@ function Loader($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		"use strict";
 		let { visible, class: className } = $$props;
-		$$renderer.push(`<div${attr_class(clsx(["sonner-loading-wrapper", className].filter(Boolean).join(" ")))}${attr("data-visible", visible)}><div class="sonner-spinner"><!--[-->`);
+		$$renderer.push(`<div${attr_class(clsx$1(["sonner-loading-wrapper", className].filter(Boolean).join(" ")))}${attr("data-visible", visible)}><div class="sonner-spinner"><!--[-->`);
 		const each_array = ensure_array_like(bars);
 		for (let i = 0, $$length = each_array.length; i < $$length; i++) {
 			each_array[i];
@@ -11392,7 +10764,7 @@ function Loader($$renderer, $$props) {
 }
 //#endregion
 //#region ../../node_modules/.pnpm/svelte-sonner@1.0.7_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/svelte-sonner/dist/internal/helpers.js
-function cn(...classes) {
+function cn$1(...classes) {
 	return classes.filter(Boolean).join(" ");
 }
 var isBrowser = typeof document !== "undefined";
@@ -11953,19 +11325,19 @@ function Toast($$renderer, $$props) {
 		function LoadingIcon($$renderer) {
 			if (loadingIcon) {
 				$$renderer.push("<!--[0-->");
-				$$renderer.push(`<div${attr_class(clsx(cn(classes()?.loader, toast?.classes?.loader, "sonner-loader")))}${attr("data-visible", toastType() === "loading")}>`);
+				$$renderer.push(`<div${attr_class(clsx$1(cn$1(classes()?.loader, toast?.classes?.loader, "sonner-loader")))}${attr("data-visible", toastType() === "loading")}>`);
 				loadingIcon($$renderer);
 				$$renderer.push(`<!----></div>`);
 			} else {
 				$$renderer.push("<!--[-1-->");
 				Loader($$renderer, {
-					class: cn(classes()?.loader, toast.classes?.loader),
+					class: cn$1(classes()?.loader, toast.classes?.loader),
 					visible: toastType() === "loading"
 				});
 			}
 			$$renderer.push(`<!--]-->`);
 		}
-		$$renderer.push(`<li${attr("tabindex", 0)}${attr_class(clsx(cn(restProps.class, toastClass(), classes()?.toast, toast?.classes?.toast, classes()?.[toastType()], toast?.classes?.[toastType()])))} data-sonner-toast=""${attr("data-rich-colors", toast.richColors ?? defaultRichColors)}${attr("data-styled", !(toast.component || toast.unstyled || unstyled))}${attr("data-mounted", mounted)}${attr("data-promise", Boolean(toast.promise))}${attr("data-swiped", isSwiped)}${attr("data-removed", removed)}${attr("data-visible", isVisible())}${attr("data-y-position", coords()[0])}${attr("data-x-position", coords()[1])}${attr("data-index", index)}${attr("data-front", isFront())}${attr("data-swiping", swiping)}${attr("data-dismissable", dismissable())}${attr("data-type", toastType())}${attr("data-invert", invert())}${attr("data-swipe-out", swipeOut)}${attr("data-swipe-direction", swipeOutDirection)}${attr("data-expanded", Boolean(expanded || expandByDefault && mounted))}${attr_style(`${restProps.style} ${toast.style}`, {
+		$$renderer.push(`<li${attr("tabindex", 0)}${attr_class(clsx$1(cn$1(restProps.class, toastClass(), classes()?.toast, toast?.classes?.toast, classes()?.[toastType()], toast?.classes?.[toastType()])))} data-sonner-toast=""${attr("data-rich-colors", toast.richColors ?? defaultRichColors)}${attr("data-styled", !(toast.component || toast.unstyled || unstyled))}${attr("data-mounted", mounted)}${attr("data-promise", Boolean(toast.promise))}${attr("data-swiped", isSwiped)}${attr("data-removed", removed)}${attr("data-visible", isVisible())}${attr("data-y-position", coords()[0])}${attr("data-x-position", coords()[1])}${attr("data-index", index)}${attr("data-front", isFront())}${attr("data-swiping", swiping)}${attr("data-dismissable", dismissable())}${attr("data-type", toastType())}${attr("data-invert", invert())}${attr("data-swipe-out", swipeOut)}${attr("data-swipe-direction", swipeOutDirection)}${attr("data-expanded", Boolean(expanded || expandByDefault && mounted))}${attr_style(`${restProps.style} ${toast.style}`, {
 			"--index": index,
 			"--toasts-before": index,
 			"--z-index": toastState.toasts.length - index,
@@ -11974,7 +11346,7 @@ function Toast($$renderer, $$props) {
 		})}>`);
 		if (closeButton() && !toast.component && toastType() !== "loading" && closeIcon !== null) {
 			$$renderer.push("<!--[0-->");
-			$$renderer.push(`<button${attr("aria-label", closeButtonAriaLabel)}${attr("data-disabled", disabled())} data-close-button=""${attr_class(clsx(cn(classes()?.closeButton, toast?.classes?.closeButton)))}>`);
+			$$renderer.push(`<button${attr("aria-label", closeButtonAriaLabel)}${attr("data-disabled", disabled())} data-close-button=""${attr_class(clsx$1(cn$1(classes()?.closeButton, toast?.classes?.closeButton)))}>`);
 			closeIcon?.($$renderer);
 			$$renderer.push(`<!----></button>`);
 		} else $$renderer.push("<!--[-1-->");
@@ -11994,7 +11366,7 @@ function Toast($$renderer, $$props) {
 			$$renderer.push("<!--[-1-->");
 			if ((toastType() || toast.icon || toast.promise) && toast.icon !== null && (icon() !== null || toast.icon)) {
 				$$renderer.push("<!--[0-->");
-				$$renderer.push(`<div data-icon=""${attr_class(clsx(cn(classes()?.icon, toast?.classes?.icon)))}>`);
+				$$renderer.push(`<div data-icon=""${attr_class(clsx$1(cn$1(classes()?.icon, toast?.classes?.icon)))}>`);
 				if (toast.promise || toastType() === "loading") {
 					$$renderer.push("<!--[0-->");
 					if (toast.icon) {
@@ -12047,7 +11419,7 @@ function Toast($$renderer, $$props) {
 				} else $$renderer.push("<!--[-1-->");
 				$$renderer.push(`<!--]--></div>`);
 			} else $$renderer.push("<!--[-1-->");
-			$$renderer.push(`<!--]--> <div data-content=""><div data-title=""${attr_class(clsx(cn(classes()?.title, toast?.classes?.title)))}>`);
+			$$renderer.push(`<!--]--> <div data-content=""><div data-title=""${attr_class(clsx$1(cn$1(classes()?.title, toast?.classes?.title)))}>`);
 			if (toast.title) {
 				$$renderer.push("<!--[0-->");
 				if (typeof toast.title !== "string") {
@@ -12070,7 +11442,7 @@ function Toast($$renderer, $$props) {
 			$$renderer.push(`<!--]--></div> `);
 			if (toast.description) {
 				$$renderer.push("<!--[0-->");
-				$$renderer.push(`<div data-description=""${attr_class(clsx(cn(descriptionClass, toastDescriptionClass(), classes()?.description, toast.classes?.description)))}>`);
+				$$renderer.push(`<div data-description=""${attr_class(clsx$1(cn$1(descriptionClass, toastDescriptionClass(), classes()?.description, toast.classes?.description)))}>`);
 				if (typeof toast.description !== "string") {
 					$$renderer.push("<!--[0-->");
 					const Description = toast.description;
@@ -12103,7 +11475,7 @@ function Toast($$renderer, $$props) {
 					}
 				} else if (isAction(toast.cancel)) {
 					$$renderer.push("<!--[1-->");
-					$$renderer.push(`<button data-button="" data-cancel=""${attr_style(toast.cancelButtonStyle ?? cancelButtonStyle)}${attr_class(clsx(cn(classes()?.cancelButton, toast?.classes?.cancelButton)))}>${escape_html(toast.cancel.label)}</button>`);
+					$$renderer.push(`<button data-button="" data-cancel=""${attr_style(toast.cancelButtonStyle ?? cancelButtonStyle)}${attr_class(clsx$1(cn$1(classes()?.cancelButton, toast?.classes?.cancelButton)))}>${escape_html(toast.cancel.label)}</button>`);
 				} else $$renderer.push("<!--[-1-->");
 				$$renderer.push(`<!--]-->`);
 			} else $$renderer.push("<!--[-1-->");
@@ -12122,7 +11494,7 @@ function Toast($$renderer, $$props) {
 					}
 				} else if (isAction(toast.action)) {
 					$$renderer.push("<!--[1-->");
-					$$renderer.push(`<button data-button=""${attr_style(toast.actionButtonStyle ?? actionButtonStyle)}${attr_class(clsx(cn(classes()?.actionButton, toast?.classes?.actionButton)))}>${escape_html(toast.action.label)}</button>`);
+					$$renderer.push(`<button data-button=""${attr_style(toast.actionButtonStyle ?? actionButtonStyle)}${attr_class(clsx$1(cn$1(classes()?.actionButton, toast?.classes?.actionButton)))}>${escape_html(toast.action.label)}</button>`);
 				} else $$renderer.push("<!--[-1-->");
 				$$renderer.push(`<!--]-->`);
 			} else $$renderer.push("<!--[-1-->");
@@ -12238,7 +11610,7 @@ function Toaster($$renderer, $$props) {
 				$$renderer.push(`<ol${attributes({
 					tabindex: -1,
 					dir: getDocumentDirection(),
-					class: clsx(className),
+					class: clsx$1(className),
 					"data-sonner-toaster": true,
 					"data-sonner-theme": actualTheme,
 					"data-y-position": y,
@@ -12361,7 +11733,7 @@ function Toaster($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/sonner/sonner.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/sonner/sonner.svelte
 function Sonner_1($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { $$slots, $$events, ...restProps } = $$props;
@@ -12610,69 +11982,6 @@ function Calendar_clock($$renderer, $$props) {
 						"r": "6"
 					}]
 				],
-				children: ($$renderer) => {
-					props.children?.($$renderer);
-					$$renderer.push(`<!---->`);
-				},
-				$$slots: { default: true }
-			}
-		]));
-	});
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/check.svelte
-function Check($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		/**
-		* @license @lucide/svelte v0.554.0 - ISC
-		*
-		* ISC License
-		*
-		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-		*
-		* Permission to use, copy, modify, and/or distribute this software for any
-		* purpose with or without fee is hereby granted, provided that the above
-		* copyright notice and this permission notice appear in all copies.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-		*
-		* ---
-		*
-		* The MIT License (MIT) (for portions derived from Feather)
-		*
-		* Copyright (c) 2013-2023 Cole Bemis
-		*
-		* Permission is hereby granted, free of charge, to any person obtaining a copy
-		* of this software and associated documentation files (the "Software"), to deal
-		* in the Software without restriction, including without limitation the rights
-		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		* copies of the Software, and to permit persons to whom the Software is
-		* furnished to do so, subject to the following conditions:
-		*
-		* The above copyright notice and this permission notice shall be included in all
-		* copies or substantial portions of the Software.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		* SOFTWARE.
-		*
-		*/
-		let { $$slots, $$events, ...props } = $$props;
-		Icon($$renderer, spread_props([
-			{ name: "check" },
-			props,
-			{
-				iconNode: [["path", { "d": "M20 6 9 17l-5-5" }]],
 				children: ($$renderer) => {
 					props.children?.($$renderer);
 					$$renderer.push(`<!---->`);
@@ -13350,75 +12659,6 @@ function File_plus($$renderer, $$props) {
 					["path", { "d": "M14 2v5a1 1 0 0 0 1 1h5" }],
 					["path", { "d": "M9 15h6" }],
 					["path", { "d": "M12 18v-6" }]
-				],
-				children: ($$renderer) => {
-					props.children?.($$renderer);
-					$$renderer.push(`<!---->`);
-				},
-				$$slots: { default: true }
-			}
-		]));
-	});
-}
-//#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/file-text.svelte
-function File_text($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		/**
-		* @license @lucide/svelte v0.554.0 - ISC
-		*
-		* ISC License
-		*
-		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-		*
-		* Permission to use, copy, modify, and/or distribute this software for any
-		* purpose with or without fee is hereby granted, provided that the above
-		* copyright notice and this permission notice appear in all copies.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-		*
-		* ---
-		*
-		* The MIT License (MIT) (for portions derived from Feather)
-		*
-		* Copyright (c) 2013-2023 Cole Bemis
-		*
-		* Permission is hereby granted, free of charge, to any person obtaining a copy
-		* of this software and associated documentation files (the "Software"), to deal
-		* in the Software without restriction, including without limitation the rights
-		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		* copies of the Software, and to permit persons to whom the Software is
-		* furnished to do so, subject to the following conditions:
-		*
-		* The above copyright notice and this permission notice shall be included in all
-		* copies or substantial portions of the Software.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		* SOFTWARE.
-		*
-		*/
-		let { $$slots, $$events, ...props } = $$props;
-		Icon($$renderer, spread_props([
-			{ name: "file-text" },
-			props,
-			{
-				iconNode: [
-					["path", { "d": "M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" }],
-					["path", { "d": "M14 2v5a1 1 0 0 0 1 1h5" }],
-					["path", { "d": "M10 9H8" }],
-					["path", { "d": "M16 13H8" }],
-					["path", { "d": "M16 17H8" }]
 				],
 				children: ($$renderer) => {
 					props.children?.($$renderer);
@@ -14108,73 +13348,6 @@ function Send($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/settings.svelte
-function Settings($$renderer, $$props) {
-	$$renderer.component(($$renderer) => {
-		/**
-		* @license @lucide/svelte v0.554.0 - ISC
-		*
-		* ISC License
-		*
-		* Copyright (c) for portions of Lucide are held by Cole Bemis 2013-2023 as part of Feather (MIT). All other copyright (c) for Lucide are held by Lucide Contributors 2025.
-		*
-		* Permission to use, copy, modify, and/or distribute this software for any
-		* purpose with or without fee is hereby granted, provided that the above
-		* copyright notice and this permission notice appear in all copies.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-		* WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-		* MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-		* ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-		* WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-		* ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-		* OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-		*
-		* ---
-		*
-		* The MIT License (MIT) (for portions derived from Feather)
-		*
-		* Copyright (c) 2013-2023 Cole Bemis
-		*
-		* Permission is hereby granted, free of charge, to any person obtaining a copy
-		* of this software and associated documentation files (the "Software"), to deal
-		* in the Software without restriction, including without limitation the rights
-		* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-		* copies of the Software, and to permit persons to whom the Software is
-		* furnished to do so, subject to the following conditions:
-		*
-		* The above copyright notice and this permission notice shall be included in all
-		* copies or substantial portions of the Software.
-		*
-		* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-		* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-		* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-		* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-		* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-		* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-		* SOFTWARE.
-		*
-		*/
-		let { $$slots, $$events, ...props } = $$props;
-		Icon($$renderer, spread_props([
-			{ name: "settings" },
-			props,
-			{
-				iconNode: [["path", { "d": "M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" }], ["circle", {
-					"cx": "12",
-					"cy": "12",
-					"r": "3"
-				}]],
-				children: ($$renderer) => {
-					props.children?.($$renderer);
-					$$renderer.push(`<!---->`);
-				},
-				$$slots: { default: true }
-			}
-		]));
-	});
-}
-//#endregion
 //#region ../../node_modules/.pnpm/@lucide+svelte@0.554.0_svelte@5.55.5_@typescript-eslint+types@8.57.2_/node_modules/@lucide/svelte/dist/icons/shield-check.svelte
 function Shield_check($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
@@ -14651,7 +13824,7 @@ function Wrench($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-content.svelte
 function Dropdown_menu_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, sideOffset = 4, portalProps, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14668,7 +13841,7 @@ function Dropdown_menu_content($$renderer, $$props) {
 								{
 									"data-slot": "dropdown-menu-content",
 									sideOffset,
-									class: cn$1("bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--bits-dropdown-menu-content-available-height) min-w-[8rem] origin-(--bits-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md outline-none", className)
+									class: cn$2("bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 z-50 max-h-(--bits-dropdown-menu-content-available-height) min-w-[8rem] origin-(--bits-dropdown-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border p-1 shadow-md outline-none", className)
 								},
 								restProps,
 								{
@@ -14705,7 +13878,7 @@ function Dropdown_menu_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-item.svelte
 function Dropdown_menu_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, inset, variant = "default", $$slots, $$events, ...restProps } = $$props;
@@ -14719,7 +13892,7 @@ function Dropdown_menu_item($$renderer, $$props) {
 						"data-slot": "dropdown-menu-item",
 						"data-inset": inset,
 						"data-variant": variant,
-						class: cn$1("data-highlighted:bg-accent data-highlighted:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:data-highlighted:bg-destructive/10 dark:data-[variant=destructive]:data-highlighted:bg-destructive/20 data-[variant=destructive]:data-highlighted:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", className)
+						class: cn$2("data-highlighted:bg-accent data-highlighted:text-accent-foreground data-[variant=destructive]:text-destructive data-[variant=destructive]:data-highlighted:bg-destructive/10 dark:data-[variant=destructive]:data-highlighted:bg-destructive/20 data-[variant=destructive]:data-highlighted:text-destructive data-[variant=destructive]:*:[svg]:!text-destructive [&_svg:not([class*='text-'])]:text-muted-foreground relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", className)
 					},
 					restProps,
 					{
@@ -14748,14 +13921,14 @@ function Dropdown_menu_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-label.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-label.svelte
 function Dropdown_menu_label($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, inset, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "dropdown-menu-label",
 			"data-inset": inset,
-			class: clsx(cn$1("px-2 py-1.5 text-sm font-semibold data-[inset]:pl-8", className)),
+			class: clsx$1(cn$2("px-2 py-1.5 text-sm font-semibold data-[inset]:pl-8", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -14764,7 +13937,7 @@ function Dropdown_menu_label($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-separator.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-separator.svelte
 function Dropdown_menu_separator($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -14776,7 +13949,7 @@ function Dropdown_menu_separator($$renderer, $$props) {
 				Menu_separator($$renderer, spread_props([
 					{
 						"data-slot": "dropdown-menu-separator",
-						class: cn$1("bg-border -mx-1 my-1 h-px", className)
+						class: cn$2("bg-border -mx-1 my-1 h-px", className)
 					},
 					restProps,
 					{
@@ -14805,7 +13978,7 @@ function Dropdown_menu_separator($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/dropdown-menu/dropdown-menu-trigger.svelte
 function Dropdown_menu_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -14844,7 +14017,12 @@ function Dropdown_menu_trigger($$renderer, $$props) {
 }
 var Root$2 = Menu;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/OrganizationSwitcher.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils.js
+function cn(...inputs) {
+	return twMerge(clsx(inputs));
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/layout/OrganizationSwitcher.svelte
 function OrganizationSwitcher($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { organizations: orgs = [], activeOrganization, canCreateOrganization = false, onOpenChange } = $$props;
@@ -14860,6 +14038,9 @@ function OrganizationSwitcher($$renderer, $$props) {
 		function getOrganizationLogo(org) {
 			const logo = org?.metadata?.logo;
 			return typeof logo === "string" && logo.length > 0 ? logo : null;
+		}
+		function shouldInvertOrganizationLogo(org) {
+			return org?.metadata?.logoInvertOnDark === true;
 		}
 		let $$settled = true;
 		let $$inner_renderer;
@@ -14892,7 +14073,7 @@ function OrganizationSwitcher($$renderer, $$props) {
 														$$renderer.push("<!--[0-->");
 														if (getOrganizationLogo(activeOrganization)) {
 															$$renderer.push("<!--[0-->");
-															$$renderer.push(`<img${attr("src", getOrganizationLogo(activeOrganization))}${attr("alt", activeOrganization.name)} class="aspect-square size-8 object-cover"/>`);
+															$$renderer.push(`<img${attr("src", getOrganizationLogo(activeOrganization))}${attr("alt", activeOrganization.name)}${attr_class(clsx$1(cn("aspect-square size-8 object-cover", shouldInvertOrganizationLogo(activeOrganization) && "dark:invert")))}/>`);
 														} else {
 															$$renderer.push("<!--[-1-->");
 															$$renderer.push(`<div class="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg text-sm font-semibold">${escape_html(getOrganizationInitials(activeOrganization.name))}</div>`);
@@ -14934,7 +14115,7 @@ function OrganizationSwitcher($$renderer, $$props) {
 												$$renderer.push(`<button class="hover:bg-muted/50 flex w-full items-start gap-3 rounded-md px-2 py-2 text-left text-sm"${attr("disabled", isSwitching, true)}>`);
 												if (getOrganizationLogo(org)) {
 													$$renderer.push("<!--[0-->");
-													$$renderer.push(`<img${attr("src", getOrganizationLogo(org))}${attr("alt", org.name)} class="size-8 shrink-0 rounded-md object-cover"/>`);
+													$$renderer.push(`<img${attr("src", getOrganizationLogo(org))}${attr("alt", org.name)}${attr_class(clsx$1(cn("size-8 shrink-0 rounded-md object-cover", shouldInvertOrganizationLogo(org) && "dark:invert")))}/>`);
 												} else {
 													$$renderer.push("<!--[-1-->");
 													$$renderer.push(`<div class="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-semibold">${escape_html(getOrganizationInitials(org.name))}</div>`);
@@ -14990,7 +14171,7 @@ function OrganizationSwitcher($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible.svelte
 function Collapsible($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, open = false, $$slots, $$events, ...restProps } = $$props;
@@ -15038,7 +14219,7 @@ function Collapsible($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible-trigger.svelte
 function Collapsible_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -15076,7 +14257,7 @@ function Collapsible_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/collapsible/collapsible-content.svelte
 function Collapsible_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -15114,7 +14295,7 @@ function Collapsible_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavMain.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavMain.svelte
 function NavMain($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { items, label = "Content", isActive: isActiveProp } = $$props;
@@ -15284,7 +14465,7 @@ function NavMain($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavUser.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/NavUser.svelte
 function NavUser($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { user, onSignOut } = $$props;
@@ -15399,7 +14580,7 @@ function NavUser($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/AppSidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/layout/sidebar/AppSidebar.svelte
 function AppSidebar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const activeView = derived(() => page.url.pathname === "/admin" ? page.url.searchParams.get("view") ?? "" : "");
@@ -15533,13 +14714,13 @@ function AppSidebar($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/textarea/textarea.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/textarea/textarea.svelte
 function Textarea($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, value = void 0, class: className, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<textarea${attributes({
 			"data-slot": "textarea",
-			class: clsx(cn$1("border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className)),
+			class: clsx$1(cn$2("border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content min-h-16 w-full rounded-md border bg-transparent px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm", className)),
 			...restProps
 		})}>`);
 		const $$body = escape_html(value);
@@ -15552,7 +14733,7 @@ function Textarea($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-context.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-context.svelte.js
 var MESSAGE_SCROLLER = Symbol.for("aphexcms.ui.message-scroller");
 var MessageScrollerState = class {
 	viewport = null;
@@ -15691,7 +14872,7 @@ function useMessageScroller() {
 	return state;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-provider.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-provider.svelte
 function Message_scroller_provider($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { autoScroll = false, defaultScrollPosition = "last-anchor", preserveScrollOnPrepend = true, scrollPreviousItemPeek = 64, children } = $$props;
@@ -15706,7 +14887,7 @@ function Message_scroller_provider($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller.svelte
 function Message_scroller($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
@@ -15715,7 +14896,7 @@ function Message_scroller($$renderer, $$props) {
 			"data-slot": "message-scroller",
 			"data-autoscrolling": state.autoscrolling ? "" : void 0,
 			"data-scrollable": state.canScrollStart || state.canScrollEnd ? "" : void 0,
-			class: clsx(cn$1("cn-message-scroller group/message-scroller relative flex size-full min-h-0 flex-col overflow-hidden", className)),
+			class: clsx$1(cn$2("cn-message-scroller group/message-scroller relative flex size-full min-h-0 flex-col overflow-hidden", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -15724,7 +14905,7 @@ function Message_scroller($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-viewport.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-viewport.svelte
 function Message_scroller_viewport($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, "aria-label": ariaLabel = "Messages", $$slots, $$events, ...restProps } = $$props;
@@ -15732,7 +14913,7 @@ function Message_scroller_viewport($$renderer, $$props) {
 		$$renderer.push(`<div${attributes({
 			"data-slot": "message-scroller-viewport",
 			"data-autoscrolling": state.autoscrolling ? "" : void 0,
-			class: clsx(cn$1("cn-message-scroller-viewport scroll-fade-b size-full min-h-0 min-w-0 scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content data-autoscrolling:scrollbar-thumb-transparent data-autoscrolling:scrollbar-track-transparent", className)),
+			class: clsx$1(cn$2("cn-message-scroller-viewport scroll-fade-b size-full min-h-0 min-w-0 scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content data-autoscrolling:scrollbar-thumb-transparent data-autoscrolling:scrollbar-track-transparent", className)),
 			role: "region",
 			"aria-label": ariaLabel,
 			tabindex: "0",
@@ -15744,14 +14925,14 @@ function Message_scroller_viewport($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-content.svelte
 function Message_scroller_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		useMessageScroller();
 		$$renderer.push(`<div${attributes({
 			"data-slot": "message-scroller-content",
-			class: clsx(cn$1("cn-message-scroller-content flex h-max min-h-full flex-col", className)),
+			class: clsx$1(cn$2("cn-message-scroller-content flex h-max min-h-full flex-col", className)),
 			role: "log",
 			"aria-relevant": "additions",
 			...restProps
@@ -15762,7 +14943,7 @@ function Message_scroller_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-item.svelte
 function Message_scroller_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, messageId, scrollAnchor = false, $$slots, $$events, ...restProps } = $$props;
@@ -15772,7 +14953,7 @@ function Message_scroller_item($$renderer, $$props) {
 			"data-slot": "message-scroller-item",
 			"data-message-id": messageId,
 			"data-scroll-anchor": scrollAnchor ? "" : void 0,
-			class: clsx(cn$1("cn-message-scroller-item min-w-0 shrink-0 [contain-intrinsic-size:auto_10rem] [content-visibility:auto]", className)),
+			class: clsx$1(cn$2("cn-message-scroller-item min-w-0 shrink-0 [contain-intrinsic-size:auto_10rem] [content-visibility:auto]", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -15781,7 +14962,7 @@ function Message_scroller_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message-scroller/message-scroller-button.svelte
 function Message_scroller_button($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, direction = "end", variant = "secondary", size = "icon-sm", children, $$slots, $$events, ...restProps } = $$props;
@@ -15794,7 +14975,7 @@ function Message_scroller_button($$renderer, $$props) {
 			"data-direction": direction,
 			"data-variant": variant,
 			"data-size": size,
-			class: clsx(cn$1(buttonVariants({
+			class: clsx$1(cn$2(buttonVariants({
 				variant,
 				size
 			}), "cn-message-scroller-button border-border bg-background text-foreground hover:bg-muted hover:text-foreground absolute inset-s-1/2 -translate-x-1/2 transition-[translate,scale,opacity] duration-200 data-[active=false]:pointer-events-none data-[active=false]:scale-95 data-[active=false]:opacity-0 data-[active=false]:duration-400 data-[active=false]:ease-[cubic-bezier(0.7,0,0.84,0)] data-[active=true]:translate-y-0 data-[active=true]:scale-100 data-[active=true]:opacity-100 data-[active=true]:ease-[cubic-bezier(0.23,1,0.32,1)] data-[direction=end]:bottom-4 data-[direction=end]:data-[active=false]:translate-y-full data-[direction=start]:top-4 data-[direction=start]:data-[active=false]:-translate-y-full rtl:translate-x-1/2 data-[direction=start]:[&_svg]:rotate-180", className)),
@@ -15817,14 +14998,14 @@ function Message_scroller_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message/message.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message/message.svelte
 function Message($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, align = "start", children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "message",
 			"data-align": align,
-			class: clsx(cn$1("cn-message group/message relative flex w-full min-w-0 data-[align=end]:flex-row-reverse", className)),
+			class: clsx$1(cn$2("cn-message group/message relative flex w-full min-w-0 data-[align=end]:flex-row-reverse", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -15833,13 +15014,13 @@ function Message($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message/message-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message/message-content.svelte
 function Message_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "message-content",
-			class: clsx(cn$1("cn-message-content flex w-full min-w-0 flex-col wrap-break-word", className)),
+			class: clsx$1(cn$2("cn-message-content flex w-full min-w-0 flex-col wrap-break-word", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -15848,13 +15029,13 @@ function Message_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/message/message-footer.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/message/message-footer.svelte
 function Message_footer($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "message-footer",
-			class: clsx(cn$1("cn-message-footer flex max-w-full min-w-0 items-center group-data-[align=end]/message:justify-end", className)),
+			class: clsx$1(cn$2("cn-message-footer flex max-w-full min-w-0 items-center group-data-[align=end]/message:justify-end", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -15863,7 +15044,7 @@ function Message_footer($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/bubble/bubble.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/bubble/bubble.svelte
 var bubbleVariants = tv({
 	base: "cn-bubble group/bubble relative flex w-fit min-w-0 flex-col",
 	variants: { variant: {
@@ -15884,7 +15065,7 @@ function Bubble($$renderer, $$props) {
 			"data-slot": "bubble",
 			"data-variant": variant,
 			"data-align": align,
-			class: clsx(cn$1(bubbleVariants({ variant }), className)),
+			class: clsx$1(cn$2(bubbleVariants({ variant }), className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -15893,13 +15074,13 @@ function Bubble($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/bubble/bubble-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/bubble/bubble-content.svelte
 function Bubble_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "bubble-content",
-			class: clsx(cn$1("cn-bubble-content w-fit max-w-full min-w-0 overflow-hidden wrap-break-word [button]:text-left [button,a]:transition-colors", className)),
+			class: clsx$1(cn$2("cn-bubble-content w-fit max-w-full min-w-0 overflow-hidden wrap-break-word [button]:text-left [button,a]:transition-colors", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -15908,7 +15089,7 @@ function Bubble_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/marker/marker.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/marker/marker.svelte
 var markerVariants = tv({
 	base: "cn-marker group/marker relative flex w-full items-center",
 	variants: { variant: {
@@ -15924,7 +15105,7 @@ function Marker($$renderer, $$props) {
 		$$renderer.push(`<div${attributes({
 			"data-slot": "marker",
 			"data-variant": variant,
-			class: clsx(cn$1(markerVariants({ variant }), className)),
+			class: clsx$1(cn$2(markerVariants({ variant }), className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -15933,13 +15114,13 @@ function Marker($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/marker/marker-icon.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/marker/marker-icon.svelte
 function Marker_icon($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<span${attributes({
 			"data-slot": "marker-icon",
-			class: clsx(cn$1("cn-marker-icon shrink-0", className)),
+			class: clsx$1(cn$2("cn-marker-icon shrink-0", className)),
 			"aria-hidden": "true",
 			...restProps
 		})}>`);
@@ -15949,13 +15130,13 @@ function Marker_icon($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/marker/marker-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/marker/marker-content.svelte
 function Marker_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<span${attributes({
 			"data-slot": "marker-content",
-			class: clsx(cn$1("cn-marker-content min-w-0 wrap-break-word", className)),
+			class: clsx$1(cn$2("cn-marker-content min-w-0 wrap-break-word", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -19784,7 +18965,7 @@ function createDOMPurify() {
 }
 var purify = createDOMPurify();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/agent-chat-state.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/agent-chat-state.svelte.js
 var STORAGE_KEY = "aphex:agent-chat-state:v1";
 function loadPersisted() {
 	if (typeof localStorage === "undefined") return null;
@@ -19832,7 +19013,7 @@ function createAgentChatState() {
 }
 var agentChatState = createAgentChatState();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/document-workspace-registry.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/document-workspace-registry.svelte.js
 function createDocumentWorkspaceRegistry() {
 	let current = null;
 	return {
@@ -19852,7 +19033,7 @@ function createDocumentWorkspaceRegistry() {
 }
 var documentWorkspaceRegistry = createDocumentWorkspaceRegistry();
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/api/agent-chat.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/api/agent-chat.js
 function parseSSEFrame(frame) {
 	const payload = frame.split(/\r?\n/).filter((line) => line.startsWith("data:")).map((line) => line.slice(5).trimStart()).join("\n");
 	if (!payload) return null;
@@ -19907,7 +19088,81 @@ function recordWorkspaceOperation(body) {
 	return apiClient.post("/agent/operations", body);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/document-refresh.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/ai/workspace-tool-messages.js
+function workspaceToolFailureNotice(name, error) {
+	return `WORKSPACE TOOL FAILURE: ${name} failed. The editor may contain in-memory changes, but they were not saved. Do not claim the content was created, updated, or saved. Tell the user it remains unsaved and explain this error: ${error ?? "Unknown error"}`;
+}
+/** Build the exact messages used to resume the model after a browser-side workspace call. */
+function workspaceToolResultMessages(toolCallId, name, result) {
+	const messages = [{
+		role: "tool",
+		toolCallId,
+		content: JSON.stringify({
+			success: result.success,
+			persisted: name === "content_save_draft" ? result.success : false,
+			data: result.data ?? null,
+			...result.error ? { error: result.error } : {}
+		})
+	}];
+	if (!result.success) messages.push({
+		role: "system",
+		content: workspaceToolFailureNotice(name, result.error)
+	});
+	return messages;
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/ai/apply-workspace-patch.js
+/** Validate candidate document data before exposing a patch in the live editor. */
+async function applyWorkspacePatch(fields, workspace) {
+	const snapshot = workspace.getSnapshot();
+	const validation = await workspace.validate({
+		...snapshot.data,
+		...fields
+	});
+	if (validation.structuralErrors.length > 0) {
+		const detail = validation.structuralErrors.map((entry) => `${entry.field}: ${entry.errors.join(", ")}`).join("; ");
+		return {
+			success: false,
+			data: {
+				applied: [],
+				persisted: false,
+				validation
+			},
+			error: `Patch rejected before changing the editor - ${detail}`
+		};
+	}
+	workspace.apply({
+		type: "patchFields",
+		fields
+	});
+	return {
+		success: true,
+		data: {
+			applied: Object.keys(fields),
+			persisted: false,
+			validation,
+			message: "Applied in the editor only; content_save_draft must succeed before this is saved."
+		}
+	};
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/ai/document-artifact-links.js
+var BARE_DOCUMENT_URL = /(^|\s)(\/admin\?docType=([A-Za-z0-9_.%~-]+)&docId=([A-Za-z0-9_.%~-]+))/g;
+function collectionLabel(value) {
+	let decoded = value;
+	try {
+		decoded = decodeURIComponent(value);
+	} catch {}
+	return decoded.replaceAll(/[_-]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+/** Convert model-emitted bare editor routes into Markdown links before rendering. */
+function linkBareDocumentUrls(markdown) {
+	return markdown.replace(BARE_DOCUMENT_URL, (_match, prefix, href, collection) => {
+		return `${prefix}[${collectionLabel(collection)}](${href})`;
+	});
+}
+//#endregion
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/document-refresh.svelte.js
 var versions = new SvelteMap();
 function notifyDocumentChanged(documentId) {
 	if (!documentId) return;
@@ -19919,7 +19174,7 @@ function notifyCollectionChanged(docType) {
 	collectionVersions.set(docType, (collectionVersions.get(docType) ?? 0) + 1);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/AgentChat.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/AgentChat.svelte
 function AgentChat($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/** A suggestion can be a bare string, or `{ text, icon }` for a leading icon — the plain
@@ -19933,19 +19188,7 @@ function AgentChat($$renderer, $$props) {
 		/** Result shape a workspace-tool handler (below) hands back — the same idea as
 		* `AgentToolResult`, kept local so this file doesn't need a server-only type import. */
 		const patchFieldsHandler = async (args, ws) => {
-			const fields = args.fields ?? {};
-			ws.apply({
-				type: "patchFields",
-				fields
-			});
-			const validation = await ws.validate();
-			return {
-				success: true,
-				data: {
-					applied: Object.keys(fields),
-					validation
-				}
-			};
+			return await applyWorkspacePatch(args.fields ?? {}, ws);
 		};
 		const saveDraftHandler = async (_args, ws) => {
 			const snapshot = ws.getSnapshot();
@@ -19956,7 +19199,10 @@ function AgentChat($$renderer, $$props) {
 			};
 			return {
 				success: true,
-				data: { revision: result.revision }
+				data: {
+					persisted: true,
+					revision: result.revision
+				}
 			};
 		};
 		/** Resolves `content_patch_fields`/`content_save_draft` against a live `DocumentWorkspace` —
@@ -19966,6 +19212,7 @@ function AgentChat($$renderer, $$props) {
 			content_patch_fields: patchFieldsHandler,
 			content_save_draft: saveDraftHandler
 		};
+		const MAX_WORKSPACE_TOOL_FAILURE_ATTEMPTS = 3;
 		/** Only a flush's outcome is worth an audit row — `content_patch_fields` just buffers an
 		* in-memory change with nothing durable to attribute yet (see the plan doc's atomicity
 		* design: one save = one operation, not one per patch). */
@@ -20028,7 +19275,7 @@ function AgentChat($$renderer, $$props) {
 				const [docType, docId] = currentDocKey().split(":");
 				agentChatState.history.push({
 					role: "system",
-					content: matchedWorkspace() ? `The user is currently viewing document ${docId} in collection ${docType} in the editor. Use content_patch_fields/content_save_draft for edits to this document — do not use update_document for it, since only the workspace tools keep the open editor in sync.` : `The user is currently viewing document ${docId} in collection ${docType}.`
+					content: matchedWorkspace() ? `The user is currently viewing existing document ${docType}/${docId} in the editor. Use content_patch_fields/content_save_draft only when asked to edit this exact document. They cannot create a document or target another document. A request for a new document requires create_document regardless of what is open.` : `The user is currently viewing document ${docId} in collection ${docType}.`
 				});
 				agentChatState.contextSentFor = currentDocKey();
 			}
@@ -20063,6 +19310,8 @@ function AgentChat($$renderer, $$props) {
 				completionTokens: 0
 			};
 			let dirtySinceFlush = false;
+			let workspacePatchRejected = false;
+			const workspaceFailureAttempts = /* @__PURE__ */ new Map();
 			if (workspace) workspace.beginBatch("agent");
 			try {
 				let messages = agentChatState.history;
@@ -20094,21 +19343,40 @@ function AgentChat($$renderer, $$props) {
 					if (pendingWorkspaceCalls && pendingWorkspaceCalls.length > 0) {
 						for (const call of pendingWorkspaceCalls) {
 							const handler = workspace ? WORKSPACE_TOOL_HANDLERS[call.name] : void 0;
-							const result = handler ? await handler(call.arguments, workspace) : {
+							const priorFailures = workspaceFailureAttempts.get(call.name) ?? 0;
+							let result = priorFailures >= MAX_WORKSPACE_TOOL_FAILURE_ATTEMPTS ? {
+								success: false,
+								error: `Retry limit reached for ${call.name} after ${MAX_WORKSPACE_TOOL_FAILURE_ATTEMPTS} failed executions.`
+							} : call.name === "content_save_draft" && workspacePatchRejected ? {
+								success: false,
+								error: "Save skipped because a preceding workspace patch was rejected."
+							} : handler ? await handler(call.arguments, workspace) : {
 								success: false,
 								error: workspace ? `Unknown workspace tool: ${call.name}` : "No document is open to apply this change to."
 							};
-							if (call.name === "content_patch_fields") dirtySinceFlush = result.success;
+							if (result.success) workspaceFailureAttempts.delete(call.name);
+							else {
+								const attempt = Math.min(priorFailures + 1, MAX_WORKSPACE_TOOL_FAILURE_ATTEMPTS);
+								workspaceFailureAttempts.set(call.name, attempt);
+								if (attempt >= MAX_WORKSPACE_TOOL_FAILURE_ATTEMPTS) result = {
+									...result,
+									error: `${result.error ?? "Workspace tool failed"} Retry limit reached; do not call this tool again in this turn.`
+								};
+								else result = {
+									...result,
+									error: `${result.error ?? "Workspace tool failed"} Failed attempt ${attempt}/${MAX_WORKSPACE_TOOL_FAILURE_ATTEMPTS}; correct the request before retrying.`
+								};
+							}
+							if (call.name === "content_patch_fields") if (result.success) {
+								dirtySinceFlush = true;
+								workspacePatchRejected = false;
+							} else workspacePatchRejected = true;
 							if (call.name === "content_save_draft") {
 								dirtySinceFlush = false;
 								if (result.success && documentContext) notifyCollectionChanged(documentContext.collection);
 							}
 							resolveWorkspaceToolCall(assistantIndex, call.toolCallId, result);
-							messages = [...messages, {
-								role: "tool",
-								toolCallId: call.toolCallId,
-								content: JSON.stringify(result.success ? result.data ?? null : { error: result.error })
-							}];
+							messages = [...messages, ...workspaceToolResultMessages(call.toolCallId, call.name, result)];
 							if (changeSetId && documentContext && WORKSPACE_TOOLS_RECORDED.has(call.name)) await safeRecordWorkspaceOperation({
 								changeSetId,
 								toolName: call.name,
@@ -20126,6 +19394,18 @@ function AgentChat($$renderer, $$props) {
 				if (dirtySinceFlush && workspace) {
 					const result = await saveDraftHandler({}, workspace);
 					if (result.success && documentContext) notifyCollectionChanged(documentContext.collection);
+					if (!result.success) {
+						const notice = workspaceToolFailureNotice("content_save_draft", result.error);
+						agentChatState.history = [...agentChatState.history, {
+							role: "system",
+							content: notice
+						}];
+						const turn = agentChatState.turns[assistantIndex];
+						if (turn) {
+							turn.status = "error";
+							turn.error = `Draft save failed. The changes are still visible in the editor but remain unsaved. ${result.error ?? ""}`.trim();
+						}
+					}
 					if (changeSetId && documentContext) await safeRecordWorkspaceOperation({
 						changeSetId,
 						toolName: "content_save_draft",
@@ -20230,7 +19510,7 @@ function AgentChat($$renderer, $$props) {
 			gfm: true
 		});
 		function renderMarkdown(text) {
-			return purify.sanitize(g.parse(text, { async: false }));
+			return purify.sanitize(g.parse(linkBareDocumentUrls(text), { async: false }));
 		}
 		function formatToolName(name) {
 			return name.replaceAll("_", " ");
@@ -20439,7 +19719,7 @@ function AgentChat($$renderer, $$props) {
 																				$$renderer.push("<!--[-1-->");
 																				if (turn.toolCalls.length > 0) {
 																					$$renderer.push("<!--[0-->");
-																					$$renderer.push(`<details class="group/tools mb-2 w-full"><summary class="text-muted-foreground hover:text-foreground flex cursor-pointer list-none items-center gap-1.5 text-xs transition-colors"><span${attr_class(clsx(turn.toolCalls.some((t) => t.status === "running") ? "shimmer" : ""))}>${escape_html(toolsSummary(turn))}</span> `);
+																					$$renderer.push(`<details class="group/tools mb-2 w-full"><summary class="text-muted-foreground hover:text-foreground flex cursor-pointer list-none items-center gap-1.5 text-xs transition-colors"><span${attr_class(clsx$1(turn.toolCalls.some((t) => t.status === "running") ? "shimmer" : ""))}>${escape_html(toolsSummary(turn))}</span> `);
 																					Chevron_down($$renderer, { class: "size-3 transition-transform group-open/tools:rotate-180" });
 																					$$renderer.push(`<!----></summary> <div class="bg-muted/40 mt-1.5 flex flex-col gap-2.5 rounded-lg px-2.5 py-2"><!--[-->`);
 																					const each_array_2 = ensure_array_like(turn.toolCalls);
@@ -20719,7 +19999,7 @@ function AgentChat($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/layout/Sidebar.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/layout/Sidebar.svelte
 function Sidebar($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		const slots = setAdminSlots();
@@ -20918,7 +20198,7 @@ function Sidebar($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/select/select-group.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/select/select-group.svelte
 function Select_group($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, $$slots, $$events, ...restProps } = $$props;
@@ -20934,7 +20214,7 @@ function Select_group($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/select/select-item.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/select/select-item.svelte
 function Select_item($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, value, label, children: childrenProp, $$slots, $$events, ...restProps } = $$props;
@@ -20968,7 +20248,7 @@ function Select_item($$renderer, $$props) {
 						{
 							value,
 							"data-slot": "select-item",
-							class: cn$1("data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2", className)
+							class: cn$2("data-[highlighted]:bg-accent data-[highlighted]:text-accent-foreground [&_svg:not([class*='text-'])]:text-muted-foreground relative flex w-full cursor-default items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 *:[span]:last:flex *:[span]:last:items-center *:[span]:last:gap-2", className)
 						},
 						restProps,
 						{
@@ -21000,7 +20280,7 @@ function Select_item($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/select/select-scroll-up-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/select/select-scroll-up-button.svelte
 function Select_scroll_up_button($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -21012,7 +20292,7 @@ function Select_scroll_up_button($$renderer, $$props) {
 				Select_scroll_up_button$1($$renderer, spread_props([
 					{
 						"data-slot": "select-scroll-up-button",
-						class: cn$1("flex cursor-default items-center justify-center py-1", className)
+						class: cn$2("flex cursor-default items-center justify-center py-1", className)
 					},
 					restProps,
 					{
@@ -21045,7 +20325,7 @@ function Select_scroll_up_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/select/select-scroll-down-button.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/select/select-scroll-down-button.svelte
 function Select_scroll_down_button($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -21057,7 +20337,7 @@ function Select_scroll_down_button($$renderer, $$props) {
 				Select_scroll_down_button$1($$renderer, spread_props([
 					{
 						"data-slot": "select-scroll-down-button",
-						class: cn$1("flex cursor-default items-center justify-center py-1", className)
+						class: cn$2("flex cursor-default items-center justify-center py-1", className)
 					},
 					restProps,
 					{
@@ -21090,7 +20370,7 @@ function Select_scroll_down_button($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/select/select-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/select/select-content.svelte
 function Select_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, sideOffset = 4, portalProps, children, $$slots, $$events, ...restProps } = $$props;
@@ -21107,7 +20387,7 @@ function Select_content($$renderer, $$props) {
 								{
 									sideOffset,
 									"data-slot": "select-content",
-									class: cn$1("bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-[200] max-h-(--bits-select-content-available-height) min-w-[8rem] origin-(--bits-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1", className)
+									class: cn$2("bg-popover text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-[200] max-h-(--bits-select-content-available-height) min-w-[8rem] origin-(--bits-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border shadow-md data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1", className)
 								},
 								restProps,
 								{
@@ -21124,7 +20404,7 @@ function Select_content($$renderer, $$props) {
 										if (Select_viewport) {
 											$$renderer.push("<!--[-->");
 											Select_viewport($$renderer, {
-												class: cn$1("h-(--bits-select-anchor-height) w-full min-w-(--bits-select-anchor-width) scroll-my-1 p-1"),
+												class: cn$2("h-(--bits-select-anchor-height) w-full min-w-(--bits-select-anchor-width) scroll-my-1 p-1"),
 												children: ($$renderer) => {
 													children?.($$renderer);
 													$$renderer.push(`<!---->`);
@@ -21167,7 +20447,7 @@ function Select_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/select/select-trigger.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/select/select-trigger.svelte
 function Select_trigger($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, size = "default", $$slots, $$events, ...restProps } = $$props;
@@ -21180,7 +20460,7 @@ function Select_trigger($$renderer, $$props) {
 					{
 						"data-slot": "select-trigger",
 						"data-size": size,
-						class: cn$1("border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none select-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", className)
+						class: cn$2("border-input data-[placeholder]:text-muted-foreground [&_svg:not([class*='text-'])]:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 dark:hover:bg-input/50 flex w-fit items-center justify-between gap-2 rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-xs transition-[color,box-shadow] outline-none select-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-9 data-[size=sm]:h-8 *:data-[slot=select-value]:line-clamp-1 *:data-[slot=select-value]:flex *:data-[slot=select-value]:items-center *:data-[slot=select-value]:gap-2 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4", className)
 					},
 					restProps,
 					{
@@ -21216,10 +20496,10 @@ function Select_trigger($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/select/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/select/index.js
 var Root$1 = Select;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/switch/switch.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/switch/switch.svelte
 function Switch($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, checked = false, $$slots, $$events, ...restProps } = $$props;
@@ -21231,7 +20511,7 @@ function Switch($$renderer, $$props) {
 				Switch$1($$renderer, spread_props([
 					{
 						"data-slot": "switch",
-						class: cn$1("data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/80 peer inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50", className)
+						class: cn$2("data-[state=checked]:bg-primary data-[state=unchecked]:bg-input focus-visible:border-ring focus-visible:ring-ring/50 dark:data-[state=unchecked]:bg-input/80 peer inline-flex h-[1.15rem] w-8 shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50", className)
 					},
 					restProps,
 					{
@@ -21254,7 +20534,7 @@ function Switch($$renderer, $$props) {
 								$$renderer.push("<!--[-->");
 								Switch_thumb($$renderer, {
 									"data-slot": "switch-thumb",
-									class: cn$1("bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0")
+									class: cn$2("bg-background dark:data-[state=unchecked]:bg-foreground dark:data-[state=checked]:bg-primary-foreground pointer-events-none block size-4 rounded-full ring-0 transition-transform data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0")
 								});
 								$$renderer.push("<!--]-->");
 							} else {
@@ -21284,7 +20564,7 @@ function Switch($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/PluginSettingsPanel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/PluginSettingsPanel.svelte
 function PluginSettingsPanel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		/**
@@ -21303,7 +20583,7 @@ function PluginSettingsPanel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/confirm-dialog.svelte.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/confirm-dialog.svelte.js
 var confirmDialogState = {
 	open: false,
 	title: "",
@@ -21332,7 +20612,7 @@ function resolveConfirmDialog(value) {
 	r?.(value);
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-title.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-title.svelte
 function Alert_dialog_title($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -21344,7 +20624,7 @@ function Alert_dialog_title($$renderer, $$props) {
 				Dialog_title($$renderer, spread_props([
 					{
 						"data-slot": "alert-dialog-title",
-						class: cn$1("text-lg font-semibold", className)
+						class: cn$2("text-lg font-semibold", className)
 					},
 					restProps,
 					{
@@ -21373,7 +20653,7 @@ function Alert_dialog_title($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-action.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-action.svelte
 function Alert_dialog_action($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -21385,7 +20665,7 @@ function Alert_dialog_action($$renderer, $$props) {
 				Alert_dialog_action$1($$renderer, spread_props([
 					{
 						"data-slot": "alert-dialog-action",
-						class: cn$1(buttonVariants(), className)
+						class: cn$2(buttonVariants(), className)
 					},
 					restProps,
 					{
@@ -21414,7 +20694,7 @@ function Alert_dialog_action($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-cancel.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-cancel.svelte
 function Alert_dialog_cancel($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -21426,7 +20706,7 @@ function Alert_dialog_cancel($$renderer, $$props) {
 				Alert_dialog_cancel$1($$renderer, spread_props([
 					{
 						"data-slot": "alert-dialog-cancel",
-						class: cn$1(buttonVariants({ variant: "outline" }), className)
+						class: cn$2(buttonVariants({ variant: "outline" }), className)
 					},
 					restProps,
 					{
@@ -21455,13 +20735,13 @@ function Alert_dialog_cancel($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-footer.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-footer.svelte
 function Alert_dialog_footer($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "alert-dialog-footer",
-			class: clsx(cn$1("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)),
+			class: clsx$1(cn$2("flex flex-col-reverse gap-2 sm:flex-row sm:justify-end", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -21470,13 +20750,13 @@ function Alert_dialog_footer($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-header.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-header.svelte
 function Alert_dialog_header($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, children, $$slots, $$events, ...restProps } = $$props;
 		$$renderer.push(`<div${attributes({
 			"data-slot": "alert-dialog-header",
-			class: clsx(cn$1("flex flex-col gap-2 text-center sm:text-left", className)),
+			class: clsx$1(cn$2("flex flex-col gap-2 text-center sm:text-left", className)),
 			...restProps
 		})}>`);
 		children?.($$renderer);
@@ -21485,7 +20765,7 @@ function Alert_dialog_header($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-overlay.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-overlay.svelte
 function Alert_dialog_overlay($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -21497,7 +20777,7 @@ function Alert_dialog_overlay($$renderer, $$props) {
 				Dialog_overlay($$renderer, spread_props([
 					{
 						"data-slot": "alert-dialog-overlay",
-						class: cn$1("data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50", className)
+						class: cn$2("data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/50", className)
 					},
 					restProps,
 					{
@@ -21526,7 +20806,7 @@ function Alert_dialog_overlay($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-content.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-content.svelte
 function Alert_dialog_content($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, portalProps, $$slots, $$events, ...restProps } = $$props;
@@ -21544,7 +20824,7 @@ function Alert_dialog_content($$renderer, $$props) {
 							Alert_dialog_content$1($$renderer, spread_props([
 								{
 									"data-slot": "alert-dialog-content",
-									class: cn$1("bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg", className)
+									class: cn$2("bg-background data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 grid w-full max-w-[calc(100%-2rem)] translate-x-[-50%] translate-y-[-50%] gap-4 rounded-lg border p-6 shadow-lg duration-200 sm:max-w-lg", className)
 								},
 								restProps,
 								{
@@ -21581,7 +20861,7 @@ function Alert_dialog_content($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-description.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/alert-dialog-description.svelte
 function Alert_dialog_description($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		let { ref = null, class: className, $$slots, $$events, ...restProps } = $$props;
@@ -21593,7 +20873,7 @@ function Alert_dialog_description($$renderer, $$props) {
 				Dialog_description($$renderer, spread_props([
 					{
 						"data-slot": "alert-dialog-description",
-						class: cn$1("text-muted-foreground text-sm", className)
+						class: cn$2("text-muted-foreground text-sm", className)
 					},
 					restProps,
 					{
@@ -21622,10 +20902,10 @@ function Alert_dialog_description($$renderer, $$props) {
 	});
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.5_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_de313549b11463e1e6c3297a8338f0d2/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/components/ui/alert-dialog/index.js
 var Root = Alert_dialog;
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/ConfirmDialogHost.svelte
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/components/admin/confirm-dialog/ConfirmDialogHost.svelte
 function ConfirmDialogHost($$renderer, $$props) {
 	$$renderer.component(($$renderer) => {
 		function handleOpenChange(open) {
@@ -21710,4 +20990,4 @@ function ConfirmDialogHost($$renderer, $$props) {
 	});
 }
 //#endregion
-export { chunk as $, Triangle_alert as A, setSchemaContext as At, Dialog_content as B, Copy as C, useSidebar as Ct, Check as D, setAdminNav as Dt, Chevron_down as E, usePermissions as Et, Sheet_header as F, Popper_layer as G, Dialog as H, Sheet_content as I, getFloatingContentCSSVars as J, Floating_layer_anchor as K, X$1 as L, Root$3 as M, Sheet_description as N, Calendar_clock as O, setFieldComponents as Ot, Sheet_title as P, useId as Q, Icon as R, Database as S, srOnlyStylesString as St, Chevron_right as T, setPermissionsContext as Tt, SafePolygon as U, Dialog_close as V, Popper_layer_force_mount as W, Dialog_description as X, Hidden_input as Y, Dialog_overlay as Z, Refresh_cw as _, ENTER as _t, Root$1 as a, DialogTriggerState as at, Image as b, watch$1 as bt, Select_item as c, RovingFocusGroup as ct, notifyDocumentChanged as d, isHTMLElement$1 as dt, isValidIndex as et, Textarea as f, isTouch as ft, Search as g, ARROW_UP as gt, Send as h, ARROW_RIGHT as ht, Switch as i, Dialog_title as it, Circle_check as j, toast as k, useAdminSlots as kt, Select_group as l, isBrowser$1 as lt, Sparkles as m, ARROW_LEFT as mt, confirmDialog as n, Portal$3 as nt, Select_trigger as o, noop as ot, Trash_2 as p, ARROW_DOWN as pt, Floating_layer as q, PluginSettingsPanel as r, resolveLocaleProp as rt, Select_content as s, PresenceManager as st, ConfirmDialogHost as t, isTabbable as tt, Sidebar as u, isElement$1 as ut, Pencil as v, DOMContext as vt, Circle_alert as w, setBlockPreviews as wt, File_text as x, Context$1 as xt, Mail as y, afterTick as yt, Separator as z };
+export { resolveLocaleProp as $, Root$3 as A, SafePolygon as B, Circle_alert as C, toast as D, Calendar_clock as E, X$1 as F, getFloatingContentCSSVars as G, Popper_layer as H, Separator as I, useId as J, Dialog_description as K, Dialog_content as L, Sheet_title as M, Sheet_header as N, Triangle_alert as O, Sheet_content as P, Portal$3 as Q, Dialog_close as R, Copy as S, Chevron_down as T, Floating_layer_anchor as U, Popper_layer_force_mount as V, Floating_layer as W, isValidIndex as X, chunk as Y, isTabbable as Z, Search as _, Root$1 as a, useSidebar as at, Mail as b, Select_item as c, usePermissions as ct, notifyDocumentChanged as d, useAdminSlots as dt, Dialog_title as et, Textarea as f, setSchemaContext as ft, Send as g, Shield_check as h, Switch as i, afterTick as it, Sheet_description as j, Circle_check as k, Select_group as l, setAdminNav as lt, Sparkles as m, confirmDialog as n, PresenceManager as nt, Select_trigger as o, setBlockPreviews as ot, Trash_2 as p, Dialog_overlay as q, PluginSettingsPanel as r, RovingFocusGroup as rt, Select_content as s, setPermissionsContext as st, ConfirmDialogHost as t, DialogTriggerState as tt, Sidebar as u, setFieldComponents as ut, Refresh_cw as v, Chevron_right as w, Image as x, Pencil as y, Dialog as z };

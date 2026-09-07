@@ -2,7 +2,7 @@ import { t as cmsLogger } from "./logger.js";
 import { t as authToContext } from "./auth-helpers.js";
 import { n as toPascalCase, t as toCamelCase } from "./string-case.js";
 import { GraphQLError, Kind } from "graphql";
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/graphql/schema.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/graphql/schema.js
 function generateGraphQLField(field, schemaTypes, parentName = "") {
 	const nullability = isFieldRequired(field) ? "!" : "";
 	const fieldType = getGraphQLType(field, schemaTypes, parentName);
@@ -306,7 +306,7 @@ ${inlineTypeDefs}
 `.trim();
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/utils/field-defaults.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/utils/field-defaults.js
 /**
 * Get the default value for a field type
 * @param fieldType - The field type
@@ -322,7 +322,7 @@ function getDefaultValueForFieldType(fieldType) {
 	}
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/graphql/resolvers.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/graphql/resolvers.js
 function normalizeDocumentFields(data, schemaType, allSchemaTypes) {
 	if (!data) return data;
 	const normalized = { ...data };
@@ -347,6 +347,64 @@ function normalizeDocumentFields(data, schemaType, allSchemaTypes) {
 		});
 	});
 	return normalized;
+}
+function toISOString(value) {
+	if (!value) return null;
+	if (value instanceof Date) return value.toISOString();
+	if (typeof value === "string") return value;
+	return null;
+}
+/**
+* Resolve reference targets through the Local API rather than the database adapter.
+*
+* The reference resolvers used to call `databaseAdapter.findByDocIdAdvanced` directly,
+* which is the one path into the document graph that skips both `permissions.canRead`
+* and field-level read access. Two things followed from that. A caller authorised for
+* one collection could read a document in a collection it has no access to, provided
+* something it *can* read holds a reference to it. And whatever came back was the
+* unfiltered projection — a field the schema marks read-restricted was returned in
+* full, as long as it was reached through a reference instead of queried directly.
+*
+* `findDocumentsByIds` is the access-controlled equivalent: it does the cheap type
+* lookup, then routes each ID through its own collection's `findByID`, which applies
+* the permission check and the hidden-field projection. Denied and missing IDs are
+* dropped rather than thrown, so results are matched back to the requested IDs by ID
+* — never by assuming the arrays line up.
+*/
+async function resolveReferencedDocs(cms, schemaTypes, context, ids, perspective) {
+	if (ids.length === 0) return [];
+	const apiContext = authToContext(context?.auth);
+	const docs = await cms.localAPI.findDocumentsByIds(apiContext, ids, { perspective });
+	const byId = /* @__PURE__ */ new Map();
+	for (const doc of docs) {
+		const id = doc?.id;
+		if (typeof id === "string") byId.set(id, doc);
+	}
+	return ids.map((id) => {
+		const doc = byId.get(id);
+		if (!doc) return null;
+		const meta = doc._meta ?? {};
+		const { id: _id, _meta, ...data } = doc;
+		const refSchemaType = schemaTypes.find((s) => s.name === meta.type);
+		const normalized = refSchemaType ? normalizeDocumentFields(data, refSchemaType, schemaTypes) : data;
+		return {
+			id,
+			type: meta.type,
+			status: perspective,
+			createdAt: toISOString(meta.createdAt),
+			updatedAt: toISOString(meta.updatedAt),
+			publishedAt: null,
+			...normalized
+		};
+	});
+}
+/** Pull the target ID off a reference value, tolerating un-migrated bare strings. */
+function referenceIdOf(raw) {
+	if (raw && typeof raw === "object" && raw._type === "reference") {
+		const ref = raw._ref;
+		return typeof ref === "string" ? ref : null;
+	}
+	return typeof raw === "string" ? raw : null;
 }
 function sanitizeInputData(data) {
 	if (data === null) return void 0;
@@ -409,28 +467,12 @@ function createResolvers(cms, schemaTypes, defaultPerspective = "published") {
 					if (field.type === "reference" && field.to && field.to.length > 0) {
 						if (!resolvers[currentTypeName]) resolvers[currentTypeName] = {};
 						resolvers[currentTypeName][field.name] = async (parent, _args, context) => {
-							const raw = parent[field.name];
-							const referenceId = raw && typeof raw === "object" && raw._type === "reference" ? raw._ref : typeof raw === "string" ? raw : null;
-							if (!referenceId || typeof referenceId !== "string") return null;
+							const referenceId = referenceIdOf(parent[field.name]);
+							if (!referenceId) return null;
 							try {
-								const { auth } = context;
-								const apiContext = authToContext(auth);
 								const perspective = parent.status || context?.perspective || defaultPerspective;
-								const referencedDoc = await cms.databaseAdapter.findByDocIdAdvanced(apiContext.organizationId, referenceId);
-								if (!referencedDoc) return null;
-								const data = perspective === "published" ? referencedDoc.publishedData : referencedDoc.draftData;
-								if (!data) return null;
-								const refSchemaType = schemaTypes.find((s) => s.name === referencedDoc.type);
-								const normalizedData = refSchemaType ? normalizeDocumentFields(data, refSchemaType, schemaTypes) : data;
-								return {
-									id: referencedDoc.id,
-									type: referencedDoc.type,
-									status: perspective,
-									createdAt: referencedDoc.createdAt?.toISOString() || null,
-									updatedAt: referencedDoc.updatedAt?.toISOString() || null,
-									publishedAt: null,
-									...normalizedData
-								};
+								const [resolved] = await resolveReferencedDocs(cms, schemaTypes, context, [referenceId], perspective);
+								return resolved ?? null;
 							} catch (error) {
 								cmsLogger.error(`Failed to resolve reference ${field.name}:`, error);
 								return null;
@@ -443,32 +485,17 @@ function createResolvers(cms, schemaTypes, defaultPerspective = "published") {
 							resolvers[currentTypeName][field.name] = async (parent, _args, context) => {
 								const items = parent[field.name];
 								if (!Array.isArray(items)) return [];
-								const { auth } = context;
-								const apiContext = authToContext(auth);
 								const perspective = parent.status || context?.perspective || defaultPerspective;
-								return Promise.all(items.map(async (item) => {
-									const refId = item && typeof item === "object" && item._type === "reference" ? item._ref : typeof item === "string" ? item : null;
-									if (!refId) return null;
-									try {
-										const doc = await cms.databaseAdapter.findByDocIdAdvanced(apiContext.organizationId, refId);
-										if (!doc) return null;
-										const data = perspective === "published" ? doc.publishedData : doc.draftData;
-										if (!data) return null;
-										const refSchemaType = schemaTypes.find((s) => s.name === doc.type);
-										const normalized = refSchemaType ? normalizeDocumentFields(data, refSchemaType, schemaTypes) : data;
-										return {
-											id: doc.id,
-											type: doc.type,
-											status: perspective,
-											createdAt: doc.createdAt?.toISOString() || null,
-											updatedAt: doc.updatedAt?.toISOString() || null,
-											publishedAt: null,
-											...normalized
-										};
-									} catch {
-										return null;
-									}
-								}));
+								const ids = items.map(referenceIdOf);
+								const presentIds = ids.filter((id) => id !== null);
+								try {
+									const resolved = await resolveReferencedDocs(cms, schemaTypes, context, presentIds, perspective);
+									const byId = new Map(presentIds.map((id, i) => [id, resolved[i] ?? null]));
+									return ids.map((id) => id ? byId.get(id) ?? null : null);
+								} catch (error) {
+									cmsLogger.error(`Failed to resolve references ${field.name}:`, error);
+									return items.map(() => null);
+								}
 							};
 						}
 					}
@@ -784,7 +811,7 @@ function createResolvers(cms, schemaTypes, defaultPerspective = "published") {
 	return resolvers;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/graphql/depth-limit.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/graphql/depth-limit.js
 function depthLimit(maxDepth, options = {}) {
 	return (validationContext) => {
 		const { definitions } = validationContext.getDocument();
@@ -836,7 +863,7 @@ function seeIfIgnored(fieldName, ignore) {
 	return false;
 }
 //#endregion
-//#region ../../node_modules/.pnpm/@aphexcms+cms-core@9.10.0_173235d9579f197e78425a9e1db71cc6/node_modules/@aphexcms/cms-core/dist/graphql/index.js
+//#region ../../node_modules/.pnpm/@aphexcms+cms-core@11.0.0_c0a018cf61073c78ab0baf2566dc3db2/node_modules/@aphexcms/cms-core/dist/graphql/index.js
 var MAX_QUERY_DEPTH = 10;
 /**
 * Creates a GraphQL handler for the CMS.

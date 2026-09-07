@@ -30,13 +30,16 @@ export const nodes = [
 	() => import('./nodes/18'),
 	() => import('./nodes/19'),
 	() => import('./nodes/20'),
-	() => import('./nodes/21')
+	() => import('./nodes/21'),
+	() => import('./nodes/22'),
+	() => import('./nodes/23'),
+	() => import('./nodes/24')
 ];
 
-export const server_loads = [2,3,4];
+export const server_loads = [4,2,3,5];
 
 export const dictionary = {
-		"/": [~5],
+		"/(site)": [~15,[4]],
 		"/(protected)/admin": [~6,[2]],
 		"/(protected)/admin/activity": [7,[2]],
 		"/(protected)/admin/organizations": [~8,[2]],
@@ -46,13 +49,15 @@ export const dictionary = {
 		"/(protected)/admin/settings/members": [~12,[2,3]],
 		"/(protected)/admin/settings/plugins": [13,[2,3]],
 		"/(protected)/admin/settings/roles": [~14,[2,3]],
-		"/god-mode": [~15,[4]],
-		"/god-mode/organizations": [~16,[4]],
-		"/invitations": [~17],
-		"/invite/[token]": [~18],
-		"/login": [~19],
-		"/reset-password/[token]": [~20],
-		"/verify-email": [21]
+		"/god-mode": [~17,[5]],
+		"/god-mode/organizations": [~18,[5]],
+		"/invitations": [~19],
+		"/invite/[token]": [~20],
+		"/login": [~21],
+		"/reset-password/[token]": [~22],
+		"/two-factor": [~23],
+		"/verify-email": [24],
+		"/(site)/[slug]": [~16,[4]]
 	};
 
 export const hooks = {

@@ -1,3 +1,4 @@
+import { a as is_plain_object$1, c as stringify_key, d as MAX_ARRAY_INDEX, i as get_type, l as stringify_string, n as DevalueError, o as is_valid_array_index, r as enumerable_symbols, s as is_valid_array_len, u as valid_array_indices } from "./uneval.js";
 import { HttpError, SvelteKitError } from "@sveltejs/kit/internal";
 //#region ../../node_modules/.pnpm/@sveltejs+kit@2.70.2_@opentelemetry+api@1.9.0_@sveltejs+vite-plugin-svelte@7.2.0_svelte_da459b376329cf0681195252eb508031/node_modules/@sveltejs/kit/src/utils/functions.js
 function noop() {}
@@ -14,134 +15,6 @@ function once(fn) {
 		done = true;
 		return result = fn();
 	};
-}
-//#endregion
-//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/constants.js
-var MAX_ARRAY_LEN = 2 ** 32 - 1;
-var MAX_ARRAY_INDEX = MAX_ARRAY_LEN - 1;
-//#endregion
-//#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/utils.js
-/** @type {Record<string, string>} */
-var escaped = {
-	"<": "\\u003C",
-	"\\": "\\\\",
-	"\b": "\\b",
-	"\f": "\\f",
-	"\n": "\\n",
-	"\r": "\\r",
-	"	": "\\t",
-	"\u2028": "\\u2028",
-	"\u2029": "\\u2029"
-};
-var DevalueError = class extends Error {
-	/**
-	* @param {string} message
-	* @param {string[]} keys
-	* @param {any} [value] - The value that failed to be serialized
-	* @param {any} [root] - The root value being serialized
-	*/
-	constructor(message, keys, value, root) {
-		super(message);
-		this.name = "DevalueError";
-		this.path = keys.join("");
-		this.value = value;
-		this.root = root;
-	}
-};
-/** @param {any} thing */
-function is_primitive(thing) {
-	return thing === null || typeof thing !== "object" && typeof thing !== "function";
-}
-var object_proto_names$1 = /* @__PURE__ */ Object.getOwnPropertyNames(Object.prototype).sort().join("\0");
-/** @param {any} thing */
-function is_plain_object$1(thing) {
-	const proto = Object.getPrototypeOf(thing);
-	return proto === Object.prototype || proto === null || Object.getPrototypeOf(proto) === null || Object.getOwnPropertyNames(proto).sort().join("\0") === object_proto_names$1;
-}
-/** @param {any} thing */
-function get_type(thing) {
-	return Object.prototype.toString.call(thing).slice(8, -1);
-}
-/** @param {string} char */
-function get_escaped_char(char) {
-	switch (char) {
-		case "\"": return "\\\"";
-		case "<": return "\\u003C";
-		case "\\": return "\\\\";
-		case "\n": return "\\n";
-		case "\r": return "\\r";
-		case "	": return "\\t";
-		case "\b": return "\\b";
-		case "\f": return "\\f";
-		case "\u2028": return "\\u2028";
-		case "\u2029": return "\\u2029";
-		default: return char < " " ? `\\u${char.charCodeAt(0).toString(16).padStart(4, "0")}` : "";
-	}
-}
-/** @param {string} str */
-function stringify_string(str) {
-	let result = "";
-	let last_pos = 0;
-	const len = str.length;
-	for (let i = 0; i < len; i += 1) {
-		const char = str[i];
-		const replacement = get_escaped_char(char);
-		if (replacement) {
-			result += str.slice(last_pos, i) + replacement;
-			last_pos = i + 1;
-		}
-	}
-	return `"${last_pos === 0 ? str : result + str.slice(last_pos)}"`;
-}
-/** @param {Record<string | symbol, any>} object */
-function enumerable_symbols(object) {
-	return Object.getOwnPropertySymbols(object).filter((symbol) => Object.getOwnPropertyDescriptor(object, symbol).enumerable);
-}
-var is_identifier = /^[a-zA-Z_$][a-zA-Z_$0-9]*$/;
-/** @param {string} key */
-function stringify_key(key) {
-	return is_identifier.test(key) ? "." + key : "[" + JSON.stringify(key) + "]";
-}
-/** @param {number} n */
-function is_valid_array_index(n) {
-	if (!Number.isInteger(n)) return false;
-	if (n < 0) return false;
-	if (n > MAX_ARRAY_INDEX) return false;
-	return true;
-}
-/** @param {number} n */
-function is_valid_array_len(n) {
-	if (!Number.isInteger(n)) return false;
-	if (n < 0) return false;
-	if (n > MAX_ARRAY_LEN) return false;
-	return true;
-}
-/** @param {string} s */
-function is_valid_array_index_string(s) {
-	if (s.length === 0) return false;
-	if (s.length > 1 && s.charCodeAt(0) === 48) return false;
-	for (let i = 0; i < s.length; i++) {
-		const c = s.charCodeAt(i);
-		if (c < 48 || c > 57) return false;
-	}
-	return is_valid_array_index(+s);
-}
-/**
-* Returns the length of the leading run of valid array indices in `keys`.
-* @param {readonly string[]} keys
-*/
-function array_index_cut(keys) {
-	for (var i = keys.length - 1; i >= 0; i--) if (is_valid_array_index_string(keys[i])) break;
-	return i + 1;
-}
-/**
-* Finds the populated indices of an array.
-* @param {unknown[]} array
-*/
-function valid_array_indices(array) {
-	const keys = Object.keys(array);
-	keys.length = array_index_cut(keys);
-	return keys;
 }
 //#endregion
 //#region ../../node_modules/.pnpm/devalue@5.9.0/node_modules/devalue/src/base64.js
@@ -948,4 +821,4 @@ function split_remote_key(key) {
 	};
 }
 //#endregion
-export { noop as A, escaped as C, stringify_key as D, is_primitive as E, stringify_string as O, enumerable_symbols as S, is_plain_object$1 as T, text_encoder as _, split_remote_key as a, unflatten as b, validate_depends as c, get_message as d, get_status as f, get_relative_path as g, base64_encode as h, parse_remote_arg as i, once as j, valid_array_indices as k, validate_load_response as l, base64_decode as m, TRAILING_SLASH_PARAM as n, stringify as o, normalize_error as p, create_remote_key as r, stringify_remote_arg as s, INVALIDATED_PARAM as t, coalesce_to_error as u, stringify$1 as v, get_type as w, DevalueError as x, parse as y };
+export { once as S, text_encoder as _, split_remote_key as a, unflatten as b, validate_depends as c, get_message as d, get_status as f, get_relative_path as g, base64_encode as h, parse_remote_arg as i, validate_load_response as l, base64_decode as m, TRAILING_SLASH_PARAM as n, stringify as o, normalize_error as p, create_remote_key as r, stringify_remote_arg as s, INVALIDATED_PARAM as t, coalesce_to_error as u, stringify$1 as v, noop as x, parse as y };

@@ -1,4 +1,5 @@
 // @ts-nocheck
+import { isPendingInvitation } from '@aphexcms/cms-core';
 import type { PageServerLoad } from './$types';
 
 export const load = async ({ locals }: Parameters<PageServerLoad>[0]) => {
@@ -13,9 +14,7 @@ export const load = async ({ locals }: Parameters<PageServerLoad>[0]) => {
 
 	if (auth.organizationId) {
 		const invitations = await databaseAdapter.findOrganizationInvitations(auth.organizationId);
-		pendingInvitations = invitations.filter(
-			(inv: any) => !inv.acceptedAt && inv.expiresAt && inv.expiresAt > new Date()
-		);
+		pendingInvitations = invitations.filter((inv) => isPendingInvitation(inv));
 	}
 
 	// Load roles so the invite dropdown reflects custom roles defined for this
