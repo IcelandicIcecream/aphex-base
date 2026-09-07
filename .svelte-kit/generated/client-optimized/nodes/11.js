@@ -1,1 +1,0 @@
-export { default as component } from "../../../../src/routes/(protected)/admin/settings/api-keys/+page.svelte";

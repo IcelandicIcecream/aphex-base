@@ -1,8 +1,0 @@
-import { clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
-//#region ../../node_modules/.pnpm/@aphexcms+ui@0.8.6_bits-ui@2.18.1_@internationalized+date@3.12.2_@sveltejs+kit@2.70.2_@_a3de02e21553902adaf2ba2eafa8d4ad/node_modules/@aphexcms/ui/dist/utils.js
-function cn(...inputs) {
-	return twMerge(clsx(inputs));
-}
-//#endregion
-export { cn as t };
